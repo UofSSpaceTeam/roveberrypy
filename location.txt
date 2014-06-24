@@ -1,0 +1,2 @@
+38.4191,-110.78261,
+This file is used to set the base station location used by the GUI.
