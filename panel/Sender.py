@@ -2,7 +2,7 @@ import json
 import sys
 import pygame
 import random
-from ClassTutorial import button
+from ButtonClass import button
 
 
 pygame.init()
