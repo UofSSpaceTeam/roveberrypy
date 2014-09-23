@@ -28,7 +28,3 @@ class button:
 		self.font = pygame.font.Font(None,20)
 		self.label = self.font.render(self.name, 1, (255,0,255))
 		self.mask = None
-		
-	def updatePosition(speed):
-		self.position[0] += speed[0]
-		self.position[1] += speed[1]
