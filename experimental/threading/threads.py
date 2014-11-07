@@ -1,10 +1,12 @@
+# Fairly minimal example of how to do threading.
+
 import threading
 import time
 
-# global flag used to ask threads to stop
+# make a global flag we will use to ask threads to stop
 threadExit = False
 
-# First we have to define a class for our threads.
+# We have to define a class for our threads.
 # It needs functions called __init__ and run, but
 # it can have any additional properties or functions we want it to.
 # It extends the existing Thread class from threading.
@@ -12,7 +14,7 @@ threadExit = False
 class genericThread(threading.Thread):
 	# this is called when a thread object is created.
 	def __init__(self, function, args):
-		threading.Thread.__init__(self) # first, call the inherited constructor
+		threading.Thread.__init__(self) # have to include this line because reasons
 		self.function = function # the function the thread will run
 		self.args = args # tuple of arguments to call the function with
 	
@@ -20,10 +22,12 @@ class genericThread(threading.Thread):
 	def run(self):
 		self.function(self.args)
 
-# end of our thread class.
+# Make a function for our new threads to start at
+# Note the double parens since args (above) will be a tuple.
 
-# make a function for our new threads to start at
-# note the double parens since args (above) will be a tuple.
+# Word to the wise: never allow the same global / shared variable
+# to be modified in multiple threads without proper synchronization.
+
 def someFunction((greeting, number)):
 	while True:
 		if threadExit:
