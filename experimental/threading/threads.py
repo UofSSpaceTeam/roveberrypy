@@ -11,34 +11,26 @@ threadExit = False
 # it can have any additional properties or functions we want it to.
 # It extends the existing Thread class from threading.
 
-class genericThread(threading.Thread):
+class exampleThread(threading.Thread):
 	# this is called when a thread object is created.
-	def __init__(self, function, args):
-		threading.Thread.__init__(self) # have to include this line because reasons
-		self.function = function # the function the thread will run
-		self.args = args # tuple of arguments to call the function with
+	def __init__(self, greeting, number):
+		threading.Thread.__init__(self) # have to call inherited constructor first
+		self.greeting = greeting
+		self.number = number
 	
 	# this gets called when the thread is started
 	def run(self):
-		self.function(self.args)
-
-# Make a function for our new threads to start at
-# Note the double parens since args (above) will be a tuple.
+		while not threadExit:
+			print(str(self.greeting) + " from thread #" + str(self.number))
+			time.sleep(1)
+		print("thread #" + str(self.number) + " done")
 
 # Word to the wise: never allow the same global / shared variable
 # to be modified in multiple threads without proper synchronization.
 
-def someFunction((greeting, number)):
-	while True:
-		if threadExit:
-			print("thread " + str(number) + " done")
-			return
-		print(str(greeting) + " from thread " + str(number))
-		time.sleep(1)
-
 # create the thread objects
-threadOne = genericThread(someFunction, ("hello", 1))
-threadTwo = genericThread(someFunction, ("YOLO", 2))
+threadOne = exampleThread("hello", 1)
+threadTwo = exampleThread("YOLO", 2)
 
 # start the threads
 threadOne.start()
