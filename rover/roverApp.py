@@ -30,15 +30,23 @@ experimentThread = roverThreads.experimentThread()
 commThread.sendPort = 8000
 commThread.receivePort = 8001
 commThread.sendInterval = 0.1
+commThread.cameraThread = cameraThread
+commThread.teleThread = teleThread
+commThread.driveThread = driveThread
+commThread.armThread = armThread
+commThread.experimentThread = experimentThread
 
 # test execution
 
 print("starting")
 startThreads()
 print("running")
+time.sleep(1)
 
-time.sleep(5)
+# test code goes here
+commThread.inbox.put({"c1j1y":0.44})
 
+time.sleep(1)
 print("stopping")
 stopThreads()
 print("done")
