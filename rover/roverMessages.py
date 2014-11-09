@@ -1,4 +1,4 @@
-# lists of the keys of messages each thread wants to receive
+# lists of the keys of messages each thread wants to receive from network
 
 cameraList = (["camOn", "camSel"])
 
