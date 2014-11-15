@@ -26,11 +26,13 @@ guiThread = baseThreads.guiThread()
 # configure threads
 commThread.sendPort = 8001
 commThread.receivePort = 8000
-commThread.sendInterval = 0.1
+commThread.sendInterval = 0.25
 commThread.inputThread = inputThread
 commThread.navThread = navThread
 commThread.panelThread = panelThread
 commThread.guiThread = guiThread
+
+inputThread.commThread = commThread
 
 # test execution
 print("starting")
@@ -40,7 +42,7 @@ time.sleep(2)
 
 # test code goes here
 
-time.sleep(2)
+time.sleep(20)
 print("stopping")
 stopThreads()
 print("done")
