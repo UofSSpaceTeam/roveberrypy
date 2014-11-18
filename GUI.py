@@ -497,13 +497,13 @@ while True: # main execution loop
 			if buttonList[5].selected: # 1 stick drive mode
 				if indicatorList[4].active: # connected
 					limit = int(speedScale * 127)
-					driveControl.sendOneStickData(-axes[0] * speedScale * steerScale, -axes[1] * speedScale, limit)
+					driveControl.sendOneStickData(axes[0] * speedScale * steerScale, axes[1] * speedScale, limit)
 				else:
 					stopRover(False)
 					setMastMode(None)
 			elif buttonList[12].selected: # 2 stick drive mode
 				if indicatorList[4].active: # connected
-					driveControl.sendTwoStickData(-axes[1] * speedScale, -axes[3] * speedScale)
+					driveControl.sendTwoStickData(axes[1] * speedScale, axes[3] * speedScale)
 				else:
 					stopRover(False)
 					setMastMode(None)
