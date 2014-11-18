@@ -1,9 +1,12 @@
 import roverMessages
 import threading
-import socket
+from socket import socket
 import json
 from Queue import Queue
 import time
+import unicodeConvert
+
+convert = unicodeConvert.convert
 
 class communicationThread(threading.Thread):
 

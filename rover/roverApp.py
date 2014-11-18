@@ -1,4 +1,11 @@
-import roverThreads
+#Import all of the thread modules
+from communicationThread import communicationThread
+from experimentThread import experimentThread
+from armThread import armThread
+from driveThread import driveThread
+from telemetryThread import telemetryThread
+from cameraThread import cameraThread
+
 import time
 
 def startThreads():
@@ -19,12 +26,12 @@ def stopThreads():
 
 
 # make each top-level thread
-commThread = roverThreads.communicationThread()
-cameraThread = roverThreads.cameraThread()
-teleThread = roverThreads.telemetryThread()
-driveThread = roverThreads.driveThread()
-armThread = roverThreads.armThread()
-experimentThread = roverThreads.experimentThread()
+commThread = communicationThread()
+cameraThread = cameraThread()
+teleThread = telemetryThread()
+driveThread = driveThread()
+armThread = armThread()
+experimentThread = experimentThread()
 
 # configure threads
 commThread.sendPort = 8000

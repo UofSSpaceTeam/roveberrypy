@@ -1,30 +1,12 @@
 # lists of the keys of messages each thread wants to receive from network
 
-# add needed inputs 
-#c*j1y for controller * left stick y axis,
-#		use 2 for right joystick
-#c*t for controller * triggers  
-#c*b_* for buttons ex) c1b_a for a button
-#c*d_x and a*d_y for d-pad 
-inputList = ([])
+cameraList = (["camOn", "camSel"])
 
-telemetryList = (["ax", "ay", "az", "da", "bi" , "bv"])
+telemetryList = ([])
 
-navList = (["hd", "p", "v"])
+driveList = (["c1j1y", "c1j2y", "throttle", "steerRate"])
 
-guiList = (["batt", "tilt"])
+armList = (["c2j1x", "c2j1y", "c2j2x", "c2j2y", "c2s1", "c2s2", "c2t"])
 
-
-# control panel 
-
-internalBaseList = (["p_list", "p_add"])
-
-panelListCam = (["cm1", "cm2", "cm3", "cm4"])
-
-panelListSlide = (["ts1", "ts2", "ts3", "ts4"])
-
-# add more info screen buttons as needed
-panelListInfo = (["is1", "is2", "pjy", "pjx"])
-
-eStop = (["stop"])
+experimentList = ([])
 
