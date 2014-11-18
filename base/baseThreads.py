@@ -38,6 +38,7 @@ class inputThread(threading.Thread):
 			msg = {}
 			pygame.event.pump()
 			if self.cont[0]:
+				pass
 				# uncomment messages as needed.
 				# msg["c1t"] = self.filter(self.cont[0].get_axis(2) * -1)
 				# msg["c1j1x"] = self.filter(self.cont[0].get_axis(0))
