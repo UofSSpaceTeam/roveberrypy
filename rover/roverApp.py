@@ -1,10 +1,10 @@
 #Import all of the thread modules
-from communicationThread import communicationThread
-from experimentThread import experimentThread
-from armThread import armThread
-from driveThread import driveThread
-from telemetryThread import telemetryThread
-from cameraThread import cameraThread
+from threads.communicationThread import communicationThread
+from threads.experimentThread import experimentThread
+from threads.armThread import armThread
+from threads.driveThread import driveThread
+from threads.telemetryThread import telemetryThread
+from threads.cameraThread import cameraThread
 
 import time
 

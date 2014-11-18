@@ -1,9 +1,9 @@
 #Import all of the thread modules
-from communicationThread import communicationThread
-from guiThread import guiThread
-from inputThread import inputThread
-from navigationThread import navigationThread
-from panelThread import panelThread
+from threads.communicationThread import communicationThread
+from threads.guiThread import guiThread
+from threads.inputThread import inputThread
+from threads.navigationThread import navigationThread
+from threads.panelThread import panelThread
 
 import time
 

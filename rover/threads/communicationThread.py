@@ -1,6 +1,6 @@
 import roverMessages
 import threading
-from socket import socket
+import socket
 import json
 from Queue import Queue
 import time
