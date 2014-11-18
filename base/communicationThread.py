@@ -1,8 +1,12 @@
-import pygame
+import baseMessages
 import threading
-import time
 import socket
+import json
+from Queue import Queue
+import time
+import unicodeConvert
 
+convert = unicodeConvert.convert
 
 class communicationThread(threading.Thread):
 

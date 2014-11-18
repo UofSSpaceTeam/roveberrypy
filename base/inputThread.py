@@ -1,5 +1,12 @@
-import pygame
+import baseMessages
 import threading
+import json
+import pygame
+from Queue import Queue
+import time
+import unicodeConvert
+
+convert = unicodeConvert.convert
 
 class inputThread(threading.Thread):
 	def __init__(self):

@@ -1,4 +1,10 @@
-import baseThreads
+#Import all of the thread modules
+from communicationThread import communicationThread
+from guiThread import guiThread
+from inputThread import inputThread
+from navigationThread import navigationThread
+from panelThread import panelThread
+
 import time
 
 def startThreads():
@@ -17,11 +23,11 @@ def stopThreads():
 
 
 # make each top-level thread
-commThread = baseThreads.communicationThread()
-inputThread = baseThreads.inputThread()
-navThread = baseThreads.navigationThread()
-panelThread = baseThreads.panelThread()
-guiThread = baseThreads.guiThread()
+commThread = communicationThread()
+inputThread = inputThread()
+navThread = navigationThread()
+panelThread = panelThread()
+guiThread = guiThread()
 
 # configure threads
 commThread.sendPort = 8001
