@@ -1,0 +1,57 @@
+#Button Layout Class - BoxLayouts can be created from this
+<LblTxtBtn@BoxLayout>:
+	#Initialize Default Values
+    l_text: '0default'
+    t_text: '1default'
+    b_text: '2default'
+	
+	#Initialize dynamic text
+	o_text: 'default'
+
+	#Default items and layout
+    orientation: 'vertical'
+    Label:
+        text: root.l_text
+    TextInput:
+		id: txt
+        text: root.t_text
+		multiline: False
+    Button:
+		id: btn
+        text: root.b_text
+		on_release: root.o_text = txt.text
+
+
+#Master Layout Class
+<AppLayout@BoxLayout>:
+    orientation: 'horizontal'
+	#Custom properties to be passed between widgets
+	#Output text
+	str_prop0: ltb0.o_text
+	str_prop1: ltb1.o_text
+	
+	#Copies of the LblTxtButn class
+	#Each are given their own 'text' property
+    LblTxtBtn:
+		id: ltb0
+        l_text: 'DynClassInput1:'
+        t_text: 'Send Text To Second Box' #defined by custom property
+        b_text: 'DynClassPressMe 1'
+ 
+ 
+    LblTxtBtn:
+		id: ltb1
+        l_text: root.str_prop0 #This will be updated when ltb0 is updated
+        t_text: 'hello'
+        b_text: 'lalalal'
+ 
+    LblTxtBtn:
+		id: ltb2
+        l_text: 'DynClassInput3:'
+        t_text: 'DynClassDefault Text3'
+        b_text: 'DynClassPressMe 3'
+	
+#Call Root Widget - Build the boxlayout	
+AppLayout
+
+
