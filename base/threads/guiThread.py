@@ -5,7 +5,7 @@ from Queue import Queue
 import time
 import unicodeConvert
 
-#import Kivy stuff
+#imports for Kivy GUI
 import kivy
 #Import modules needed to load the kv language file
 from kivy.app import App
@@ -15,7 +15,7 @@ from kivy.config import Config
 Config.set('graphics', 'fullscreen', '0')
 #Import modules needed to make a window (Resizeable)
 from kivy.core.window import Window
-Window.size = (430,133)
+Window.size = (430,330)
 
 convert = unicodeConvert.convert
 
@@ -26,8 +26,7 @@ class guiThread(threading.Thread):
 		self.exit = False
 		self.mailbox = Queue()
 		self.KivyGuiApp().run()
-		
-
+	
 	def run(self):
 		while not self.exit:
 			time.sleep(0.01)
@@ -37,5 +36,25 @@ class guiThread(threading.Thread):
 		
 	class KivyGuiApp(App):
 		def build(self):
+			self.bind(on_stop=exit)
 			self.root = Builder.load_file('gui/gui.kv')
 			return self.root
+			
+		def buttonHandler(self, func):
+			if(func == 'ac'):
+				print('Arm Camera Selected')
+				
+			if(func == 'dc'):
+				print('Drive Camera Selected')
+			
+			if(func == 'none'):
+				print('Info: Button has no function')
+				
+			
+		#Event handler binded at build to manage issues with unloading pygame
+		#When closing kivy app.
+		#Really not sure if this works properly
+		def exit(self):
+			print('exiting')
+			guiThread.stop()
+		

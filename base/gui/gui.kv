@@ -9,7 +9,7 @@
 	o_text: 'default'
 
 	#Default items and layout
-    orientation: 'vertical'
+    orientation: 'horizontal'
     Label:
         text: root.l_text
     TextInput:
@@ -21,10 +21,26 @@
         text: root.b_text
 		on_release: root.o_text = txt.text
 
+<ArmButtons@BoxLayout>:
+	b_text: 'default'
+	#Default Function
+	func: 'none'
+	
+	orientation: 'vertical'
+	Button:
+		id: btn
+		text: root.b_text
+		#Send function to print
+		#TODO Make a function Handler
+		on_release: app.buttonHandler(root.func)
 
 #Master Layout Class
 <AppLayout@BoxLayout>:
-    orientation: 'horizontal'
+    orientation: 'vertical'
+	
+	######
+	##TEST STUFF
+	######
 	#Custom properties to be passed between widgets
 	#Output text
 	str_prop0: ltb0.o_text
@@ -50,6 +66,22 @@
         l_text: 'DynClassInput3:'
         t_text: 'DynClassDefault Text3'
         b_text: 'DynClassPressMe 3'
+	
+	
+	#####
+	##END TEST STUFF
+	#####
+	
+	#Sets up two ArmButtons and adds them to the boxlayout
+	ArmButtons:
+		id: btn1
+		b_text: 'Arm Camera'
+		func: 'ac'
+		
+	ArmButtons:
+		id: btn2
+		b_text: 'Drive Camera'
+		func: 'dc'
 	
 #Call Root Widget - Build the boxlayout	
 AppLayout
