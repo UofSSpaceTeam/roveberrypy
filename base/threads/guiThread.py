@@ -16,6 +16,7 @@ Config.set('graphics', 'fullscreen', '0')
 #Import modules needed to make a window (Resizeable)
 from kivy.core.window import Window
 Window.size = (430,330)
+from kivy.uix.videoplayer import VideoPlayer
 
 convert = unicodeConvert.convert
 
