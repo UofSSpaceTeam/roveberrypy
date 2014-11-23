@@ -35,57 +35,65 @@
 		on_release: app.buttonHandler(root.func)
 
 #Master Layout Class
-<AppLayout@BoxLayout>:
-    orientation: 'vertical'
-	
-	######
-	##TEST STUFF
-	######
-	#Custom properties to be passed between widgets
-	#Output text
+<AppLayout@GridLayout>:
+	cols: 2
 	str_prop0: ltb0.o_text
 	str_prop1: ltb1.o_text
 	
-	#Copies of the LblTxtButn class
-	#Each are given their own 'text' property
-    LblTxtBtn:
-		id: ltb0
-        l_text: 'DynClassInput1:'
-        t_text: 'Send Text To Second Box' #defined by custom property
-        b_text: 'DynClassPressMe 1'
- 
- 
-    LblTxtBtn:
-		id: ltb1
-        l_text: root.str_prop0 #This will be updated when ltb0 is updated
-        t_text: 'hello'
-        b_text: 'lalalal'
- 
-    LblTxtBtn:
-		id: ltb2
-        l_text: 'DynClassInput3:'
-        t_text: 'DynClassDefault Text3'
-        b_text: 'DynClassPressMe 3'
+	#Make a video window in the first column
+	BoxLayout:
+		Video:
+			source: 'http://webcam.sonoma.edu/mjpg/video.mjpg'
+			state: 'play'
 	
-	
-	#####
-	##END TEST STUFF
-	#####
-	
-	#Sets up two ArmButtons and adds them to the boxlayout
-	ArmButtons:
-		id: btn1
-		b_text: 'Arm Camera'
-		func: 'ac'
+	BoxLayout:
+		orientation: 'vertical'
 		
-	ArmButtons:
-		id: btn2
-		b_text: 'Drive Camera'
-		func: 'dc'
+		######
+		##TEST STUFF
+		######
+		#Custom properties to be passed between widgets
+		#Output text
 		
-	Video:
-		source: 'C:\Kivy\kivy\examples\widgets\softboy.avi'
-		state: 'play'
+		
+		#Copies of the LblTxtButn class
+		#Each are given their own 'text' property
+		LblTxtBtn:
+			id: ltb0
+			l_text: 'DynClassInput1:'
+			t_text: 'Send Text To Second Box' #defined by custom property
+			b_text: 'DynClassPressMe 1'
+	 
+	 
+		LblTxtBtn:
+			id: ltb1
+			l_text: root.str_prop0 #This will be updated when ltb0 is updated
+			t_text: 'hello'
+			b_text: 'lalalal'
+	 
+		LblTxtBtn:
+			id: ltb2
+			l_text: 'DynClassInput3:'
+			t_text: 'DynClassDefault Text3'
+			b_text: 'DynClassPressMe 3'
+		
+		
+		#####
+		##END TEST STUFF
+		#####
+		
+		#Sets up two ArmButtons and adds them to the boxlayout
+		ArmButtons:
+			id: btn1
+			b_text: 'Arm Camera'
+			func: 'ac'
+			
+		ArmButtons:
+			id: btn2
+			b_text: 'Drive Camera'
+			func: 'dc'
+			
+		
 	
 #Call Root Widget - Build the boxlayout	
 AppLayout
