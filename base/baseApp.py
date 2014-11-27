@@ -94,7 +94,6 @@ class KivyGuiApp(App):
 		#Unload all threads
 		self.stopThreads()
 
-try:
-	KivyGuiApp().run()
-except:
-	KivyGuiApp.stopThreads()
+
+#Main App
+KivyGuiApp().run()
