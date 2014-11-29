@@ -30,6 +30,7 @@
 			text: root.b_text
 			#Send function to print
 			on_release: app.buttonHandler(root.func)
+			#on_app.update: app.updateUI(root.func)
 
 	BoxLayout:
 		orientation: 'vertical'
@@ -88,13 +89,17 @@
 	
 #Master Layout Class
 <AppLayout@GridLayout>:
-	cols: 2
-		
+	cols: 3
+	first:one
+	Button:
+		id: one
+		text: 'hi'
+	
 	#Make a video window in the first column
 	BoxLayout:
 		Video:
-			source: 'http://webcam.sonoma.edu/mjpg/video.mjpg'
-			state: 'play'
+			source: '192.168.1.2:8080/?action=stream'
+			#state: 'play'
 	
 	BoxLayout:
 		orientation: 'vertical'

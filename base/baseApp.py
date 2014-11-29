@@ -28,20 +28,28 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
 
+
 convert = threads.unicodeConvert.convert
 	
 class KivyGuiApp(App):
 	def build(self):
 		#Set up clock to run function as 'threads'
 		Clock.schedule_interval(self.displayQueue, 0.1)
+		#self.update = Clock.schedule_interval(self.updateUI, 0.2)
 		#build gui layout
 		self.root = Builder.load_file('gui/gui.kv')
+		self.layout = self.AppLayout()
 		return self.root
+	
+	#In code references of Kv widgets
+	class AppLayout(GridLayout):
+		pass
 	
 	# Button handler based off button.func property
 	def buttonHandler(self, func):
 		if(func == 'ac'):
 			print('Arm Camera Selected')
+			self.layout.ids.one.text = "no"
 			
 		if(func == 'dc'):
 			print('Drive Camera Selected')
@@ -55,8 +63,7 @@ class KivyGuiApp(App):
 		if not self.mailbox.empty():
 			#self.ltb2.l_text
 			data = str(self.mailbox.get())
-			self.applayout.func1()
-			#print(data)
+			print(data)
 		else:
 			pass
 			#print("no data in queue")
