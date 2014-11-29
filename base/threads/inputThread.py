@@ -29,9 +29,8 @@ class inputThread(threading.Thread):
 			msg = {}
 			pygame.event.pump()
 			if self.cont[0]:
-				pass
 				# uncomment messages as needed.
-				# msg["c1t"] = self.filter(self.cont[0].get_axis(2) * -1)
+				msg["c1t"] = self.filter(self.cont[0].get_axis(2) * -1)
 				# msg["c1j1x"] = self.filter(self.cont[0].get_axis(0))
 				# msg["c1j1y"] = self.filter(self.cont[0].get_axis(1) * -1)
 				# msg["c1j2x"] = self.filter(self.cont[0].get_axis(4))
@@ -65,6 +64,7 @@ class inputThread(threading.Thread):
 				# msg["c2d_y"] = self.cont[1].get_hat(0)[1]	
 			if self.cont[0] or self.cont[1]:
 				self.commThread.mailbox.put(msg)
+				self.mailbox.put(msg)
 			time.sleep(0.2)
 
 	def stop(self):

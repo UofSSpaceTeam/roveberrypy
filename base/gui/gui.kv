@@ -4,9 +4,6 @@
     l_text: '0default'
     t_text: '1default'
     b_text: '2default'
-	
-	#Initialize dynamic text
-	o_text: 'default'
 
 	#Default items and layout
     orientation: 'horizontal'
@@ -19,9 +16,24 @@
     Button:
 		id: btn
         text: root.b_text
-		on_release: root.o_text = txt.text
 
-<ArmButtons@BoxLayout>:
+<ArmButtons@GridLayout>:
+	cols: 2
+	b_text: 'default'
+	#Default Function
+	func: 'none'
+	
+	BoxLayout:
+		orientation: 'vertical'
+		Button:
+			id: btn
+			text: root.b_text
+			#Send function to print
+			on_release: app.buttonHandler(root.func)
+
+		#Indicator
+
+<CrtlModeButtons@GridLayout>:
 	b_text: 'default'
 	#Default Function
 	func: 'none'
@@ -33,13 +45,49 @@
 		#Send function to print
 		#TODO Make a function Handler
 		on_release: app.buttonHandler(root.func)
+		
+	#Indicator
+	
+<ActionButtons@GridLayout>:
+	b_text: 'default'
+	#Default Function
+	func: 'none'
+	
+	orientation: 'vertical'
+	Button:
+		id: btn
+		text: root.b_text
+		#Send function to print
+		#TODO Make a function Handler
+		on_release: app.buttonHandler(root.func)
+		
+	#Indicator
+	
+<ConnectionList@GridLayout>:
+	#Two columns
+	#Indicator
+	#Label
+	#Connect All button
 
+<MiscButtons@GridLayout>:
+	#Two columns
+	#Power Sliders
+	#Messages/Telemetry
+
+<NavScreen@CustomPopup>:
+	#TBD Navscreen Popup
+
+<MainScreeb@GridLayout>:
+	#VideoFeedBg
+	#Direction Arrow
+		#Coordinates
+	#Clock/Timer
+	#Critical Log info screen
+	
 #Master Layout Class
 <AppLayout@GridLayout>:
 	cols: 2
-	str_prop0: ltb0.o_text
-	str_prop1: ltb1.o_text
-	
+		
 	#Make a video window in the first column
 	BoxLayout:
 		Video:
@@ -48,26 +96,24 @@
 	
 	BoxLayout:
 		orientation: 'vertical'
+		ArmButtons:
+			id: btn1
+			b_text: 'Arm Camera'
+			func: 'ac'
+			
+		ArmButtons:
+			id: btn2
+			b_text: 'Drive Camera'
+			func: 'dc'
 		
-		######
-		##TEST STUFF
-		######
-		#Custom properties to be passed between widgets
-		#Output text
-		
-		
-		#Copies of the LblTxtButn class
-		#Each are given their own 'text' property
 		LblTxtBtn:
 			id: ltb0
 			l_text: 'DynClassInput1:'
-			t_text: 'Send Text To Second Box' #defined by custom property
+			t_text: 'Send Text To Second Box'
 			b_text: 'DynClassPressMe 1'
-	 
 	 
 		LblTxtBtn:
 			id: ltb1
-			l_text: root.str_prop0 #This will be updated when ltb0 is updated
 			t_text: 'hello'
 			b_text: 'lalalal'
 	 
@@ -83,17 +129,6 @@
 		#####
 		
 		#Sets up two ArmButtons and adds them to the boxlayout
-		ArmButtons:
-			id: btn1
-			b_text: 'Arm Camera'
-			func: 'ac'
-			
-		ArmButtons:
-			id: btn2
-			b_text: 'Drive Camera'
-			func: 'dc'
-			
-		
 	
 #Call Root Widget - Build the boxlayout	
 AppLayout

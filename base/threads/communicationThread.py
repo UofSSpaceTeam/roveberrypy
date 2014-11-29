@@ -87,6 +87,7 @@ class communicationThread(threading.Thread):
 		self.receiver.start()
 		lastSend = time.clock()
 		while not self.exit:
+			self.guiThread.mailbox = self.inputThread.mailbox
 			# process and distribute input from network
 			while not self.inbox.empty():
 				inData = self.inbox.get()

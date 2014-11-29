@@ -16,7 +16,10 @@ class navigationThread(threading.Thread):
 
 	def run(self):
 		while not self.exit:
-			time.sleep(0.01)
+			data = "HELLO FROM NAVTHREAD"
+			#print data
+			self.mailbox.put(data)
+			time.sleep(1)
 
 	def stop(self):
 		self.exit = True
