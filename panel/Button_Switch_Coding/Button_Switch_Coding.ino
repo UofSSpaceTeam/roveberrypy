@@ -1,28 +1,28 @@
-int inPinOne = 2;
-int stateOne = 0;
-int newstateOne;
+int inPin = 1;
+int state = 0;
+int newstate;
 
 void setup() {
-  pinMode(inPinOne,INPUT_PULLUP);
+  pinMode(inPin,INPUT_PULLUP);
   Serial.begin(9600);
 }
 
 void loop() {
-  int readingOne = digitalRead(inPinOne);
-  if (readingOne == HIGH)
+  int reading = digitalRead(inPin);
+  if (reading == HIGH)
   {
-    newstateOne = 0;
+    newstate = 0;
   }
   else
   {
-    newstateOne = 1;
+    newstate = 1;
   }
-  if (newstateOne != stateOne)
+  if (newstate != state)
   {
     delay(100);
     Serial.print("Switch One:");
-    Serial.println(newstateOne);
+    Serial.println(newstate);
     Serial.println("===============");
   }
-  stateOne = newstateOne;
+  state = newstate;
 }
