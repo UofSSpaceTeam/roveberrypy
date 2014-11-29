@@ -1,28 +1,38 @@
-int inPin = 1;
-int state = 0;
+int inPin[] = {2,3};
 int newstate;
+const int pinCount = 2;
+int state[pinCount];
+int thisPin = 0;
 
 void setup() {
-  pinMode(inPin,INPUT_PULLUP);
+  for (int i = 0; i < pinCount; i++)
+  {
+    pinMode(inPin[i],INPUT_PULLUP);
+  }
   Serial.begin(9600);
 }
 
 void loop() {
-  int reading = digitalRead(inPin);
-  if (reading == HIGH)
+  for(int i = 0; i < pinCount; i++)
   {
-    newstate = 0;
+    int reading = digitalRead(inPin[i]);
+    if (reading == HIGH)
+    {
+      newstate = 0;
+    }
+    else
+    {
+      newstate = 1;
+    }
+    if (newstate != state[i])
+    {
+      delay(100);
+      Serial.print("Switch: ");
+      Serial.print(i+1);
+      Serial.print (" ");
+      Serial.println(newstate);
+      Serial.println("===============");
+      state[i] = newstate;
+    } 
   }
-  else
-  {
-    newstate = 1;
-  }
-  if (newstate != state)
-  {
-    delay(100);
-    Serial.print("Switch One:");
-    Serial.println(newstate);
-    Serial.println("===============");
-  }
-  state = newstate;
 }
