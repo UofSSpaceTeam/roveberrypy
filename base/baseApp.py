@@ -19,7 +19,7 @@ from kivy.lang import Builder
 from kivy.config import Config
 Config.set('graphics', 'fullscreen', '0')
 from kivy.core.window import Window
-Window.size = (800,500)
+Window.size = (1000,600)
 #Scheduler (for GUI related threading)
 from kivy.clock import Clock
 
