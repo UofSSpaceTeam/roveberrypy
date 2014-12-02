@@ -27,6 +27,7 @@ from kivy.clock import Clock
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
+from kivy.uix.floatlayout import FloatLayout
 
 
 convert = threads.unicodeConvert.convert
@@ -42,14 +43,13 @@ class KivyGuiApp(App):
 		return self.root
 	
 	#In code references of Kv widgets
-	class AppLayout(GridLayout):
+	class AppLayout(FloatLayout):
 		pass
 	
 	# Button handler based off button.func property
 	def buttonHandler(self, func):
 		if(func == 'ac'):
 			print('Arm Camera Selected')
-			self.layout.ids.one.text = "no"
 			
 		if(func == 'dc'):
 			print('Drive Camera Selected')

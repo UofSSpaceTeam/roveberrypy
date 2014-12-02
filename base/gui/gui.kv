@@ -88,54 +88,58 @@
 	#Critical Log info screen
 	
 #Master Layout Class
-<AppLayout@GridLayout>:
-	cols: 3
-	first:one
-	Button:
-		id: one
-		text: 'hi'
+<AppLayout@FloatLayout>:
+	orientation: 'vertical'
 	
-	#Make a video window in the first column
-	BoxLayout:
-		Video:
-			source: '192.168.1.2:8080/?action=stream'
-			#state: 'play'
-	
-	BoxLayout:
-		orientation: 'vertical'
-		ArmButtons:
-			id: btn1
-			b_text: 'Arm Camera'
-			func: 'ac'
+	AnchorLayout:
+		anchor_x: 'left'
+		anchor_y: 'top'
+
+		BoxLayout:
+			orientation: 'vertical'
+			#Make a video window in the background
+			Video:
+				source: 'http://ctc.monroeccc.edu/mjpg/video.mjpg'
+				state: 'play'
+	AnchorLayout:
+		anchor_x: 'left'
+		anchor_y: 'top'
+		
+		BoxLayout:
+			orientation: 'vertical'
+			ArmButtons:
+				id: btn1
+				b_text: 'Arm Camera'
+				func: 'ac'
+				
+			ArmButtons:
+				id: btn2
+				b_text: 'Drive Camera'
+				func: 'dc'
 			
-		ArmButtons:
-			id: btn2
-			b_text: 'Drive Camera'
-			func: 'dc'
-		
-		LblTxtBtn:
-			id: ltb0
-			l_text: 'DynClassInput1:'
-			t_text: 'Send Text To Second Box'
-			b_text: 'DynClassPressMe 1'
-	 
-		LblTxtBtn:
-			id: ltb1
-			t_text: 'hello'
-			b_text: 'lalalal'
-	 
-		LblTxtBtn:
-			id: ltb2
-			l_text: 'DynClassInput3:'
-			t_text: 'DynClassDefault Text3'
-			b_text: 'DynClassPressMe 3'
-		
-		
-		#####
-		##END TEST STUFF
-		#####
-		
-		#Sets up two ArmButtons and adds them to the boxlayout
+			LblTxtBtn:
+				id: ltb0
+				l_text: 'DynClassInput1:'
+				t_text: 'Send Text To Second Box'
+				b_text: 'DynClassPressMe 1'
+		 
+			LblTxtBtn:
+				id: ltb1
+				t_text: 'hello'
+				b_text: 'lalalal'
+		 
+			LblTxtBtn:
+				id: ltb2
+				l_text: 'DynClassInput3:'
+				t_text: 'DynClassDefault Text3'
+				b_text: 'DynClassPressMe 3'
+			
+			
+			#####
+			##END TEST STUFF
+			#####
+			
+			#Sets up two ArmButtons and adds them to the boxlayout
 	
 #Call Root Widget - Build the boxlayout	
 AppLayout
