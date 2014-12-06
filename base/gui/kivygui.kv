@@ -10,9 +10,8 @@
 		Button:
 			id: btn
 			text: root.b_text
-			#Send function to print
+			#Run Button's Function
 			on_release: app.buttonHandler(root.func)
-			#on_app.update: app.updateUI(root.func)
 
 	BoxLayout:
 		orientation: 'vertical'
@@ -74,36 +73,22 @@
 	#Critical Log info screen
 	
 #Master Layout Class
-<AppLayout@BoxLayout>:
-	ActionBar:
-		pos_hint: {'top':1}
-		ActionView:
-			use_separator: True
-			ActionPrevious:
-				title: 'USSTROVER GUI'
-				with_previous: False
-			ActionButton:
-				id: btn5
-				#text: 'Maps'
-				func: 'Navigation'
-			ActionGroup:
-				text: 'Rover Actions'
-				ActionButton:
-					text: 'Connect'
-				ActionButton:
-					text: 'Stop'
-				ActionButton:
-					text: 'Save Waypoint'
+<AppLayout>:
 	FloatLayout:
-		
 		#Make a video window in the background
 		Video:
 			source: 'http://ctc.monroeccc.edu/mjpg/video.mjpg'
 			state: 'play'
-			pos: (0, -45)
+			allow_stretch: True
+			on_loaded: app.Base.ids.loadImg.color = (1,1,1,0)
+		
+		Image:
+			id: loadImg
+			allow_stretch: True
+			keep_ratio: False
+			source: 'gui/background.jpg'
 			
 		GridLayout:
-			pos: (0, -45)
 			cols: 3
 			TabbedPanel:
 				do_default_tab: False
@@ -144,6 +129,9 @@
 						Label:
 							text: 'A compass here would be good'
 					
+			Label:
+				text: ''
+			
 			TabbedPanel:
 				do_default_tab: False
 				background_color: (0, 0, 0, 0)
@@ -156,8 +144,7 @@
 					text: 'Timer'
 					orientation: 'vertical'
 					size_hint: 1,.3
-					Label:
-						#text: [make this display the time]
+
 				TabbedPanelItem:
 					text: 'More Stuff'
 					BoxLayout:
@@ -177,41 +164,3 @@
 							text: 'Take Picture'
 						Button:
 							text: 'Science!'
-			#ArmButtons:
-			#	id: btn3
-			#	b_text: 'Arm Camera'
-			#	func: 'ac'
-				
-			# ArmButtons:
-				# id: btn2
-				# b_text: 'Drive Camera'
-				# func: 'dc'
-			
-			# LblTxtBtn:
-				# id: ltb0
-				# l_text: 'DynClassInput1:'
-				# t_text: 'Send Text To Second Box'
-				# b_text: 'DynClassPressMe 1'
-		 
-			# LblTxtBtn:
-				# id: ltb1
-				# t_text: 'hello'
-				# b_text: 'lalalal'
-		 
-			# LblTxtBtn:
-				# id: ltb2
-				# l_text: 'DynClassInput3:'
-				# t_text: 'DynClassDefault Text3'
-				# b_text: 'DynClassPressMe 3'
-			
-			
-			#####
-			##END TEST STUFF
-			#####
-			
-			#Sets up two ArmButtons and adds them to the boxlayout
-	
-#Call Root Widget - Build the boxlayout	
-AppLayout
-
-

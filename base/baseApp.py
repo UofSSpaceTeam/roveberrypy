@@ -14,40 +14,38 @@ import threads.unicodeConvert
 #imports for Kivy GUI
 import kivy
 from kivy.app import App
-from kivy.lang import Builder
+
 #Turn off fullscreen - alternatively use 'fake' for borderless
 from kivy.config import Config
 Config.set('graphics', 'fullscreen', '0')
 from kivy.core.window import Window
 Window.size = (1000,600)
-#Scheduler (for GUI related threading)
 from kivy.clock import Clock
 
 #import refrenced GUI components
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.label import Label
+
 
 
 import time
 
 convert = threads.unicodeConvert.convert
-	
+
+#In code references of Kv widgets
+class AppLayout(FloatLayout):
+	def updateTime(self, *args):
+		self.ids.btn2.b_text = time.asctime()
+
 class KivyGuiApp(App):
+	kv_directory = 'gui'
 	def build(self):
+		self.Base = AppLayout()
+		for key, val in self.Base.ids.items():
+			print("key={0}, val={1}".format(key, val))
 		#Set up clock to run function as 'threads'
 		Clock.schedule_interval(self.displayQueue, 0.1)
-		#self.update = Clock.schedule_interval(self.updateUI, 0.2)
-		#build gui layout
-		self.root = Builder.load_file('gui/gui.kv')
-		self.layout = self.AppLayout()
-		return self.root
-	
-	#In code references of Kv widgets
-	class AppLayout(FloatLayout):
-		pass
+		Clock.schedule_interval(self.Base.updateTime, 1)
+		return self.Base
 	
 	# Button handler based off button.func property
 	def buttonHandler(self, func):
@@ -73,17 +71,6 @@ class KivyGuiApp(App):
 		else:
 			pass
 			#print("no data in queue")
-			
-	#run a clock somewhere hopefully
-	class IncrediblyCrudeClock(Label):
-		def update(self, *args):
-			self.text = time.asctime()
-
-	class TimeApp(App):
-		def build(self):
-			crudeclock = IncrediblyCrudeClock()
-			Clock.schedule_interval(crudeclock.update, 1)
-			return crudeclock
 	
 	def on_start(self):
 		#Set up Queue
@@ -126,7 +113,6 @@ class KivyGuiApp(App):
 		print('exiting')
 		#Unload all threads
 		self.stopThreads()
-
 
 #Main App
 KivyGuiApp().run()
