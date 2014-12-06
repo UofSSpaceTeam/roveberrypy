@@ -51,9 +51,14 @@ class KivyGuiApp(App):
 	def buttonHandler(self, func):
 		if(func == 'ac'):
 			print('Arm Camera Selected')
+			self.Base.ids.btn1.ind = (0, 1, 0, 1)
+			self.Base.ids.btn2.ind = (1, 0, 0, 1)
+			self.Base.ids.videoScreen.eos = True
 			
 		if(func == 'dc'):
 			print('Drive Camera Selected')
+			self.Base.ids.btn1.ind = (1, 0, 0, 1)
+			self.Base.ids.btn2.ind = (0, 1, 0, 1)
 		
 		#Default action
 		if(func == 'none'):

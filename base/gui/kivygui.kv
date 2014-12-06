@@ -4,11 +4,11 @@
 	b_text: 'default'
 	#Default Function
 	func: 'none'
+	ind: (1, 0, 0, 1)
 	
 	BoxLayout:
 		orientation: 'vertical'
 		Button:
-			id: btn
 			text: root.b_text
 			#Run Button's Function
 			on_release: app.buttonHandler(root.func)
@@ -16,8 +16,7 @@
 	BoxLayout:
 		orientation: 'vertical'
 		Button:
-			id: ind
-			background_color: (1, 0, 0, 1)
+			background_color: root.ind
 			size_hint: (0.1, 1)
 		
 
@@ -77,10 +76,12 @@
 	FloatLayout:
 		#Make a video window in the background
 		Video:
+			id: videoScreen
 			source: 'http://ctc.monroeccc.edu/mjpg/video.mjpg'
 			state: 'play'
 			allow_stretch: True
-			on_loaded: app.Base.ids.loadImg.color = (1,1,1,0)
+			on_loaded: root.ids.loadImg.color = (1,1,1,0)
+			on_eos: root.ids.loadImg.color = (1,1,1,1)
 		
 		Image:
 			id: loadImg
@@ -94,7 +95,7 @@
 				do_default_tab: False
 				background_color: (0, 0, 0, 0)
 				tab_pos: 'left_top'
-				tab_width: 175
+				tab_width: (root.size[1])/3
 
 				TabbedPanelItem:
 					text: 'Camera Buttons'
@@ -136,7 +137,7 @@
 				do_default_tab: False
 				background_color: (0, 0, 0, 0)
 				tab_pos: 'right_top'
-				tab_width: 175
+				tab_width: (root.size[1])/3
 
 				TabbedPanelItem:
 					tab_height: 100
