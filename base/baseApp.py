@@ -28,7 +28,10 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.label import Label
 
+
+import time
 
 convert = threads.unicodeConvert.convert
 	
@@ -58,6 +61,9 @@ class KivyGuiApp(App):
 		if(func == 'none'):
 			print('Info: Button has no function')
 			
+		if(func == 'Navigation'):
+			print('Navigation Window')
+			
 	#test to display an amt of Queue items on label
 	def displayQueue(self, amt):
 		if not self.mailbox.empty():
@@ -67,6 +73,17 @@ class KivyGuiApp(App):
 		else:
 			pass
 			#print("no data in queue")
+			
+	#run a clock somewhere hopefully
+	class IncrediblyCrudeClock(Label):
+		def update(self, *args):
+			self.text = time.asctime()
+
+	class TimeApp(App):
+		def build(self):
+			crudeclock = IncrediblyCrudeClock()
+			Clock.schedule_interval(crudeclock.update, 1)
+			return crudeclock
 	
 	def on_start(self):
 		#Set up Queue
