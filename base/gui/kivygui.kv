@@ -35,14 +35,14 @@
 	#Label
 	
 ###Shows mission clock abd other info
-<MissionInfo@BoxLayout>:
+<MissionInfo@ScatterLayout>:
 	clock_text: '00:00:00'
 	Label:
 		text: root.clock_text
 		bold: True
 		font_size: 20
 	
-#:import FadeTransition kivy.uix.screenmanager.SwapTransition
+
 ###Screen Manager (Root Widget)
 GuiScreenManager:
     AppScreen:
@@ -70,6 +70,9 @@ GuiScreenManager:
 							text: 'Stop'
 						ActionButton:
 							text: 'Save Waypoint'
+					ActionButton:
+						text: 'Settings'
+						on_press: app.open_settings()
 
 			#Layered video and controls
 			FloatLayout:
@@ -149,7 +152,7 @@ GuiScreenManager:
 
 						TabbedPanelItem:
 							text: 'Mission Info'
-							BoxLayout:
+							ScatterLayout:
 								size_hint: 1,.07
 								MissionInfo:
 									id: mission
@@ -193,7 +196,7 @@ GuiScreenManager:
 					size: (root.size[0],root.size[1])
 					allow_stretch: True
 					keep_ratio: False
-					source: 'gui/background2.jpg'
+					source: 'gui/background.jpg'
 					
 				#Main Window
 				GridLayout:

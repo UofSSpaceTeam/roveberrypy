@@ -10,22 +10,18 @@ import json
 from Queue import Queue
 import time
 import threads.unicodeConvert
+from config.settingsDefinition import settings_json
 
 #imports for Kivy GUI
 import kivy
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
+from kivy.uix.settings import SettingsWithTabbedPanel
 from kivy.lang import Builder
 
-#Turn off fullscreen - alternatively use 'fake' for borderless
-from kivy.config import Config
-Config.set('graphics', 'fullscreen', '0')
 from kivy.core.window import Window
 Window.size = (1000,600)
 from kivy.clock import Clock
-
-#import refrenced GUI components
-from kivy.uix.floatlayout import FloatLayout
 
 
 
@@ -51,6 +47,7 @@ class KivyGuiApp(App):
 		self.root_widget = Builder.load_file('gui\kivygui.kv')
 		self.main = self.root_widget.get_screen('app')
 		self.nav = self.root_widget.get_screen('nav')
+		self.settings_cls = SettingsWithTabbedPanel
 		for key, val in self.main.ids.items():
 			print("key={0}, val={1}".format(key, val))
 		Clock.schedule_interval(self.displayQueue, 0.1)
@@ -78,10 +75,10 @@ class KivyGuiApp(App):
 	
 	def changeScreen(self):
 		if(self.root_widget.current_screen.name == 'app'):
-			self.root_widget.transition = SlideTransition(direction="right")
+			self.root_widget.transition = SlideTransition(direction="left")
 			self.root_widget.current = 'nav'
 		elif(self.root_widget.current_screen.name == 'nav'):
-			self.root_widget.transition = SlideTransition(direction="left")
+			self.root_widget.transition = SlideTransition(direction="right")
 			self.root_widget.current = 'app'
 			
 	#test to display an amt of Queue items on label
@@ -93,6 +90,14 @@ class KivyGuiApp(App):
 		else:
 			pass
 			#print("no data in queue")
+	
+	'''
+		=========================================================================================
+		Main application threads
+		Usually this is not to be changed
+		See threads folder for code
+		=========================================================================================
+	'''
 	
 	def on_start(self):
 		#Set up Queue
@@ -135,6 +140,29 @@ class KivyGuiApp(App):
 		print('exiting')
 		#Unload all threads
 		self.stopThreads()
+		
+	'''
+		=========================================================================================
+		Configuration
+		References an internal ini file and some json code elsewhere
+		=========================================================================================
+	'''
+	def get_application_config(self):
+		return super(KivyGuiApp, self).get_application_config('%(appdir)s/config/config.ini')
+	
+	def build_config(self, config):
+		config.setdefaults('example', {
+			'boolexample': False,
+			'numericexample': 10,
+			'optionsexample': 'option2',
+			'stringexample': 'some_string',
+			'pathexample': '~'})
+
+	def build_settings(self, settings):
+		settings.add_json_panel('Settings', self.config, data=settings_json)
+
+	def on_config_change(self, config, section, key, value):
+		print config, section, key, value
 
 #Main App
 KivyGuiApp().run()
