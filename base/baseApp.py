@@ -14,6 +14,8 @@ import threads.unicodeConvert
 #imports for Kivy GUI
 import kivy
 from kivy.app import App
+from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
+from kivy.lang import Builder
 
 #Turn off fullscreen - alternatively use 'fake' for borderless
 from kivy.config import Config
@@ -32,32 +34,40 @@ import time
 convert = threads.unicodeConvert.convert
 
 #In code references of Kv widgets
-class AppLayout(FloatLayout):
+class AppScreen(Screen):
 	def updateTime(self, *args):
 		self.ids.mission.clock_text = time.asctime()
+		
+class NavScreen(Screen):
+	pass
+	
+class GuiScreenManager(ScreenManager):
+	pass
+	
+
 
 class KivyGuiApp(App):
-	kv_directory = 'gui'
 	def build(self):
-		self.Base = AppLayout()
-		for key, val in self.Base.ids.items():
+		self.root_widget = Builder.load_file('gui\kivygui.kv')
+		self.main = self.root_widget.get_screen('app')
+		self.nav = self.root_widget.get_screen('nav')
+		for key, val in self.main.ids.items():
 			print("key={0}, val={1}".format(key, val))
-		#Set up clock to run function as 'threads'
 		Clock.schedule_interval(self.displayQueue, 0.1)
-		Clock.schedule_interval(self.Base.updateTime, 1)
-		return self.Base
+		Clock.schedule_interval(self.main.updateTime, 1)
+		return self.root_widget
 	
 	# Button handler based off button.func property
 	def buttonHandler(self, func):
 		if(func == 'ac'):
 			print('Arm Camera Selected')
-			self.Base.ids.ArmCam.ind = (0, 1, 0, 1)
-			self.Base.ids.DriveCam.ind = (1, 0, 0, 1)
+			self.main.ids.ArmCam.ind = (0, 1, 0, 1)
+			self.main.ids.DriveCam.ind = (1, 0, 0, 1)
 			
 		if(func == 'dc'):
 			print('Drive Camera Selected')
-			self.Base.ids.ArmCam.ind = (1, 0, 0, 1)
-			self.Base.ids.DriveCam.ind = (0, 1, 0, 1)
+			self.main.ids.ArmCam.ind = (1, 0, 0, 1)
+			self.main.ids.DriveCam.ind = (0, 1, 0, 1)
 		
 		#Default action
 		if(func == 'none'):
@@ -65,6 +75,14 @@ class KivyGuiApp(App):
 			
 		if(func == 'Navigation'):
 			print('Navigation Window')
+	
+	def changeScreen(self):
+		if(self.root_widget.current_screen.name == 'app'):
+			self.root_widget.transition = SlideTransition(direction="right")
+			self.root_widget.current = 'nav'
+		elif(self.root_widget.current_screen.name == 'nav'):
+			self.root_widget.transition = SlideTransition(direction="left")
+			self.root_widget.current = 'app'
 			
 	#test to display an amt of Queue items on label
 	def displayQueue(self, amt):

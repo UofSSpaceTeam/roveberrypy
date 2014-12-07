@@ -41,117 +41,220 @@
 		text: root.clock_text
 		bold: True
 		font_size: 20
-		
-		
-		
-
+	
+#:import FadeTransition kivy.uix.screenmanager.SwapTransition
+###Screen Manager (Root Widget)
+GuiScreenManager:
+    AppScreen:
+    NavScreen:
 
 ###Master Layout Class
-<AppLayout>:
-
+<AppScreen>:
 	#Action bar at top of app
-	FloatLayout:
-		ActionBar:
-			pos_hint: {'top':1}
-			ActionView:
-				use_separator: True
-				ActionPrevious:
-					title: 'USSTROVER GUI'
-					with_previous: False
-				ActionGroup:
-					text: 'Rover Actions'
-					ActionButton:
-						text: 'Connect'
-					ActionButton:
-						text: 'Stop'
-					ActionButton:
-						text: 'Save Waypoint'
-
-		#Layered video and controls
+	name: 'app'
+	BoxLayout:
 		FloatLayout:
-		
-			#Video feed in background
-			Video:
-				size_hint: (None,None)
-				pos: (40,-45)
-				size: (root.size[0]+5-2*40,root.size[1]) #damn tab alignment...
-				id: videoScreen
-				source: 'http://ctc.monroeccc.edu/mjpg/video.mjpg'
-				state: 'play'
-				allow_stretch: True
-				keep_ratio: False
-				on_loaded: root.ids.loadImg.color = (1,1,1,0)
-				on_eos: root.ids.loadImg.color = (1,1,1,1)
+			ActionBar:
+				pos_hint: {'top':1}
+				ActionView:
+					use_separator: True
+					ActionPrevious:
+						title: 'USSTROVER GUI'
+						with_previous: False
+						on_press: app.changeScreen()
+					ActionGroup:
+						text: 'Rover Actions'
+						ActionButton:
+							text: 'Connect'
+						ActionButton:
+							text: 'Stop'
+						ActionButton:
+							text: 'Save Waypoint'
+
+			#Layered video and controls
+			FloatLayout:
 			
-			#Loading Image when no video is displayed
-			Image:
-				id: loadImg
-				pos: (0,-45)
-				size: (root.size[0],root.size[1])
-				allow_stretch: True
-				keep_ratio: False
-				source: 'gui/background2.jpg'
+				#Video feed in background
+				Video:
+					size_hint: (None,None)
+					pos: (40,-45)
+					size: (root.size[0]+5-2*40,root.size[1]) #damn tab alignment...
+					id: videoScreen
+					source: 'http://ctc.monroeccc.edu/mjpg/video.mjpg'
+					state: 'play'
+					allow_stretch: True
+					keep_ratio: False
+					on_loaded: root.ids.loadImg.color = (1,1,1,0)
+					on_eos: root.ids.loadImg.color = (1,1,1,1)
 				
-			#Main Window
-			GridLayout:
-				cols: 3
-				size_hint: (None,None)
-				pos: (0,-45)
-				size: (root.size[0],root.size[1])
-				
-				#Left tabs with commands
-				TabbedPanel:
-					do_default_tab: False
-					background_color: (0, 0, 0, 0)
-					tab_pos: 'left_top'
-					tab_width: (root.size[1]-45)/3
-						
-					TabbedPanelItem:
-						text: 'Put Stuff Here'
+				#Loading Image when no video is displayed
+				Image:
+					id: loadImg
+					pos: (0,-45)
+					size: (root.size[0],root.size[1])
+					allow_stretch: True
+					keep_ratio: False
+					source: 'gui/background2.jpg'
 					
-					TabbedPanelItem:
-						text: 'Camera Buttons'
-						BoxLayout:
-							orientation: 'vertical'
-							size_hint: 1,.3
-							CtrlButton:
-								id: ArmCam
-								b_text: 'Arm Camera'
-								func: 'ac'
-
-							CtrlButton:
-								id: DriveCam
-								b_text: 'Drive Camera'
-								func: 'dc'
+				#Main Window
+				GridLayout:
+					cols: 3
+					size_hint: (None,None)
+					pos: (0,-45)
+					size: (root.size[0],root.size[1])
 					
-					TabbedPanelItem:
-						text: 'Navigation'
-						BoxLayout:
-							Label:
-								text: 'A compass here would be good'
-								
-					
-				
-				#Blank label to make space
-				Label:
-					text: ''
-				
-				#Right tabs with commands
-				TabbedPanel:
-					do_default_tab: False
-					background_color: (0, 0, 0, 0)
-					tab_pos: 'right_top'
-					tab_width: (root.size[1]-45)/3
-
-					TabbedPanelItem:
-						text: 'Mission Info'
-						BoxLayout:
-							size_hint: 1,.07
-							MissionInfo:
-								id: mission
-
-					TabbedPanelItem:
-						text: 'More Stuff'
+					#Left tabs with commands
+					TabbedPanel:
+						do_default_tab: False
+						background_color: (0, 0, 0, 0)
+						tab_pos: 'left_top'
+						tab_width: (root.size[1]-45)/3
 							
-					TabbedPanelItem:
-						text: 'Rover Controls'
+						TabbedPanelItem:
+							text: 'Put Stuff Here'
+						
+						TabbedPanelItem:
+							text: 'Camera Buttons'
+							BoxLayout:
+								orientation: 'vertical'
+								size_hint: 1,.3
+								CtrlButton:
+									id: ArmCam
+									b_text: 'Arm Camera'
+									func: 'ac'
+
+								CtrlButton:
+									id: DriveCam
+									b_text: 'Drive Camera'
+									func: 'dc'
+						
+						TabbedPanelItem:
+							text: 'Navigation'
+							BoxLayout:
+								Label:
+									text: 'A compass here would be good'
+									
+						
+					
+					#Blank label to make space
+					Label:
+						text: ''
+					
+					#Right tabs with commands
+					TabbedPanel:
+						do_default_tab: False
+						background_color: (0, 0, 0, 0)
+						tab_pos: 'right_top'
+						tab_width: (root.size[1]-45)/3
+
+						TabbedPanelItem:
+							text: 'Mission Info'
+							BoxLayout:
+								size_hint: 1,.07
+								MissionInfo:
+									id: mission
+
+						TabbedPanelItem:
+							text: 'More Stuff'
+								
+						TabbedPanelItem:
+							text: 'Rover Controls'
+
+#This is an experimental declaration of a second screen
+<NavScreen>:
+	name: 'nav'
+	BoxLayout:
+		#Action bar at top of app
+		FloatLayout:
+			ActionBar:
+				pos_hint: {'top':1}
+				ActionView:
+					use_separator: True
+					ActionPrevious:
+						title: 'USSTROVER NAV'
+						with_previous: False
+						on_press: app.changeScreen()
+					ActionGroup:
+						text: 'Rover Actions'
+						ActionButton:
+							text: 'Connect'
+						ActionButton:
+							text: 'Stop'
+						ActionButton:
+							text: 'Save Waypoint'
+
+			#Layered video and controls
+			FloatLayout:
+				
+				#Loading Image when no video is displayed
+				Image:
+					id: loadImg2
+					pos: (0,-45)
+					size: (root.size[0],root.size[1])
+					allow_stretch: True
+					keep_ratio: False
+					source: 'gui/background2.jpg'
+					
+				#Main Window
+				GridLayout:
+					cols: 3
+					size_hint: (None,None)
+					pos: (0,-45)
+					size: (root.size[0],root.size[1])
+					
+					#Left tabs with commands
+					TabbedPanel:
+						do_default_tab: False
+						background_color: (0, 0, 0, 0)
+						tab_pos: 'left_top'
+						tab_width: (root.size[1]-45)/3
+							
+						TabbedPanelItem:
+							text: 'Put Stuff Here'
+						
+						TabbedPanelItem:
+							text: 'Camera Buttons'
+							BoxLayout:
+								orientation: 'vertical'
+								size_hint: 1,.3
+								CtrlButton:
+									id: ArmCam2
+									b_text: 'Arm Camera'
+									func: 'ac'
+
+								CtrlButton:
+									id: DriveCam2
+									b_text: 'Drive Camera'
+									func: 'dc'
+						
+						TabbedPanelItem:
+							text: 'Navigation'
+							BoxLayout:
+								Label:
+									text: 'A compass here would be good'
+									
+						
+					
+					#Blank label to make space
+					Label:
+						text: ''
+					
+					#Right tabs with commands
+					TabbedPanel:
+						do_default_tab: False
+						background_color: (0, 0, 0, 0)
+						tab_pos: 'right_top'
+						tab_width: (root.size[1]-45)/3
+
+						TabbedPanelItem:
+							text: 'Mission Info'
+							BoxLayout:
+								size_hint: 1,.07
+								MissionInfo:
+									id: mission2
+
+						TabbedPanelItem:
+							text: 'More Stuff'
+								
+						TabbedPanelItem:
+							text: 'Rover Controls'
