@@ -5,12 +5,12 @@ from threads.navigationThread import navigationThread
 from threads.panelThread import panelThread
 
 #Import modules needed for GUI communication
-import baseMessages
+from config.settingsDefinition import settings_json
+import config.baseMessages
 import json
 from Queue import Queue
 import time
 import threads.unicodeConvert
-from config.settingsDefinition import settings_json
 
 #imports for Kivy GUI
 import kivy

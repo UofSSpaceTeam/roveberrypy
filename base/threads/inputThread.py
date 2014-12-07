@@ -1,4 +1,4 @@
-import baseMessages
+import config.baseMessages
 import threading
 import json
 import pygame

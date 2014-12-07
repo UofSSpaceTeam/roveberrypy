@@ -1,4 +1,4 @@
-import baseMessages
+import config.baseMessages
 import threading
 import socket
 import json

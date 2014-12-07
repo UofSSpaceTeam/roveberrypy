@@ -5,7 +5,7 @@ settings_json = json.dumps([
      'title': 'Rover GUI Settings'},
     {'type': 'bool',
      'title': 'A boolean setting',
-     'desc': 'Boolean description text',
+     'desc': 'Do you want to drive a rover?',
      'section': 'example',
      'key': 'boolexample'},
     {'type': 'numeric',
