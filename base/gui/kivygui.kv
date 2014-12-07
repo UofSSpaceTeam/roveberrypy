@@ -1,167 +1,157 @@
-
-<ArmButtons@GridLayout>:
+###Buttons to select modes/controls
+<CtrlButton@GridLayout>:
 	cols: 2
 	b_text: 'default'
-	#Default Function
 	func: 'none'
 	ind: (1, 0, 0, 1)
 	
+	#Button
 	BoxLayout:
 		orientation: 'vertical'
 		Button:
 			text: root.b_text
-			#Run Button's Function
 			on_release: app.buttonHandler(root.func)
-
+	
+	#Indicator
 	BoxLayout:
 		orientation: 'vertical'
 		Button:
 			background_color: root.ind
 			size_hint: (0.1, 1)
 		
-
-<CrtlModeButtons@GridLayout>:
+###Buttons to perform a simple action
+<ActButton@GridLayout>:
 	b_text: 'default'
-	#Default Function
 	func: 'none'
 	
-	orientation: 'vertical'
 	Button:
-		id: btn
 		text: root.b_text
-		#Send function to print
-		#TODO Make a function Handler
 		on_release: app.buttonHandler(root.func)
-		
-	#Indicator
 	
-<ActionButtons@GridLayout>:
-	b_text: 'default'
-	#Default Function
-	func: 'none'
-	
-	orientation: 'vertical'
-	Button:
-		id: btn
-		text: root.b_text
-		#Send function to print
-		#TODO Make a function Handler
-		on_release: app.buttonHandler(root.func)
-		
-	#Indicator
-	
-<ConnectionList@GridLayout>:
+###Shows the status of the local and remote threads
+<ThreadList@GridLayout>:
 	#Two columns
 	#Indicator
 	#Label
-	#Connect All button
-
-<MiscButtons@GridLayout>:
-	#Two columns
-	#Power Sliders
-	#Messages/Telemetry
-
-<NavScreen@CustomPopup>:
-	#TBD Navscreen Popup
-
-<MainScreeb@GridLayout>:
-	#VideoFeedBg
-	#Direction Arrow
-		#Coordinates
-	#Clock/Timer
-	#Critical Log info screen
 	
-#Master Layout Class
-<AppLayout>:
-	FloatLayout:
-		#Make a video window in the background
-		Video:
-			id: videoScreen
-			source: 'http://ctc.monroeccc.edu/mjpg/video.mjpg'
-			state: 'play'
-			allow_stretch: True
-			on_loaded: root.ids.loadImg.color = (1,1,1,0)
-			on_eos: root.ids.loadImg.color = (1,1,1,1)
+###Shows mission clock abd other info
+<MissionInfo@BoxLayout>:
+	clock_text: '00:00:00'
+	Label:
+		text: root.clock_text
+		bold: True
+		font_size: 20
 		
-		Image:
-			id: loadImg
-			allow_stretch: True
-			keep_ratio: False
-			source: 'gui/background.jpg'
+		
+		
+
+
+###Master Layout Class
+<AppLayout>:
+
+	#Action bar at top of app
+	FloatLayout:
+		ActionBar:
+			pos_hint: {'top':1}
+			ActionView:
+				use_separator: True
+				ActionPrevious:
+					title: 'USSTROVER GUI'
+					with_previous: False
+				ActionGroup:
+					text: 'Rover Actions'
+					ActionButton:
+						text: 'Connect'
+					ActionButton:
+						text: 'Stop'
+					ActionButton:
+						text: 'Save Waypoint'
+
+		#Layered video and controls
+		FloatLayout:
+		
+			#Video feed in background
+			Video:
+				size_hint: (None,None)
+				pos: (40,-45)
+				size: (root.size[0]+5-2*40,root.size[1]) #damn tab alignment...
+				id: videoScreen
+				source: 'http://ctc.monroeccc.edu/mjpg/video.mjpg'
+				state: 'play'
+				allow_stretch: True
+				keep_ratio: False
+				on_loaded: root.ids.loadImg.color = (1,1,1,0)
+				on_eos: root.ids.loadImg.color = (1,1,1,1)
 			
-		GridLayout:
-			cols: 3
-			TabbedPanel:
-				do_default_tab: False
-				background_color: (0, 0, 0, 0)
-				tab_pos: 'left_top'
-				tab_width: (root.size[1])/3
-
-				TabbedPanelItem:
-					text: 'Camera Buttons'
-					BoxLayout:
-						orientation: 'vertical'
-						size_hint: 1,.3
-						ArmButtons:
-							id: btn1
-							b_text: 'Arm Camera'
-							func: 'ac'
-
-						ArmButtons:
-							id: btn2
-							b_text: 'Drive Camera'
-							func: 'dc'
+			#Loading Image when no video is displayed
+			Image:
+				id: loadImg
+				pos: (0,-45)
+				size: (root.size[0],root.size[1])
+				allow_stretch: True
+				keep_ratio: False
+				source: 'gui/background2.jpg'
+				
+			#Main Window
+			GridLayout:
+				cols: 3
+				size_hint: (None,None)
+				pos: (0,-45)
+				size: (root.size[0],root.size[1])
+				
+				#Left tabs with commands
+				TabbedPanel:
+					do_default_tab: False
+					background_color: (0, 0, 0, 0)
+					tab_pos: 'left_top'
+					tab_width: (root.size[1]-45)/3
 						
-				TabbedPanelItem:
-					text: 'Put Stuff Here'
-					BoxLayout:
-						pos: (100,-45)
-						orientation: 'vertical'
-						size_hint: .3,.3
-						ArmButtons:
-							id: btn4
-							text: 'Arm/Rover'
-							#clicking the button should switch between the two
-						Label:
-							text: 'The Drive Power and Steer Rate sliders should be here'
-				TabbedPanelItem:
-					text: 'Navigation'
-					BoxLayout:
-						Label:
-							text: 'A compass here would be good'
+					TabbedPanelItem:
+						text: 'Put Stuff Here'
 					
-			Label:
-				text: ''
-			
-			TabbedPanel:
-				do_default_tab: False
-				background_color: (0, 0, 0, 0)
-				tab_pos: 'right_top'
-				tab_width: (root.size[1])/3
+					TabbedPanelItem:
+						text: 'Camera Buttons'
+						BoxLayout:
+							orientation: 'vertical'
+							size_hint: 1,.3
+							CtrlButton:
+								id: ArmCam
+								b_text: 'Arm Camera'
+								func: 'ac'
 
-				TabbedPanelItem:
-					tab_height: 100
-					tab_width: 250
-					text: 'Timer'
-					orientation: 'vertical'
-					size_hint: 1,.3
+							CtrlButton:
+								id: DriveCam
+								b_text: 'Drive Camera'
+								func: 'dc'
+					
+					TabbedPanelItem:
+						text: 'Navigation'
+						BoxLayout:
+							Label:
+								text: 'A compass here would be good'
+								
+					
+				
+				#Blank label to make space
+				Label:
+					text: ''
+				
+				#Right tabs with commands
+				TabbedPanel:
+					do_default_tab: False
+					background_color: (0, 0, 0, 0)
+					tab_pos: 'right_top'
+					tab_width: (root.size[1]-45)/3
 
-				TabbedPanelItem:
-					text: 'More Stuff'
-					BoxLayout:
-						Label:
-							text: 'Second tab content area'
-						Button:
-							text: 'Button that does nothing'
-						
-				TabbedPanelItem:
-					text: 'Rover Controls'
-					BoxLayout:
-						orientation: 'vertical'
-						size_hint: 1,.3
-						Button:
-							text: 'Dig'
-						Button:
-							text: 'Take Picture'
-						Button:
-							text: 'Science!'
+					TabbedPanelItem:
+						text: 'Mission Info'
+						BoxLayout:
+							size_hint: 1,.07
+							MissionInfo:
+								id: mission
+
+					TabbedPanelItem:
+						text: 'More Stuff'
+							
+					TabbedPanelItem:
+						text: 'Rover Controls'

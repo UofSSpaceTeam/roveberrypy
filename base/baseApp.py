@@ -34,7 +34,7 @@ convert = threads.unicodeConvert.convert
 #In code references of Kv widgets
 class AppLayout(FloatLayout):
 	def updateTime(self, *args):
-		self.ids.btn2.b_text = time.asctime()
+		self.ids.mission.clock_text = time.asctime()
 
 class KivyGuiApp(App):
 	kv_directory = 'gui'
@@ -51,14 +51,13 @@ class KivyGuiApp(App):
 	def buttonHandler(self, func):
 		if(func == 'ac'):
 			print('Arm Camera Selected')
-			self.Base.ids.btn1.ind = (0, 1, 0, 1)
-			self.Base.ids.btn2.ind = (1, 0, 0, 1)
-			self.Base.ids.videoScreen.eos = True
+			self.Base.ids.ArmCam.ind = (0, 1, 0, 1)
+			self.Base.ids.DriveCam.ind = (1, 0, 0, 1)
 			
 		if(func == 'dc'):
 			print('Drive Camera Selected')
-			self.Base.ids.btn1.ind = (1, 0, 0, 1)
-			self.Base.ids.btn2.ind = (0, 1, 0, 1)
+			self.Base.ids.ArmCam.ind = (1, 0, 0, 1)
+			self.Base.ids.DriveCam.ind = (0, 1, 0, 1)
 		
 		#Default action
 		if(func == 'none'):
