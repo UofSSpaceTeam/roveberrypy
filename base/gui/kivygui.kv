@@ -49,10 +49,11 @@
 
 ###Map widget showing terrain and rover position
 <NavMap@BoxLayout>:
-	map_image: 'gui/campusmap.jpg'
+	map_image: app.map_img
 	zoom: 1
-	position: (3500, 1700)
+	position: app.position_px
 	size_hint: (None, None)
+	map_size: (image.texture_size[0], image.texture_size[1])
 	size: image.size
 	#Map images are pretty big. We could perhaps find a way to speed up loading?
 	AsyncImage:
@@ -64,7 +65,6 @@
 		keep_ratio: True
 		source: root.map_image
 		canvas:
-			#We should do some calculations to translate gps coordinates into pixel positions on image
 			Color:
 				rgba: (0,0,1,1)
 			Ellipse:
