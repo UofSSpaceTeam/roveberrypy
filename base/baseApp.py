@@ -49,9 +49,10 @@ class KivyGuiApp(App):
 		self.follow_rover = self.config.get('navigation', 'follow_rover')
 		self.map_img = self.config.get('navigation', 'map_path')
 		self.scale_factor = 1
-		self.map_tr = (convert(self.config.get('navigation', 'tr_lon')), convert(self.config.get('navigation', 'tr_lat')))
-		self.map_bl = (convert(self.config.get('navigation', 'bl_lon')), convert(self.config.get('navigation', 'bl_lat')))
-		self.position_px = (0,0)
+		self.map_tr = (float(convert(self.config.get('navigation', 'tr_lon'))), float(convert(self.config.get('navigation', 'tr_lat'))))
+		self.map_bl = (float(convert(self.config.get('navigation', 'bl_lon'))), float(convert(self.config.get('navigation', 'bl_lat'))))
+		print(self.map_tr)
+		print(self.map_bl)
 		self.position_gps = (-106.628067,52.139176)
 		self.map_scale = (1,1)
 		
@@ -60,8 +61,10 @@ class KivyGuiApp(App):
 		self.root_widget = Builder.load_file('gui\kivygui.kv')
 		self.main = self.root_widget.get_screen('app')
 		self.nav = self.root_widget.get_screen('nav')
-		self.map_scale = ((self.ids.map.map_size[0])/(self.map_tr[0] - self.map_bl[0]), (self.ids.map.map_size[1])/(self.map_tr[1] - self.map_bl[1]))
-		self.position_px = ((self.position_gps[0]*self.map_scale[0]),(self.position_gps[1]*self.map_scale[1]))
+		self.map_scale = ((self.map_tr[0] - self.map_bl[0])/self.nav.ids.map.map_size[0], (self.map_tr[1] - self.map_bl[1])/self.nav.ids.map.map_size[1])
+		self.nav.ids.map.position = ((self.position_gps[0]-self.map_bl[0])/self.map_scale[0],(self.position_gps[1]-self.map_bl[1])/self.map_scale[1])
+		print(self.nav.ids.map.position)
+		print(self.map_scale)
 		
 		#Debug: list all of our named widgets on each screen
 		for key, val in self.main.ids.items():
@@ -92,7 +95,9 @@ class KivyGuiApp(App):
 		#Moves map to show rover.. kinda buggy but usable
 		if(func == 'on_map'):
 			pos = self.nav.ids.map.position
+			print pos
 			size = self.nav.ids.map.size
+			print self.nav.ids.map.map_size
 			zoom = self.nav.ids.map.zoom
 			self.nav.ids.scroll_map.scroll_x = pos[0]*zoom/(size[0])
 			self.nav.ids.scroll_map.scroll_y = pos[1]*zoom/(size[1])
