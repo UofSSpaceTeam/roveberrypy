@@ -91,6 +91,8 @@ class KivyGuiApp(App):
 			print('Drive Camera Selected')
 			self.main.ids.ArmCam.ind = (1, 0, 0, 1)
 			self.main.ids.DriveCam.ind = (0, 1, 0, 1)
+			self.main.ids.videoScreen.source = 'http://10.64.226.70:8080/?action=stream'
+			self.main.ids.videoScreen.state = 'play'
 		
 		#Moves map to show rover.. kinda buggy but usable
 		if(func == 'on_map'):
