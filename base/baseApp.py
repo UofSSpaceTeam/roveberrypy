@@ -195,9 +195,9 @@ class KivyGuiApp(App):
 	
 	def build_config(self, config):
 		config.setdefaults('general', {
-			'boolexample': False,
+			'test_mode': False,
 			'numericexample': 10,
-			'optionsexample': 'option2',
+			'drive_mode': 'Two Stick',
 			'stringexample': 'some_string',
 			'pathexample': '~'})
 		config.setdefaults('navigation', {
