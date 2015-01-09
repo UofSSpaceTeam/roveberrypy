@@ -5,7 +5,6 @@ from threads.navigationThread import navigationThread
 from threads.panelThread import panelThread
 
 #Import modules needed for GUI communication
-from config.settingsDefinition import general_json, navigation_json
 import config.baseMessages
 import json
 from Queue import Queue
@@ -16,14 +15,16 @@ import threads.unicodeConvert
 import kivy
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
+from config.settingsDefinition import general_json, navigation_json
 from kivy.uix.settings import SettingsWithTabbedPanel
 from kivy.lang import Builder
-
 from kivy.core.window import Window
 Window.size = (1000,600)
 from kivy.clock import Clock
 
-
+#imports for OpenGL Loading
+from gui.meshLoader.objectRenderer import ObjectRenderer
+from kivy.animation import Animation
 
 import time
 
@@ -40,7 +41,19 @@ class NavScreen(Screen):
 class GuiScreenManager(ScreenManager):
 	pass
 	
+class BaseView(ObjectRenderer):
+	def position(self, angle):
+		Animation(cam_rotation=(0, 0, 0), cam_translation=(0, 0, -2),d=0).start(self)
 
+	def update_lights(self, dt):
+		for i in range(self.nb_lights):
+			self.light_sources[i] = [self.light_radius, 5, self.light_radius, 1.0]
+		for k in self.light_sources.keys():
+			if k >= self.nb_lights:
+				del(self.light_sources[k])
+		
+class View(BaseView):
+	pass
 
 class KivyGuiApp(App):
 	def build(self):
@@ -76,6 +89,7 @@ class KivyGuiApp(App):
 		Clock.schedule_interval(self.displayQueue, 0.1)
 		Clock.schedule_interval(self.main.updateTime, 1)
 		Clock.schedule_interval(self.autoRecenterMap, 2)
+		Clock.schedule_once(self.main.ids.rendering.update_lights, 0)
 		
 		return self.root_widget
 	

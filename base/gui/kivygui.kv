@@ -185,11 +185,26 @@ GuiScreenManager:
 						TabbedPanelItem:
 							text: 'Navigation'
 							BoxLayout:
-								Label:
-									text: 'A compass here would be good'
+								View:
+									canvas.before:
+										Color:
+											rgba: 1, 1, 1, 1
+										Rectangle:
+											pos: self.pos
+											size: (self.x, self.y)
+
+									id: rendering
+									scene: 'gui/navball.obj'
+									obj_scale: 1
+									display_all: True
+									ambiant: .8
+									diffuse: 0.20
+									specular: 0.4
+									on_parent: self.position(0)
+									mode: 'triangles'
+									light_radius: 20
+									nb_lights: 4
 									
-						
-					
 					#Blank label to make space
 					Label:
 						text: ''
