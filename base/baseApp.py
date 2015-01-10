@@ -64,9 +64,8 @@ class KivyGuiApp(App):
 		self.scale_factor = 1
 		self.map_tr = (float(convert(self.config.get('navigation', 'tr_lon'))), float(convert(self.config.get('navigation', 'tr_lat'))))
 		self.map_bl = (float(convert(self.config.get('navigation', 'bl_lon'))), float(convert(self.config.get('navigation', 'bl_lat'))))
-		print(self.map_tr)
-		print(self.map_bl)
-		self.position_gps = (-106.628067,52.139176)
+		self.map_size = (float(convert(self.config.get('navigation', 'map_size_x'))), float(convert(self.config.get('navigation', 'map_size_y'))))
+		self.position_gps = (-106.628067,52.132756)
 		self.map_scale = (1,1)
 		
 		#Set up application
@@ -74,9 +73,18 @@ class KivyGuiApp(App):
 		self.root_widget = Builder.load_file('gui\kivygui.kv')
 		self.main = self.root_widget.get_screen('app')
 		self.nav = self.root_widget.get_screen('nav')
-		self.map_scale = ((self.map_tr[0] - self.map_bl[0])/self.nav.ids.map.map_size[0], (self.map_tr[1] - self.map_bl[1])/self.nav.ids.map.map_size[1])
+		self.map_scale = ((self.map_tr[0] - self.map_bl[0])/self.map_size[0], (self.map_tr[1] - self.map_bl[1])/self.map_size[1])
 		self.nav.ids.map.position = ((self.position_gps[0]-self.map_bl[0])/self.map_scale[0],(self.position_gps[1]-self.map_bl[1])/self.map_scale[1])
+		print("=================================GPS DATA=========================")
+		print("Map corners top bottom")
+		print(self.map_tr, self.map_bl)
+		print("Map size")
+		#print(self.nav.ids.map.map_size)
+		print("Rover Position")
+		print(self.position_gps)
+		print("New pixel Positiion")
 		print(self.nav.ids.map.position)
+		print("Map scale factor")
 		print(self.map_scale)
 		
 		#Debug: list all of our named widgets on each screen
@@ -220,6 +228,8 @@ class KivyGuiApp(App):
 			'tr_lon': -106.618917,
 			'bl_lat': 52.127204,
 			'bl_lon': -106.647735,
+			'map_size_x': 5196,
+			'map_size_y': 3605,
 			'optionsexample': 'option2',
 			'stringexample': 'some_string',
 			'map_path': 'gui/campusmap.jpg'})
