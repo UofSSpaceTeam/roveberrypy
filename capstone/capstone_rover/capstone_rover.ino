@@ -113,29 +113,17 @@ void loop()
 		key[1] = key[2];
 		key[2] = (byte)Serial1.read();
 		
-		#ifdef DEBUG
-		{
-			for(i = 0; i < 3; i++)
-				Serial.print(" " + key[i]);
-			Serial.println();
-		}
-		#endif
-		
 		// check for a complete header
 		if((header[0] == key[0]) && (header[1] == key[1]) && (header[2] == key[2]))
 		{
+			#ifdef DEBUG
+				Serial.print("got header");
+			#endif
 			// read in message data
 			for(i = 0; i < sizeof(msg); i++)
 			{
 				while(!Serial1.available());
 				msg.cmd_bytes[i] = Serial1.read();
-				
-				#ifdef DEBUG
-					Serial.print("got ");
-					Serial.print(i);
-					Serial.print(" / ");
-					Serial.println(sizeof(msg));
-				#endif
 			}
 			
 			// check for a valid checksum
@@ -151,18 +139,32 @@ void loop()
 				setTable(msg.cmd_struct.tableRate);
 				panServo.write(msg.cmd_struct.panPosition);
 				tiltServo.write(msg.cmd_struct.tiltPosition);
-				
 				#ifdef DEBUG
-					Serial.print("checksum ok: ");
-					Serial.println(tmp);
+				{
+					Serial.print("\tCsum ok");
+					Serial.print("\t  Pan: ");
+					Serial.print((int)msg.cmd_struct.panPosition);
+					Serial.print("\t  Tilt: ");
+					Serial.print((int)msg.cmd_struct.tiltPosition);
+					Serial.print("\tSlider: ");
+					Serial.print((int)msg.cmd_struct.sliderRate);
+					Serial.print("\tTable: ");
+					Serial.println((int)msg.cmd_struct.tableRate);
+				}
 				#endif
 			}
-			#ifdef DEBUG
-				Serial.print("bad checksum: ");
-				Serial.print(tmp);
-				Serial.print(" != ");
-				Serial.println(msg.cmd_struct.csum);
-			#endif
+			else
+			{
+				#ifdef DEBUG
+					if(msg.cmd_struct.csum != tmp)
+					{
+						Serial.print("bad checksum: ");
+						Serial.print(tmp);
+						Serial.print(" != ");
+						Serial.println(msg.cmd_struct.csum);
+					}
+				#endif
+			}
 		}
 	}
 }
