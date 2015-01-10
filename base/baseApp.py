@@ -118,13 +118,8 @@ class KivyGuiApp(App):
 		
 		#Moves map to show rover.. kinda buggy but usable
 		if(func == 'on_map'):
-			pos = self.nav.ids.map.position
-			print pos
-			size = self.nav.ids.map.size
-			print self.nav.ids.map.map_size
-			zoom = self.nav.ids.map.zoom
-			self.nav.ids.scroll_map.scroll_x = pos[0]*zoom/(size[0])
-			self.nav.ids.scroll_map.scroll_y = pos[1]*zoom/(size[1])
+			self.nav.ids.scroll_map.scroll_x = self.nav.ids.map.position[0]*self.nav.ids.map.zoom/(self.nav.ids.map.map_size[0])
+			self.nav.ids.scroll_map.scroll_y = self.nav.ids.map.position[1]*self.nav.ids.map.zoom/(self.nav.ids.map.map_size[1])
 		
 		#Default action (no action)
 		if(func == 'none'):
