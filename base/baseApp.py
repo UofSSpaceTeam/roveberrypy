@@ -43,7 +43,8 @@ class GuiScreenManager(ScreenManager):
 	
 class BaseView(ObjectRenderer):
 	def position(self, angle):
-		Animation(cam_rotation=(0, 0, 0), cam_translation=(0, 0, -2),d=0).start(self)
+		print(angle)
+		Animation(cam_rotation=(0, angle, 0), cam_translation=(0, 0, -3), d=0).start(self)
 
 	def update_lights(self, dt):
 		for i in range(self.nb_lights):
@@ -67,6 +68,7 @@ class KivyGuiApp(App):
 		self.map_size = (float(convert(self.config.get('navigation', 'map_size_x'))), float(convert(self.config.get('navigation', 'map_size_y'))))
 		self.position_gps = (-106.628067,52.132756)
 		self.map_scale = (1,1)
+		self.angle = 0
 		
 		#Set up application
 		self.title = 'USST Rover Application'
@@ -75,17 +77,6 @@ class KivyGuiApp(App):
 		self.nav = self.root_widget.get_screen('nav')
 		self.map_scale = ((self.map_tr[0] - self.map_bl[0])/self.map_size[0], (self.map_tr[1] - self.map_bl[1])/self.map_size[1])
 		self.nav.ids.map.position = ((self.position_gps[0]-self.map_bl[0])/self.map_scale[0],(self.position_gps[1]-self.map_bl[1])/self.map_scale[1])
-		print("=================================GPS DATA=========================")
-		print("Map corners top bottom")
-		print(self.map_tr, self.map_bl)
-		print("Map size")
-		#print(self.nav.ids.map.map_size)
-		print("Rover Position")
-		print(self.position_gps)
-		print("New pixel Positiion")
-		print(self.nav.ids.map.position)
-		print("Map scale factor")
-		print(self.map_scale)
 		
 		#Debug: list all of our named widgets on each screen
 		for key, val in self.main.ids.items():
@@ -113,6 +104,7 @@ class KivyGuiApp(App):
 			print('Drive Camera Selected')
 			self.main.ids.ArmCam.ind = (1, 0, 0, 1)
 			self.main.ids.DriveCam.ind = (0, 1, 0, 1)
+			## Don't think this is working properly
 			self.main.ids.videoScreen.source = 'http://10.64.226.70:8080/?action=stream'
 			self.main.ids.videoScreen.state = 'play'
 		
@@ -144,10 +136,14 @@ class KivyGuiApp(App):
 			pass
 			#print("no data in queue")
 		
-	#Calls to re-center map... auto press button? (if enabled)
+	#Calls to re-center map... auto press button
 	def autoRecenterMap(self, dt):
 		if(self.follow_rover == '1'):
 			self.buttonHandler('on_map')
+			
+	def turnNavball(self):
+		self.angle += 5
+		self.main.ids.rendering.position(self.angle)
 	
 	'''
 		=========================================================================================
