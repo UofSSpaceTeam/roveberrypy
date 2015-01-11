@@ -184,17 +184,18 @@ GuiScreenManager:
 									func: 'dc'
 						
 						TabbedPanelItem:
-							text: 'Navigation'
+							text: 'Navigation'	
 							BoxLayout:
+								orientation: 'vertical'
+								#This is the custom 3dBall Widget
 								View:
 									canvas.before:
 										Color:
 											rgba: 1, 1, 1, 1
 										Rectangle:
 											pos: self.pos
-											size: (self.x, self.y)
-
-									id: rendering
+											size: (0, 0)
+									id: Ball3d
 									scene: 'gui/navball.obj'
 									obj_scale: 1
 									display_all: True
@@ -205,6 +206,8 @@ GuiScreenManager:
 									mode: 'triangles'
 									light_radius: 20
 									nb_lights: 2
+								Button:
+									text: 'hello'
 									
 					#Blank label to make space
 					Label:

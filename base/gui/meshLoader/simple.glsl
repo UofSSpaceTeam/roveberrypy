@@ -34,7 +34,7 @@ varying float v_alpha;
 
 void main (void) {
     //compute vertex position in eye_sapce and normalize normal vector
-    vec4 pos = modelview_mat * vec4(v_pos, 1.0);
+    vec4 pos = modelview_mat * vec4(v_pos, 1);
     vertex_pos = pos;
     normal_vec = vec4(v_normal,0.0);
     gl_Position = projection_mat * pos;

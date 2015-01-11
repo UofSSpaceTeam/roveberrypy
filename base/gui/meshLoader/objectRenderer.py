@@ -135,7 +135,7 @@ class ObjectRenderer(Widget):
 
     def update_glsl(self, *args):
         asp = self.width / float(self.height)
-        proj = Matrix().view_clip(-asp, asp, -1, 1, 1, 100, 1)
+        proj = Matrix().view_clip(-asp, asp, -1, 1, 1, 150, 1)
         self.fbo['projection_mat'] = proj
 
     def setup_scene(self):

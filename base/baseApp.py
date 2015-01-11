@@ -40,11 +40,12 @@ class NavScreen(Screen):
 	
 class GuiScreenManager(ScreenManager):
 	pass
-	
+
+# Custom 3d Widget	
 class BaseView(ObjectRenderer):
 	def position(self, angle):
 		print(angle)
-		Animation(cam_rotation=(0, angle, 0), cam_translation=(0, 0, -3), d=0).start(self)
+		Animation(cam_rotation=(0, 180-angle, 0), cam_translation=(0, 0, -2), d=0).start(self)
 
 	def update_lights(self, dt):
 		for i in range(self.nb_lights):
@@ -70,6 +71,10 @@ class KivyGuiApp(App):
 		self.map_scale = (1,1)
 		self.angle = 0
 		
+		print("window size")
+		print Window.size
+		self.window_size = Window.size
+		
 		#Set up application
 		self.title = 'USST Rover Application'
 		self.root_widget = Builder.load_file('gui\kivygui.kv')
@@ -88,7 +93,7 @@ class KivyGuiApp(App):
 		Clock.schedule_interval(self.displayQueue, 0.1)
 		Clock.schedule_interval(self.main.updateTime, 1)
 		Clock.schedule_interval(self.autoRecenterMap, 2)
-		Clock.schedule_once(self.main.ids.rendering.update_lights, 0)
+		Clock.schedule_once(self.main.ids.Ball3d.update_lights, 0)
 		
 		return self.root_widget
 	
@@ -143,7 +148,7 @@ class KivyGuiApp(App):
 			
 	def turnNavball(self):
 		self.angle += 5
-		self.main.ids.rendering.position(self.angle)
+		self.main.ids.Ball3d.position(self.angle)
 	
 	'''
 		=========================================================================================
@@ -194,6 +199,9 @@ class KivyGuiApp(App):
 		print('exiting')
 		#Unload all threads
 		self.stopThreads()
+		
+	def on_resize(self):
+		self.window_size = Window.size
 		
 	'''
 		=========================================================================================
