@@ -45,7 +45,7 @@ class GuiScreenManager(ScreenManager):
 class BaseView(ObjectRenderer):
 	def position(self, angle):
 		print(angle)
-		Animation(cam_rotation=(0, 180-angle, 0), cam_translation=(0, 0, -2), d=0).start(self)
+		Animation(cam_rotation=(+7, 180-angle, 0), cam_translation=(0, 0.35, -2), d=0).start(self)
 
 	def update_lights(self, dt):
 		for i in range(self.nb_lights):
