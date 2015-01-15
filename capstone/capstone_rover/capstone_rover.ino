@@ -1,22 +1,22 @@
 // Written by Jordan Kubica for CME 495 project, 2014-2015
 // Code for the arduino which operates the rover unit
 
-#define DEBUG
+//#define DEBUG
 
 // dependencies
 #include <Servo.h>
 
 // pin connections
-#define SLIDER_PWM 5
-#define TABLE_A 7
-#define TABLE_B 4
-#define TABLE_PWM 6
+#define SLIDER_PWM 6
+#define TABLE_A 8
+#define TABLE_B 9
+#define TABLE_PWM 5
 #define PAN_SERVO_PIN 14
-#define TILT_SERVO_PIN 15
+#define TILT_SERVO_PIN 10
 
 // don't change these because interrupts would break
-#define SLIDER_A 8
-#define SLIDER_B 9
+#define SLIDER_A 7
+#define SLIDER_B 4
 #define LEFT_LIMIT 2
 #define RIGHT_LIMIT 3
 
@@ -49,8 +49,8 @@ typedef union
 } command_t_union;
 
 // command message header and key (header checker)
-const byte header[3] = {'m', 's', 'g'};
-byte key[3] = {0, 0, 0};
+const byte header[2] = {'m', 's'};
+byte key[2] = {0, 0};
 
 // globals
 Servo panServo;
@@ -110,11 +110,10 @@ void loop()
 	{
 		// shift the next byte
 		key[0] = key[1];
-		key[1] = key[2];
-		key[2] = (byte)Serial1.read();
+		key[1] = (byte)Serial1.read();
 		
 		// check for a complete header
-		if((header[0] == key[0]) && (header[1] == key[1]) && (header[2] == key[2]))
+		if((header[0] == key[0]) && (header[1] == key[1]))
 		{
 			#ifdef DEBUG
 				Serial.print("got header");
@@ -135,10 +134,10 @@ void loop()
 			// execute the commands in the message
 			if(msg.cmd_struct.csum == tmp)
 			{
+  				panServo.write(msg.cmd_struct.panPosition);
+				tiltServo.write(msg.cmd_struct.tiltPosition);
 				setSlider(msg.cmd_struct.sliderRate);
 				setTable(msg.cmd_struct.tableRate);
-				panServo.write(msg.cmd_struct.panPosition);
-				tiltServo.write(msg.cmd_struct.tiltPosition);
 				#ifdef DEBUG
 				{
 					Serial.print("\tCsum ok");
@@ -182,9 +181,9 @@ void setSlider(char rate)
 	{
 		if(digitalRead(RIGHT_LIMIT) == HIGH) // limit switch not pressed
 		{
-			digitalWrite(SLIDER_A, HIGH);
-			digitalWrite(SLIDER_B, LOW);
-			analogWrite(SLIDER_PWM, min(abs(rate * 2), 255));
+			digitalWrite(SLIDER_A, LOW);
+			digitalWrite(SLIDER_B, HIGH);
+			digitalWrite(SLIDER_PWM, HIGH);
 			sliderDirection = RIGHT;
 		}
 	}
@@ -192,9 +191,9 @@ void setSlider(char rate)
 	{
 		if(digitalRead(LEFT_LIMIT) == HIGH); // limit switch not pressed
 		{
-			digitalWrite(SLIDER_A, LOW);
-			digitalWrite(SLIDER_B, HIGH);
-			analogWrite(SLIDER_PWM, min(abs(rate * 2), 255));
+			digitalWrite(SLIDER_A, HIGH);
+			digitalWrite(SLIDER_B, LOW);
+			digitalWrite(SLIDER_PWM, HIGH);
 			sliderDirection = LEFT;
 		}
 	}
@@ -210,15 +209,15 @@ void setTable(char rate)
 	}
 	else if(rate > 0) // rotate clockwise
 	{
-		digitalWrite(TABLE_A, HIGH);
-		digitalWrite(TABLE_B, LOW);
-		analogWrite(TABLE_PWM, min(abs(rate), 255));
+		digitalWrite(TABLE_A, LOW);
+		digitalWrite(TABLE_B, HIGH);
+		digitalWrite(TABLE_PWM, HIGH);
 	}
 	else // rotate counterclockwise
 	{
-		digitalWrite(TABLE_A, LOW);
-		digitalWrite(TABLE_B, HIGH);
-		analogWrite(TABLE_PWM, min(abs(rate), 255));
+		digitalWrite(TABLE_A, HIGH);
+		digitalWrite(TABLE_B, LOW);
+		digitalWrite(TABLE_PWM, HIGH);
 	}
 }
 

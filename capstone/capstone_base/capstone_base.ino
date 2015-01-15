@@ -1,14 +1,18 @@
 // Written by Jordan Kubica for CME 495 project, 2014-2015
 // Code for the arduino which operates the base unit
 
-#define DEBUG
+//#define DEBUG
 
 // pin connections
 #define TRACKER_IN 5
 
 // configuration
-#define CHAN_MAX 1560
-#define CHAN_MIN 430
+#define PAN_MAX 1560
+#define PAN_MIN 430
+#define TILT_MAX 1200
+#define TILT_MIN 600
+#define ROLL_MAX 1560
+#define ROLL_MIN 430
 
 // command message struct
 typedef struct
@@ -28,7 +32,7 @@ typedef union
 } command_t_union;
 
 // command message header
-const byte header[3] = {'m', 's', 'g'};
+const byte header[2] = {'m', 's'};
 
 // this is run at power-up
 void setup()
@@ -55,7 +59,7 @@ void loop()
 	command_t_union msg;
 	unsigned long blankPulse, panPulse, tiltPulse, rollPulse;
 	byte pan, tilt, roll, csum, i;
-	byte buffer[sizeof(command_t_union) + 3];
+	byte buffer[sizeof(command_t_union) + 2];
 	
 	// wait for the start of an r/c frame from the headtracker
 	do
@@ -77,9 +81,9 @@ void loop()
 		return;
 	
 	// translate pulse length to degrees
-	pan = map(constrain(panPulse, CHAN_MIN, CHAN_MAX), CHAN_MIN, CHAN_MAX, 0, 180);
-	tilt = map(constrain(tiltPulse, CHAN_MIN, CHAN_MAX), CHAN_MIN, CHAN_MAX, 0, 180);
-	roll = map(constrain(rollPulse, CHAN_MIN, CHAN_MAX), CHAN_MIN, CHAN_MAX, 0, 180);
+	pan = map(constrain(panPulse, PAN_MIN, PAN_MAX), PAN_MIN, PAN_MAX, 180, 0);
+	tilt = map(constrain(tiltPulse, TILT_MIN, TILT_MAX), TILT_MIN, TILT_MAX, 180, 0);
+	roll = map(constrain(rollPulse, ROLL_MIN, ROLL_MAX), ROLL_MIN, ROLL_MAX, 0, 180);
 	
 	// fill in command message
 	msg.cmd_struct.panPosition = pan;
@@ -106,10 +110,10 @@ void loop()
 	msg.cmd_struct.csum += msg.cmd_struct.tableRate + msg.cmd_struct.sliderRate;
 	
 	// send complete message
-	for(i = 0; i < 3; i++)
+	for(i = 0; i < 2; i++)
 		buffer[i] = header[i];
 	for(i = 0; i < sizeof(command_t_union); i++)
-		buffer[i + 3] = msg.cmd_bytes[i];
+		buffer[i + 2] = msg.cmd_bytes[i];
 	Serial1.write(buffer, sizeof(buffer));
 	
 	#ifdef DEBUG
@@ -130,6 +134,6 @@ void loop()
 	#endif
 	
 	// wait a bit before the next message
-	delay(100);
+	delay(10);
 }
 
