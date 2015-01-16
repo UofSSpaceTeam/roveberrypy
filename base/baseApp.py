@@ -134,12 +134,11 @@ class KivyGuiApp(App):
 	#Debug: test to display an amt of Queue items on label
 	def displayQueue(self, dt):
 		if not self.mailbox.empty():
-			#self.ltb2.l_text
 			data = str(self.mailbox.get())
-			print(data)
+			self.main.ids.tele.text = data
+			
 		else:
-			pass
-			#print("no data in queue")
+			self.main.ids.tele.text = "No Data!"
 		
 	#Calls to re-center map... auto press button
 	def autoRecenterMap(self, dt):
