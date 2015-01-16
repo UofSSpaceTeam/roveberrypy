@@ -2,7 +2,7 @@
 
 cameraList = (["camOn", "camSel"])
 
-telemetryList = ([])
+telemetryList = (["tsense"])
 
 driveList = (["c1j1y", "c1j2y", "throttle", "steerRate"])
 

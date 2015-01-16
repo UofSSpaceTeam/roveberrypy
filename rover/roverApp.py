@@ -50,10 +50,11 @@ print("running")
 time.sleep(2)
 
 # test code goes here
-commThread.inbox.put({"c1j1y":0.44})
+#commThread.inbox.put({"c1j1y":0.44})
+commThread.inbox.put({"tsense":0.5})  
+
 
 time.sleep(2)
 print("stopping")
 stopThreads()
 print("done")
-
