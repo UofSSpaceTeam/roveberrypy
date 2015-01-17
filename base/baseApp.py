@@ -21,6 +21,7 @@ from kivy.lang import Builder
 from kivy.core.window import Window
 Window.size = (1000,600)
 from kivy.clock import Clock
+from kivy.uix.textinput import TextInput
 
 #imports for OpenGL Loading
 from gui.meshLoader.objectRenderer import ObjectRenderer
