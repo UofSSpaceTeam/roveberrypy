@@ -166,6 +166,25 @@ GuiScreenManager:
 						tab_width: (root.size[1]-45)/3
 							
 						TabbedPanelItem:
+<<<<<<< .mine
+							text: 'Coordinate Input'
+							BoxLayout:
+								orientation: 'vertical'
+								size_hint: 1,.3
+								TextInput:
+									id: txt_input_lat
+								TextInput:
+									id: txt_input_long
+								ActButton:
+									id: DegDec
+									b_text: 'Switch to Degree or Decimal Mode'
+									#func: 'none'
+								ActButton:
+									id: Submit
+									b_text: 'Enter Waypoint'
+									#func: 'none'
+								
+=======
 							text: 'Telemetry Data'
 							Label:
 								id: tele
@@ -173,6 +192,7 @@ GuiScreenManager:
 								bold: True
 								font_size: 25
 						
+>>>>>>> .r1080
 						TabbedPanelItem:
 							text: 'Camera Buttons'
 							BoxLayout:
@@ -237,7 +257,17 @@ GuiScreenManager:
 									id: mission
 
 						TabbedPanelItem:
-							text: 'More Stuff'
+							text: 'Time Elapsed'
+							BoxLayout:
+								size_hint: (1,.3)
+								MissionInfo:
+									id: mission2
+								TextInput:
+									id: txt_input_time
+								ActButton:
+									id: submit2
+									b_text: 'Enter Time'
+									#func: 'none'
 								
 						TabbedPanelItem:
 							text: 'Rover Controls'
@@ -310,7 +340,22 @@ GuiScreenManager:
 						tab_width: (root.size[1]-45)/3
 							
 						TabbedPanelItem:
-							text: 'Put Stuff Here'
+							text: 'Coordinate Input'
+							BoxLayout:
+								orientation: 'vertical'
+								size_hint: 1,.3
+								TextInput:
+									id: txt_input_lat
+								TextInput:
+									id: txt_input_long
+								ActButton:
+									id: DegDec
+									b_text: 'Switch to Degree or Decimal Mode'
+									#func: 'none'
+								ActButton:
+									id: Submit
+									b_text: 'Enter Waypoint'
+									#func: 'none'
 						
 						TabbedPanelItem:
 							text: 'Camera Buttons'
@@ -348,13 +393,24 @@ GuiScreenManager:
 
 						TabbedPanelItem:
 							text: 'Mission Info'
-							BoxLayout:
+							ScatterLayout:
 								size_hint: (1,.07)
 								MissionInfo:
-									id: mission2
+									id: mission
 
 						TabbedPanelItem:
-							text: 'More Stuff'
+							text: 'Time Elapsed'
+							BoxLayout:
+								size_hint: (1,.3)
+								MissionInfo:
+									id: mission2
+								TextInput:
+									id: txt_input_time
+								ActButton:
+									id: submit2
+									b_text: 'Enter Time'
+									#func: 'none'
+								
 								
 						TabbedPanelItem:
 							text: 'Rover Controls'
