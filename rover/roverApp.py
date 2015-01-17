@@ -43,6 +43,8 @@ commThread.driveThread = driveThread
 commThread.armThread = armThread
 commThread.experimentThread = experimentThread
 
+teleThread.commThread = commThread
+
 # test execution
 print("starting")
 startThreads()
@@ -51,10 +53,10 @@ time.sleep(2)
 
 # test code goes here
 #commThread.inbox.put({"c1j1y":0.44})
-commThread.inbox.put({"tsense":0.5})  
+#commThread.inbox.put({"tsense":0.5})  
 
 
-time.sleep(2)
+time.sleep(5)
 print("stopping")
 stopThreads()
 print("done")

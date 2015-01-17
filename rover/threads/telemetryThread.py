@@ -12,20 +12,30 @@ class telemetryThread(threading.Thread):
 		threading.Thread.__init__(self)
 		self.name = "telemetryThread"
 		self.exit = False
-		#self.commThread = False
+		self.commThread = None
 		self.mailbox = Queue()
 
+		
 	def run(self):
 		while not self.exit:
-			#print(self.mailbox.get())
-			#time.sleep(0.01)
 			msg = {}
-			# send result from sensor
-			# for test just add wanted values  
-			msg["tsense"] = 0.5  
-			#self.commThread.mailbox.put(msg)
+			# get info from sensor every 1 sec
+			time.sleep(1)
+			msg.update(self.sensorInfo())
+			#data = json.dumps(msg)
+			self.commThread.mailbox.put(msg)
 			self.mailbox.put(msg)
-			time.sleep(0.2)
+			time.sleep(.2)
+			
+	# simulates receiving info from a sensor  		
+	def sensorInfo(self):
+		value = {}
+		#add values to test
+		#using c1j1y arbitrarily 
+		value["c1j1y"] = 0.5
+		
+		return value 
+		
 
 	def stop(self):
 		self.exit = True
