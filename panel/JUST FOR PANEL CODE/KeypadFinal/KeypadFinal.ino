@@ -1,4 +1,5 @@
 #include <Keypad.h>
+//Download keypad.h into "arduinio\libraries\" and go to Sketch - Import Library - Keypad
 
 //Resistors on keypad pin 7, 6, 4, 2!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -10,18 +11,17 @@
    {'1', '2', '3'},
    {'4', '5', '6'},
    {'7', '8', '9'},
-   {'*', '0', '#'}
+   {'#', '0', '*'} //# and * flipped to work with our keypad.
  };
  
  //Connects the row of pinouts of the keypad
- byte rowPins[ROWS] = {5,4,3,2}; 
+ byte rowPins[ROWS] = {5,6,7,8}; 
  //Connects to the column pinouts of the keypad
- byte colPins[COLS] = {8,7,6}; 
+ byte colPins[COLS] = {2,3,4}; 
  
  //Keypad mykeypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 // Keypad customKeypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, cols); 
 Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
-
 
 void setup() 
 {
