@@ -1,7 +1,7 @@
 //Framework for a drive module slave
   int stall_current; //current threshold for stalling
   int freespin_current; //current threshold for freespinning
-  int master_spd_cntr[6]; //value obtained from drive module master for speed control
+  int master_spd_cntr[6] = {0}; //value obtained from drive module master for speed control
   int current_pins[6] = {1,2,3,4,5,6}; //analog pins for reading current from mc
   int m_write[6] = {1,2,3,4,5,6}; //digital output pins for controlling speed
   int m_current[6]; //motor's measured current
@@ -19,7 +19,7 @@ void setup()
 void loop() 
 {  
   
-  for(int i = 0;i = 5; i++)
+  for(int i = 0; i <= 5; i++)
   {
     //get all of the motor currents
     m_current[i] = getMotorCurrent(i); 
@@ -55,27 +55,26 @@ void setMotorSpeed(int i)
   {
     //may need some math here to convert speed cmd to actual speed
     //also need to select direction
-      analogWrite(m_write[i],master_spd_cntr);
+      analogWrite(m_write[i],master_spd_cntr[i]);
   }
   else if(m_stall[i])
   {
     //puslate stalled wheels
       digitalWrite(dir_pin[i],forward);
-      analogWrite(m_write,255);
+      analogWrite(m_write[i],255);
       digitalWrite(dir_pin[i],reverse);
-      analogWrite(m_write,255);
+      analogWrite(m_write[i],255);
   }
   else if(m_freespin[i])
   {
-      analogWrite(m_write[i],master_spd_cntr - 50);  
+      analogWrite(m_write[i],master_spd_cntr[i] - 50);  
   }
-  return
 }
 
 int getMotorCurrent(int wheel_num)
 {
   //will probably need some math here...
-  current = analogRead(current_pins[wheel_num]};
+  int current = analogRead(current_pins[wheel_num]);
   return current;
 }
 
