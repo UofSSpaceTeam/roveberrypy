@@ -1,50 +1,81 @@
 //Framework for a drive module slave
   int stall_current; //current threshold for stalling
   int freespin_current; //current threshold for freespinning
-  int value; //value obtained from drive module master for speed control
-  int current_pin; //an analog input pin for reading current
-  int pwm_pin; //a digital output pin for controlling speed
-  int m_current; //motor's measured current
-  bool m_stall = false; //stall state of motor
-  bool m_freespin = false; //freespin state of motor
-  //These variables can be copied for controlling multiple motors
-void setup() {
+  int master_spd_cntr[6]; //value obtained from drive module master for speed control
+  int current_pins[6] = {1,2,3,4,5,6}; //analog pins for reading current from mc
+  int m_write[6] = {1,2,3,4,5,6}; //digital output pins for controlling speed
+  int m_current[6]; //motor's measured current
+  int dir_pin[6] = {1,2,3,4,5,6};  //motor direction pins
+  int forward = 1;  //pretty sure high on the dir pin is forward and low is reverse
+  int reverse = 0;
+  bool m_stall[6] = {0,0,0,0,0,0}; //stall state of motor
+  bool m_freespin[6] = {0,0,0,0,0,0}; //freespin state of motor
+  
+void setup() 
+{
+  
 }
 
-void loop() {
-  analogWrite(pwm_pin, value); //sets motor speed
-  m_current = analogRead(current_pin); //reads current of motor
-  //Checks for stalling via comparing current with a threshold
-  if (m_current >= stall_current)
+void loop() 
+{  
+  
+  for(int i = 0;i = 5; i++)
   {
-    m_stall = true;
+    //get all of the motor currents
+    m_current[i] = getMotorCurrent(i); 
+    //Checks for freespinning via comparison with a threshold
+    if (m_current[i] >= stall_current)
+      {
+        m_stall[i] = true;
+      }
+    else
+    {
+      m_stall[i] = false; 
+      //will only work if rechecks require a new loop; could use another threshold
+      //later in the loop to recheck
+    } 
+      //Checks for freespinning via comparison with a threshold
+    if (m_current[i] <= freespin_current)
+    {
+      m_freespin[i] = true;
+    }
+    else
+    {
+      m_freespin[i] = false; //will only work if rechecks require a new loop; could use another threshold
+    }                     //later in the loop to recheck
+    //set the motor speeds
+    setMotorSpeed(i);
   }
-  else
+
+}
+
+void setMotorSpeed(int i)
+{
+  if(!m_stall[i] && !m_freespin[i])
   {
-    m_stall = false; //will only work if rechecks require a new loop; could use another threshold
-  }                  //later in the loop to recheck 
-  //Checks for freespinning via comparison with a threshold
-  if (m_current <= freespin_current)
+    //may need some math here to convert speed cmd to actual speed
+    //also need to select direction
+      analogWrite(m_write[i],master_spd_cntr);
+  }
+  else if(m_stall[i])
   {
-    m_freespin = true;
+    //puslate stalled wheels
+      digitalWrite(dir_pin[i],forward);
+      analogWrite(m_write,255);
+      digitalWrite(dir_pin[i],reverse);
+      analogWrite(m_write,255);
   }
-  else
+  else if(m_freespin[i])
   {
-    m_freespin = false; //will only work if rechecks require a new loop; could use another threshold
-  }                     //later in the loop to recheck
-  //Deals with a stalled wheel
-  if (m_stall = true)
-  { //Go forwards and backwards to try and un-stall the wheel
-    analogWrite(pwm_pin, 255); //will send '255' to 'IN A' pin on driver
-    delay(100);
-    analogWrite(pwm_pin, -255); //will really send '255' to 'In B' pin on driver
-    //delay(100); //these 2 lines are for if we have to stop the wheel first
-    //analogWrite(pwm_pin, 0);
+      analogWrite(m_write[i],master_spd_cntr - 50);  
   }
-  //Deals with a freespinning wheel
-  if (m_freespin = true)
-  { //I honestly have no idea how to deal with this; this is just a rough idea
-    analogWrite(pwm_pin, value - 50);
-  }
+  return
+}
+
+int getMotorCurrent(int wheel_num)
+{
+  //will probably need some math here...
+  current = analogRead(current_pins[wheel_num]};
+  return current;
 }
 
