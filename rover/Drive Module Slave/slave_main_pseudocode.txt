@@ -1,0 +1,55 @@
+//very very very rough psuedo code structure for slave drive controller module
+
+stall_current_th = //dont know yet
+free_spin_current_th = //also dont know
+m_1_stall = false;
+.
+.
+.
+m_6_stal = false;
+
+m_1_freespin = false;
+.
+.
+.
+m_6_freespin = false
+
+void setup
+void loop
+{
+//get motor currents
+m1_current = analogread(pin)	//any analog pin is fine
+m2_current = analogread(another pin)
+.
+.
+.
+m6_current = analogread(yet another pin)
+
+//check if current is above stall or below freespin thresholds
+if(m1_current >= stall_current_tr)
+{
+m_1_stall = true;
+}
+//have similar if statements for motors 2 through 6
+if(m1_current <= freespin_current)
+{
+m_1_freespin = true;
+}
+//similar conditions for other motors as well
+/*have some conditions to reset m_x_stall and m_x_freespin back to false
+perhaps if current returns back within another set of threshold values?
+*/
+//have the motor controllers do stuff when m_x_stall and m_x_freesping are true (see system specs on drive)
+//i.e.
+if(m_1_stall == true)
+{
+go forward
+delay(100);
+go backwards
+}
+//agian for all other motors
+//actions when wheels are freespinning
+if(m1_freespin == treu)
+redeuce current (analogwrite(0)?)
+
+}
