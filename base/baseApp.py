@@ -1,3 +1,6 @@
+import sys
+sys.dont_write_bytecode = True
+
 #Import all of the thread modules
 from threads.communicationThread import communicationThread
 from threads.inputThread import inputThread
@@ -171,7 +174,6 @@ class KivyGuiApp(App):
 		#Any thread configuration options are run here
 		self.commThread.sendPort = 8001
 		self.commThread.receivePort = 8000
-		self.commThread.sendInterval = 0.25
 		self.commThread.inputThread = self.inputThread
 		self.commThread.navThread = self.navThread
 		self.commThread.panelThread = self.panelThread

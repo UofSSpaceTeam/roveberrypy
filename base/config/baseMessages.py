@@ -14,6 +14,8 @@ navList = (["hd", "p", "v"])
 
 guiList = (["batt", "tilt"])
 
+panelList = ([])
+
 
 # control panel 
 

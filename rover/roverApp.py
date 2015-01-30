@@ -38,8 +38,7 @@ experimentThread = experimentThread()
 
 # configure threads
 commThread.sendPort = 8000
-commThread.receivePort = 8000
-commThread.sendInterval = 1.25
+commThread.receivePort = 8001
 commThread.cameraThread = cameraThread
 commThread.teleThread = teleThread
 commThread.driveThread = driveThread

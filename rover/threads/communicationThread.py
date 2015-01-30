@@ -1,4 +1,4 @@
-import roverMessages
+import roverMessages as messages
 import threading
 import socket
 import json
@@ -37,7 +37,7 @@ class communicationThread(threading.Thread):
 	class receiveThread(threading.Thread):
 		def __init__(self):
 			threading.Thread.__init__(self)
-			self.debug = False
+			self.debug = True
 			self.name = "receiveThread"
 			self.exit = False
 			self.parentThread = None
@@ -71,7 +71,6 @@ class communicationThread(threading.Thread):
 		self.sender = self.sendThread()
 		self.receiver = self.receiveThread()
 		self.receiver.parentThread = self
-		self.sendInterval = None
 		self.sendPort = None
 		self.receivePort = None
 		self.cameraThread = None
@@ -91,27 +90,27 @@ class communicationThread(threading.Thread):
 			while not self.inbox.empty():
 				inData = self.inbox.get()
 				for key, value in inData.iteritems():
-					for msg in roverMessages.cameraList:
+					for msg in messages.cameraList:
 						if key == msg:
 							self.cameraThread.mailbox.put({key, value})
 							if self.debug:
 								print("delivered " + msg + " to cameraThread")
-					for msg in roverMessages.telemetryList:
+					for msg in messages.telemetryList:
 						if key == msg:
 							self.teleThread.mailbox.put({key, value})
 							if self.debug:
 								print("delivered " + msg + " to telemetryThread")
-					for msg in roverMessages.driveList:
+					for msg in messages.driveList:
 						if key == msg:
 							self.driveThread.mailbox.put({key, value})
 							if self.debug:
 								print("delivered " + msg + " to driveThread")
-					for msg in roverMessages.armList:
+					for msg in messages.armList:
 						if key == msg:
 							self.armThread.mailbox.put({key, value})
 							if self.debug:
 								print("delivered " + msg + " to armThread")
-					for msg in roverMessages.experimentList:
+					for msg in messages.experimentList:
 						if key == msg:
 							self.experimentThread.mailbox.put({key, value})
 							if self.debug:
@@ -122,7 +121,8 @@ class communicationThread(threading.Thread):
 			if not self.mailbox.empty():
 				while not self.mailbox.empty():
 					outDict.update(self.mailbox.get())
-				print "sending: " + str(outDict)
+				if(self.debug):
+					print "sending: " + str(outDict)
 				self.sender.mailbox.put(outDict)
 			time.sleep(0.01)
 

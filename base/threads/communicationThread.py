@@ -1,4 +1,4 @@
-import config.baseMessages
+import config.baseMessages as messages
 import threading
 import socket
 import json
@@ -22,7 +22,6 @@ class communicationThread(threading.Thread):
 
 		def run(self):
 			self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-			self.socket.bind(("", self.port))
 			self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 			while not self.exit:
 				while not self.mailbox.empty():
@@ -38,7 +37,7 @@ class communicationThread(threading.Thread):
 	class receiveThread(threading.Thread):
 		def __init__(self):
 			threading.Thread.__init__(self)
-			self.debug = False
+			self.debug = True
 			self.name = "receiveThread"
 			self.exit = False
 			self.parentThread = None
@@ -92,33 +91,34 @@ class communicationThread(threading.Thread):
 			while not self.inbox.empty():
 				inData = self.inbox.get()
 				for key, value in inData.iteritems():
-					for msg in roverMessages.inputList:
+					for msg in messages.inputList:
 						if key == msg:
 							self.inputThread.mailbox.put({key, value})
 							if self.debug:
 								print("sent " + msg + " to inputThread")
-					for msg in roverMessages.navList:
+					for msg in messages.navList:
 						if key == msg:
 							self.navThread.mailbox.put({key, value})
 							if self.debug:
 								print("sent " + msg + " to navThread")
-					for msg in roverMessages.panelList:
+					for msg in messages.panelList:
 						if key == msg:
 							self.panelThread.mailbox.put({key, value})
 							if self.debug:
 								print("sent " + msg + " to panelThread")
-					for msg in roverMessages.guiList:
+					for msg in messages.guiList:
 						if key == msg:
 							self.guiThread.mailbox.put({key, value})
 							if self.debug:
 								print("sent " + msg + " to guiThread")
 				
 			# process output from other threads
-			if time.clock() - lastSend > self.sendInterval:
-				lastSend = time.clock()
-				outDict = {}
+			outDict = {}
+			if not self.mailbox.empty():
 				while not self.mailbox.empty():
 					outDict.update(self.mailbox.get())
+				if(self.debug):
+					print "sending: " + str(outDict)
 				self.sender.mailbox.put(outDict)
 			time.sleep(0.01)
 
