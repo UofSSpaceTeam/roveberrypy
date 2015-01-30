@@ -1,3 +1,6 @@
+import sys
+sys.dont_write_bytecode = True
+
 #Import all of the thread modules
 from threads.communicationThread import communicationThread
 from threads.experimentThread import experimentThread
@@ -10,11 +13,11 @@ import time
 
 def startThreads():
 	commThread.start()
-	cameraThread.start()
-	teleThread.start()
-	driveThread.start()
-	armThread.start()
-	experimentThread.start()
+	#cameraThread.start()
+	#teleThread.start()
+	#driveThread.start()
+	#armThread.start()
+	#experimentThread.start()
 
 def stopThreads():
 	commThread.stop()
@@ -35,8 +38,8 @@ experimentThread = experimentThread()
 
 # configure threads
 commThread.sendPort = 8000
-commThread.receivePort = 8001
-commThread.sendInterval = 0.25
+commThread.receivePort = 8000
+commThread.sendInterval = 1.25
 commThread.cameraThread = cameraThread
 commThread.teleThread = teleThread
 commThread.driveThread = driveThread
@@ -48,15 +51,12 @@ teleThread.commThread = commThread
 # test execution
 print("starting")
 startThreads()
-print("running")
 time.sleep(2)
 
 # test code goes here
-#commThread.inbox.put({"c1j1y":0.44})
-#commThread.inbox.put({"tsense":0.5})  
-
+commThread.mailbox.put({"c1j1y":0.44})
+commThread.mailbox.put({"tsense":0.5})  
 
 time.sleep(5)
-print("stopping")
 stopThreads()
 print("done")

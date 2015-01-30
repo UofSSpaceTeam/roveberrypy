@@ -22,7 +22,6 @@ class communicationThread(threading.Thread):
 
 		def run(self):
 			self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-			self.socket.bind(("", self.port))
 			self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 			while not self.exit:
 				while not self.mailbox.empty():
@@ -96,34 +95,34 @@ class communicationThread(threading.Thread):
 						if key == msg:
 							self.cameraThread.mailbox.put({key, value})
 							if self.debug:
-								print("sent " + msg + " to cameraThread")
+								print("delivered " + msg + " to cameraThread")
 					for msg in roverMessages.telemetryList:
 						if key == msg:
 							self.teleThread.mailbox.put({key, value})
 							if self.debug:
-								print("sent " + msg + " to telemetryThread")
+								print("delivered " + msg + " to telemetryThread")
 					for msg in roverMessages.driveList:
 						if key == msg:
 							self.driveThread.mailbox.put({key, value})
 							if self.debug:
-								print("sent " + msg + " to driveThread")
+								print("delivered " + msg + " to driveThread")
 					for msg in roverMessages.armList:
 						if key == msg:
 							self.armThread.mailbox.put({key, value})
 							if self.debug:
-								print("sent " + msg + " to armThread")
+								print("delivered " + msg + " to armThread")
 					for msg in roverMessages.experimentList:
 						if key == msg:
 							self.experimentThread.mailbox.put({key, value})
 							if self.debug:
-								print("sent " + msg + " to experimentThread")
+								print("delivered " + msg + " to experimentThread")
 				
 			# process output from other threads
-			if time.clock() - lastSend > self.sendInterval:
-				lastSend = time.clock()
-				outDict = {}
+			outDict = {}
+			if not self.mailbox.empty():
 				while not self.mailbox.empty():
 					outDict.update(self.mailbox.get())
+				print "sending: " + str(outDict)
 				self.sender.mailbox.put(outDict)
 			time.sleep(0.01)
 
