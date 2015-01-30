@@ -23,6 +23,7 @@ class communicationThread(threading.Thread):
 		def run(self):
 			self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 			self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+			self.socket.bind(("", self.port))
 			while not self.exit:
 				while not self.mailbox.empty():
 					data = json.dumps(self.mailbox.get())

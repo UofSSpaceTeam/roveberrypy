@@ -37,8 +37,8 @@ armThread = armThread()
 experimentThread = experimentThread()
 
 # configure threads
-commThread.sendPort = 8000
-commThread.receivePort = 8001
+commThread.sendPort = 31313
+commThread.receivePort = 31314
 commThread.cameraThread = cameraThread
 commThread.teleThread = teleThread
 commThread.driveThread = driveThread

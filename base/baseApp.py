@@ -172,8 +172,8 @@ class KivyGuiApp(App):
 		self.panelThread = panelThread()
 		
 		#Any thread configuration options are run here
-		self.commThread.sendPort = 8001
-		self.commThread.receivePort = 8000
+		self.commThread.sendPort = 31314
+		self.commThread.receivePort = 31313
 		self.commThread.inputThread = self.inputThread
 		self.commThread.navThread = self.navThread
 		self.commThread.panelThread = self.panelThread
