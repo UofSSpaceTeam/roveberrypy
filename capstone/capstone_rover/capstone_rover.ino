@@ -1,8 +1,6 @@
 // Written by Jordan Kubica for CME 495 project, 2014-2015
 // Code for the arduino which operates the rover unit
 
-//#define DEBUG
-
 // dependencies
 #include <Servo.h>
 
@@ -21,23 +19,25 @@
 #define RIGHT_LIMIT 3
 
 // configuration
-#define PAN_SERVO_MIN 1000
-#define PAN_SERVO_MAX 2000
-#define TILT_SERVO_MIN 1000
-#define TILT_SERVO_MAX 2000
+#define PAN_SERVO_MIN 940
+#define PAN_SERVO_MAX 2100
+#define TILT_SERVO_MIN 900
+#define TILT_SERVO_MAX 2100
 
 // function prototypes
-void setSlider(int rate);
-void setTable(int rate);
-void limitInterrupt();
+void tableLeft();
+void tableRight();
+void tableStop();
+void sliderLeft();
+void sliderRight();
+void sliderStop();
 
 // command message struct
 typedef struct
 {
-	char sliderRate;
-	char tableRate;
 	byte panPosition;
 	byte tiltPosition;
+	byte motors;
 	byte csum;
 } command_t;
 
@@ -48,16 +48,14 @@ typedef union
 	byte cmd_bytes[sizeof(command_t)];
 } command_t_union;
 
-// command message header and key (header checker)
-const byte header[2] = {'m', 's'};
+// checks for message header
 byte key[2] = {0, 0};
 
-// globals
 Servo panServo;
 Servo tiltServo;
-volatile enum {STOPPED, LEFT, RIGHT} sliderDirection;
 
-// this is run at power-up
+enum {STOPPED, LEFT, RIGHT} sliderDirection;
+
 void setup()
 {
 	// configure I/O
@@ -73,158 +71,126 @@ void setup()
 	tiltServo.attach(TILT_SERVO_PIN, TILT_SERVO_MIN, TILT_SERVO_MAX);
 	
 	// initialize output states
-	digitalWrite(SLIDER_A, LOW);
-	digitalWrite(SLIDER_B, LOW);
-	digitalWrite(SLIDER_PWM, LOW);
-	sliderDirection = STOPPED;
-	digitalWrite(TABLE_A, LOW);
-	digitalWrite(TABLE_B, LOW);
-	digitalWrite(TABLE_PWM, LOW);
+	sliderStop();
+	tableStop();
 	panServo.write(90);
 	tiltServo.write(90);
 	
 	// set up serial port for XBEE connection
 	Serial1.begin(9600);
 	Serial1.flush();
-	
-	// set up interrupts on limit switches
-	attachInterrupt(0, limitInterrupt, FALLING);
-	attachInterrupt(1, limitInterrupt, FALLING);
-	
-	#ifdef DEBUG
-	{
-		Serial.begin(9600);
-		Serial.println("Hello world!");
-	}
-	#endif
 }
 
 // runs forever
 void loop()
 {
 	static command_t_union msg;
-	byte i, tmp;
+	byte i;
+	
+	// check limit switches
+	if(((sliderDirection == LEFT) && (digitalRead(LEFT_LIMIT) == LOW)) || ((sliderDirection == RIGHT) && (digitalRead(RIGHT_LIMIT) == LOW)))
+		sliderStop();
 	
 	// check serial port for new message data
 	if(Serial1.available())
 	{
-		// shift the next byte
+		// shift in the next byte
 		key[0] = key[1];
 		key[1] = (byte)Serial1.read();
 		
 		// check for a complete header
-		if((header[0] == key[0]) && (header[1] == key[1]))
+		if((key[0] == 'm') && (key[1] == 's'))
 		{
-			#ifdef DEBUG
-				Serial.print("got header");
-			#endif
+			// reset key
+			key[0] = 0;
+			key[1] = 0;
+			
 			// read in message data
-			for(i = 0; i < sizeof(msg); i++)
+			for(i = 0; i < sizeof(command_t_union); i++)
 			{
 				while(!Serial1.available());
 				msg.cmd_bytes[i] = Serial1.read();
 			}
 			
 			// check for a valid checksum
-			tmp = (byte)msg.cmd_struct.sliderRate;
-			tmp += (byte)msg.cmd_struct.tableRate;
-			tmp += (byte)msg.cmd_struct.panPosition;
-			tmp += (byte)msg.cmd_struct.tiltPosition;
-			
-			// execute the commands in the message
-			if(msg.cmd_struct.csum == tmp)
+			if((byte)msg.cmd_struct.csum == (byte)(msg.cmd_struct.panPosition
+			+ msg.cmd_struct.tiltPosition
+			+ msg.cmd_struct.motors))
 			{
-  				panServo.write(msg.cmd_struct.panPosition);
-				tiltServo.write(msg.cmd_struct.tiltPosition);
-				setSlider(msg.cmd_struct.sliderRate);
-				setTable(msg.cmd_struct.tableRate);
-				#ifdef DEBUG
-				{
-					Serial.print("\tCsum ok");
-					Serial.print("\t  Pan: ");
-					Serial.print((int)msg.cmd_struct.panPosition);
-					Serial.print("\t  Tilt: ");
-					Serial.print((int)msg.cmd_struct.tiltPosition);
-					Serial.print("\tSlider: ");
-					Serial.print((int)msg.cmd_struct.sliderRate);
-					Serial.print("\tTable: ");
-					Serial.println((int)msg.cmd_struct.tableRate);
-				}
-				#endif
-			}
-			else
-			{
-				#ifdef DEBUG
-					if(msg.cmd_struct.csum != tmp)
-					{
-						Serial.print("bad checksum: ");
-						Serial.print(tmp);
-						Serial.print(" != ");
-						Serial.println(msg.cmd_struct.csum);
-					}
-				#endif
+  				panServo.write(180 - msg.cmd_struct.panPosition);
+				tiltServo.write(180 - msg.cmd_struct.tiltPosition);
+				
+				if(msg.cmd_struct.motors & 0x01)
+					tableLeft();
+				else if(msg.cmd_struct.motors & 0x02)
+					tableRight();
+				else
+					tableStop();
+				
+				if(msg.cmd_struct.motors & 0x08)
+					sliderLeft();
+				else if(msg.cmd_struct.motors & 0x04)
+					sliderRight();
+				else
+					sliderStop();
 			}
 		}
 	}
 }
 
-void setSlider(char rate)
+void sliderLeft()
 {
-	if(rate == 0) // stop slider
+	if(digitalRead(LEFT_LIMIT) == HIGH)
 	{
-		digitalWrite(SLIDER_PWM, LOW);
-		digitalWrite(SLIDER_A, LOW);
+		digitalWrite(SLIDER_A, HIGH);
 		digitalWrite(SLIDER_B, LOW);
-		sliderDirection = STOPPED;
-	}
-	else if(rate > 0) // move right
-	{
-		if(digitalRead(RIGHT_LIMIT) == HIGH) // limit switch not pressed
-		{
-			digitalWrite(SLIDER_A, LOW);
-			digitalWrite(SLIDER_B, HIGH);
-			digitalWrite(SLIDER_PWM, HIGH);
-			sliderDirection = RIGHT;
-		}
-	}
-	else // move left
-	{
-		if(digitalRead(LEFT_LIMIT) == HIGH); // limit switch not pressed
-		{
-			digitalWrite(SLIDER_A, HIGH);
-			digitalWrite(SLIDER_B, LOW);
-			digitalWrite(SLIDER_PWM, HIGH);
-			sliderDirection = LEFT;
-		}
+		digitalWrite(SLIDER_PWM, HIGH);
+		sliderDirection = LEFT;
 	}
 }
 
-void setTable(char rate)
+void sliderRight()
 {
-	if(rate == 0) // stop table
+	if(digitalRead(RIGHT_LIMIT) == HIGH)
 	{
-		digitalWrite(TABLE_PWM, LOW);
-		digitalWrite(TABLE_A, LOW);
-		digitalWrite(TABLE_B, LOW);
-	}
-	else if(rate > 0) // rotate clockwise
-	{
-		digitalWrite(TABLE_A, LOW);
-		digitalWrite(TABLE_B, HIGH);
-		digitalWrite(TABLE_PWM, HIGH);
-	}
-	else // rotate counterclockwise
-	{
-		digitalWrite(TABLE_A, HIGH);
-		digitalWrite(TABLE_B, LOW);
-		digitalWrite(TABLE_PWM, HIGH);
+		digitalWrite(SLIDER_A, LOW);
+		digitalWrite(SLIDER_B, HIGH);
+		digitalWrite(SLIDER_PWM, HIGH);
+		sliderDirection = RIGHT;
 	}
 }
 
-// ISR which stops the slider when the limit switches are pressed
-void limitInterrupt()
+void sliderStop()
 {
-	PORTB &= B11001111; // sets pins directly on the pro micro board
+	digitalWrite(SLIDER_PWM, LOW);
+	digitalWrite(SLIDER_A, LOW);
+	digitalWrite(SLIDER_B, LOW);
 	sliderDirection = STOPPED;
 }
+
+void tableLeft()
+{
+	digitalWrite(TABLE_A, HIGH);
+	digitalWrite(TABLE_B, LOW);
+	digitalWrite(TABLE_PWM, HIGH);
+}
+
+void tableRight()
+{
+	digitalWrite(TABLE_A, LOW);
+	digitalWrite(TABLE_B, HIGH);
+	digitalWrite(TABLE_PWM, HIGH);
+}
+
+void tableStop()
+{
+	digitalWrite(TABLE_PWM, LOW);
+	digitalWrite(TABLE_A, LOW);
+	digitalWrite(TABLE_B, LOW);
+}
+
+
+
+
+
 
