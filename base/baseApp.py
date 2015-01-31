@@ -47,9 +47,10 @@ class GuiScreenManager(ScreenManager):
 
 # Custom 3d Widget	
 class BaseView(ObjectRenderer):
-	def position(self, angle):
-		print(angle)
-		Animation(cam_rotation=(+7, 180-angle, 0), cam_translation=(0, 0.35, -2), d=0).start(self)
+	# This function can be called to change the rotation of the navball
+	def position(self, yaw, pitch, roll):
+		print(yaw,pitch,roll)
+		Animation(cam_rotation=(+7+pitch, 180-yaw, 0+roll), cam_translation=(0, 0.35, -2), d=0).start(self)
 
 	def update_lights(self, dt):
 		for i in range(self.nb_lights):
@@ -73,7 +74,11 @@ class KivyGuiApp(App):
 		self.map_size = (float(convert(self.config.get('navigation', 'map_size_x'))), float(convert(self.config.get('navigation', 'map_size_y'))))
 		self.position_gps = (-106.628067,52.132756)
 		self.map_scale = (1,1)
-		self.angle = 0
+		
+		#test values for navball
+		self.yaw = 0
+		self.pitch = 0
+		self.roll = 0
 		
 		print("window size")
 		print Window.size
@@ -150,8 +155,8 @@ class KivyGuiApp(App):
 			self.buttonHandler('on_map')
 			
 	def turnNavball(self):
-		self.angle += 5
-		self.main.ids.Ball3d.position(self.angle)
+		self.roll += 5
+		self.main.ids.Ball3d.position(self.yaw, self.pitch, self.roll)
 	
 	'''
 		=========================================================================================
@@ -192,7 +197,7 @@ class KivyGuiApp(App):
 
 	def stopThreads(self):
 		self.inputThread.stop()
-		time.sleep(0.2)
+		time.sleep(0.2) #wait for other pygame threads to stop
 		self.commThread.stop()
 		self.navThread.stop()
 		self.panelThread.stop()
@@ -239,6 +244,7 @@ class KivyGuiApp(App):
 		settings.add_json_panel('General', self.config, data=general_json)
 		settings.add_json_panel('Navigation', self.config, data=navigation_json)
 
+	#This function is called on pressing a button in config	
 	def on_config_change(self, config, section, key, value):
 		value = convert(value) #damn unicode...
 		print(key, value)

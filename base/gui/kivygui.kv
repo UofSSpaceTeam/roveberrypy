@@ -82,8 +82,49 @@
 			text: 'Zoom Out -'
 			on_press: app.nav.ids.map.zoom -= 0.1
 	BoxLayout:
-		Label:
-			text: 'hullo'
+		ScrollView:
+			size_hint: (None, None)
+			size: (100,320)
+			pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+			do_scroll_x: False
+			GridLayout:
+				cols: 1
+				padding: 10
+				spacing: 10
+				size_hint: (None, None)
+				width: 100
+				Button:
+					text: "hullo"
+					size_hint: (None, None)
+					size: (100,40)
+				Button:
+					text: "hullo2"
+					size_hint: (None, None)
+					size: (100,40)
+				Button:
+					text: "hullo"
+					size_hint: (None, None)
+					size: (100,40)
+				Button:
+					text: "hullo2"
+					size_hint: (None, None)
+					size: (100,40)
+				Button:
+					text: "hullo"
+					size_hint: (None, None)
+					size: (100,40)
+				Button:
+					text: "hullo2"
+					size_hint: (None, None)
+					size: (100,40)
+				Button:
+					text: "hullo"
+					size_hint: (None, None)
+					size: (100,40)
+				Button:
+					text: "hullo2"
+					size_hint: (None, None)
+					size: (100,40)
 	BoxLayout:
 		ActButton:
 			b_text: 'Show Rover On Map'
@@ -164,27 +205,6 @@ GuiScreenManager:
 						background_color: (0, 0, 0, 0)
 						tab_pos: 'left_top'
 						tab_width: (root.size[1]-45)/3
-							
-						TabbedPanelItem:
-#<<<<<<< .mine
-							text: 'Coordinate Input'
-							BoxLayout:
-								orientation: 'vertical'
-								size_hint: 1,.3
-								TextInput:
-									id: txt_input_lat
-								TextInput:
-									id: txt_input_long
-								ActButton:
-									id: DegDec
-									b_text: 'Switch to Degree or Decimal Mode'
-									#func: 'none'
-								ActButton:
-									id: Submit
-									b_text: 'Enter Waypoint'
-									#func: 'none'
-								
-#=======
 						TabbedPanelItem:
 							text: 'Telemetry Data'
 							Label:
@@ -192,8 +212,6 @@ GuiScreenManager:
 								text: 'hello'
 								bold: True
 								font_size: 25
-						
-#>>>>>>> .r1080
 						TabbedPanelItem:
 							text: 'Camera Buttons'
 							BoxLayout:
@@ -231,7 +249,7 @@ GuiScreenManager:
 										ambiant: .9
 										diffuse: 0.6
 										specular: 0.1
-										on_parent: self.position(0)
+										on_parent: self.position(0,0,0)
 										mode: 'triangles'
 										light_radius: 20
 										nb_lights: 2
@@ -296,13 +314,13 @@ GuiScreenManager:
 						text: 'Rover Actions'
 						ActionButton:
 							text: 'Connect'
-							on_press: app.nav.ids.map.zoom = 0.25
+							on_press: app.nav.ids.map.zoom = 0.25 #test
 						ActionButton:
 							text: 'Stop'
-							on_press: app.nav.ids.map.zoom = 0.35
+							on_press: app.nav.ids.map.zoom = 0.35 #test
 						ActionButton:
 							text: 'Save Waypoint'
-							on_press: app.nav.ids.map.zoom = 0.45
+							on_press: app.nav.ids.map.zoom = 0.45 #test
 					ActionButton:
 						text: 'Settings'
 						on_press: app.open_settings()
