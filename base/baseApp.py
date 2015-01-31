@@ -126,6 +126,7 @@ class KivyGuiApp(App):
 		if(func == 'on_map'):
 			self.nav.ids.scroll_map.scroll_x = self.nav.ids.map.position[0]*self.nav.ids.map.zoom/(self.nav.ids.map.map_size[0])
 			self.nav.ids.scroll_map.scroll_y = self.nav.ids.map.position[1]*self.nav.ids.map.zoom/(self.nav.ids.map.map_size[1])
+			
 		
 		#Default action (no action)
 		if(func == 'none'):
@@ -229,7 +230,7 @@ class KivyGuiApp(App):
 			'stringexample': 'some_string',
 			'pathexample': '~'})
 		config.setdefaults('navigation', {
-			'follow_rover': False,
+			'follow_rover': True,
 			'tr_lat': 52.139176,
 			'tr_lon': -106.618917,
 			'bl_lat': 52.127204,
