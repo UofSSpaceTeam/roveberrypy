@@ -121,8 +121,7 @@ array of joystick,
 
 
 Logical way to determine a hierarchy of functions so that it will prioritize manual input over serial input and execute that.
-
-In general the control panel will not receive data from the computer, and inputs from the control panel will override the GUI. 
-When control panel is unplugged, GUI continues as normal.
+	In general the control panel will not receive data from the computer, and inputs from the control panel will override the GUI. 
+	When control panel is unplugged, GUI continues as normal.
 
 //read where the inputs are at the pins, store that info at the inputs.
