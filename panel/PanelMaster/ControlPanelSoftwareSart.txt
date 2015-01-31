@@ -1,0 +1,128 @@
+INPUTS
+
+Dial1: Speed control
+Dial2: Steering ontrol
+Dial3:
+
+Timer Button: Start and Stop timer
+	
+Keypad: GPS coordinates
+		# = toggle enter mode
+		* = Decimal point
+
+GPS: Button - cycle way points
+
+Switch 1: Emergency Stop
+Switch 2: Beacon
+Switch 3: toggle arrow or compass on arrow screen
+Switch 4:
+
+PSP Joystick: Cycle Telemetry display
+
+Telemetry Buttons:
+	1 - quick access Battery screen
+	2 - quick access Speed screen
+	3 - quick access Temperature screen
+	4 - quick access 
+	
+Black Buttons: Experiment
+
+
+
+
+
+OUTPUTS
+Telemetry screen: 	display battery
+					display speed
+					display temperature
+					
+Telemetry LEDs: Display status of sensors
+	Green - good
+	Blue - warning
+	Red - Critical
+	
+Arrow LED: Green light to indicate whether on compass or pointing to target
+
+Arrow screen:	Display compass
+				Display arrow to target
+Timer screen:	Top Line - Time left in competition
+				Bottom Line - Timer (manual start)
+				
+GPS screen: 	Top Line - Display current position / display input as it is entered
+				Bottom Line - Display way points
+
+
+				
+				
+				
+				
+				
+				
+SKELETON CODE
+
+ARROW SCREEN
+LED changes on arrow screen as compass or target arrow is selected
+switch changes display
+
+GPS
+	Keypad:
+		# starts/stops entry
+		* is a decimal point
+		numbers input GPS coordinates
+GPS button cycles way point 
+When GPS button cycles way point, Target arrow points at new way point
+
+TIMER
+Time for challenge - received from computer
+When timer button is pushed, stopwatch starts counting up. Quick push starts/stops. Hold clears.
+
+TELEMETRY
+LEDs change colour as sensors are under stress:
+	Green: good
+	Blue: warning
+	Red: critical
+Joystick cycles Telemetry screen unless button input
+button overrides joystick to change telemetry display
+
+SWITCEHS
+1 - remote stop rover
+2 - Distress beacon on rover on/off
+3 - toggle arrow / compass
+4 - 
+
+DIALS
+1 - Speed control (speeds up / slows down rover top speed)
+2 - Steering control (makes steering more or less sensitive)
+3 - 
+
+
+------------------------------------------------------------------------
+
+
+CODE
+
+1st step is to store inputs (read values at the pins(Button, joystick, and keypad), get info. from the computer, store information.)
+
+2nd step is to update outputs (screens, LED's, calculate clock etc.)
+
+
+loop all data
+
+
+How send to computer?
+
+
+keypad button press will interrupt loop.(start a smaller loop inside the large one)
+
+
+array of buttons
+
+array of joystick, 
+
+
+Logical way to determine a hierarchy of functions so that it will prioritize manual input over serial input and execute that.
+
+In general the control panel will not receive data from the computer, and inputs from the control panel will override the GUI. 
+When control panel is unplugged, GUI continues as normal.
+
+//read where the inputs are at the pins, store that info at the inputs.
