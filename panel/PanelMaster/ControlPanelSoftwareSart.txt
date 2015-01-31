@@ -1,7 +1,7 @@
 INPUTS
 
 Dial1: Speed control
-Dial2: Steering ontrol
+Dial2: Steering control
 Dial3:
 
 Timer Button: Start and Stop timer
@@ -99,7 +99,7 @@ DIALS
 ------------------------------------------------------------------------
 
 
-CODE
+CODE TO DO
 
 1st step is to store inputs (read values at the pins(Button, joystick, and keypad), get info. from the computer, store information.)
 
@@ -125,3 +125,29 @@ Logical way to determine a hierarchy of functions so that it will prioritize man
 	When control panel is unplugged, GUI continues as normal.
 
 //read where the inputs are at the pins, store that info at the inputs.
+
+
+------------------------------------------------------------------------------
+
+CODE
+
+Array of buttons
+
+Array of joystick
+
+	while # pressed
+		//start new loop for GPS input
+	when # pressed again return to previous loop
+	
+Read pins
+	store data
+	
+If button 1 pressed
+	switch telemetry to battery read
+	
+If button 2 pressed
+	switch telemetry to speed read
+	
+If button 3 pressed
+	switch telemetry to temperature read
+	
