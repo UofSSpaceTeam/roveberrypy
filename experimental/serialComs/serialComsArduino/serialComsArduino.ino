@@ -12,46 +12,51 @@ char test(const char* message, int n)
   return sum;
 }
 
-void messageSend(const char* message)
-{ 
-  Serial.print(startByte);
-  Serial.print(message);
-  Serial.print(endByte);
-  Serial.print(test(message, strlen(message)));
-}
-
-char messageGet()
+// Not working.. I don't know what this is??
+/*int messageGet(char * ptr)
 {
-  boolean readMessage = false;
-  boolean buffer = true;
-  
-  char messageBuffer[75] = "";
-  
-  while(buffer == true)
+  bool read = false;
+  bool buffer = true;
+  int len = 0;
+  while(buffer)
   {
-    char chr = Serial.read(1);
-    if(chr == startByte)
+    if(Serial.available() > 0)
     {
-      readMessage = true;
-    }
-    else if(chr == stopByte)
-    {
-      if(Serial.read(1) != test(messageBuffer, strlen(messageBuffer)))
+      char msg = Serial.read();
+      if(msg == startByte)
       {
-        messageBuffer = "-1";
+        Serial.println("start");
+        read = true;
+        int len = (Serial.read() - '0')*10 + (Serial.read() - '0');
+        Serial.println(len);
+        ptr = new char[len];
       }
-      buffer = false;
-    }
-    else
-    {
-      if(readMessage == true)
+      else if(msg == endByte)
       {
-        messageBuffer += chr;
+        Serial.println("end");
+        buffer = false;
       }
+      else
+      {
+        if(read)
+        {
+          Serial.println("read");
+          char buf = Serial.read();
+          strcat(ptr, &buf);
+        }
+      }   
     }
   }
-  
-  return messageBuffer;
+  Serial.println(ptr);
+  return len;
+}*/
+
+void messageSend(char* message)
+{ 
+  Serial.print(startByte);
+  Serial.print(strlen(message));
+  Serial.print(message);
+  Serial.print(endByte);
 }
 
 void setup() {
@@ -61,8 +66,5 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly: 
-  const char* message = "Hello My Name is Austin and the GPS is 101122wersdfs001121201";
-  messageSend(message);
-  
-  delay(1000);
+  messageSend("Hello World");
 }
