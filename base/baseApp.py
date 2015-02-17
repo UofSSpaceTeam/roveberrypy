@@ -92,6 +92,8 @@ class KivyGuiApp(App):
 		self.map_scale = ((self.map_tr[0] - self.map_bl[0])/self.map_size[0], (self.map_tr[1] - self.map_bl[1])/self.map_size[1])
 		self.nav.ids.map.position = ((self.position_gps[0]-self.map_bl[0])/self.map_scale[0],(self.position_gps[1]-self.map_bl[1])/self.map_scale[1])
 		
+		
+		
 		#Debug: list all of our named widgets on each screen
 		for key, val in self.main.ids.items():
 			print("key={0}, val={1}".format(key, val))
@@ -103,6 +105,7 @@ class KivyGuiApp(App):
 		Clock.schedule_interval(self.main.updateTime, 1)
 		Clock.schedule_interval(self.autoRecenterMap, 2)
 		Clock.schedule_once(self.main.ids.Ball3d.update_lights, 0)
+		self.main.ids.videoScreen.bind(on_load=self.videoEndCallback)
 		
 		return self.root_widget
 	
@@ -113,14 +116,22 @@ class KivyGuiApp(App):
 			print('Arm Camera Selected')
 			self.main.ids.ArmCam.ind = (0, 1, 0, 1)
 			self.main.ids.DriveCam.ind = (1, 0, 0, 1)
+			self.main.ids.videoScreen.eos = True
+			self.main.ids.videoScreen.source = ""
+			#self.main.ids.videoScreen.eos = False
+			self.main.ids.videoScreen.source = "http://c-cam.uchicago.edu/mjpg/video.mjpg"
+			self.main.ids.videoScreen.state = "play"
 			
 		if(func == 'dc'):
 			print('Drive Camera Selected')
 			self.main.ids.ArmCam.ind = (1, 0, 0, 1)
 			self.main.ids.DriveCam.ind = (0, 1, 0, 1)
-			## Don't think this is working properly
-			self.main.ids.videoScreen.source = 'http://10.64.226.70:8080/?action=stream'
-			self.main.ids.videoScreen.state = 'play'
+			self.main.ids.videoScreen.eos = True
+			self.main.ids.videoScreen.source = ""
+			#self.main.ids.videoScreen.eos = False
+			self.main.ids.videoScreen.source = "http://falconcam.goracine.org/mjpg/video.mjpg"
+			self.main.ids.videoScreen.state = "play"
+
 		
 		#Moves map to show rover.. kinda buggy but usable
 		if(func == 'on_map'):
@@ -154,10 +165,15 @@ class KivyGuiApp(App):
 	def autoRecenterMap(self, dt):
 		if(self.follow_rover == '1'):
 			self.buttonHandler('on_map')
-			
+	
+	# Temp navball demo
 	def turnNavball(self):
 		self.roll += 5
 		self.main.ids.Ball3d.position(self.yaw, self.pitch, self.roll)
+		
+	# Calls to manage video transparency when loading and switching screens
+	def videoEndCallback(self, obj):
+		print "Video Callback!"
 	
 	'''
 		=========================================================================================

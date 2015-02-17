@@ -181,8 +181,11 @@ GuiScreenManager:
 					state: 'play'
 					allow_stretch: True
 					keep_ratio: False
-					on_loaded: root.ids.loadImg.color = (1,1,1,0)
-					on_eos: root.ids.loadImg.color = (1,1,1,1)
+					on_loaded:
+						root.ids.loadImg.color = (1,1,1,0)
+						print "loaded"
+					on_eos:
+						root.ids.loadImg.color = (1,1,1,1)
 				
 				#Loading Image when no video is displayed
 				Image:
