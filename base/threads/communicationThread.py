@@ -27,7 +27,7 @@ class communicationThread(threading.Thread):
 			while not self.exit:
 				while not self.mailbox.empty():
 					data = json.dumps(self.mailbox.get())
-					self.socket.sendto(data, ("<broadcast>", self.port))
+					self.socket.sendto(data, ("192.168.1.2", self.port))
 					if self.debug:
 						print("broadcast: " + data)
 				time.sleep(0.01)
@@ -87,7 +87,6 @@ class communicationThread(threading.Thread):
 		self.receiver.start()
 		lastSend = time.clock()
 		while not self.exit:
-			#self.guiThread.mailbox = self.inputThread.mailbox
 			# process and distribute input from network
 			while not self.inbox.empty():
 				inData = self.inbox.get()

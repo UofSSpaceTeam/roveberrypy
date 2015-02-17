@@ -90,6 +90,7 @@ class communicationThread(threading.Thread):
 			# process and distribute input from network
 			while not self.inbox.empty():
 				inData = self.inbox.get()
+				print inData
 				for key, value in inData.iteritems():
 					for msg in messages.cameraList:
 						if key == msg:
