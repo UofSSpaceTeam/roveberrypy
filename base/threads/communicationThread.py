@@ -13,7 +13,7 @@ class communicationThread(threading.Thread):
 	class sendThread(threading.Thread):
 		def __init__(self):
 			threading.Thread.__init__(self)
-			self.debug = False
+			self.debug = True
 			self.name = "sendThread"
 			self.exit = False
 			self.mailbox = Queue()
@@ -64,7 +64,7 @@ class communicationThread(threading.Thread):
 
 	def __init__(self):
 		threading.Thread.__init__(self)
-		self.debug = True
+		self.debug = False
 		self.name = "communicationThread"
 		self.exit = False
 		self.mailbox = Queue()
@@ -87,7 +87,7 @@ class communicationThread(threading.Thread):
 		self.receiver.start()
 		lastSend = time.clock()
 		while not self.exit:
-			self.guiThread.mailbox = self.inputThread.mailbox
+			#self.guiThread.mailbox = self.inputThread.mailbox
 			# process and distribute input from network
 			while not self.inbox.empty():
 				inData = self.inbox.get()
@@ -121,6 +121,7 @@ class communicationThread(threading.Thread):
 				if(self.debug):
 					print "sending: " + str(outDict)
 				self.sender.mailbox.put(outDict)
+				self.guiThread.mailbox.put(outDict)
 			time.sleep(0.01)
 
 	def stop(self):

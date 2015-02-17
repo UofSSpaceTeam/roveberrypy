@@ -101,7 +101,7 @@ class KivyGuiApp(App):
 			print("key={0}, val={1}".format(key, val))
 			
 		#Start our clock/threads for the GUI
-		Clock.schedule_interval(self.displayQueue, 0.1)
+		Clock.schedule_interval(self.displayQueue, 0.2)
 		Clock.schedule_interval(self.main.updateTime, 1)
 		Clock.schedule_interval(self.autoRecenterMap, 2)
 		Clock.schedule_once(self.main.ids.Ball3d.update_lights, 0)
@@ -157,8 +157,11 @@ class KivyGuiApp(App):
 		if not self.mailbox.empty():
 			data = str(self.mailbox.get())
 			self.main.ids.tele.text = data
+			#print data
 			
 		else:
+			#pass
+			#print "No Data!"
 			self.main.ids.tele.text = "No Data!"
 		
 	#Calls to re-center map... auto press button

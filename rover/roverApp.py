@@ -50,12 +50,12 @@ teleThread.commThread = commThread
 # test execution
 print("starting")
 startThreads()
-time.sleep(2)
+#time.sleep(2)
 
 # test code goes here
-commThread.mailbox.put({"c1j1y":0.44})
-commThread.mailbox.put({"tsense":0.5})  
+#commThread.mailbox.put({"c1j1y":0.44})
+#commThread.mailbox.put({"tsense":0.5})  
 
-time.sleep(5)
-stopThreads()
-print("done")
+#time.sleep(5)
+#stopThreads()
+#print("done")

@@ -13,7 +13,7 @@ class communicationThread(threading.Thread):
 	class sendThread(threading.Thread):
 		def __init__(self):
 			threading.Thread.__init__(self)
-			self.debug = False
+			self.debug = True
 			self.name = "sendThread"
 			self.exit = False
 			self.mailbox = Queue()

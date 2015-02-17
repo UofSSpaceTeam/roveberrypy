@@ -4,7 +4,7 @@ cameraList = (["camOn", "camSel"])
 
 telemetryList = (["tsense"])
 
-driveList = (["c1j1y", "c1j2y", "throttle", "steerRate"])
+driveList = (["c1j1y", "c1j2y", "throttle", "steerRate", "c1t"])
 
 armList = (["c2j1x", "c2j1y", "c2j2x", "c2j2y", "c2s1", "c2s2", "c2t"])
 

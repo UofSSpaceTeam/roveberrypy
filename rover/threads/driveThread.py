@@ -16,6 +16,8 @@ class driveThread(threading.Thread):
 
 	def run(self):
 		while not self.exit:
+			data = str(self.mailbox.get())
+			print data
 			time.sleep(0.01)
 
 	def stop(self):
