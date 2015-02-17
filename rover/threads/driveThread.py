@@ -5,8 +5,11 @@ import json
 from Queue import Queue
 import time
 import unicodeConvert
+import smbus
 
 convert = unicodeConvert.convert
+i2c = smbus.SMBus(1)
+address = 0x07
 
 class driveThread(threading.Thread):
         def __init__(self):
@@ -21,7 +24,7 @@ class driveThread(threading.Thread):
                                 data = self.mailbox.get()
                                 if "c1t" in data:
                                         val = int(data.pop()*100 + 100)
-                                        print hex(val)
+                                        i2c.write_byte(address, hex(val))
                         else:
                                 pass
                                 #print "No Data!"
