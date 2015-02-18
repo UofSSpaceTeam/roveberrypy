@@ -86,7 +86,7 @@ class KivyGuiApp(App):
 		
 		#Set up application
 		self.title = 'USST Rover Application'
-		self.root_widget = Builder.load_file('gui\kivygui.kv')
+		self.root_widget = Builder.load_file('gui/kivygui.kv')
 		self.main = self.root_widget.get_screen('app')
 		self.nav = self.root_widget.get_screen('nav')
 		self.map_scale = ((self.map_tr[0] - self.map_bl[0])/self.map_size[0], (self.map_tr[1] - self.map_bl[1])/self.map_size[1])
