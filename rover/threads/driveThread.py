@@ -31,28 +31,28 @@ A = 0xFA #stick A
 B = 0xFB #stick B
 
 class driveThread(threading.Thread):
-        def __init__(self):
-                threading.Thread.__init__(self)
-                self.name = "driveThread"
-                self.exit = False
-                self.mailbox = Queue()
+	def __init__(self):
+		threading.Thread.__init__(self)
+		self.name = "driveThread"
+		self.exit = False
+		self.mailbox = Queue()
 
-        def run(self):
-                while not self.exit:
-                        if not self.mailbox.empty():
-                                data = self.mailbox.get()
-                                if "c1t" in data:
-                                    i2c.write_byte(address, A)
-									val = int(data.pop()*100 + 100) #gives us a range of 0-100
-									i2c.write_byte(address, val)
-								else if "c1j2y" in data:
-									i2c.write_bute(address, B)
-									val = int(data.pop()*100 + 100)
-									i2c.write_byte(address, val)
-                        else:
-                                pass
-                                #print "No Data!"
-                        time.sleep(0.01)
+	def run(self):
+		while not self.exit:
+			if not self.mailbox.empty():
+				data = self.mailbox.get()
+				if "c1t" in data:
+					i2c.write_byte(address, A)
+					val = int(data.pop()*100 + 100) #gives us a range of 0-100
+					i2c.write_byte(address, val)
+				elif "c1j2y" in data:
+					i2c.write_bute(address, B)
+					val = int(data.pop()*100 + 100)
+					i2c.write_byte(address, val)
+			else:
+					pass
+					#print "No Data!"
+			time.sleep(0.01)
 
-        def stop(self):
-                self.exit = True
+	def stop(self):
+		self.exit = True
