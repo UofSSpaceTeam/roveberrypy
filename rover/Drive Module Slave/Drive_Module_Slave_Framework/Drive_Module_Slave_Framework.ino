@@ -1,8 +1,8 @@
 #include <Wire.h>
 
 //Framework for a drive module slave
-int stall_current; //current threshold for stalling
-int freespin_current; //current threshold for freespinning
+int stall_current = 6; //current threshold for stalling
+int freespin_current = 2; //current threshold for freespinning
 int master_spd_cntr[6] = {0}; //value obtained from drive module master for speed control
 int current_pins[6] = {1,2,3,4,5,6}; //analog pins for reading current from mc
 int m_write[6] = {1,2,3,4,5,6}; //digital output pins for controlling speed
@@ -36,7 +36,7 @@ const byte B = 0xFB; //stick B
 // Memory to process commands in interrupt
 byte last = 0x00;
 bool trac = true; //auto mode or manual
-bool stickMode = true //one stick or two
+bool stickMode = true; //one stick or two
   
 void setup() 
 {
@@ -52,70 +52,89 @@ void setup()
 // Most events are handled within the first few cases
 void receiveEvent(int howMany){
   byte cmd = Wire.read();
+  //Serial.println(cmd); // debug
   
   if(cmd == STOP){
     //send stop all signal to all motors
 	return;
   }
 
-  if(last == A){
+  else if(last == A){
 	if(stickMode){
 		//send cmd to all motors
-		return;
+                last = cmd;
+                Serial.print("sent: ");
+                Serial.print(cmd);
+                Serial.println(" to all motors");
+                return;
 	}
 	else{
 		//send cmd to right side motors
-		return;
+		last = cmd;
+                return;
 	}
   }
   
-  if(last == B){
+  else if(last == B){
 	//send cmd to left side motors;
+        last = cmd;
+        return;
   }
   
   //The rest of these commands are extra and generally will not be run
   if(cmd == OS){
 	stickMode = true;
+        last = cmd;
+        return;
   }
   
   if(cmd == TS){
 	stickMode = false;
+        last = cmd;
+        return;
   }
   
   if(cmd == MAN)
   {
 	trac = !trac;
+        last = cmd;
+        return;
   }
   
   if(!trac)
   {
 	if (last == RF){
 	  //set the motor speed for RF directly
-	  return;
+	  last = cmd;
+          return;
 	}
     if (last == RC){
 	  //etc
-	  return;
+	  last = cmd;
+          return;
 	}
 	if (last == RR){
 	  //etc
+          last = cmd;
 	  return;
 	}
 	if (last == LF){
 	  //etc
+          last = cmd;
 	  return;
 	}
 	if (last == LC){
 	  //etc
+          last = cmd;
 	  return;
 	}
 	if (last == LR){
 	  //etc
+          last = cmd;
 	  return;
 	}
-  }
-  
-  last = cmd;
+    }
+    last = cmd;
 }
 
 // This can be used to send current data or diagnostic data to the main controller
