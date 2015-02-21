@@ -27,7 +27,7 @@ class communicationThread(threading.Thread):
 			while not self.exit:
 				while not self.mailbox.empty():
 					data = json.dumps(self.mailbox.get())
-					self.socket.sendto(data, ("192.168.1.2", self.port))
+					self.socket.sendto(data, ("192.168.1.103", self.port))
 					if self.debug:
 						print("broadcast: " + data)
 				time.sleep(0.01)

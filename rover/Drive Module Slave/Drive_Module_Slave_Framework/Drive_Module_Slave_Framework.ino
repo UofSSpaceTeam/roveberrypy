@@ -3,7 +3,7 @@
 //Framework for a drive module slave
 int stall_current = 6; //current threshold for stalling
 int freespin_current = 2; //current threshold for freespinning
-int master_spd_cntr[6] = {0}; //value obtained from drive module master for speed control
+int master_spd_cntr[6] = {0,0,0,0,0,0}; //value obtained from drive module master for speed control
 int current_pins[6] = {1,2,3,4,5,6}; //analog pins for reading current from mc
 int m_write[6] = {1,2,3,4,5,6}; //digital output pins for controlling speed
 int m_current[6]; //motor's measured current
@@ -59,10 +59,16 @@ void receiveEvent(int howMany){
 	return;
   }
 
-  else if(last == A){
+  if(last == A){
 	if(stickMode){
 		//send cmd to all motors
                 last = cmd;
+                master_spd_cntr[0] = cmd;
+                master_spd_cntr[1] = cmd;
+                master_spd_cntr[2] = cmd;
+                master_spd_cntr[3] = cmd;
+                master_spd_cntr[4] = cmd;
+                master_spd_cntr[5] = cmd;
                 Serial.print("sent: ");
                 Serial.print(cmd);
                 Serial.println(" to all motors");
@@ -71,13 +77,19 @@ void receiveEvent(int howMany){
 	else{
 		//send cmd to right side motors
 		last = cmd;
+                master_spd_cntr[0] = cmd;
+                master_spd_cntr[1] = cmd;
+                master_spd_cntr[2] = cmd;
                 return;
 	}
   }
   
-  else if(last == B){
+  if(last == B){
 	//send cmd to left side motors;
         last = cmd;
+        master_spd_cntr[3] = cmd;
+        master_spd_cntr[4] = cmd;
+        master_spd_cntr[5] = cmd;
         return;
   }
   
@@ -106,31 +118,37 @@ void receiveEvent(int howMany){
 	if (last == RF){
 	  //set the motor speed for RF directly
 	  last = cmd;
+          master_spd_cntr[0] = cmd;
           return;
 	}
     if (last == RC){
 	  //etc
 	  last = cmd;
+          master_spd_cntr[1] = cmd;
           return;
 	}
 	if (last == RR){
 	  //etc
           last = cmd;
-	  return;
+	  master_spd_cntr[2] = cmd;
+          return;
 	}
 	if (last == LF){
 	  //etc
           last = cmd;
-	  return;
+	  master_spd_cntr[3] = cmd;
+          return;
 	}
 	if (last == LC){
 	  //etc
           last = cmd;
+          master_spd_cntr[4] = cmd;
 	  return;
 	}
 	if (last == LR){
 	  //etc
           last = cmd;
+          master_spd_cntr[5] = cmd;
 	  return;
 	}
     }
