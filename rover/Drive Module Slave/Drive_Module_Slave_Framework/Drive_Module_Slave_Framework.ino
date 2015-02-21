@@ -1,24 +1,127 @@
+#include <Wire.h>
+
 //Framework for a drive module slave
-  #include <Wire.h>
+int stall_current; //current threshold for stalling
+int freespin_current; //current threshold for freespinning
+int master_spd_cntr[6] = {0}; //value obtained from drive module master for speed control
+int current_pins[6] = {1,2,3,4,5,6}; //analog pins for reading current from mc
+int m_write[6] = {1,2,3,4,5,6}; //digital output pins for controlling speed
+int m_current[6]; //motor's measured current
+int dir_pin[6] = {1,2,3,4,5,6};  //motor direction pins
+int forward = 1;  //pretty sure high on the dir pin is forward and low is reverse
+int reverse = 0;
+bool m_stall[6] = {0,0,0,0,0,0}; //stall state of motor
+bool m_freespin[6] = {0,0,0,0,0,0}; //freespin state of motor
   
-  int stall_current; //current threshold for stalling
-  int freespin_current; //current threshold for freespinning
-  byte master_spd_cntr[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; //value obtained from drive module master for speed control
-  byte spd_address = 7; //address for getting speed values //might be a different value
-  byte spd_data[2] = {0x00, 0x00}; //intermediary array for target motor and speed values
-  int current_pins[6] = {1,2,3,4,5,6}; //analog pins for reading current from mc
-  int m_write[6] = {1,2,3,4,5,6}; //digital output pins for controlling speed
-  int m_current[6]; //motor's measured current
-  byte m_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; //motor's address
-  int dir_pin[6] = {1,2,3,4,5,6};  //motor direction pins
-  int forward = 1;  //pretty sure high on the dir pin is forward and low is reverse
-  int reverse = 0;
-  bool m_stall[6] = {0,0,0,0,0,0}; //stall state of motor
-  bool m_freespin[6] = {0,0,0,0,0,0}; //freespin state of motor
+  
+//Framework for I2C Communications
+byte slave_address = 07;
+
+// Motor sub-addresses for manual mode
+const byte RF = 0xF1;
+const byte RC = 0xF2;
+const byte RR = 0xF3;
+const byte LF = 0xF4;
+const byte LC = 0xF5;
+const byte LR = 0xF6;
+
+// Commands
+const byte STOP = 0xF7; 
+const byte OS = 0xF8; //one-stick
+const byte TS = 0xF9; //two-stick
+const byte MAN = 0xF0; //manual mode
+const byte A = 0xFA; //stick A
+const byte B = 0xFB; //stick B
+
+// Memory to process commands in interrupt
+byte last = 0x00;
+bool trac = true; //auto mode or manual
+bool stickMode = true //one stick or two
   
 void setup() 
 {
-  Wire.begin(spd_address);
+  //Serial.begin(9600);
+  Wire.begin(slave_address);
+  Wire.onReceive(receiveEvent);
+  Wire.onRequest(requestEvent);
+  
+  //Probably want to call pinMode commands here as well
+}
+
+// Interrupt called when the I2C bus receives a byte
+// Most events are handled within the first few cases
+void receiveEvent(int howMany){
+  byte cmd = Wire.read();
+  
+  if(cmd == STOP){
+    //send stop all signal to all motors
+	return;
+  }
+
+  if(last == A){
+	if(stickMode){
+		//send cmd to all motors
+		return;
+	}
+	else{
+		//send cmd to right side motors
+		return;
+	}
+  }
+  
+  if(last == B){
+	//send cmd to left side motors;
+  }
+  
+  //The rest of these commands are extra and generally will not be run
+  if(cmd == OS){
+	stickMode = true;
+  }
+  
+  if(cmd == TS){
+	stickMode = false;
+  }
+  
+  if(cmd == MAN)
+  {
+	trac = !trac;
+  }
+  
+  if(!trac)
+  {
+	if (last == RF){
+	  //set the motor speed for RF directly
+	  return;
+	}
+    if (last == RC){
+	  //etc
+	  return;
+	}
+	if (last == RR){
+	  //etc
+	  return;
+	}
+	if (last == LF){
+	  //etc
+	  return;
+	}
+	if (last == LC){
+	  //etc
+	  return;
+	}
+	if (last == LR){
+	  //etc
+	  return;
+	}
+  }
+  
+  last = cmd;
+}
+
+// This can be used to send current data or diagnostic data to the main controller
+// Keep in mind, if we end up using a 5V controller with the Pi, this will not be possible
+void requestEvent() {
+  return;
 }
 
 void loop() 
@@ -60,9 +163,7 @@ void setMotorSpeed(int i)
   {
     //may need some math here to convert speed cmd to actual speed
     //also need to select direction
-    receiveData();
-    master_spd_cntr[(int)spd_data[0]] = spd_data[1];
-    analogWrite(m_write[i],master_spd_cntr[i]);
+      analogWrite(m_write[i],master_spd_cntr[i]);
   }
   else if(m_stall[i])
   {
@@ -85,11 +186,3 @@ int getMotorCurrent(int wheel_num)
   return current;
 }
 
-void receiveData()
-{
-  if (Wire.available())
-  {
-      spd_data[0] = Wire.read();
-      spd_data[1] = Wire.read();
-  }
-}
