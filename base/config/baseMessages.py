@@ -12,7 +12,7 @@ telemetryList = (["ax", "ay", "az", "da", "bi" , "bv"])
 
 navList = (["hd", "p", "v"])
 
-guiList = (["batt", "tilt"])
+guiList = (["batt", "tilt", "c1t"])
 
 panelList = ([])
 

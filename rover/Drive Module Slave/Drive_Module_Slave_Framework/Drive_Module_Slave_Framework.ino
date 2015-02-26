@@ -48,6 +48,37 @@ void setup()
   //Probably want to call pinMode commands here as well
 }
 
+void loop() {  
+  
+  for(int i = 0; i <= 5; i++)
+  {
+    //get all of the motor currents
+    m_current[i] = getMotorCurrent(i); 
+    //Checks for freespinning via comparison with a threshold
+    if (m_current[i] >= stall_current)
+      {
+        m_stall[i] = true;
+      }
+    else
+    {
+      m_stall[i] = false; 
+      //will only work if rechecks require a new loop; could use another threshold
+      //later in the loop to recheck
+    } 
+      //Checks for freespinning via comparison with a threshold
+    if (m_current[i] <= freespin_current)
+    {
+      m_freespin[i] = true;
+    }
+    else
+    {
+      m_freespin[i] = false; //will only work if rechecks require a new loop; could use another threshold
+    }                     //later in the loop to recheck
+    //set the motor speeds
+    setMotorSpeed(i);
+  }
+}
+
 // Interrupt called when the I2C bus receives a byte
 // Most events are handled within the first few cases
 void receiveEvent(int howMany){
@@ -60,28 +91,12 @@ void receiveEvent(int howMany){
   }
 
   if(last == A){
-	if(stickMode){
-		//send cmd to all motors
-                last = cmd;
-                master_spd_cntr[0] = cmd;
-                master_spd_cntr[1] = cmd;
-                master_spd_cntr[2] = cmd;
-                master_spd_cntr[3] = cmd;
-                master_spd_cntr[4] = cmd;
-                master_spd_cntr[5] = cmd;
-                Serial.print("sent: ");
-                Serial.print(cmd);
-                Serial.println(" to all motors");
-                return;
-	}
-	else{
-		//send cmd to right side motors
-		last = cmd;
-                master_spd_cntr[0] = cmd;
-                master_spd_cntr[1] = cmd;
-                master_spd_cntr[2] = cmd;
-                return;
-	}
+        //send cmd to right side motors
+        last = cmd;
+        master_spd_cntr[0] = cmd;
+        master_spd_cntr[1] = cmd;
+        master_spd_cntr[2] = cmd;
+        return;
   }
   
   if(last == B){
@@ -94,12 +109,13 @@ void receiveEvent(int howMany){
   }
   
   //The rest of these commands are extra and generally will not be run
+  //Not used at this time
   if(cmd == OS){
 	stickMode = true;
         last = cmd;
         return;
   }
-  
+  //Not used at this time
   if(cmd == TS){
 	stickMode = false;
         last = cmd;
@@ -159,39 +175,6 @@ void receiveEvent(int howMany){
 // Keep in mind, if we end up using a 5V controller with the Pi, this will not be possible
 void requestEvent() {
   return;
-}
-
-void loop() 
-{  
-  
-  for(int i = 0; i <= 5; i++)
-  {
-    //get all of the motor currents
-    m_current[i] = getMotorCurrent(i); 
-    //Checks for freespinning via comparison with a threshold
-    if (m_current[i] >= stall_current)
-      {
-        m_stall[i] = true;
-      }
-    else
-    {
-      m_stall[i] = false; 
-      //will only work if rechecks require a new loop; could use another threshold
-      //later in the loop to recheck
-    } 
-      //Checks for freespinning via comparison with a threshold
-    if (m_current[i] <= freespin_current)
-    {
-      m_freespin[i] = true;
-    }
-    else
-    {
-      m_freespin[i] = false; //will only work if rechecks require a new loop; could use another threshold
-    }                     //later in the loop to recheck
-    //set the motor speeds
-    setMotorSpeed(i);
-  }
-
 }
 
 void setMotorSpeed(int i)

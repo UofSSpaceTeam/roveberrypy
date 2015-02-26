@@ -130,6 +130,20 @@
 		ActButton:
 			b_text: 'Show Rover On Map'
 			func: 'on_map'
+			
+<TelemetryDisplay@BoxLayout>:
+	orientation: 'vertical'
+	joyt_text: 'default'
+	tiltx_text: 'default'
+	tilty_text: 'default'
+	tiltz_text: 'default'
+	
+	Label:
+		text: root.joyt_text
+	Label:
+		text: root.tiltx_text
+	Label:
+		text: ro
 
 ###Screen Manager (Root Widget)
 GuiScreenManager:
@@ -211,11 +225,11 @@ GuiScreenManager:
 						tab_width: (root.size[1]-45)/3
 						TabbedPanelItem:
 							text: 'Telemetry Data'
-							Label:
+							TelemetryDisplay
 								id: tele
-								text: 'hello'
-								bold: True
-								font_size: 25
+								joy_text: "Testing the box!"
+								tilt_text: "Texting the other label!"
+								
 						TabbedPanelItem:
 							text: 'Camera Buttons'
 							BoxLayout:
