@@ -17,14 +17,15 @@ class CommandType:
 	setMotor = 0x04
 
 class Command:
-	header = 0xF7
-	type = 0x00
-	d1 = 0x0000
-	d2 = 0x0000
-	csum = 0x00
-	trailer = 0xF8
+	def __init__(self):
+		self.header = 0xF7
+		self.type = 0x00
+		self.d1 = 0x0000
+		self.d2 = 0x0000
+		self.csum = 0x00
+		self.trailer = 0xF8
 	
-	def pack():
+	def pack(self):
 		return struct.pack("BBhhBB", self.header, self.type, self.d1, self.d2,
 			self.csum, self.trailer)
 
@@ -56,10 +57,10 @@ class driveThread(threading.Thread):
 
 			if leftSpeed is not None and rightSpeed is not None:
 				command.type = CommandType.setSpeed
-				command.d1 = self.leftSpeed
-				command.d2 = self.rightSpeed
+				command.d1 = leftSpeed
+				command.d2 = rightSpeed
 				command.csum = (command.type + command.d1 + command.d2) % 256
-				message = self.command.pack()
+				message = command.pack()
 				for byte in message:
 					i2c.write_byte(address, byte)
 				leftSpeed = None
