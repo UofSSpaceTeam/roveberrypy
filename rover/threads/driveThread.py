@@ -56,13 +56,13 @@ class driveThread(threading.Thread):
 					rightSpeed = int(data.pop() * 255) # -255 to 255
 
 			if leftSpeed is not None and rightSpeed is not None:
-				command.type = CommandType.setSpeed
-				command.d1 = leftSpeed
-				command.d2 = rightSpeed
-				command.csum = (command.type + command.d1 + command.d2) % 256
-				message = command.pack()
-				for byte in message:
-					i2c.write_byte(address, byte)
+				i2c.write_byte(address, 0xF7)
+				i2c.write_byte(address, CommandType.setSpeed)
+				i2c.write_byte(address, leftSpeed)
+				i2c.write_byte(address, rightSpeed)
+				i2c.write_byte(address, (CommandType.setSpeed + leftSpeed +
+					rightSpeed) % 256)
+				i2c.write_byte(address, 0xF8)
 				leftSpeed = None
 				rightSpeed = None
 			time.sleep(0.01)
