@@ -24,11 +24,6 @@ class Command:
 		self.d2 = 0x0000
 		self.csum = 0x00
 		self.trailer = 0xF8
-	
-	def pack(self):
-		return struct.pack("BBhhBB", self.header, self.type, self.d1, self.d2,
-			self.csum, self.trailer)
-
 
 convert = unicodeConvert.convert
 
@@ -49,11 +44,11 @@ class driveThread(threading.Thread):
 		rightSpeed = None
 		while not self.exit:
 			while not self.mailbox.empty():
-				data = self.mailbox.get()
+				data = dict(self.mailbox.get())
 				if "c1j1y" in data:
-					leftSpeed = int(data.pop() * 255) # -255 to 255
+					leftSpeed = int(data["c1j1y"] * 255) # -255 to 255
 				elif "c1j2y" in data:
-					rightSpeed = int(data.pop() * 255) # -255 to 255
+					rightSpeed = int(data["c1j2y"] * 255) # -255 to 255
 
 			if leftSpeed is not None and rightSpeed is not None:
 				i2c.write_byte(address, 0xF7)
