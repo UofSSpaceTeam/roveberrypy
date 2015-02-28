@@ -6,11 +6,10 @@ from Queue import Queue
 import time
 import unicodeConvert
 import smbus
-from enum import Enum
 import struct
 
 # matching structures from arduino
-class CommandType(Enum):
+class CommandType:
 	stop = 0x00
 	stallEnable = 0x01
 	spinEnable = 0x02
