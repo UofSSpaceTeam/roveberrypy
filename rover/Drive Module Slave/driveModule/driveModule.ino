@@ -39,10 +39,10 @@ enum motor_state // describes possible states of motors
 	All A and B are connected together on each side,
 	PWM and CS are per-motor
 */
-const byte m_a[] = {0, 1}; // direction input #1
-const byte m_b[] = {4, 7}; // direction input #2
-const byte m_pwm[] = {5, 6, 9, 10, 11, 13}; // throttle
-const byte m_cs[] = {A0, A1, A2, A3, A4, A5}; // current sensing
+const byte m_a[] = {4,8,4,8,4,8}; // direction input #1
+const byte m_b[] = {7,12,7,12,7,12}; // direction input #2
+const byte m_pwm[] = {13,11,10,9,6,5}; // throttle
+const byte m_cs[] = {0,1,2,3,4,5}; // current sensing
 
 // arduino address on bus
 const byte i2c_address = 0x07;
