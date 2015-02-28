@@ -1,13 +1,15 @@
 #include <Wire.h>
 
 //Framework for a drive module slave
-int stall_current = 6; //current threshold for stalling
-int freespin_current = 2; //current threshold for freespinning
-int master_spd_cntr[6] = {0,0,0,0,0,0}; //value obtained from drive module master for speed control
-int current_pins[6] = {1,2,3,4,5,6}; //analog pins for reading current from mc
-int m_write[6] = {1,2,3,4,5,6}; //digital output pins for controlling speed
+int stall_current = 1000; //current threshold for stalling
+int freespin_current = 0; //current threshold for freespinning
+int master_spd_cntr[6] = {100,100,100,100,100,100}; //value obtained from drive module master for speed control
+int motor_spd[6] = {0,0,0,0,0,0};
+int current_pins[6] = {0,1,2,3,4,5}; //analog pins for reading current from mc
+int m_write[6] = {13,11,10,9,6,5}; //digital output pins for controlling speed
 int m_current[6]; //motor's measured current
-int dir_pin[6] = {1,2,3,4,5,6};  //motor direction pins
+int dir_pinA[6] = {4,8,4,8,4,8};  //motor forward direction pins
+int dir_pinB[6] = {7,12,7,12,7,12}; //motor reverse direction pins
 int forward = 1;  //pretty sure high on the dir pin is forward and low is reverse
 int reverse = 0;
 bool m_stall[6] = {0,0,0,0,0,0}; //stall state of motor
@@ -45,12 +47,34 @@ void setup()
   Wire.onReceive(receiveEvent);
   Wire.onRequest(requestEvent);
   
-  //Probably want to call pinMode commands here as well
+  //PWM Pins
+  pinMode(13, OUTPUT); //M1
+  pinMode(11, OUTPUT); //M2
+  pinMode(10, OUTPUT); //M3
+  pinMode(9, OUTPUT);  //M4
+  pinMode(6, OUTPUT);  //M5
+  pinMode(5, OUTPUT);  //M6
+  
+  //Direction Pins
+  //Note that due to motor orientation, directions are opposite on the right side
+  pinMode(12, OUTPUT); //LSB
+  pinMode(8, OUTPUT);  //LSA
+  pinMode(7, OUTPUT);  //RSA
+  pinMode(4, OUTPUT);  //RSB
+  
+  //Current Sense Pins
+  //Not Needed for setup
+  // A0 = M1
+  // A1 = M2
+  // A2 = M3
+  // A3 = M4
+  // A4 = M4
+  // A5 = M6
 }
 
 void loop() {  
   
-  for(int i = 0; i <= 5; i++)
+  for(int i = 0; i < 6; i++)
   {
     //get all of the motor currents
     m_current[i] = getMotorCurrent(i); 
@@ -75,6 +99,8 @@ void loop() {
       m_freespin[i] = false; //will only work if rechecks require a new loop; could use another threshold
     }                     //later in the loop to recheck
     //set the motor speeds
+    Serial.print("Sending speed to ");
+    Serial.println(i);
     setMotorSpeed(i);
   }
 }
@@ -94,16 +120,16 @@ void receiveEvent(int howMany){
         //send cmd to right side motors
         last = cmd;
         master_spd_cntr[0] = cmd;
-        master_spd_cntr[1] = cmd;
         master_spd_cntr[2] = cmd;
+        master_spd_cntr[4] = cmd;
         return;
   }
   
   if(last == B){
 	//send cmd to left side motors;
         last = cmd;
+        master_spd_cntr[1] = cmd;
         master_spd_cntr[3] = cmd;
-        master_spd_cntr[4] = cmd;
         master_spd_cntr[5] = cmd;
         return;
   }
@@ -179,15 +205,27 @@ void requestEvent() {
 
 void setMotorSpeed(int i)
 {
+  motor_spd[i] = master_spd_cntr[i]-100;
+  if(motor_spd[i] > 0)
+  {
+    digitalWrite(dir_pinA[i], HIGH);
+    digitalWrite(dir_pinB[i], LOW);
+  }
+  else
+  {
+    digitalWrite(dir_pinA[i], LOW);
+    digitalWrite(dir_pinB[i], HIGH);
+  }
   if(!m_stall[i] && !m_freespin[i])
   {
     //may need some math here to convert speed cmd to actual speed
     //also need to select direction
-      analogWrite(m_write[i],master_spd_cntr[i]);
+      analogWrite(m_write[i], abs(motor_spd[i]));
+      Serial.println(motor_spd[i]);
   }
-  else if(m_stall[i])
+  /*else if(m_stall[i])
   {
-    //puslate stalled wheels
+    puslate stalled wheels
       digitalWrite(dir_pin[i],forward);
       analogWrite(m_write[i],255);
       digitalWrite(dir_pin[i],reverse);
@@ -196,7 +234,7 @@ void setMotorSpeed(int i)
   else if(m_freespin[i])
   {
       analogWrite(m_write[i],master_spd_cntr[i] - 50);  
-  }
+  }*/
 }
 
 int getMotorCurrent(int wheel_num)

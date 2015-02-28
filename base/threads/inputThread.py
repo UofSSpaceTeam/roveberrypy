@@ -30,11 +30,11 @@ class inputThread(threading.Thread):
 			pygame.event.pump()
 			if self.cont[0]:
 				# uncomment messages as needed.
-				msg["c1t"] = self.filter(self.cont[0].get_axis(2) * -1)
+				#msg["c1t"] = self.filter(self.cont[0].get_axis(2) * -1)
 				# msg["c1j1x"] = self.filter(self.cont[0].get_axis(0))
-				# msg["c1j1y"] = self.filter(self.cont[0].get_axis(1) * -1)
+				msg["c1j1y"] = self.filter(self.cont[0].get_axis(1) * -1)
 				# msg["c1j2x"] = self.filter(self.cont[0].get_axis(4))
-				# msg["c1j2y"] = self.filter(self.cont[0].get_axis(3) * -1)
+				msg["c1j2y"] = self.filter(self.cont[0].get_axis(3) * -1)
 				# msg["c1b_a"] = self.cont[0].get_button(0)
 				# msg["c1b_b"] = self.cont[0].get_button(1)
 				# msg["c1b_x"] = self.cont[0].get_button(2)

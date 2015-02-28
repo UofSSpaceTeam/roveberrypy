@@ -41,12 +41,12 @@ class driveThread(threading.Thread):
 		while not self.exit:
 			if not self.mailbox.empty():
 				data = self.mailbox.get()
-				if "c1t" in data:
-					i2c.write_byte(address, A)
+				if "c1j1y" in data:
+					i2c.write_byte(address, B)
 					val = int(data.pop()*100 + 100) #gives us a range of 0-100
 					i2c.write_byte(address, val)
 				elif "c1j2y" in data:
-					i2c.write_bute(address, B)
+					i2c.write_byte(address, A)
 					val = int(data.pop()*100 + 100)
 					i2c.write_byte(address, val)
 			else:
