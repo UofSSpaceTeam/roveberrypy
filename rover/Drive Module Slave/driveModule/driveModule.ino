@@ -3,6 +3,8 @@
 
 #include <Wire.h>
 
+#define TIMEOUT 500
+
 // definition of structures and enums
 
 enum command_type // instructions from the Pi
@@ -55,6 +57,7 @@ volatile short m_cmd[] = {0, 0, 0, 0, 0, 0}; // commanded speed commanded
 // state information
 const byte CMD_HEADER = 0xF7;
 const byte CMD_TRAILER = 0xF8;
+volatile unsigned long timeout;
 volatile command cmd;
 volatile bool stall_enable = true; // anti-stall enable/disable
 volatile bool spin_enable = true; // anti-wheelspin enable/disable
@@ -107,6 +110,9 @@ void setup()
 	volatile byte* cmd_ptr = (volatile byte*)&cmd;
 	for(int i = 0; i < sizeof(command); i++)
 		cmd_ptr[i] = 0x00;
+	
+	// arm timeout
+	timeout = millis();
 }
 
 void loop()
@@ -128,6 +134,12 @@ void loop()
 		}
 		
 		setMotor(i, m_cmd[i]);
+		
+		if(millis() - timeout > TIMEOUT)
+		{
+			Serial.println("TO");
+			stopAll();
+		}
 	}
 }
 
@@ -187,6 +199,7 @@ void receiveEvent(int count)
 				m_cmd[3] = cmd.d2;
 				m_cmd[4] = cmd.d2;
 				m_cmd[5] = cmd.d2;
+				timeout = millis();
 				break;
 				
 				case SET_MOTOR:
@@ -195,6 +208,7 @@ void receiveEvent(int count)
 				if(cmd.d2 < -255 || cmd.d2 > 255)
 					break;
 				m_cmd[cmd.d1] = cmd.d2;
+				timeout = millis();
 				break;
 			}
 		}

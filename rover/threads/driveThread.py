@@ -6,29 +6,35 @@ from Queue import Queue
 import time
 import unicodeConvert
 import smbus
+from enum import Enum
+import struct
+
+# matching structures from arduino
+class CommandType(Enum):
+	stop = 0x00
+	stallEnable = 0x01
+	spinEnable = 0x02
+	setSpeed = 0x03
+	setMotor = 0x04
+
+class Command:
+	header = 0xF7
+	type = 0x00
+	d1 = 0x0000
+	d2 = 0x0000
+	csum = 0x00
+	trailer = 0xF8
+	
+	def pack():
+		return struct.pack("BBhhBB", self.header, self.type, self.d1, self.d2,
+			self.csum, self.trailer)
+
 
 convert = unicodeConvert.convert
 
 # Setting up I2C
 i2c = smbus.SMBus(1)
 address = 0x07
-
-# I2C Commands List
-# Mtoror sub-addresses for manual mode
-RF = 0xF1
-RC = 0xF2
-RR = 0xF3
-LF = 0xF4
-LC = 0xF5
-LR = 0xF6
-
-# Commands
-STOP = 0xF7 
-OS = 0xF8 #one-stick
-TS = 0xF9 #two-stick
-MAN = 0xF0 #manual mode toggle
-A = 0xFA #stick A
-B = 0xFB #stick B
 
 class driveThread(threading.Thread):
 	def __init__(self):
@@ -38,21 +44,29 @@ class driveThread(threading.Thread):
 		self.mailbox = Queue()
 
 	def run(self):
+		command = Command()
+		leftSpeed = None
+		rightSpeed = None
 		while not self.exit:
-			if not self.mailbox.empty():
+			while not self.mailbox.empty():
 				data = self.mailbox.get()
 				if "c1j1y" in data:
-					i2c.write_byte(address, B)
-					val = int(data.pop()*100 + 100) #gives us a range of 0-100
-					i2c.write_byte(address, val)
+					leftSpeed = int(data.pop() * 255) # -255 to 255
 				elif "c1j2y" in data:
-					i2c.write_byte(address, A)
-					val = int(data.pop()*100 + 100)
-					i2c.write_byte(address, val)
-			else:
-					pass
-					#print "No Data!"
+					rightSpeed = int(data.pop() * 255) # -255 to 255
+
+			if leftSpeed is not None and rightSpeed is not None:
+				command.type = CommandType.setSpeed
+				command.d1 = self.leftSpeed
+				command.d2 = self.rightSpeed
+				command.csum = (command.type + command.d1 + command.d2) % 256
+				message = self.command.pack()
+				for byte in message:
+					i2c.write_byte(address, byte)
+				leftSpeed = None
+				rightSpeed = None
 			time.sleep(0.01)
 
 	def stop(self):
 		self.exit = True
+
