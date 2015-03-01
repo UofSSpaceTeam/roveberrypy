@@ -13,7 +13,7 @@ class communicationThread(threading.Thread):
 	class sendThread(threading.Thread):
 		def __init__(self):
 			threading.Thread.__init__(self)
-			self.debug = True
+			self.debug = False
 			self.name = "sendThread"
 			self.exit = False
 			self.mailbox = Queue()
@@ -38,7 +38,7 @@ class communicationThread(threading.Thread):
 	class receiveThread(threading.Thread):
 		def __init__(self):
 			threading.Thread.__init__(self)
-			self.debug = True
+			self.debug = False
 			self.name = "receiveThread"
 			self.exit = False
 			self.parentThread = None
@@ -93,22 +93,22 @@ class communicationThread(threading.Thread):
 				for key, value in inData.iteritems():
 					for msg in messages.inputList:
 						if key == msg:
-							self.inputThread.mailbox.put({key, value})
+							self.inputThread.mailbox.put({key:value})
 							if self.debug:
 								print("sent " + msg + " to inputThread")
 					for msg in messages.navList:
 						if key == msg:
-							self.navThread.mailbox.put({key, value})
+							self.navThread.mailbox.put({key:value})
 							if self.debug:
 								print("sent " + msg + " to navThread")
 					for msg in messages.panelList:
 						if key == msg:
-							self.panelThread.mailbox.put({key, value})
+							self.panelThread.mailbox.put({key:value})
 							if self.debug:
 								print("sent " + msg + " to panelThread")
 					for msg in messages.guiList:
 						if key == msg:
-							self.guiThread.mailbox.put({key, value})
+							self.guiThread.mailbox.put({key:value})
 							if self.debug:
 								print("sent " + msg + " to guiThread")
 				
