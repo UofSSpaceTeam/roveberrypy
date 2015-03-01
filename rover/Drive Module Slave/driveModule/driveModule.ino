@@ -3,7 +3,7 @@
 
 #include <Wire.h>
 
-#define TIMEOUT 500
+#define TIMEOUT 750
 
 // definition of structures and enums
 
@@ -35,12 +35,11 @@ enum motor_state // describes possible states of motors
 
 /*
 	Wiring connections.
-	Note: motors 0-2 are left side, 3-5 are right side.
 	All A and B are connected together on each side,
 	PWM and CS are per-motor
 */
-const byte m_a[] = {4,8,4,8,4,8}; // direction input #1
-const byte m_b[] = {7,12,7,12,7,12}; // direction input #2
+const byte m_a[] = {7,8,7,8,7,8}; // direction input #1
+const byte m_b[] = {4,12,4,12,4,12}; // direction input #2
 const byte m_pwm[] = {13,11,10,9,6,5}; // throttle
 const byte m_cs[] = {0,1,2,3,4,5}; // current sensing
 
@@ -57,8 +56,11 @@ volatile short m_cmd[] = {0, 0, 0, 0, 0, 0}; // commanded speed commanded
 // state information
 const byte CMD_HEADER = 0xF7;
 const byte CMD_TRAILER = 0xF8;
-volatile unsigned long timeout;
+unsigned long timeout;
 volatile command cmd;
+byte* cmd_ptr = (byte*)(&cmd);
+volatile byte cmd_count = 0;
+volatile bool new_cmd = false;
 volatile bool stall_enable = true; // anti-stall enable/disable
 volatile bool spin_enable = true; // anti-wheelspin enable/disable
 
@@ -67,6 +69,9 @@ volatile bool spin_enable = true; // anti-wheelspin enable/disable
 
 // Interrupt handler for receiving a byte via I2C
 void receiveEvent(int count);
+
+// function to actually process command
+void processCommand();
 
 // Could be used to send data to the Pi, watch out for 5v <-> 3.3v issues
 void requestEvent();
@@ -107,7 +112,6 @@ void setup()
 	stopAll();
 	
 	// clear cmd struct
-	volatile byte* cmd_ptr = (volatile byte*)&cmd;
 	for(int i = 0; i < sizeof(command); i++)
 		cmd_ptr[i] = 0x00;
 	
@@ -117,6 +121,11 @@ void setup()
 
 void loop()
 {
+	if(new_cmd)
+	{
+		processCommand();
+		new_cmd = false;
+	}
 	for(int i = 0; i < 6; i++)
 	{	
 		getMotorStates(); // update the motor states
@@ -139,79 +148,101 @@ void loop()
 		{
 			Serial.println("TO");
 			stopAll();
+			timeout = millis();
 		}
 	}
 }
 
 void receiveEvent(int count)
 {
-	// process ALL the bytes
-	for(int i = 0; i < count; i++)
+	byte in;
+	
+	if(new_cmd == true)
+		return;
+	
+	while(Wire.available())
 	{
-		byte* cmd_ptr = (byte*)&cmd;
-		// shift new byte in
-		for(int j = 0; j < sizeof(command) - 1; j++)
-			cmd_ptr[j] = cmd_ptr[j + 1];
-		cmd_ptr[sizeof(command) - 1] = Wire.read();
-		
-		Serial.println(cmd_ptr[sizeof(command) - 1]); // debug
-		
-		// check for complete packet
-		if(cmd.header == CMD_HEADER && cmd.trailer == CMD_TRAILER)
+		in = Wire.read();
+		// wait for header
+		if(!cmd_count)
 		{
-			// verify checksum
-			byte csum = cmd.type + cmd.d1 + cmd.d2;
-			if(csum != cmd.csum)
+			if(in == CMD_HEADER)
 			{
-				Serial.println("bad checksum"); // debug
-				return;
+				*cmd_ptr = in;
+				cmd_count++;
 			}
-			Serial.println("got packet");
-			
-			switch(cmd.type)
-			{
-				case STOP:
-				stopAll();
-				break;
-				
-				case STALL_ENABLE:
-				if(cmd.d1 == 0)
-					stall_enable = false;
-				else if(cmd.d1 == 1)
-					stall_enable = true;
-				break;
-				
-				case SPIN_ENABLE:
-				if(cmd.d1 == 0)
-					spin_enable = false;
-				else if(cmd.d1 == 1)
-					spin_enable = true;
-				break;
-				
-				case SET_SPEED:
-				if(cmd.d1 > 255 || cmd.d1 < -255)
-					break;
-				if(cmd.d2 > 255 || cmd.d2 < -255)
-					break;
-				m_cmd[0] = cmd.d1;
-				m_cmd[1] = cmd.d1;
-				m_cmd[2] = cmd.d1;
-				m_cmd[3] = cmd.d2;
-				m_cmd[4] = cmd.d2;
-				m_cmd[5] = cmd.d2;
-				timeout = millis();
-				break;
-				
-				case SET_MOTOR:
-				if(cmd.d1 < 0 || cmd.d1 > 5)
-					break;
-				if(cmd.d2 < -255 || cmd.d2 > 255)
-					break;
-				m_cmd[cmd.d1] = cmd.d2;
-				timeout = millis();
-				break;
-			}
+			continue;
 		}
+		
+		// add middle bytes
+		if(cmd_count < sizeof(command))
+		{
+			cmd_ptr[cmd_count] = in;
+			cmd_count++;
+		}
+		
+		// check for complete
+		if(cmd_count == sizeof(command))
+		{
+			if(in == CMD_TRAILER)
+			{
+				byte csum = cmd.type + cmd.d1 + cmd.d2;
+				if(csum == cmd.csum)
+					new_cmd = true;
+			}
+			cmd_count = 0;
+		}
+	}
+}
+
+void processCommand()
+{
+	// Serial.println("got command");
+	switch(cmd.type)
+	{
+		case STOP:
+		stopAll();
+		break;
+		
+		case STALL_ENABLE:
+		if(cmd.d1 == 0)
+			stall_enable = false;
+		else if(cmd.d1 == 1)
+			stall_enable = true;
+		break;
+		
+		case SPIN_ENABLE:
+		if(cmd.d1 == 0)
+			spin_enable = false;
+		else if(cmd.d1 == 1)
+			spin_enable = true;
+		break;
+		
+		case SET_SPEED:
+		// Serial.print(cmd.d1);
+		// Serial.print(" ");
+		// Serial.println(cmd.d2);
+		if(cmd.d1 > 255 || cmd.d1 < -255)
+			break;
+		if(cmd.d2 > 255 || cmd.d2 < -255)
+			break;
+		m_cmd[1] = cmd.d1;
+		m_cmd[3] = cmd.d1;
+		m_cmd[5] = cmd.d1;
+		m_cmd[0] = cmd.d2;
+		m_cmd[2] = cmd.d2;
+		m_cmd[4] = cmd.d2;
+		timeout = millis();
+		break;
+		
+		case SET_MOTOR:
+		if(cmd.d1 < 0 || cmd.d1 > 5)
+			break;
+		if(cmd.d2 < -255 || cmd.d2 > 255)
+			break;
+		m_cmd[cmd.d1] = cmd.d2;
+		timeout = millis();
+		break;
 	}
 }
 
@@ -225,13 +256,11 @@ void setMotor(byte index, short value)
 	if(value == 0) // stop
 	{
 		digitalWrite(m_pwm[index], LOW);
-		digitalWrite(m_a[index], LOW);
-		digitalWrite(m_b[index], LOW);
 		m_power[index] = 0;
 		return;
 	}
 	
-	if(index < 3) // left side motor, reverse direction
+	if(index % 2) // left side motor, reverse direction
 		value = -value;
 	
 	if(value > 0) // forwards
@@ -246,12 +275,16 @@ void setMotor(byte index, short value)
 		digitalWrite(m_b[index], LOW);
 	}
 	
-	m_power[index] = constrain(abs(value), 0, 255);
-	digitalWrite(m_pwm[index], m_power[index]);
+	m_power[index] = abs(value);
+	analogWrite(m_pwm[index], m_power[index]);
+	// Serial.print(index + 1);
+	// Serial.print(": ");
+	// Serial.println(m_power[index]);
 }
 
 void stopAll()
 {
+	// Serial.println("stopped");
 	for(int i = 0; i < 6; i++)
 	{
 		digitalWrite(m_pwm[i], LOW);
@@ -288,4 +321,5 @@ void getMotorStates()
 		}
 	}
 }
+
 

@@ -44,24 +44,35 @@ class driveThread(threading.Thread):
 		rightSpeed = None
 		while not self.exit:
 			while not self.mailbox.empty():
-				data = dict(self.mailbox.get())
+				data = self.mailbox.get()
 				if "c1j1y" in data:
 					leftSpeed = int(data["c1j1y"] * 255) # -255 to 255
 				elif "c1j2y" in data:
 					rightSpeed = int(data["c1j2y"] * 255) # -255 to 255
-
+			
 			if leftSpeed is not None and rightSpeed is not None:
-				i2c.write_byte(address, 0xF7)
-				i2c.write_byte(address, CommandType.setSpeed)
-				i2c.write_byte(address, leftSpeed)
-				i2c.write_byte(address, rightSpeed)
-				i2c.write_byte(address, (CommandType.setSpeed + leftSpeed +
-					rightSpeed) % 256)
-				i2c.write_byte(address, 0xF8)
+				command.type = CommandType.setSpeed
+				command.d1 = leftSpeed
+				command.d2 = rightSpeed
 				leftSpeed = None
 				rightSpeed = None
+				self.sendCommand(command)
 			time.sleep(0.01)
-
+	
+	def sendCommand(self, command):
+		command.csum = (command.type + command.d1 + command.d2) % 256
+		try:
+			i2c.write_byte(address, command.header)
+			i2c.write_byte(address, command.type)
+			i2c.write_byte(address, command.d1 & 0xFF)
+			i2c.write_byte(address, command.d1 >> 8)
+			i2c.write_byte(address, command.d2 & 0xFF)
+			i2c.write_byte(address, command.d2 >> 8)
+			i2c.write_byte(address, command.csum)
+			i2c.write_byte(address, command.trailer)
+		except IOError:
+			print("got IOError")
+	
 	def stop(self):
 		self.exit = True
 

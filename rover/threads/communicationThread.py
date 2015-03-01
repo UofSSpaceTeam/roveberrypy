@@ -13,7 +13,7 @@ class communicationThread(threading.Thread):
 	class sendThread(threading.Thread):
 		def __init__(self):
 			threading.Thread.__init__(self)
-			self.debug = True
+			self.debug = False
 			self.name = "sendThread"
 			self.exit = False
 			self.mailbox = Queue()
@@ -38,7 +38,7 @@ class communicationThread(threading.Thread):
 	class receiveThread(threading.Thread):
 		def __init__(self):
 			threading.Thread.__init__(self)
-			self.debug = True
+			self.debug = False
 			self.name = "receiveThread"
 			self.exit = False
 			self.parentThread = None
@@ -56,6 +56,7 @@ class communicationThread(threading.Thread):
 				if self.debug:
 					print("received: " + data + " from " + str(address))
 				data = convert(json.loads(data))
+				#print data
 				self.parentThread.inbox.put(data)
 
 		def stop(self):
@@ -64,7 +65,7 @@ class communicationThread(threading.Thread):
 
 	def __init__(self):
 		threading.Thread.__init__(self)
-		self.debug = True
+		self.debug = False
 		self.name = "communicationThread"
 		self.exit = False
 		self.mailbox = Queue()
@@ -90,31 +91,31 @@ class communicationThread(threading.Thread):
 			# process and distribute input from network
 			while not self.inbox.empty():
 				inData = self.inbox.get()
-				print inData
+				#print inData
 				for key, value in inData.iteritems():
 					for msg in messages.cameraList:
 						if key == msg:
-							self.cameraThread.mailbox.put({key, value})
+							self.cameraThread.mailbox.put({key:value})
 							if self.debug:
 								print("delivered " + msg + " to cameraThread")
 					for msg in messages.telemetryList:
 						if key == msg:
-							self.teleThread.mailbox.put({key, value})
+							self.teleThread.mailbox.put({key:value})
 							if self.debug:
 								print("delivered " + msg + " to telemetryThread")
 					for msg in messages.driveList:
 						if key == msg:
-							self.driveThread.mailbox.put({key, value})
+							self.driveThread.mailbox.put({key:value})
 							if self.debug:
 								print("delivered " + msg + " to driveThread")
 					for msg in messages.armList:
 						if key == msg:
-							self.armThread.mailbox.put({key, value})
+							self.armThread.mailbox.put({key:value})
 							if self.debug:
 								print("delivered " + msg + " to armThread")
 					for msg in messages.experimentList:
 						if key == msg:
-							self.experimentThread.mailbox.put({key, value})
+							self.experimentThread.mailbox.put({key:value})
 							if self.debug:
 								print("delivered " + msg + " to experimentThread")
 				

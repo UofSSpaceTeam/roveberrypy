@@ -21,12 +21,11 @@ def startThreads():
 
 def stopThreads():
 	commThread.stop()
-	cameraThread.stop()
-	teleThread.stop()
+	#cameraThread.stop()
+	#teleThread.stop()
 	driveThread.stop()
-	armThread.stop()
-	experimentThread.stop()
-
+	#armThread.stop()
+	#experimentThread.stop()
 
 # make each top-level thread
 commThread = communicationThread()
@@ -47,14 +46,15 @@ commThread.experimentThread = experimentThread
 
 teleThread.commThread = commThread
 
-# test execution
 print("starting")
 startThreads()
 
-# test code goes here
-#commThread.mailbox.put({"c1j1y":0.44})
-#commThread.mailbox.put({"tsense":0.5})  
+# go until error
+try:
+	while True:
+		pass
+except:
+	raise
 
-time.sleep(15)
+print("stopping")
 stopThreads()
-print("done")
