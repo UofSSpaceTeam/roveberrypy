@@ -42,6 +42,7 @@ class driveThread(threading.Thread):
 		command = Command()
 		leftSpeed = None
 		rightSpeed = None
+		throttle = 0.3
 		while not self.exit:
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
@@ -49,11 +50,13 @@ class driveThread(threading.Thread):
 					leftSpeed = int(data["c1j1y"] * 255) # -255 to 255
 				elif "c1j2y" in data:
 					rightSpeed = int(data["c1j2y"] * 255) # -255 to 255
+				elif "throttle" in data:
+					throttle = float(data["throttle"]) # 0.0 to 1.0
 			
 			if leftSpeed is not None and rightSpeed is not None:
 				command.type = CommandType.setSpeed
-				command.d1 = leftSpeed
-				command.d2 = rightSpeed
+				command.d1 = leftSpeed * throttle
+				command.d2 = rightSpeed * throttle
 				leftSpeed = None
 				rightSpeed = None
 				self.sendCommand(command)
