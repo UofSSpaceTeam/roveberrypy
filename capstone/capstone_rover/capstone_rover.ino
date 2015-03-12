@@ -13,10 +13,10 @@
 #define TILT_SERVO_PIN 10
 
 // don't change these because interrupts would break
-#define SLIDER_A 7
-#define SLIDER_B 4
-#define LEFT_LIMIT 2
-#define RIGHT_LIMIT 3
+#define SLIDER_A 4
+#define SLIDER_B 7
+#define LEFT_LIMIT 3
+#define RIGHT_LIMIT 2
 
 // configuration
 #define PAN_SERVO_MIN 940

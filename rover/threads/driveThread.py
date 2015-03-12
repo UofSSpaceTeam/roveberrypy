@@ -55,8 +55,8 @@ class driveThread(threading.Thread):
 			
 			if leftSpeed is not None and rightSpeed is not None:
 				command.type = CommandType.setSpeed
-				command.d1 = leftSpeed * throttle
-				command.d2 = rightSpeed * throttle
+				command.d1 = int(leftSpeed * throttle)
+				command.d2 = int(rightSpeed * throttle)
 				leftSpeed = None
 				rightSpeed = None
 				self.sendCommand(command)
