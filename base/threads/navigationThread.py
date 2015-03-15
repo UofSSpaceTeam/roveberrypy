@@ -1,4 +1,4 @@
-import config.baseMessages
+import baseMessages as messages
 import threading
 import json
 from Queue import Queue
@@ -7,19 +7,17 @@ import unicodeConvert
 
 convert = unicodeConvert.convert
 
-class navigationThread(threading.Thread):
-	def __init__(self):
+class NavigationThread(threading.Thread):
+	def __init__(self, parent):
 		threading.Thread.__init__(self)
 		self.name = "navigationThread"
-		self.exit = False
+		self.parent = parent
 		self.mailbox = Queue()
 
 	def run(self):
-		while not self.exit:
+		while True:
 			data = "HELLO FROM NAVTHREAD"
 			#print data
-			self.mailbox.put(data)
+			#self.mailbox.put(data)
 			time.sleep(1)
 
-	def stop(self):
-		self.exit = True
