@@ -4,12 +4,6 @@ control_json = json.dumps([
 	{"type": "title",
 	"title": "Control Settings"},
 
-	{"type": "bool",
-	 "title": "Rover Control Enable",
-	 "desc": "Do you want to drive the rover? (Test mode)",
-	 "section": "control",
-	 "key": "test_mode"},
-
 	{"type": "options",
 	 "title": "Drive Mode",
 	 "desc": "Options description text",
@@ -17,17 +11,6 @@ control_json = json.dumps([
 	 "key": "drive_mode",
 	 "options": ["One Stick", "Two Stick", "Keyboard"]},
 
-	{"type": "string",
-	 "title": "A string setting",
-	 "desc": "String description text",
-	 "section": "control",
-	 "key": "stringexample"},
-
-	{"type": "path",
-	 "title": "A path setting",
-	 "desc": "Path description text",
-	 "section": "control",
-	 "key": "pathexample"}
 ])
 
 communication_json = json.dumps([
@@ -84,18 +67,6 @@ navigation_json = json.dumps([
 	 "section": "navigation",
 	 "key": "optionsexample",
 	 "options": ["option1", "option2", "option3"]},
-
-	{"type": "numeric",
-	 "title": "Map Width",
-	 "desc": "Pixels",
-	 "section": "navigation",
-	 "key": "mapWidth"},
-
-	{"type": "numeric",
-	 "title": "Map Height",
-	 "desc": "Pixels",
-	 "section": "navigation",
-	 "key": "mapHeight"},
 
 	{"type": "string",
 	 "title": "A string setting",

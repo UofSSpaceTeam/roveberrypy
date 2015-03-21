@@ -24,6 +24,7 @@ from Queue import Queue
 
 # Do pre-import kivy setup
 from kivy.config import Config
+Config.set("input", "mouse", "mouse,disable_multitouch")
 #Config.set("graphics", "resizable", 0)
 
 # kivy imports
@@ -33,6 +34,8 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.settings import SettingsWithTabbedPanel
 from kivy.lang import Builder
 from kivy.core.window import Window
+from kivy.uix.image import Image
+from kivy.uix.video import Video
 from kivy.clock import Clock
 from kivy.uix.textinput import TextInput
 from gui.settingsDefinition import *
@@ -80,17 +83,13 @@ class BaseApp(App):
 		self.settings_cls = SettingsWithTabbedPanel
 
 		# navigation stuff
-		self.roverPosition = (100, 100)
-		self.basePosition = None
-		self.mapImage = self.config.get("navigation", "map_path")
+		#self.roverPosition
+		#self.basePosition
+		self.mapImagePath = self.config.get("navigation", "map_path")
 		mapTopRight = (float(convert(self.config.get("navigation", "tr_lon"))),
 			float(convert(self.config.get("navigation", "tr_lat"))))
 		mapBottomLeft = (float(convert(self.config.get("navigation", "bl_lon"))),
 			float(convert(self.config.get("navigation", "bl_lat"))))
-		mapSize = (float(convert(self.config.get("navigation", "mapWidth"))),
-			float(convert(self.config.get("navigation", "mapHeight"))))
-		mapScale = ((mapTopRight[0] - mapBottomLeft[0]) / mapSize[0],
-			(mapTopRight[1] - mapBottomLeft[1]) / mapSize[1])
 
 		# set up application screens
 		Window.size = windowSize
@@ -104,8 +103,10 @@ class BaseApp(App):
 		self.sm.current = "splash"
 		self.sm.transition = NoTransition()
 		
-		# video streams
-		self.turretVideo = self.sm.get_screen("turret").ids.videoPlayer
+		# more navigation stuff
+		self.mapImage = self.sm.get_screen("navigation").ids.image
+		self.mapScale = ((mapTopRight[0] - mapBottomLeft[0]) / self.mapImage.width,
+			(mapTopRight[1] - mapBottomLeft[1]) / self.mapImage.height)
 
 		# Start our clock/threads for the GUI
 		# Clock.schedule_interval(self.telemetryScreen.updateTime, 1)
@@ -113,18 +114,6 @@ class BaseApp(App):
 
 		# return the root widget
 		return self.root
-
-
-	def refreshSettings(self):
-		self.mapImage = self.config.get("navigation", "map_path")
-		mapTopRight = (float(convert(self.config.get("navigation", "tr_lon"))),
-			float(convert(self.config.get("navigation", "tr_lat"))))
-		mapBottomLeft = (float(convert(self.config.get("navigation", "bl_lon"))),
-			float(convert(self.config.get("navigation", "bl_lat"))))
-		mapSize = (float(convert(self.config.get("navigation", "mapWidth"))),
-			float(convert(self.config.get("navigation", "mapHeight"))))
-		mapScale = ((mapTopRight[0] - mapBottomLeft[0]) / mapSize[0],
-			(mapTopRight[1] - mapBottomLeft[1]) / mapSize[1])
 
 
 	def display_settings(self, settings):
@@ -139,25 +128,45 @@ class BaseApp(App):
 		self.changeScreen(self.prevScreen)
 
 
-	def stopVideos(self):
-		for name in ["arm", "drive", "turret"]:
-			player = self.sm.get_screen(name).ids.videoPlayer
-			player.state = "stop"
-	
+	def stopVideo(self, name):
+		screen = self.sm.get_screen(name)
+		screen.video.unload()
+		screen.remove_widget(screen.video)
+		screen.video = None
+
+
 	def startVideo(self, name):
-		player = self.sm.get_screen(name).ids.videoPlayer
-		player.source = "http://c-cam.uchicago.edu/mjpg/video.mjpg"
-		player.state = "play"
+		screen = self.sm.get_screen(name)
+		video = Video(source = "http://c-cam.uchicago.edu/mjpg/video.mjpg",
+			state = "play")
+		video.size = (0, 0)
+		video.allow_stretch = True
+		video.keep_ratio = True
+		screen.video = video
+		screen.add_widget(video)
 
 
 	# Chooses animation and changes the screen
 	def changeScreen(self, name):
-		if(self.sm.current_screen.name != name):
+		curScreen = self.sm.current_screen.name
+		if curScreen == "turret" or curScreen == "drive" or curScreen == "arm":
+			self.stopVideo(curScreen)
+			print "stopped" + curScreen
+		if curScreen != name:
 			self.sm.current = name
-			self.stopVideos()
-			if name == "turret" or name == "drive" or name == "arm":
-				self.startVideo(name)
+		if name == "turret" or name == "drive" or name == "arm":
+			self.startVideo(name)
 
+
+	def zoomOut(self):
+		map = self.sm.get_screen("navigation").ids.map
+		if map.zoom >= 0.1:
+			map.zoom /= 1.4
+	
+	def zoomIn(self):
+		map = self.sm.get_screen("navigation").ids.map
+		if map.zoom <= 3.0:
+			map.zoom *= 1.4
 
 	# Calls to manage video transparency when loading and switching screens
 	def videoEndCallback(self, obj):
@@ -195,20 +204,13 @@ class BaseApp(App):
 
 	def build_config(self, config):
 		config.setdefaults("control", {
-			"test_mode": False,
-			"numericexample": 10,
-			"drive_mode": "Two Stick",
-			"stringexample": "some_string",
-			"pathexample": "~"})
+			"drive_mode": "Two Stick"})
 
 		config.setdefaults("navigation", {
-			"follow_rover": True,
 			"tr_lat": 52.139176,
 			"tr_lon": -106.618917,
 			"bl_lat": 52.127204,
 			"bl_lon": -106.647735,
-			"mapWidth": 5196,
-			"mapHeight": 3605,
 			"optionsexample": "option2",
 			"stringexample": "some_string",
 			"map_path": "gui/resource/campusmap.jpg"})

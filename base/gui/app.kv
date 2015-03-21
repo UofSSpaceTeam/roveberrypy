@@ -71,14 +71,8 @@ AppRoot:
 					on_release: app.changeScreen("drive")
 
 
-# Shows the status of the local and remote threads
-<ThreadList@GridLayout>:
-	#Two columns
-	#Indicator
-	#Label
-
 # Shows mission clock abd other info
-<MissionInfo@ScatterLayout>:
+<MissionClock@ScatterLayout>:
 	clock_text: "00:00:00"
 	Label:
 		text: root.clock_text
@@ -86,24 +80,6 @@ AppRoot:
 		font_size: 20
 
 
-<TelemetryDisplay@BoxLayout>:
-	orientation: "vertical"
-	joyt_text: "default"
-	tiltx_text: "default"
-	tilty_text: "default"
-	tiltz_text: "default"
-
-	Label:
-		text: root.joyt_text
-	Label:
-		text: root.tiltx_text
-	Label:
-		text: root.tilty_text
-
-# Layout for the main application
-# Including video and rover controls
-
-# Master Layout Class
 <TelemetryScreen@BoxLayout>:
 	# Main Window
 	GridLayout:
@@ -111,82 +87,24 @@ AppRoot:
 		size_hint: (None, None)
 		size: (root.size[0], root.size[1])
 
-		# Left tabs with commands
-		TabbedPanel:
-			do_default_tab: False
-			background_color: (0, 0, 0, 0)
-			tab_pos: "left_top"
-			tab_width: (root.size[1] - 45) / 3
-			TabbedPanelItem:
-				text: "Telemetry Data"
-				TelemetryDisplay
-					id: tele
-					joy_text: "Testing the box!"
-					tilt_text: "Texting the other label!"
 
-			TabbedPanelItem:
-				text: "Navigation"
-				FloatLayout:
-					BoxLayout:
-						pos: (15, -25)
-						size_hint: (0.8, 1)
-						orientation: "vertical"
-						# Placeholder
-						Label:
-							text: ""
-
-		# Blank label to make space
-		Label:
-			text: ""
-
-		# Right tabs with commands
-		TabbedPanel:
-			do_default_tab: False
-			background_color: (0, 0, 0, 0)
-			tab_pos: "right_top"
-			tab_width: (root.size[1] - 45) / 3
-
-			TabbedPanelItem:
-				text: "Mission Info"
-				ScatterLayout:
-					size_hint: (1, 0.07)
-					MissionInfo:
-						id: mission
-
-			TabbedPanelItem:
-				text: "Time Elapsed"
-				BoxLayout:
-					size_hint: (1, 0.3)
-					MissionInfo:
-						id: mission2
-					TextInput:
-						id: txt_input_time
-					Button:
-						id: submit2
-						text: "Enter Time"
-
-			TabbedPanelItem:
-				text: "Rover Controls"
-
-# Layout for the navigation application
-# Including mapping and path-finding controls
 <NavigationScreen@BoxLayout>:
 	orientation: "vertical"
 	# Map
 	ScrollView:
 		id: map
-		zoom: 1
+		zoom: 0.2
 		size_hint: (None, None)
 		size: (root.size[0], root.size[1] - 55)
 		pos: (0, 55)
 		AsyncImage:
 			id: image
-			pos: (0,0)
+			pos: (0, 0)
 			size_hint: (None, None)
 			size: (self.texture_size[0] * self.parent.zoom, self.texture_size[1] * self.parent.zoom)
 			allow_stretch: True
 			keep_ratio: True
-			source: app.mapImage
+			source: app.mapImagePath
 			# canvas:
 				# Color:
 					# rgba: (0,0,1,1)
@@ -196,52 +114,21 @@ AppRoot:
 
 	# Controls
 	BoxLayout:
-		orientation: "horizontal"
-		# size: (root.size[0] - 2 * 40.1, 104)
-		# BoxLayout:
-		Button:
-			size_hint: (None, None)
-			size: (100, 50)
-			text: "Zoom +"
-			on_release: root.ids.map.zoom += 0.1
+		pos: (root.size[0] / 2 - 100, 0)
 		Button:
 			size_hint: (None, None)
 			size: (100, 50)
 			text: "Zoom -"
-			on_release: root.ids.map.zoom -= 0.1
-	# BoxLayout:
-		# ScrollView:
-			# size_hint: (None, None)
-			# size: (100, 320)
-			# pos_hint: {"center_x": 0.5, "center_y": 0.5}
-			# do_scroll_x: True
-			# do_scroll_y: True
-			# GridLayout:
-				# cols: 1
-				# padding: 10
-				# spacing: 10
-				# size_hint: (None, None)
-				# width: 100
-				# Button:
-					# text: "hullo"
-					# size_hint: (None, None)
-					# size: (100,40)
+			on_release: app.zoomOut()
+		Button:
+			size_hint: (None, None)
+			size: (100, 50)
+			text: "Zoom +"
+			on_release: app.zoomIn()
 
 
 <TurretScreen@BoxLayout>:
 	FloatLayout:
-		Video:
-			pos: (0, 0)
-			size: (root.size[0], root.size[1])
-			id: videoPlayer
-			allow_stretch: True
-			keep_ratio: True
-			on_loaded:
-				root.ids.loadImg.color = (1, 1, 1, 0)
-				print "loaded"
-			on_eos:
-				root.ids.loadImg.color = (1, 1, 1, 1)
-
 		# Loading Image when no video is displayed
 		Image:
 			pos: (0, 0)
@@ -254,18 +141,6 @@ AppRoot:
 
 <DriveScreen@BoxLayout>:
 	FloatLayout:
-		Video:
-			pos: (0, 0)
-			size: (root.size[0], root.size[1])
-			id: videoPlayer
-			allow_stretch: True
-			keep_ratio: True
-			on_loaded:
-				root.ids.loadImg.color = (1, 1, 1, 0)
-				print "loaded"
-			on_eos:
-				root.ids.loadImg.color = (1, 1, 1, 1)
-
 		# Loading Image when no video is displayed
 		Image:
 			pos: (0, 0)
@@ -275,20 +150,9 @@ AppRoot:
 			keep_ratio: False
 			source: "gui/resource/loading.jpg"
 
+
 <ArmScreen@BoxLayout>:
 	FloatLayout:
-		Video:
-			pos: (0, 0)
-			size: (root.size[0], root.size[1])
-			id: videoPlayer
-			allow_stretch: True
-			keep_ratio: True
-			on_loaded:
-				root.ids.loadImg.color = (1, 1, 1, 0)
-				print "loaded"
-			on_eos:
-				root.ids.loadImg.color = (1, 1, 1, 1)
-
 		# Loading Image when no video is displayed
 		Image:
 			pos: (0, 0)
