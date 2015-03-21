@@ -1,6 +1,6 @@
-int inPin[] = {2,3};
+int inPin[] = {2,3,4,5,6,7,8,9};
 int newstate;
-const int pinCount = 2;
+const int pinCount = 8;
 int state[pinCount];
 int thisPin = 0;
 
