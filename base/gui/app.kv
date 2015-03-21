@@ -1,7 +1,7 @@
 # widget tree root that actually gets built at runtime
 # definitions follow
-AppRoot:
 
+AppRoot:
 
 # App root widget
 <AppRoot@BoxLayout>:
@@ -71,7 +71,7 @@ AppRoot:
 					on_release: app.changeScreen("drive")
 
 
-# Shows mission clock abd other info
+# Mission time countdown
 <MissionClock@ScatterLayout>:
 	clock_text: "00:00:00"
 	Label:
@@ -79,7 +79,7 @@ AppRoot:
 		bold: True
 		font_size: 20
 
-
+# telemetry / rover information tab
 <TelemetryScreen@BoxLayout>:
 	# Main Window
 	GridLayout:
@@ -87,7 +87,7 @@ AppRoot:
 		size_hint: (None, None)
 		size: (root.size[0], root.size[1])
 
-
+# map tab
 <NavigationScreen@BoxLayout>:
 	orientation: "vertical"
 	# Map
@@ -112,7 +112,7 @@ AppRoot:
 					# pos: (app.roverPosition[0] * root.zoom, app.roverPosition[1] * root.zoom)
 					# size: (10, 10)
 
-	# Controls
+	# map view controls
 	BoxLayout:
 		pos: (root.size[0] / 2 - 100, 0)
 		Button:
@@ -127,9 +127,10 @@ AppRoot:
 			on_release: app.zoomIn()
 
 
+# telephoto camera view tab (video player built in python)
 <TurretScreen@BoxLayout>:
 	FloatLayout:
-		# Loading Image when no video is displayed
+		# static background image
 		Image:
 			pos: (0, 0)
 			id: loadImg
@@ -139,9 +140,10 @@ AppRoot:
 			source: "gui/resource/loading.jpg"
 
 
+# wide-angle camera view tab (video player built in python)
 <DriveScreen@BoxLayout>:
 	FloatLayout:
-		# Loading Image when no video is displayed
+		# static background image
 		Image:
 			pos: (0, 0)
 			id: loadImg
@@ -151,9 +153,10 @@ AppRoot:
 			source: "gui/resource/loading.jpg"
 
 
+# arm-mounted camera view tab (video player built in python)
 <ArmScreen@BoxLayout>:
 	FloatLayout:
-		# Loading Image when no video is displayed
+		# static background image
 		Image:
 			pos: (0, 0)
 			id: loadImg
@@ -163,12 +166,15 @@ AppRoot:
 			source: "gui/resource/loading.jpg"
 
 
+# image analysis tab
 <ImageScreen@BoxLayout>:
 
 
+# app settings tab
 <SettingsScreen@BoxLayout>:
-	size: (root.size[0], root.size[1])
+	size: root.size
 
+# startup splash screen tab
 <SplashScreen@BoxLayout>:
 	Image:
 		size: (root.size[0], root.size[1])

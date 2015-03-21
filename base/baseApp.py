@@ -13,7 +13,7 @@ import json
 import time
 import logging
 
-# thread imports
+# threading imports
 from threads.communicationThread import CommunicationThread
 from threads.inputThread import InputThread
 from threads.navigationThread import NavigationThread
@@ -24,8 +24,10 @@ from Queue import Queue
 
 # Do pre-import kivy setup
 from kivy.config import Config
+# get rid of weird touchscreen emulation
 Config.set("input", "mouse", "mouse,disable_multitouch")
-#Config.set("graphics", "resizable", 0)
+# disable window resize
+# Config.set("graphics", "resizable", 0)
 
 # kivy imports
 import kivy
@@ -75,47 +77,46 @@ class SplashScreen(Screen):
 	pass
 
 
+# application python code
 class BaseApp(App):
 	def build(self):
-		# more settings
+		# disable spamming to console
 		#logging.getLogger("kivy").disabled = True
+		# disable "kivy" tab in settings
 		self.use_kivy_settings = False
-		self.settings_cls = SettingsWithTabbedPanel
 
 		# navigation stuff
-		#self.roverPosition
-		#self.basePosition
 		self.mapImagePath = self.config.get("navigation", "map_path")
 		mapTopRight = (float(convert(self.config.get("navigation", "tr_lon"))),
 			float(convert(self.config.get("navigation", "tr_lat"))))
 		mapBottomLeft = (float(convert(self.config.get("navigation", "bl_lon"))),
 			float(convert(self.config.get("navigation", "bl_lat"))))
 
-		# set up application screens
+		# set up application window
 		Window.size = windowSize
 		self.title = "USST Rover Application"
 
-		# build widget tree
+		# build widget tree, root gets returned later
 		self.root = Builder.load_file("gui/app.kv")
 
 		# screen manager
 		self.sm = self.root.ids.sm
 		self.sm.current = "splash"
 		self.sm.transition = NoTransition()
-		
+		self.settings_cls = SettingsWithTabbedPanel
+
 		# more navigation stuff
 		self.mapImage = self.sm.get_screen("navigation").ids.image
 		self.mapScale = ((mapTopRight[0] - mapBottomLeft[0]) / self.mapImage.width,
 			(mapTopRight[1] - mapBottomLeft[1]) / self.mapImage.height)
 
-		# Start our clock/threads for the GUI
+		# Scheduled events
 		# Clock.schedule_interval(self.telemetryScreen.updateTime, 1)
-		# self.telemetryScreen.ids.videoPlayer.bind(on_load = self.videoEndCallback)
 
-		# return the root widget
 		return self.root
 
 
+	# redefined to display app settings using screen manager
 	def display_settings(self, settings):
 		self.prevScreen = self.sm.current
 		sc = self.sm.get_screen("settings")
@@ -124,10 +125,12 @@ class BaseApp(App):
 		self.sm.current = "settings"
 
 
+	# closing settings returns to previously active screen
 	def close_settings(self, *largs):
 		self.changeScreen(self.prevScreen)
 
 
+	# destroy video widget on named screen
 	def stopVideo(self, name):
 		screen = self.sm.get_screen(name)
 		screen.video.unload()
@@ -135,6 +138,7 @@ class BaseApp(App):
 		screen.video = None
 
 
+	# create video widget on named screen
 	def startVideo(self, name):
 		screen = self.sm.get_screen(name)
 		video = Video(source = "http://c-cam.uchicago.edu/mjpg/video.mjpg",
@@ -146,7 +150,7 @@ class BaseApp(App):
 		screen.add_widget(video)
 
 
-	# Chooses animation and changes the screen
+	# Changes or refreshes the screen (tab)
 	def changeScreen(self, name):
 		curScreen = self.sm.current_screen.name
 		if curScreen == "turret" or curScreen == "drive" or curScreen == "arm":
@@ -158,28 +162,23 @@ class BaseApp(App):
 			self.startVideo(name)
 
 
+	# draw map smaller
 	def zoomOut(self):
 		map = self.sm.get_screen("navigation").ids.map
 		if map.zoom >= 0.1:
 			map.zoom /= 1.4
-	
+
+
+	# draw map bigger
 	def zoomIn(self):
 		map = self.sm.get_screen("navigation").ids.map
 		if map.zoom <= 3.0:
 			map.zoom *= 1.4
 
-	# Calls to manage video transparency when loading and switching screens
-	def videoEndCallback(self, obj):
-		print "Video Callback!"
-
 
 	# sets up threads at startup
 	def on_start(self):
 		self.mailbox = Queue()
-		self.startThreads()
-		
-
-	def startThreads(self):
 		myPort = int(convert(self.config.get("communication", "myPort")))
 		roverIP = convert(self.config.get("communication", "roverIP"))
 		roverPort = int(convert(self.config.get("communication", "roverPort")))
@@ -193,15 +192,18 @@ class BaseApp(App):
 		panelThread.start()
 
 
+	# automatically destroys threads on exit
 	def on_stop(self):
 		print("stopping")
 		os._exit(0)
 
 
+	# loads app config file on startup
 	def get_application_config(self):
 		return super(BaseApp, self).get_application_config(configPath)
 
 
+	# creates a new config file if none exists
 	def build_config(self, config):
 		config.setdefaults("control", {
 			"drive_mode": "Two Stick"})
@@ -221,6 +223,7 @@ class BaseApp(App):
 			"roverPort": 35000})
 
 
+	# reads config JSON to populate settings tab
 	def build_settings(self, settings):
 		settings.add_json_panel("Control", self.config,
 			data = control_json)
@@ -230,7 +233,7 @@ class BaseApp(App):
 			data = navigation_json)
 
 
-	#This function is called on pressing a button in config
+	# This function is called on pressing a button in config
 	def on_config_change(self, config, section, key, value):
 		value = convert(value) #damn unicode...
 		print(key, value)
