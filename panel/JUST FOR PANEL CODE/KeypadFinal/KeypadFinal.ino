@@ -15,9 +15,9 @@
  };
  
  //Connects the row of pinouts of the keypad
- byte rowPins[ROWS] = {9,5,4,7}; 
+ byte rowPins[ROWS] = {A9,A5,A4,A7}; 
  //Connects to the column pinouts of the keypad
- byte colPins[COLS] = {8,10,6}; 
+ byte colPins[COLS] = {A8,A10,A6}; 
  
  //Keypad mykeypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 // Keypad customKeypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, cols); 
