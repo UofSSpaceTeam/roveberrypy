@@ -29,7 +29,6 @@ class telemetryThread(threading.Thread):
 		#add values to test
 		#using c1j1y arbitrarily 
 		value["c1j1y"] = 0.5
-		
 		return value 
 		
 
