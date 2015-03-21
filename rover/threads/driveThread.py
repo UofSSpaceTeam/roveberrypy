@@ -39,43 +39,17 @@ class driveThread(threading.Thread):
 		self.mailbox = Queue()
 
 	def run(self):
-		command = Command()
-		leftSpeed = None
-		rightSpeed = None
-		throttle = 0.3
 		while not self.exit:
-			while not self.mailbox.empty():
+			if not self.mailbox.empty():
 				data = self.mailbox.get()
-				if "c1j1y" in data:
-					leftSpeed = int(data["c1j1y"] * 255) # -255 to 255
-				elif "c1j2y" in data:
-					rightSpeed = int(data["c1j2y"] * 255) # -255 to 255
-				elif "throttle" in data:
-					throttle = float(data["throttle"]) # 0.0 to 1.0
-			
-			if leftSpeed is not None and rightSpeed is not None:
-				command.type = CommandType.setSpeed
-				command.d1 = int(leftSpeed * throttle)
-				command.d2 = int(rightSpeed * throttle)
-				leftSpeed = None
-				rightSpeed = None
-				self.sendCommand(command)
+				if "c1t" in data:
+					val = int(data.pop()*100 + 100)
+					i2c.write_byte(address, 0xF0)
+					i2c.write_byte(address, val)
+			else:
+				pass
+				#print "No Data!"
 			time.sleep(0.01)
-	
-	def sendCommand(self, command):
-		command.csum = (command.type + command.d1 + command.d2) % 256
-		try:
-			i2c.write_byte(address, command.header)
-			i2c.write_byte(address, command.type)
-			i2c.write_byte(address, command.d1 & 0xFF)
-			i2c.write_byte(address, command.d1 >> 8)
-			i2c.write_byte(address, command.d2 & 0xFF)
-			i2c.write_byte(address, command.d2 >> 8)
-			i2c.write_byte(address, command.csum)
-			i2c.write_byte(address, command.trailer)
-		except IOError:
-			print("got IOError")
-	
+
 	def stop(self):
 		self.exit = True
-
