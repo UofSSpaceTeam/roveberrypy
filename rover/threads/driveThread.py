@@ -4,11 +4,9 @@ import threading
 import json
 from Queue import Queue
 import time
-import unicodeConvert
 import smbus
 import struct
-
-convert = unicodeConvert.convert
+from unicodeConvert import convert
 
 # matching structures from arduino
 class CommandType:
@@ -32,8 +30,9 @@ i2c = smbus.SMBus(1)
 address = 0x07
 
 class driveThread(threading.Thread):
-	def __init__(self):
+	def __init__(self, parent):
 		threading.Thread.__init__(self)
+		self.parent = parent
 		self.name = "driveThread"
 		self.exit = False
 		self.mailbox = Queue()

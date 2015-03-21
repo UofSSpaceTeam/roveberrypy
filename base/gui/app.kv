@@ -127,7 +127,7 @@ AppRoot:
 			on_release: app.zoomIn()
 
 
-# telephoto camera view tab (video player built in python)
+# turret-mounted camera view tab (video player built in python)
 <TurretScreen@BoxLayout>:
 	FloatLayout:
 		# static background image
@@ -138,9 +138,17 @@ AppRoot:
 			allow_stretch: True
 			keep_ratio: False
 			source: "gui/resource/loading.jpg"
+		
+		# picture-taking button
+		Button:
+			pos: (root.size[0] / 2 - 35, root.size[1] - 20)
+			size_hint: (None, None)
+			size: (70, 20)
+			text: "Capture"
+			on_release: app.takePicture()
 
 
-# wide-angle camera view tab (video player built in python)
+# front-mounted camera view tab (video player built in python)
 <DriveScreen@BoxLayout>:
 	FloatLayout:
 		# static background image

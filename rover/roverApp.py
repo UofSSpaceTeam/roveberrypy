@@ -11,14 +11,6 @@ from threads.cameraThread import cameraThread
 
 import time
 
-def startThreads():
-	commThread.start()
-	cameraThread.start()
-	#teleThread.start()
-	driveThread.start()
-	#armThread.start()
-	#experimentThread.start()
-
 def stopThreads():
 	commThread.stop()
 	cameraThread.stop()
@@ -28,26 +20,20 @@ def stopThreads():
 	#experimentThread.stop()
 
 # make each top-level thread
-commThread = communicationThread()
-cameraThread = cameraThread()
-teleThread = telemetryThread()
-driveThread = driveThread()
-armThread = armThread()
-experimentThread = experimentThread()
+self.commThread = communicationThread(self, 31313)
+self.cameraThread = cameraThread(self)
+self.telemetryThread = telemetryThread(self)
+self.driveThread = driveThread(self)
+self.armThread = armThread(self)
+self.experimentThread = experimentThread(self)
 
-# configure threads
-commThread.sendPort = 31313
-commThread.receivePort = 31314
-commThread.cameraThread = cameraThread
-commThread.teleThread = teleThread
-commThread.driveThread = driveThread
-commThread.armThread = armThread
-commThread.experimentThread = experimentThread
-
-teleThread.commThread = commThread
-
-print("starting")
-startThreads()
+print("starting threads")
+self.commThread.start()
+self.cameraThread.start()
+# self.telemetryThread.start()
+self.driveThread.start()
+# self.armThread.start()
+# self.experimentThread.start()
 
 # go until error
 try:

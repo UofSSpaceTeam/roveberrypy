@@ -161,6 +161,11 @@ class BaseApp(App):
 		if name == "turret" or name == "drive" or name == "arm":
 			self.startVideo(name)
 
+	# get still camera image from current screen
+	def takePicture(self):
+		curScreen = self.sm.current_screen.name
+		if curScreen = "turret":
+			self.commThread.mail
 
 	# draw map smaller
 	def zoomOut(self):
@@ -182,14 +187,14 @@ class BaseApp(App):
 		myPort = int(convert(self.config.get("communication", "myPort")))
 		roverIP = convert(self.config.get("communication", "roverIP"))
 		roverPort = int(convert(self.config.get("communication", "roverPort")))
-		commThread = CommunicationThread(self, myPort, roverIP, roverPort)
-		inputThread = InputThread(self)
-		navThread = NavigationThread(self)
-		panelThread = PanelThread(self)
-		commThread.start()
-		inputThread.start()
-		navThread.start()
-		panelThread.start()
+		self.commThread = CommunicationThread(self, myPort, roverIP, roverPort)
+		self.inputThread = InputThread(self)
+		self.navThread = NavigationThread(self)
+		self.panelThread = PanelThread(self)
+		self.commThread.start()
+		self.inputThread.start()
+		self.navThread.start()
+		self.panelThread.start()
 
 
 	# automatically destroys threads on exit

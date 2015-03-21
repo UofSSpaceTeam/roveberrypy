@@ -3,13 +3,12 @@ import threading
 import json
 from Queue import Queue
 import time
-import unicodeConvert
-
-convert = unicodeConvert.convert
+from unicodeConvert import convert
 
 class experimentThread(threading.Thread):
-	def __init__(self):
+	def __init__(self, parent):
 		threading.Thread.__init__(self)
+		self.parent = parent
 		self.name = "experimentThread"
 		self.exit = False
 		self.mailbox = Queue()

@@ -13,7 +13,6 @@ class CommunicationThread(threading.Thread):
 		self.parent = parent
 		self.debug = False
 		self.mailbox = Queue()
-		self.inbox = Queue()
 		self.myPort = myPort
 		self.roverIP = roverIP
 		self.roverPort = roverPort

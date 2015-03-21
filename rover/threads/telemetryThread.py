@@ -3,13 +3,12 @@ import threading
 import json
 from Queue import Queue
 import time
-import unicodeConvert
-
-convert = unicodeConvert.convert
+from unicodeConvert import convert
 
 class telemetryThread(threading.Thread):
-	def __init__(self):
+	def __init__(self, parent):
 		threading.Thread.__init__(self)
+		self.parent = parent
 		self.name = "telemetryThread"
 		self.exit = False
 		self.commThread = None
@@ -22,10 +21,7 @@ class telemetryThread(threading.Thread):
 			# get info from sensor every 1 sec
 			time.sleep(1)
 			msg.update(self.sensorInfo())
-			#data = json.dumps(msg)
-			self.commThread.mailbox.put(msg)
-			self.mailbox.put(msg)
-			time.sleep(.2)
+			self.parent.commThread.mailbox.put(msg)
 			
 	# simulates receiving info from a sensor  		
 	def sensorInfo(self):
