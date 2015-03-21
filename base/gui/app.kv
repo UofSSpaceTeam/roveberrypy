@@ -128,50 +128,69 @@ AppRoot:
 
 
 # turret-mounted camera view tab (video player built in python)
-<TurretScreen@BoxLayout>:
+<TurretScreen@FloatLayout>:
+	# static background image
+	Image:
+		pos: (0, 0)
+		id: loadImg
+		size: (root.size[0],root.size[1])
+		allow_stretch: True
+		keep_ratio: False
+		source: "gui/resource/loading.jpg"
+	
 	FloatLayout:
-		# static background image
-		Image:
-			pos: (0, 0)
-			id: loadImg
-			size: (root.size[0],root.size[1])
-			allow_stretch: True
-			keep_ratio: False
-			source: "gui/resource/loading.jpg"
-		
+		id: controls
 		# picture-taking button
 		Button:
-			pos: (root.size[0] / 2 - 35, root.size[1] - 20)
+			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
 			size_hint: (None, None)
-			size: (70, 20)
+			size: (70, 25)
 			text: "Capture"
-			on_release: app.takePicture()
+			on_release: app.takePicture("turret")
 
 
 # front-mounted camera view tab (video player built in python)
-<DriveScreen@BoxLayout>:
+<DriveScreen@FloatLayout>:
+	# static background image
+	Image:
+		pos: (0, 0)
+		id: loadImg
+		size: (root.size[0],root.size[1])
+		allow_stretch: True
+		keep_ratio: False
+		source: "gui/resource/loading.jpg"
+	
 	FloatLayout:
-		# static background image
-		Image:
-			pos: (0, 0)
-			id: loadImg
-			size: (root.size[0],root.size[1])
-			allow_stretch: True
-			keep_ratio: False
-			source: "gui/resource/loading.jpg"
+		id: controls
+		# picture-taking button
+		Button:
+			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
+			size_hint: (None, None)
+			size: (70, 25)
+			text: "Capture"
+			on_release: app.takePicture("drive")
 
 
 # arm-mounted camera view tab (video player built in python)
-<ArmScreen@BoxLayout>:
+<ArmScreen@FloatLayout>:
+	# static background image
+	Image:
+		pos: (0, 0)
+		id: loadImg
+		size: (root.size[0],root.size[1])
+		allow_stretch: True
+		keep_ratio: False
+		source: "gui/resource/loading.jpg"
+	
 	FloatLayout:
-		# static background image
-		Image:
-			pos: (0, 0)
-			id: loadImg
-			size: (root.size[0],root.size[1])
-			allow_stretch: True
-			keep_ratio: False
-			source: "gui/resource/loading.jpg"
+		id: controls
+		# picture-taking button
+		Button:
+			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
+			size_hint: (None, None)
+			size: (70, 25)
+			text: "Capture"
+			on_release: app.takePicture("arm")
 
 
 # image analysis tab

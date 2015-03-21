@@ -94,7 +94,7 @@ class BaseApp(App):
 
 		# set up application window
 		Window.size = windowSize
-		self.title = "USST Rover Application"
+		self.title = "USST Rover Control Application"
 
 		# build widget tree, root gets returned later
 		self.root = Builder.load_file("gui/app.kv")
@@ -123,6 +123,7 @@ class BaseApp(App):
 		sc.clear_widgets()
 		sc.add_widget(settings)
 		self.sm.current = "settings"
+		self.title = "Configuration"
 
 
 	# closing settings returns to previously active screen
@@ -147,7 +148,12 @@ class BaseApp(App):
 		video.allow_stretch = True
 		video.keep_ratio = True
 		screen.video = video
+		# add new video player
 		screen.add_widget(video)
+		# bring controls to front
+		controls = screen.ids.controls
+		screen.remove_widget(controls)
+		screen.add_widget(controls)
 
 
 	# Changes or refreshes the screen (tab)
@@ -155,17 +161,29 @@ class BaseApp(App):
 		curScreen = self.sm.current_screen.name
 		if curScreen == "turret" or curScreen == "drive" or curScreen == "arm":
 			self.stopVideo(curScreen)
-			print "stopped" + curScreen
 		if curScreen != name:
 			self.sm.current = name
 		if name == "turret" or name == "drive" or name == "arm":
 			self.startVideo(name)
+		
+		if name == "splash":
+			self.title = "USST Rover Control Application"
+		elif name == "telemetry":
+			self.title = "Telemetry"
+		elif name == "turret":
+			self.title = "Turret Camera"
+		elif name == "drive":
+			self.title = "Drive Camera"
+		elif name == "arm":
+			self.title = "Arm Camera"
+		elif name == "navigation":
+			self.title = "Navigation"
+		elif name == "image":
+			self.title = "Image Analysis"
 
-	# get still camera image from current screen
-	def takePicture(self):
-		curScreen = self.sm.current_screen.name
-		if curScreen = "turret":
-			self.commThread.mail
+	# get still camera image from given camera
+	def takePicture(self, camera):
+		self.commThread.mailbox.put({"picture":camera})
 
 	# draw map smaller
 	def zoomOut(self):
@@ -241,7 +259,7 @@ class BaseApp(App):
 	# This function is called on pressing a button in config
 	def on_config_change(self, config, section, key, value):
 		value = convert(value) #damn unicode...
-		print(key, value)
+		# print(key, value)
 
 
 # Start the application
