@@ -13,7 +13,7 @@ import time
 
 def startThreads():
 	commThread.start()
-	#cameraThread.start()
+	cameraThread.start()
 	#teleThread.start()
 	driveThread.start()
 	#armThread.start()
@@ -21,7 +21,7 @@ def startThreads():
 
 def stopThreads():
 	commThread.stop()
-	#cameraThread.stop()
+	cameraThread.stop()
 	#teleThread.stop()
 	driveThread.stop()
 	#armThread.stop()
