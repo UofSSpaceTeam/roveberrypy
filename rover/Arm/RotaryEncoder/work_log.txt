@@ -1,0 +1,10 @@
+RotaryEncoder Library Log:
+
+March 24/25 (Liam Bindle) : 
+- created the library
+- tested for a single encoder
+	- works
+- wrote example .ino file
+	-havent tested but it worked with one encoder
+
+	
