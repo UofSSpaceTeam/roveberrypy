@@ -103,6 +103,8 @@ class BaseApp(App):
 		self.sm = self.root.ids.sm
 		self.sm.current = "splash"
 		self.sm.transition = NoTransition()
+		
+		# Configuration
 		self.settings_cls = SettingsWithTabbedPanel
 
 		# more navigation stuff
@@ -211,6 +213,7 @@ class BaseApp(App):
 		self.panelThread = PanelThread(self)
 		self.commThread.start()
 		self.inputThread.start()
+		self.inputThread.mode = self.config.get('control', 'drive_mode')
 		self.navThread.start()
 		self.panelThread.start()
 
@@ -260,6 +263,9 @@ class BaseApp(App):
 	def on_config_change(self, config, section, key, value):
 		value = convert(value) #damn unicode...
 		# print(key, value)
+		if(key == "drive_mode"):
+			self.inputThread.mode = value
+				
 
 
 # Start the application

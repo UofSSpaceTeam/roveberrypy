@@ -5,11 +5,11 @@ control_json = json.dumps([
 	"title": "Control Settings"},
 
 	{"type": "options",
-	 "title": "Drive Mode",
-	 "desc": "Options description text",
+	 "title": "Control Mode",
+	 "desc": "Temporary mode switch for testing",
 	 "section": "control",
 	 "key": "drive_mode",
-	 "options": ["One Stick", "Two Stick", "Keyboard"]},
+	 "options": ["One Stick", "Two Stick", "Keyboard", "Arm"]},
 
 ])
 
