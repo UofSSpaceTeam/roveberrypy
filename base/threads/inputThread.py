@@ -7,10 +7,10 @@ import time
 from unicodeConvert import convert
 
 class InputThread(threading.Thread):
-	def __init__(self, commThread):
+	def __init__(self, parent):
 		threading.Thread.__init__(self)
 		self.name = "inputThread"
-		self.commThread = commThread
+		self.parent = parent
 		self.mailbox = Queue()
 		self.cont = [False, False]
 		self.mode = "Two Stick"
@@ -74,7 +74,7 @@ class InputThread(threading.Thread):
 				# msg["c2d_y"] = self.cont[1].get_hat(0)[1]	
 				
 			if self.cont[0] or self.cont[1]:
-				self.commThread.mailbox.put(msg)
+				self.parent.commThread.mailbox.put(msg)
 				self.mailbox.put(msg)
 			time.sleep(0.2)
 

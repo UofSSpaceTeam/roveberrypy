@@ -36,6 +36,7 @@ class armThread(threading.Thread):
 		self.name = "armThread"
 		self.exit = False
 		self.mailbox = Queue()
+		self.enabled = False
 
 	def run(self):
 		command = Command()
@@ -44,8 +45,11 @@ class armThread(threading.Thread):
 		while not self.exit:
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
-				if "c1t" in data:
-					baseSpeed = int(data["c1t"] * 255) # -255 to 255
+				if "aMode" in data:
+					self.enabled = (data["aMode"])
+				if self.enabled:
+					if "c1t" in data:
+						baseSpeed = int(data["c1t"] * 255) # -255 to 255
 			
 			# send on complete input update
 			if baseSpeed is not None:

@@ -33,7 +33,7 @@ class cameraThread(threading.Thread):
 			time.sleep(0.5)
 		if camera == "drive" or camera == "turret":
 			self.startPiCam(camera)
-		elif camera == "arm"
+		elif camera == "arm":
 			self.startUSBCam()
 
 
@@ -41,7 +41,7 @@ class cameraThread(threading.Thread):
 	# ToDo: filenames, uploading to GUI
 	# Possibly might want to GPS tag them for plotting on a map
 	def takePicture(self, camera):
-		if self.activeCamera != None
+		if self.activeCamera != None:
 			self.stopStreams()
 			time.sleep(0.5)
 

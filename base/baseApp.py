@@ -212,8 +212,15 @@ class BaseApp(App):
 		self.navThread = NavigationThread(self)
 		self.panelThread = PanelThread(self)
 		self.commThread.start()
+		
+		# Temporary until we decide on a better solution
 		self.inputThread.start()
 		self.inputThread.mode = self.config.get('control', 'drive_mode')
+		msg = {}
+		msg["dMode"] = self.inputThread.mode == ("Two Stick")
+		msg["aMode"] = self.inputThread.mode == ("Arm")
+		self.commThread.mailbox.put(msg)
+		
 		self.navThread.start()
 		self.panelThread.start()
 
@@ -245,8 +252,8 @@ class BaseApp(App):
 
 		config.setdefaults("communication", {
 			"myPort": 35000,
-			"roverIP": "192.168.0.100",
-			"roverPort": 35000})
+			"roverIP": "192.168.1.103",
+			"roverPort": 35001})
 
 
 	# reads config JSON to populate settings tab
@@ -265,6 +272,10 @@ class BaseApp(App):
 		# print(key, value)
 		if(key == "drive_mode"):
 			self.inputThread.mode = value
+			msg = {}
+			msg["dMode"] = self.inputThread.mode == ("Two Stick")
+			msg["aMode"] = self.inputThread.mode == ("Arm")
+			self.commThread.mailbox.put(msg)
 				
 
 

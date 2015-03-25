@@ -56,6 +56,7 @@ class CommunicationThread(threading.Thread):
 				while not self.mailbox.empty():
 					outDict.update(self.mailbox.get())
 				outData = json.dumps(outDict)
+				print outData
 				self.socket.sendto(outData, (self.roverIP, self.roverPort))
 			time.sleep(0.01)
 

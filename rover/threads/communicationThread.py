@@ -7,7 +7,7 @@ import time
 from unicodeConvert import convert
 
 class CommunicationThread(threading.Thread):
-	def __init__(self, parent, myPort):
+	def __init__(self, parent, myPort, remotePort):
 		threading.Thread.__init__(self)
 		self.name = "communicationThread"
 		self.parent = parent
@@ -15,6 +15,7 @@ class CommunicationThread(threading.Thread):
 		self.exit = False
 		self.mailbox = Queue()
 		self.myPort = myPort
+		self.remotePort = remotePort
 		self.baseAddress = None
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -24,12 +25,13 @@ class CommunicationThread(threading.Thread):
 	def run(self):
 		while not self.exit:
 			try:
-				inData, address = self.socket.recvfrom(8192)
+				inData, address = self.socket.recvfrom(self.remotePort)
 				self.baseAddress = address
 			except socket.error: # no incoming data
 				pass
 			else:
-				inData = convert(json.loads(data))
+				inData = convert(json.loads(inData))
+				print inData
 				for key, value in inData.iteritems():
 					for msg in messages.cameraList:
 						if key == msg:

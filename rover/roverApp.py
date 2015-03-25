@@ -2,7 +2,7 @@ import sys
 sys.dont_write_bytecode = True
 
 #Import all of the thread modules
-from threads.communicationThread import communicationThread
+from threads.communicationThread import CommunicationThread
 from threads.experimentThread import experimentThread
 from threads.armThread import armThread
 from threads.driveThread import driveThread
@@ -10,37 +10,46 @@ from threads.telemetryThread import telemetryThread
 from threads.cameraThread import cameraThread
 
 import time
+class roverApp():
+	def __init__(self):
+		# make each top-level thread
+		self.commThread = CommunicationThread(self, 35001, 35000)
+		self.cameraThread = cameraThread(self)
+		self.telemetryThread = telemetryThread(self)
+		self.driveThread = driveThread(self)
+		self.armThread = armThread(self)
+		self.experimentThread = experimentThread(self)
 
-def stopThreads():
-	commThread.stop()
-	cameraThread.stop()
-	#teleThread.stop()
-	driveThread.stop()
-	#armThread.stop()
-	#experimentThread.stop()
 
-# make each top-level thread
-self.commThread = communicationThread(self, 31313)
-self.cameraThread = cameraThread(self)
-self.telemetryThread = telemetryThread(self)
-self.driveThread = driveThread(self)
-self.armThread = armThread(self)
-self.experimentThread = experimentThread(self)
+	def stopThreads(self):
+		self.commThread.stop()
+		self.cameraThread.stop()
+		#self.teleThread.stop()
+		self.driveThread.stop()
+		self.armThread.stop()
+		#experimentThread.stop()
 
-print("starting threads")
-self.commThread.start()
-self.cameraThread.start()
-# self.telemetryThread.start()
-self.driveThread.start()
-# self.armThread.start()
-# self.experimentThread.start()
+	def startThreads(self):
+		print("starting threads")
+		self.commThread.start()
+		self.cameraThread.start()
+		# self.telemetryThread.start()
+		self.driveThread.start()
+		self.armThread.start()
+		# self.experimentThread.start()
+	
+	def run(self):
+		self.startThreads()
+		# go until error
+		try:
+			while True:
+				pass
+		except KeyboardInterrupt:
+			print("stopping")
+			self.stopThreads()
+		except:
+			self.stopThreads()
+			raise
 
-# go until error
-try:
-	while True:
-		pass
-except:
-	raise
-
-print("stopping")
-stopThreads()
+app = roverApp()
+app.run()
