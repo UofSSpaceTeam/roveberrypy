@@ -42,7 +42,8 @@ class armThread(threading.Thread):
 		command = Command()
 		baseSpeed = None
 		throttle = 0.3
-		while not self.exit:
+		print "arm thread started"
+		while True:
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
 				if "aMode" in data:
@@ -50,6 +51,7 @@ class armThread(threading.Thread):
 				if self.enabled:
 					if "c1t" in data:
 						baseSpeed = int(data["c1t"] * 255) # -255 to 255
+						print baseSpeed
 			
 			# send on complete input update
 			if baseSpeed is not None:
@@ -73,4 +75,4 @@ class armThread(threading.Thread):
 	
 
 	def stop(self):
-		self.exit = True
+		self._Thread__stop()
