@@ -1,6 +1,20 @@
-int inPin[] = {2,3,4,5,6,7,8,9};
+//Pin Number: Button/Switch
+//2: Switch 1
+//3: Switch 2
+//4: Switch 3
+//5: Switch 4
+//6:  Telemetry Control 1
+//7:  Telemetry Control 2
+//8:  Telemetry Control 3
+//9:  Telemetry Control 4
+//10: Telemetry Control 5
+//11: Telemetry Control 6
+//12: Timer
+//13: GPS
+
+int inPin[] = {2,7,8,9,10,11};
+const int pinCount = 6;
 int newstate;
-const int pinCount = 8;
 int state[pinCount];
 int thisPin = 0;
 
@@ -18,7 +32,12 @@ void loop() {
     int reading = digitalRead(inPin[i]);
     if (reading == HIGH)
     {
-      newstate = 0;
+      delay (50);
+      int reading2 = digitalRead(inPin[i]);
+      if (reading = reading2)
+      {
+        newstate = 0;
+      }
     }
     else
     {
@@ -36,3 +55,4 @@ void loop() {
     } 
   }
 }
+
