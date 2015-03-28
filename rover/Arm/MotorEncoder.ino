@@ -12,7 +12,7 @@ int ppr = 186; //Points per rotation
 
 //readMotorPosition()
 //Interput function
-//Keeps track of the motor position and 
+//Keeps track of the motor position and
 //prints the value in radians to serial
 void readMotorPosition() {
   if(digitalRead(input_channelA)) {
@@ -33,7 +33,7 @@ void readMotorPosition() {
 }
 
 //setMotorPower(power)
-//Sets the pwm pin to control the speed 
+//Sets the pwm pin to control the speed
 //of the motor.
 void setMotorPower(int power) {
   if(power > 0 && power < 256) {
@@ -48,14 +48,14 @@ void setMotorPower(int power) {
 
 
 //getSerial()
-//Gathers character input from 
+//Gathers character input from
 //the serial and converts it to an integer.
 int getSerial() {
   int inbyte, serialdata;
   serialdata = 0;
    do {
-    inbyte = Serial.read();  
-    if (inbyte > 0 && inbyte != '\n') { 
+    inbyte = Serial.read();
+    if (inbyte > 0 && inbyte != '\n') {
       serialdata = serialdata * 10 + inbyte - '0';
     }
   } while (inbyte != '\n');
@@ -73,31 +73,31 @@ void rotate(int angle, int power) {
   }
   setMotorPower(0);
 }
-  
-  
+
+
 
 void setup() {
   // Initialization for recieving data from motor
   pinMode(input_channelA, INPUT);
   pinMode(input_channelB, INPUT);
-  
+
   //Initialization for controling the motor.
   pinMode(output_channelA, OUTPUT);
   pinMode(output_channelB, OUTPUT);
   digitalWrite(output_channelB, LOW);
-  
+
   //when pin 2 changes, call readMotorPosition()
   attachInterrupt(0,readMotorPosition,CHANGE);
-  
-  Serial.begin(9600); 
+
+  Serial.begin(9600);
 }
 
 int power = 128; //Initial motor speed
 void loop() {
-   
+
    setMotorPower(power);
    power = getSerial();
-   
+
 }
 
 
