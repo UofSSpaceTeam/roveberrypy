@@ -4,6 +4,7 @@ import json
 from Queue import Queue
 import time
 from unicodeConvert import convert
+#import serial 
 
 class telemetryThread(threading.Thread):
 	def __init__(self, parent):
@@ -13,6 +14,8 @@ class telemetryThread(threading.Thread):
 		self.exit = False
 		self.commThread = None
 		self.mailbox = Queue()
+		# set up serial, Serial(port, buadrate) 
+		ser = serial.Serial("COM9", 115200)
 
 		
 	def run(self):
@@ -28,7 +31,14 @@ class telemetryThread(threading.Thread):
 		value = {}
 		#add values to test
 		#using c1j1y arbitrarily 
-		value["c1j1y"] = 0.5
+		#value["c1j1y"] = 0.5
+		# read data from serial (USB)
+		data = ser.read() 
+		# TODO: parse data and send it through mailbox  
+		
+		
+		
+		
 		return value 
 		
 

@@ -228,17 +228,18 @@ void printHeading(float hx, float hy)
   
   if (hy > 0)
   {
-    heading = 90 - (atan(hx / hy) * (180 / PI));
+    heading = 90 -  (atan(hx / hy) * (180 / PI));// + 10.65;
   }
   else if (hy < 0)
   {
-    heading = - (atan(hx / hy) * (180 / PI));
+    heading = 270 - (atan(hx / hy) * (180 / PI));// + 10.65;
   }
   else // hy = 0
   {
     if (hx < 0) heading = 180;
     else heading = 0;
   }
+  heading = heading + 10.65;
   
   Serial.print("Heading: ");
   Serial.println(heading, 2);

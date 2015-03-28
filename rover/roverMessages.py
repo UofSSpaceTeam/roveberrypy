@@ -2,7 +2,7 @@
 
 cameraList = (["vidsource", "picture"])
 
-telemetryList = (["tsense"])
+telemetryList = (["bearing", "accel", "pitch", "roll"])
 
 driveList = (["dMode", "c1j1y", "c1j2y", "throttle", "steerRate", "c1t"])
 
