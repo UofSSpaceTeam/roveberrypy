@@ -1,6 +1,6 @@
 # lists of the keys of messages each thread wants to receive from network
 
-cameraList = (["vidsource", "picture"])
+cameraList = (["vidsource", "picture", "stop"])
 
 telemetryList = (["bearing", "accel", "pitch", "roll"])
 

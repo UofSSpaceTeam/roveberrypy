@@ -140,15 +140,18 @@ class BaseApp(App):
 		screen.remove_widget(screen.video)
 		screen.video = None
 
-
 	# create video widget on named screen
 	def startVideo(self, name):
+		# Begin the camera feed
+		self.commThread.mailbox.put({"vidsource":name})
 		screen = self.sm.get_screen(name)
-		video = Video(source = "http://c-cam.uchicago.edu/mjpg/video.mjpg",
-			state = "play")
+		video = Video()
+		video.id = "stream"
 		video.size = (0, 0)
 		video.allow_stretch = True
 		video.keep_ratio = True
+		# Need asynchronous loading so the pi can keep up
+		Clock.schedule_once(lambda dt: self.startStreamDelay(name), 2)
 		screen.video = video
 		# add new video player
 		screen.add_widget(video)
@@ -156,6 +159,13 @@ class BaseApp(App):
 		controls = screen.ids.controls
 		screen.remove_widget(controls)
 		screen.add_widget(controls)
+		
+	def startStreamDelay(self, name):
+		screen = self.sm.get_screen(name)
+		# Right now this crashes if we spam the video buttons?
+		if screen.video is not None:
+			screen.video.source = "http://192.168.1.103:40000/?action=stream"
+			screen.video.state = "play"
 
 
 	# Changes or refreshes the screen (tab)

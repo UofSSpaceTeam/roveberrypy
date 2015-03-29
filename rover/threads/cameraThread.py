@@ -3,6 +3,8 @@ import threading
 import json
 from Queue import Queue
 import time
+import subprocess
+import os
 from unicodeConvert import convert
 
 class cameraThread(threading.Thread):
@@ -12,7 +14,7 @@ class cameraThread(threading.Thread):
 		self.name = "cameraThread"
 		self.exit = False
 		self.mailbox = Queue()
-		self.debug = False
+		self.debug = True
 		self.activeCamera = None
 
 	def run(self):
@@ -23,6 +25,8 @@ class cameraThread(threading.Thread):
 					self.setVideoSource(data["vidsource"])
 				elif "picture" in data:
 					self.takePicture(data["picture"])
+				elif "stop" in data:
+					self.stopStreams()
 
 
 	# change / reload / deactivate a video stream
@@ -61,12 +65,10 @@ class cameraThread(threading.Thread):
 			pass # set multiplexer
 		self.activeCamera = camera
 
-		command = ('''LD_LIBRARY_PATH=/home/pi/mjpgStreamer && '''
-			'''/home/pi/mjpgStreamer/./mjpg_streamer -o "output_http.so -w ./www" '''
-			'''-i "input_raspicam.so -x 320 -y 240 -fps 15 -ex night" &''')
+		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_raspicam.so -x 320 -y 240 -fps 15 -ex night" &''')
 
 		subprocess.Popen(command, env = dict(os.environ,
-			LD_LIBRARY_PATH = "/home/pi/mjpg_streamer"), shell = True)
+			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 
 		if self.debug:
 			print("Starting PiCam stream (" + camera + ")")
@@ -77,12 +79,10 @@ class cameraThread(threading.Thread):
 	def startUSBCam(self):
 		self.activeCamera = "arm"
 
-		command = ('''LD_LIBRARY_PATH=/home/pi/mjpgStreamer && '''
-			'''/home/pi/mjpgStreamer/./mjpg_streamer -o "output_http.so -w ./www" '''
-			'''-i "input_uvc.so" &''')
+		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_uvc.so" &''')
 
 		subprocess.Popen(command, env = dict(os.environ,
-			LD_LIBRARY_PATH = "/home/pi/mjpg_streamer"), shell = True)
+			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 
 		if self.debug:
 			print("Starting USB camera stream")
@@ -94,6 +94,7 @@ class cameraThread(threading.Thread):
 		if self.debug:
 			print("Stopping streams")
 		subprocess.Popen(command, shell = True)
+		time.sleep(2)
 
 
 	def stop(self):
