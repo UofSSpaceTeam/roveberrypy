@@ -2,7 +2,7 @@
 
 cameraList = (["vidsource", "picture", "stop"])
 
-telemetryList = (["bearing", "accel", "pitch", "roll"])
+telemetryList = (["Gx", "Gy", "Gz", "Ax", "Ay", "Az", "Heading"])
 
 driveList = (["dMode", "c1j1y", "c1j2y", "throttle", "steerRate", "c1t"])
 
