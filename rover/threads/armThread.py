@@ -11,17 +11,15 @@ import struct
 # matching structures from arduino
 class CommandType:
 	stop = 0x00
-	stallEnable = 0x01
-	spinEnable = 0x02
-	setSpeed = 0x03
-	setMotor = 0x04
+	setSpeed = 0x01
+	setMotor = 0x02
 
 class Command:
 	def __init__(self):
 		self.header = 0xF7
 		self.type = 0x00
 		self.d1 = 0x0000
-		self.d2 = 0x0000
+		#self.d2 = 0x0000
 		self.csum = 0x00
 		self.trailer = 0xF8
 

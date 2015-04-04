@@ -17,11 +17,12 @@ enum command_type // instructions from the Pi
 };
 
 typedef struct
-{	
+{
 	byte header;
 	byte type; // actually used as enum command_type, that's ok
-	short d1; // 16-bit signed
-	byte csum; // sum of cmd_type, d1
+	short d1; // the motor to move
+	short d2; // the speed to move it
+	byte csum; // sum of cmd_type, d1, d2
 	byte trailer;
 } command;
 
@@ -37,8 +38,8 @@ H_Bridge motors[] = {H_Bridge(10,11,12)};
 const byte i2c_address = 0x08;
 
 // traction control data
-motor_state m_state[] = {OK}; // current state
-volatile short m_cmd[] = {0}; // commanded speed commanded
+motor_state m_state[] = {OK, OK, OK}; // current state
+volatile short m_cmd[] = {0, 0, 0}; // commanded speed commanded
 
 // state information
 const byte CMD_HEADER = 0xF7;
@@ -63,19 +64,19 @@ void requestEvent();
 
 // functions
 
-void setup() 
+void setup()
 {
 	Serial.begin(9600); // debug
 	Wire.begin(i2c_address);
 	Wire.onReceive(receiveEvent);
 	Wire.onRequest(requestEvent);
-	
+
 	// initialize outputs (done by the H_Bridge class)
-	
+
 	// clear cmd struct
 	for(int i = 0; i < sizeof(command); i++)
 		cmd_ptr[i] = 0x00;
-	
+
 	// arm timeout
 	timeout = millis();
 }
@@ -87,11 +88,11 @@ void loop()
 		processCommand();
 		new_cmd = false;
 	}
-	for(int i = 0; i < 1; i++)
-	{	
-		
-		motors[i].setDutyCycle(m_cmd[i]);
-		
+	for(int i = 0; i < 3; i++)
+	{
+
+		//Do stuff here
+
 		if(millis() - timeout > TIMEOUT)
 		{
 			Serial.println("TO");
@@ -103,10 +104,10 @@ void loop()
 void receiveEvent(int count)
 {
 	byte in;
-	
+
 	if(new_cmd == true)
 		return;
-	
+
 	while(Wire.available())
 	{
 		in = Wire.read();
@@ -120,20 +121,20 @@ void receiveEvent(int count)
 			}
 			continue;
 		}
-		
+
 		// add middle bytes
 		if(cmd_count < sizeof(command))
 		{
 			cmd_ptr[cmd_count] = in;
 			cmd_count++;
 		}
-		
+
 		// check for complete
 		if(cmd_count == sizeof(command))
 		{
 			if(in == CMD_TRAILER)
 			{
-				byte csum = cmd.type + cmd.d1;
+				byte csum = cmd.type + cmd.d1 + cmd.d2;
 				if(csum == cmd.csum)
 					new_cmd = true;
 			}
@@ -149,17 +150,17 @@ void processCommand()
 	{
 		case STOP:
 			break;
-		
+
 		case SET_SPEED:
 			// Serial.print(cmd.d1);
 			// Serial.print(" ");
 			// Serial.println(cmd.d2);
 			if(cmd.d1 > 255 || cmd.d1 < -255)
 				break;
-			m_cmd[1] = cmd.d1;
+			m_cmd[cmd.d1] = cmd.d2;
 			timeout = millis();
 			break;
-		
+
 		/*case SET_MOTOR:
 			if(cmd.d1 < 0 || cmd.d1 > 5)
 				break;
