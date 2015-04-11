@@ -99,7 +99,7 @@ LSM9DS0 dof(MODE_SPI, LSM9DS0_CSG, LSM9DS0_CSXM);
 
 void setup()
 {
-  Serial.begin(115200); // Start serial at 115200 bps
+  Serial.begin(38400); // Start serial at 115200 bps
   // Use the begin() function to initialize the LSM9DS0 library.
   // You can either call it with no parameters (the easy way):
   uint16_t status = dof.begin();

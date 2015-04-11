@@ -59,6 +59,8 @@ MPU6050 accelgyro;
 int16_t ax, ay, az;
 int16_t gx, gy, gz;
 
+double roll, pitch; 
+
 
 
 // uncomment "OUTPUT_READABLE_ACCELGYRO" if you want to see a tab-separated
@@ -71,17 +73,6 @@ int16_t gx, gy, gz;
 // without compression or data loss), and easy to parse, but impossible to read
 // for a human.
 //#define OUTPUT_BINARY_ACCELGYRO
-
-
-// MPU control 
-uint8_t fifoBuffer[64]; // FIFO storage buffer
-
-// orientation 
-Quaternion q;           // [w, x, y, z]         quaternion container
-
-
-
-
 
 
 
@@ -152,8 +143,10 @@ void loop() {
     //accelgyro.getAcceleration(&ax, &ay, &az);
     //accelgyro.getRotation(&gx, &gy, &gz);
 
+    
     #ifdef OUTPUT_READABLE_ACCELGYRO
         // display tab-separated accel/gyro x/y/z values
+        /*
         Serial.print("a/g:\t");
         Serial.print(ax); Serial.print("\t");
         Serial.print(ay); Serial.print("\t");
@@ -161,6 +154,7 @@ void loop() {
         Serial.print(gx); Serial.print("\t");
         Serial.print(gy); Serial.print("\t");
         Serial.println(gz);
+        */
     #endif
 
     #ifdef OUTPUT_BINARY_ACCELGYRO
@@ -172,18 +166,14 @@ void loop() {
         Serial.write((uint8_t)(gz >> 8)); Serial.write((uint8_t)(gz & 0xFF));
     #endif
     
-    /*
-     // display Euler angles in degrees
-            mpu.dmpGetQuaternion(&q, fifoBuffer);z
-            mpu.dmpGetGravity(&gravity, &q);
-            mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-            Serial.print("ypr\t");
-            Serial.print(ypr[0] * 180/M_PI);
-            Serial.print("\t");
-            Serial.print(ypr[1] * 180/M_PI);
-            Serial.print("\t");
-            Serial.println(ypr[2] * 180/M_PI);
-    */
+    
+    roll  = (atan2(-gy, gz));
+    pitch = (atan2(gx, sqrt(gy*gy + gz*gz)));
+    Serial.print("roll, pitch:\t");
+    Serial.print(roll); Serial.print("\t");
+    Serial.print(pitch); Serial.print("\t");
+    Serial.println();
+    
 
     // blink LED to indicate activity
     blinkState = !blinkState;
@@ -204,11 +194,4 @@ int MPU6050_write(int address, uint8_t *data, int size) {
  return (0);         // return : no error
 }
 
-/*
-void isrService()
-{
-  cli();
-  Serial.println("Interrup");
-  sei();
-}
-*/
+
