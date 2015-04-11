@@ -4,7 +4,6 @@ import json
 from Queue import Queue
 import time
 from unicodeConvert import convert
-from parse import *
 import serial 
 
 class telemetryThread(threading.Thread):
