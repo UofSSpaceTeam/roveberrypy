@@ -61,6 +61,13 @@ int16_t gx, gy, gz;
 
 double roll, pitch; 
 
+const float pi = 3.14;
+const float alpha = 0.5;
+ 
+double fXg = 0;
+double fYg = 0;
+double fZg = 0;
+
 
 
 // uncomment "OUTPUT_READABLE_ACCELGYRO" if you want to see a tab-separated
@@ -167,8 +174,16 @@ void loop() {
     #endif
     
     
-    roll  = (atan2(-gy, gz));
-    pitch = (atan2(gx, sqrt(gy*gy + gz*gz)));
+    // info to calcuate roll and pitch from
+    //http://theccontinuum.com/2012/09/24/arduino-imu-pitch-roll-from-accelerometer/
+    
+    //Low Pass Filter
+    fXg = gx * alpha + (fXg * (1.0 - alpha));
+    fYg = gy * alpha + (fYg * (1.0 - alpha));
+    fZg = gz * alpha + (fZg * (1.0 - alpha));
+    
+    roll  = ((atan2(-fYg, fZg)*180.0)/pi );
+    pitch = ((atan2(fXg, sqrt(fYg*fYg + fZg*fZg))*180.0)/pi);
     Serial.print("roll, pitch:\t");
     Serial.print(roll); Serial.print("\t");
     Serial.print(pitch); Serial.print("\t");
