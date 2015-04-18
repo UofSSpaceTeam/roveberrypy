@@ -55,6 +55,15 @@ int valA0 = 0;          // X-Axis
 String OldStr = "Word";
 String NewStr = "Word";
 
+///////////////////////////////////////////////////////////////////////////
+
+int potPin1 = A2;    // select the input pin for the potentiometer
+int potPin2 = A3;
+int potPin3 = A11;
+int P1val = 1;       // variable to store the value coming from the sensor
+int P2val = 1;
+int P3val = 1;
+
 void setup(){
 for (int i = 0; i < pinCount; i++)
   {
@@ -64,12 +73,14 @@ for (int i = 0; i < pinCount; i++)
 }
 
 
-void loop() {
+void loop()
+/////////////// KEYPAD ////////////////
+{
   char key = kpd.getKey();
    
   if (key != NO_KEY){
-      Serial.println(key);
-   }
+  }
+////////////// SWITCH /////////////////
    for(int i = 0; i < pinCount; i++)
   {
     int reading = digitalRead(inPin[i]);
@@ -84,41 +95,63 @@ void loop() {
     if (newstate != state[i])
     {
       delay(100);
-      Serial.print("Switch: ");
-      Serial.print(i+1);
-      Serial.print (" ");
-      Serial.println(newstate);
-      Serial.println("===============");
       state[i] = newstate;
     } 
-    }
-  {
+  }
+///////////// JOYSTICK ///////////////
+{
   valA1 = analogRead(analogPin2);    // read the input pin
   valA0 = analogRead(analogPin0);    //The Serial.println Statements in the code are if we want this to continuously check the statements
     
-    if (valA1 > 900) {
-//      Serial.println("Up");
-      NewStr = "Up";
+    if (valA1 > 900) {               //UP
+      NewStr = "U";
     }
-    else if (valA1 < 600) {
-//      Serial.println("Down");
-      NewStr = "Down";
+    else if (valA1 < 600) {          //DOWN
+      NewStr = "D";
     }
-    else if (valA0 > 900) {
-//      Serial.println("Right");
-      NewStr = "Right";
+    else if (valA0 > 900) {          //RIGHT
+      NewStr = "R";
     }
-    else if (valA0 < 600) {
-//      Serial.println("Left");
-      NewStr = "Left";
+    else if (valA0 < 600) {          //LEFT
+      NewStr = "L";
     }
-    else {
- //     Serial.println("Stationary");
-      NewStr = "Stationary";
+    else {                           //STATIONARY
+      NewStr = "S";
     }
-  if (OldStr != NewStr){
-    Serial.println(NewStr);
-  }
     OldStr = NewStr;
+ }
+/////////////// DIALS ////////////////
+  {
+  P1val = analogRead(potPin1)+1;    // read the value from the sensor
+  P2val = analogRead(potPin2)+1;
+  P3val = analogRead(potPin3)+1;
+  }
+/////////////// PRINT ////////////////
+Serial.print("$");
+for(int i = 0; i < pinCount; i++){
+  Serial.print(state[i]);
+  Serial.print(",");
 }
+Serial.print(key);
+Serial.print(",");
+Serial.print(NewStr);
+Serial.print(",");
+  {
+for(int a=1; a < 4 - log10(P1val); a++)
+Serial.print('0');
+Serial.print(P1val,DEC);
+  }
+Serial.print(",");
+  {
+for(int b=1; b < 4 - log10(P2val); b++)
+Serial.print('0');
+Serial.print(P2val,DEC);
+  }
+Serial.print(",");
+  {
+for(int c=1; c < 4 - log10(P3val); c++)
+Serial.print('0');
+Serial.print(P3val,DEC);
+  }
+Serial.println("&");
 }
