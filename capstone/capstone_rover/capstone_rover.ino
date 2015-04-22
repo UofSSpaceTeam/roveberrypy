@@ -19,6 +19,7 @@
 #define RIGHT_LIMIT 2
 
 // configuration
+#define TIMEOUT 1000
 #define PAN_SERVO_MIN 940
 #define PAN_SERVO_MAX 2100
 #define TILT_SERVO_MIN 900
@@ -53,6 +54,9 @@ byte key[2] = {0, 0};
 
 Servo panServo;
 Servo tiltServo;
+
+// timeout counter
+unsigned long timer = 0;
 
 enum {STOPPED, LEFT, RIGHT} sliderDirection;
 
@@ -117,6 +121,7 @@ void loop()
 			+ msg.cmd_struct.tiltPosition
 			+ msg.cmd_struct.motors))
 			{
+				timer = millis();
   				panServo.write(180 - msg.cmd_struct.panPosition);
 				tiltServo.write(180 - msg.cmd_struct.tiltPosition);
 				
@@ -135,6 +140,11 @@ void loop()
 					sliderStop();
 			}
 		}
+	}
+	else if(millis() - timer > TIMEOUT) // check timeout
+	{
+		tableStop();
+		sliderStop();
 	}
 }
 
