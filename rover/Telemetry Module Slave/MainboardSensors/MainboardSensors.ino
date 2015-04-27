@@ -108,8 +108,69 @@ void loop() {
   vout = 0.000778547*adc1-0.0866782;
   isense = adc0;
   
-  Serial.println(vout);
-  Serial.println(isense); 
+  //Serial.println(vout);
+  //Serial.println(isense); 
+  
+  // print all data : pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense 
+  Serial.print(pitch);
+  
+  Serial.print(" ");
+  Serial.print(roll);
+  
+  Serial.print(" ");
+  Serial.print(gx);
+  
+  Serial.print(" ");
+  Serial.print(gy);
+
+  Serial.print(" ");
+  Serial.print(gz);
+  
+  Serial.print(" ");
+  Serial.print(ax);
+
+  Serial.print(" ");
+  Serial.print(ay);
+  
+  Serial.print(" ");
+  Serial.print(az);
+
+  Serial.print(" ");
+  Serial.print(heading);
+  
+  Serial.print(" ");
+  Serial.print(aroll);
+
+  Serial.print(" ");
+  Serial.print(apitch);
+  
+  Serial.print(" ");
+  Serial.print(lat);
+
+  Serial.print(" ");
+  Serial.print(lon);
+  
+  Serial.print(" ");
+  Serial.print(mps);
+
+  Serial.print(" ");
+  Serial.print(alt);
+  
+  Serial.print(" ");
+  Serial.print(gps_heading);
+
+  Serial.print(" ");
+  Serial.print(date);
+  
+  Serial.print(" ");
+  Serial.print(time);
+
+  Serial.print(" ");
+  Serial.print(vout);
+  
+  Serial.print(" ");
+  Serial.println(isense);
+  
 }
 
 // Calculates earth's magnetic heading if sensor is flat
@@ -118,6 +179,7 @@ float getHeading(float hx, float hy)
 {
   float heading;
   float dec = 10.65; // Saskatoon
+  // float dec = 10.90; // utah 
   
   if (hy > 0){
     heading = 90 -  (atan(hx / hy) * (180 / PI));
