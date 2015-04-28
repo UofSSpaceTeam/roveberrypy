@@ -34,14 +34,14 @@ class telemetryThread(threading.Thread):
 		#using c1j1y arbitrarily 
 		#value["c1j1y"] = 0.5
 		# read data from serial (USB)
-		str = ser.read() 
+		str = ser.readline() 
 		# TODO: parse data and send it through mailbox 
 		# TODO: add checksum 
 		# prints in the order pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense
-		data = str.split(); 
+		data = str.split();
 		
 		
-		value["pitch"] = data[0]
+		value["pitch"] = data[0].lstrip("#")
 		value["roll"] = data[1]
 		value["gx"] = data[2]
 		value["gy"] = data[3]
@@ -60,7 +60,7 @@ class telemetryThread(threading.Thread):
 		value["date"] = data[16]
 		value["time"] = data[17]
 		value["vout"] = data[18]
-		value["isense"] = data[19]
+		value["isense"] = data[19].rstrip("$")
 		
 		return value 
 		

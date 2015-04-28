@@ -54,7 +54,7 @@ void setup() {
   ads.begin();
   
   // For testing
-  Serial.begin(9600);
+  Serial.begin(115200);
   
 }
 
@@ -111,66 +111,55 @@ void loop() {
   //Serial.println(vout);
   //Serial.println(isense); 
   
-  // print all data : pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense 
+  // print all data : pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense
+  Serial.print("#");
   Serial.print(pitch);
-  
   Serial.print(" ");
   Serial.print(roll);
-  
   Serial.print(" ");
   Serial.print(gx);
-  
   Serial.print(" ");
   Serial.print(gy);
-
   Serial.print(" ");
   Serial.print(gz);
-  
   Serial.print(" ");
   Serial.print(ax);
-
   Serial.print(" ");
   Serial.print(ay);
-  
   Serial.print(" ");
   Serial.print(az);
-
   Serial.print(" ");
   Serial.print(heading);
-  
   Serial.print(" ");
   Serial.print(aroll);
-
   Serial.print(" ");
   Serial.print(apitch);
-  
   Serial.print(" ");
-  Serial.print(lat);
-
+  Serial.print(lat,8);
   Serial.print(" ");
-  Serial.print(lon);
-  
+  Serial.print(lon,8);
   Serial.print(" ");
   Serial.print(mps);
-
   Serial.print(" ");
   Serial.print(alt);
-  
   Serial.print(" ");
   Serial.print(gps_heading);
-
   Serial.print(" ");
-  Serial.print(date);
-  
+  Serial.print(date);  
   Serial.print(" ");
   Serial.print(time);
+  Serial.print(" ");
+  Serial.print(vout);  
+  Serial.print(" ");
+  Serial.print(isense);
+  Serial.print(" ");
+  Serial.print(checksum(roll,time,heading));
+  Serial.println("$");
+}
 
-  Serial.print(" ");
-  Serial.print(vout);
-  
-  Serial.print(" ");
-  Serial.println(isense);
-  
+int checksum(float a, float b, float c){
+  int sum = a * b * c;
+  return sum%8;
 }
 
 // Calculates earth's magnetic heading if sensor is flat
