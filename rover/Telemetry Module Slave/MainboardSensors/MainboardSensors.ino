@@ -159,7 +159,7 @@ void loop() {
 
 int checksum(float a, float b, float c){
   int sum = a * b * c;
-  return sum%8;
+  return sum%256;
 }
 
 // Calculates earth's magnetic heading if sensor is flat
