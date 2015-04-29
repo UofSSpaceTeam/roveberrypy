@@ -7,19 +7,18 @@ import time
 from unicodeConvert import convert
 
 class CommunicationThread(threading.Thread):
-	def __init__(self, parent, myPort, roverIP, roverPort):
+	def __init__(self, parent, roverIP, port):
 		threading.Thread.__init__(self)
 		self.name = "communicationThread"
 		self.parent = parent
 		self.debug = False
 		self.mailbox = Queue()
-		self.myPort = myPort
+		self.port = port
 		self.roverIP = roverIP
-		self.roverPort = roverPort
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.socket.setblocking(0)
-		self.socket.bind(("", myPort))
+		self.socket.bind(("", port))
 
 	def run(self):
 		while True:
@@ -57,6 +56,6 @@ class CommunicationThread(threading.Thread):
 					outDict.update(self.mailbox.get())
 				outData = json.dumps(outDict)
 				print outData
-				self.socket.sendto(outData, (self.roverIP, self.roverPort))
+				self.socket.sendto(outData, (self.roverIP, self.port))
 			time.sleep(0.01)
 

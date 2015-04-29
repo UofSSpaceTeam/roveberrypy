@@ -2,7 +2,6 @@
 # definitions follow
 
 AppRoot:
-
 # App root widget
 <AppRoot@BoxLayout>:
 	orientation: "vertical"
@@ -28,7 +27,6 @@ AppRoot:
 		SettingsScreen:
 			name: "settings"
 
-
 # tab switcher bar
 <TabBar@BoxLayout>:
 	ActionBar:
@@ -43,8 +41,8 @@ AppRoot:
 				on_release: app.changeScreen("splash")
 			ActionGroup:
 				ActionButton:
-					text: "Configuration"
-					on_release: app.open_settings()
+					text: "Settings"
+					on_release: app.changeScreen("settings")
 			ActionGroup:
 				ActionButton:
 					text: "Telemetry"
@@ -69,10 +67,13 @@ AppRoot:
 				ActionButton:
 					text: "Drive Camera"
 					on_release: app.changeScreen("drive")
-
+			ActionGroup:
+				ActionButton:
+					width: 0
 
 # Mission time countdown
 <MissionClock@ScatterLayout>:
+	id: mission
 	clock_text: "00:00:00"
 	Label:
 		text: root.clock_text
@@ -88,44 +89,89 @@ AppRoot:
 		size: (root.size[0], root.size[1])
 
 # map tab
-<NavigationScreen@BoxLayout>:
-	orientation: "vertical"
-	# Map
-	ScrollView:
+<NavigationScreen@FloatLayout>:
+	# Map static properties, more are handled in code.
+	Image:
 		id: map
-		zoom: 0.2
+		allow_stretch: True
+		keep_ratio: False
 		size_hint: (None, None)
-		size: (root.size[0], root.size[1] - 55)
-		pos: (0, 55)
-		AsyncImage:
-			id: image
-			pos: (0, 0)
-			size_hint: (None, None)
-			size: (self.texture_size[0] * self.parent.zoom, self.texture_size[1] * self.parent.zoom)
-			allow_stretch: True
-			keep_ratio: True
-			source: app.mapImagePath
-			# canvas:
-				# Color:
-					# rgba: (0,0,1,1)
-				# Ellipse:
-					# pos: (app.roverPosition[0] * root.zoom, app.roverPosition[1] * root.zoom)
-					# size: (10, 10)
-
-	# map view controls
+		source: app.settings["mapFile"]
+	Label:
+		size_hint: (None, None)
+		size: (0, 0)
+		pos: (root.width / 2, (root.height) / 2)
+		text: "+"
+		color: [0, 0.2, 1, 1]
+		font_size: 20
+	# map view control bars
 	BoxLayout:
-		pos: (root.size[0] / 2 - 100, 0)
+		orientation: "vertical"
+		pos: (0, 0)
+		canvas:
+			Color:
+				rgba: 0.4, 0.4, 0.4, 1
+			Rectangle:
+				pos: self.pos
+				size: (30, self.size[1])
+		Label:
+			text: "ZM"
+			size_hint: (None, None)
+			size: (30, 25)
+			color: [1, 1, 1, 1]
+			bold: True
+			font_size: 14
 		Button:
 			size_hint: (None, None)
-			size: (100, 50)
-			text: "Zoom -"
-			on_release: app.zoomOut()
+			size: (30, 30)
+			text: "+"
+			on_release: app.navThread.mailbox.put({"zoom":"+"})
 		Button:
 			size_hint: (None, None)
-			size: (100, 50)
-			text: "Zoom +"
-			on_release: app.zoomIn()
-
+			size: (30, 30)
+			text: "-"
+			on_release: app.navThread.mailbox.put({"zoom":"-"})
+	BoxLayout:
+		orientation: "vertical"
+		pos: (root.size[0] - 30, 0)
+		canvas:
+			Color:
+				rgba: 0.4, 0.4, 0.4, 1
+			Rectangle:
+				pos: self.pos
+				size: (30, self.size[1])
+		Label:
+			text: "MV"
+			size_hint: (None, None)
+			size: (30, 25)
+			color: [1, 1, 1, 1]
+			bold: True
+			font_size: 14
+		Button:
+			size_hint: (None, None)
+			size: (30, 30)
+			text: ">"
+			on_release: app.navThread.mailbox.put({"scroll":(40, 0)})
+		Button:
+			size_hint: (None, None)
+			size: (30, 30)
+			text: "<"
+			on_release: app.navThread.mailbox.put({"scroll":(-40, 0)})
+		Button:
+			size_hint: (None, None)
+			size: (30, 30)
+			text: "/\\"
+			on_release: app.navThread.mailbox.put({"scroll":(0, 40)})
+		Button:
+			size_hint: (None, None)
+			size: (30, 30)
+			text: "\\/"
+			on_release: app.navThread.mailbox.put({"scroll":(0, -40)})
+		Button:
+			size_hint: (None, None)
+			size: (30, 30)
+			text: "C"
+			on_release: app.navThread.mailbox.put({"snap":"center"})
 
 # turret-mounted camera view tab (video player built in python)
 <TurretScreen@FloatLayout>:
@@ -133,7 +179,7 @@ AppRoot:
 	Image:
 		pos: (0, 0)
 		id: loadImg
-		size: (root.size[0],root.size[1])
+		size: root.size
 		allow_stretch: True
 		keep_ratio: False
 		source: "gui/resource/loading.jpg"
@@ -155,7 +201,7 @@ AppRoot:
 	Image:
 		pos: (0, 0)
 		id: loadImg
-		size: (root.size[0],root.size[1])
+		size: root.size
 		allow_stretch: True
 		keep_ratio: False
 		source: "gui/resource/loading.jpg"
@@ -177,7 +223,7 @@ AppRoot:
 	Image:
 		pos: (0, 0)
 		id: loadImg
-		size: (root.size[0],root.size[1])
+		size: root.size
 		allow_stretch: True
 		keep_ratio: False
 		source: "gui/resource/loading.jpg"

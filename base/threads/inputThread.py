@@ -1,6 +1,5 @@
 import baseMessages as messages
 import threading
-import json
 import pygame
 from Queue import Queue
 import time
@@ -12,34 +11,28 @@ class InputThread(threading.Thread):
 		self.name = "inputThread"
 		self.parent = parent
 		self.mailbox = Queue()
-		self.cont = [False, False]
-		self.mode = "Two Stick"
 		pygame.init()
+		self.driveController = None
+		self.armController = None
 		if pygame.joystick.get_count() > 0:
-			self.cont[0] = pygame.joystick.Joystick(0)
-			self.cont[0].init()
+			self.driveController = pygame.joystick.Joystick(0)
+			self.driveController.init()
 		if pygame.joystick.get_count() > 1:
-			self.cont[1] = pygame.joystick.Joystick(1)
-			self.cont[1].init()
+			self.armController = pygame.joystick.Joystick(1)
+			self.armController.init()
 
-	def run(self):
+	def run(self):	
 		while True:
 			msg = {}
 			pygame.event.pump()
-			if self.mode == "Two Stick":
-				if self.cont[0]:
-					msg["c1j1y"] = self.filter(self.cont[0].get_axis(1) * -1)
-					msg["c1j2y"] = self.filter(self.cont[0].get_axis(3) * -1)
-				if self.cont[1]:
-					pass
-			if self.mode == "Arm":
-				if self.cont[0]:
-					msg["c1t"] = self.filter(self.cont[0].get_axis(2) * -1)
-				if self.cont[1]:
-					pass
+			if self.driveController: 
+				msg["c1j1y"] = self.filter(self.cont[0].get_axis(1) * -1)
+				msg["c1j2y"] = self.filter(self.cont[0].get_axis(3) * -1)
+				
+			if self.armController:
+				pass
 					
-				## Messages for joystick axis (for refrence)
-				# uncomment messages as needed.
+				# Messages for controller inputs (for refrence)
 				# msg["c1t"] = self.filter(self.cont[0].get_axis(2) * -1)
 				# msg["c1j1x"] = self.filter(self.cont[0].get_axis(0))
 				# msg["c1j1y"] = self.filter(self.cont[0].get_axis(1) * -1)
@@ -55,8 +48,7 @@ class InputThread(threading.Thread):
 				# msg["c1b_st"] = self.cont[0].get_button(7)
 				# msg["c1d_x"] = self.cont[0].get_hat(0)[0]
 				# msg["c1d_y"] = self.cont[0].get_hat(0)[1]
-				# controller 2
-				# uncomment messages as needed.
+
 				# msg["c2t"] = self.filter(self.cont[1].get_axis(2) * -1)
 				# msg["c2j1x"] = self.filter(self.cont[1].get_axis(0))
 				# msg["c2j1y"] = self.filter(self.cont[1].get_axis(1) * -1)
@@ -73,16 +65,15 @@ class InputThread(threading.Thread):
 				# msg["c2d_x"] = self.cont[1].get_hat(0)[0]
 				# msg["c2d_y"] = self.cont[1].get_hat(0)[1]	
 				
-			if self.cont[0] or self.cont[1]:
+			if self.driveController or self.armController:
 				self.parent.commThread.mailbox.put(msg)
-				self.mailbox.put(msg)
 			time.sleep(0.2)
 
 	def stop(self):
 		self._Thread__stop()
 	
 	def filter(self, value):
-		if abs(value) < 0.15:
+		if abs(value) < 0.15: # deadzone
 			return 0.0
 		elif value > 1.0:
 			return 1.0
