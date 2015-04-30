@@ -1,7 +1,8 @@
 {
 	"windowSize": [1024, 600],
 	"roverIP": "192.168.1.103",
-	"roverPort": 35001,
+	"towerIP": "192.168.1.150",
+	"port": 35001,
 	"throttle": 0.3,
 	"mapFile": "gui/resource/campusmap.jpg",
 	"mapBottomLeft": [52.127204, -106.647735],

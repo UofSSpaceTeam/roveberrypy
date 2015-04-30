@@ -43,7 +43,7 @@ class BaseApp(App):
 		# set up threads
 		self.mailbox = Queue()
 		self.commThread = CommunicationThread(self, settings["roverIP"],
-			settings["roverPort"])
+			settings["towerIP"], settings["port"])
 		self.inputThread = InputThread(self)
 		self.navThread = NavigationThread(self)
 		self.panelThread = PanelThread(self)
