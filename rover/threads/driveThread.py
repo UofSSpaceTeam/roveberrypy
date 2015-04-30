@@ -36,8 +36,6 @@ class driveThread(threading.Thread):
 		self.name = "driveThread"
 		self.exit = False
 		self.mailbox = Queue()
-		self.enabled = False
-
 		
 	def run(self):
 		command = Command()
@@ -48,15 +46,12 @@ class driveThread(threading.Thread):
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
 				print data
-				if "dMode" in data:
-					self.enabled = (data["dMode"])
-				if self.enabled:
-					if "c1j1y" in data:
-						leftSpeed = int(data["c1j1y"] * 255) # -255 to 255
-					elif "c1j2y" in data:
-						rightSpeed = int(data["c1j2y"] * 255) # -255 to 255
-					elif "throttle" in data:
-						throttle = float(data["throttle"]) # 0.0 to 1.0
+				if "c1j1y" in data:
+					leftSpeed = int(data["c1j1y"] * 255) # -255 to 255
+				elif "c1j2y" in data:
+					rightSpeed = int(data["c1j2y"] * 255) # -255 to 255
+				elif "throttle" in data:
+					throttle = float(data["throttle"]) # 0.0 to 1.0
 			
 			# send on complete input update
 			if leftSpeed is not None and rightSpeed is not None:

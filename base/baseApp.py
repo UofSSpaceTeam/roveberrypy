@@ -36,10 +36,8 @@ from kivy.uix.textinput import TextInput
 class BaseApp(App):	
 	def build(self):		
 		# read startup settings from file
-		appPath = sys.argv[0].replace("\\", "/")
-		appPath = (appPath[:appPath.rfind("/")])
 		global settings
-		settings = json.loads(open(appPath + "/settings.json").read())
+		settings = json.loads(open("settings.json").read())
 		self.settings = settings # just an alias
 		
 		# set up threads
@@ -51,7 +49,7 @@ class BaseApp(App):
 		self.panelThread = PanelThread(self)
 		
 		# build widget tree, root gets returned later
-		self.root = Builder.load_file(appPath + "/gui/app.kv")
+		self.root = Builder.load_file("gui/app.kv")
 		
 		# screen manager
 		self.sm = self.root.ids.sm
