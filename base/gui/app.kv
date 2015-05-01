@@ -71,157 +71,13 @@ AppRoot:
 				ActionButton:
 					width: 0
 
-# Mission time countdown
-<MissionClock@ScatterLayout>:
-	id: mission
-	clock_text: "00:00:00"
-	Label:
-		text: root.clock_text
-		bold: True
-		font_size: 20
-
-# telemetry / rover information tab
-<TelemetryScreen@BoxLayout>:
-	# Main Window
-	GridLayout:
-		cols: 3
-		Slider:
-			min: 0
-			max: 100
-			value: 30
-			step: 5
-
-
-# settings tab
-<SettingsScreen@BoxLayout>:
-	GridLayout:
-		cols: 4
-		rows: 4
-		col_default_width: root.size[0] / 4
-		row_default_height: root.size[1] / 4
-		spacing: 10
-		BoxLayout:
-			orientation: "vertical"
-			canvas:
-				Color:
-					rgba: 0, 0.4, 0, 1
-				Rectangle:
-					pos: self.pos
-					size: self.size
-			Label:
-				text: "Throttle: " + str(int(throttle.value)) + "%"
-				font_size: 20
-			Slider:
-				id: throttle
-				padding: 30
-				value: 30
-				step: 10
-				on_value: app.commThread.mailbox.put({"throttle":self.value_normalized})
-		BoxLayout:
-			orientation: "vertical"
-			canvas:
-				Color:
-					rgba: 0, 0, 0.5, 1
-				Rectangle:
-					pos: self.pos
-					size: self.size
-			Label:
-				text: "Tower Aim: " + str(int(antennaAim.value)) + "°"
-				font_size: 20
-			Slider:
-				id: antennaAim
-				padding: 30
-				min: -45
-				max: 45
-				value: 0
-				step: 5
-				on_value: app.commThread.mailbox.put({"antennaAim":int(self.value)})
-
-
-# map tab
-<NavigationScreen@FloatLayout>:
-	# Map static properties, more are handled in code.
+# startup splash screen tab
+<SplashScreen@BoxLayout>:
 	Image:
-		id: map
+		size: (root.size[0], root.size[1])
 		allow_stretch: True
-		keep_ratio: False
-		size_hint: (None, None)
-		source: app.settings["mapFile"]
-	Label:
-		size_hint: (None, None)
-		size: (0, 0)
-		pos: (root.width / 2, (root.height) / 2)
-		text: "+"
-		color: [0, 0.2, 1, 1]
-		font_size: 20
-	# map view control bars
-	BoxLayout:
-		orientation: "vertical"
-		pos: (0, 0)
-		canvas:
-			Color:
-				rgba: 0.4, 0.4, 0.4, 1
-			Rectangle:
-				pos: self.pos
-				size: (30, self.size[1])
-		Label:
-			text: "ZM"
-			size_hint: (None, None)
-			size: (30, 25)
-			color: [1, 1, 1, 1]
-			bold: True
-			font_size: 14
-		Button:
-			size_hint: (None, None)
-			size: (30, 30)
-			text: "+"
-			on_release: app.navThread.mailbox.put({"zoom":"+"})
-		Button:
-			size_hint: (None, None)
-			size: (30, 30)
-			text: "-"
-			on_release: app.navThread.mailbox.put({"zoom":"-"})
-	BoxLayout:
-		orientation: "vertical"
-		pos: (root.size[0] - 30, 0)
-		canvas:
-			Color:
-				rgba: 0.4, 0.4, 0.4, 1
-			Rectangle:
-				pos: self.pos
-				size: (30, self.size[1])
-		Label:
-			text: "MV"
-			size_hint: (None, None)
-			size: (30, 25)
-			color: [1, 1, 1, 1]
-			bold: True
-			font_size: 14
-		Button:
-			size_hint: (None, None)
-			size: (30, 30)
-			text: ">"
-			on_release: app.navThread.mailbox.put({"scroll":(40, 0)})
-		Button:
-			size_hint: (None, None)
-			size: (30, 30)
-			text: "<"
-			on_release: app.navThread.mailbox.put({"scroll":(-40, 0)})
-		Button:
-			size_hint: (None, None)
-			size: (30, 30)
-			text: "/\\"
-			on_release: app.navThread.mailbox.put({"scroll":(0, 40)})
-		Button:
-			size_hint: (None, None)
-			size: (30, 30)
-			text: "\\/"
-			on_release: app.navThread.mailbox.put({"scroll":(0, -40)})
-		Button:
-			size_hint: (None, None)
-			size: (30, 30)
-			text: "C"
-			on_release: app.navThread.mailbox.put({"snap":"center"})
+		keep_ratio: True
+		source: "gui/resource/splash.jpg"
 
 # turret-mounted camera view tab (video player built in python)
 <TurretScreen@FloatLayout>:
@@ -244,7 +100,6 @@ AppRoot:
 			text: "Capture"
 			on_release: app.takePicture("turret")
 
-
 # front-mounted camera view tab (video player built in python)
 <DriveScreen@FloatLayout>:
 	# static background image
@@ -265,7 +120,6 @@ AppRoot:
 			size: (70, 25)
 			text: "Capture"
 			on_release: app.takePicture("drive")
-
 
 # arm-mounted camera view tab (video player built in python)
 <ArmScreen@FloatLayout>:
@@ -288,16 +142,6 @@ AppRoot:
 			text: "Capture"
 			on_release: app.takePicture("arm")
 
-
 # image analysis tab
 <ImageScreen@BoxLayout>:
-
-
-# startup splash screen tab
-<SplashScreen@BoxLayout>:
-	Image:
-		size: (root.size[0], root.size[1])
-		allow_stretch: True
-		keep_ratio: True
-		source: "gui/resource/splash.jpg"
 

@@ -24,22 +24,22 @@ Config.set("input", "mouse", "mouse,disable_multitouch")
 import kivy
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-from kivy.uix.settings import SettingsWithTabbedPanel
 from kivy.lang import Builder
 from kivy.core.window import Window
 from kivy.uix.image import Image
 from kivy.uix.video import Video
+from kivy.uix.label import Label
+from kivy.graphics import *
 from kivy.clock import Clock
 from kivy.uix.textinput import TextInput
 
 # application python code
 class BaseApp(App):	
-	def build(self):		
+	def build(self):
 		# read startup settings from file
 		global settings
 		settings = json.loads(open("settings.json").read())
 		self.settings = settings # just an alias
-		
 		# set up threads
 		self.mailbox = Queue()
 		self.commThread = CommunicationThread(self, settings["roverIP"],
@@ -47,36 +47,33 @@ class BaseApp(App):
 		self.inputThread = InputThread(self)
 		self.navThread = NavigationThread(self)
 		self.panelThread = PanelThread(self)
-		
 		# build widget tree, root gets returned later
+		Builder.load_file("gui/telemetry.kv")
+		Builder.load_file("gui/settings.kv")
+		Builder.load_file("gui/nav.kv")
+		Builder.load_file("gui/image.kv")
+		Builder.load_file("gui/cameras.kv")
 		self.root = Builder.load_file("gui/app.kv")
-		
 		# screen manager
 		self.sm = self.root.ids.sm
 		self.sm.current = "splash"
 		self.sm.transition = NoTransition()
-		
 		# start threads
 		self.commThread.start()
 		self.inputThread.start()
 		self.navThread.start()
 		self.panelThread.start()
-		
 		# set up application window
 		Window.size = settings["windowSize"]
 		self.title = "USST Rover Control Application"
 		Window.bind(on_resize=self.windowResized)
-		
 		# set up map
-		self.map = None
-		self.markers = None
-		self.roverPosition = None
 		self.setupMap()
-		
+		# center antenna tower
+		self.commThread.mailbox.put({"towerAim":0})
 		# Scheduled events
-		Clock.schedule_interval(self.checkMail, 0.5)
-		
-		return self.root		
+		Clock.schedule_interval(self.checkMail, 0.2)
+		return self.root
 	
 	# read messages in the inbox
 	def checkMail(self, *args):
@@ -154,22 +151,52 @@ class BaseApp(App):
 
 	# informs other threads that the window size has changed
 	def windowResized(self, window, width, height):
-		self.navThread.mailbox.put({"resize":(width - 60, height - 50)})
+		self.navThread.mailbox.put({"resize":(width - 60, height - 80)})
 	
 	def setupMap(self):
 		self.map = self.sm.get_screen("navigation").ids.map
-		self.map.size = (Window.size[0] - 60, Window.size[1] - 50)
-		self.map.pos = (30, 0)
+		self.map.size = (Window.size[0] - 60, Window.size[1] - 80)
+		self.map.pos = (60, 0)
 		self.navThread.mailbox.put({"imageSize":self.map.texture.size})
+		Clock.schedule_once(self.updateMap, 1)
 	
 	# navigation thread informs us a new map is ready
-	def updateMap(self):
-		self.map.size = self.navThread.renderSize
-		self.map.pos[0] = self.navThread.renderPos[0] + 30
-		self.map.pos[1] = self.navThread.renderPos[1]
+	def updateMap(self, *args):
+		self.map.size = self.navThread.mapRenderSize
+		self.map.pos[0] = self.navThread.mapRenderPos[0] + 60
+		self.map.pos[1] = self.navThread.mapRenderPos[1]
+		self.map.canvas.after.clear()
+		with self.map.canvas.after:
+			# draw rover
+			pos = self.navThread.roverRenderPos
+			Color(1, 1, 1)
+			Ellipse(pos=(pos[0] + 51, pos[1] - 7), size=(16, 16))
+			Color(0, 0, 1)
+			Ellipse(pos=(pos[0] + 54, pos[1] - 4), size=(10, 10))
+			# draw waypoints
+			for wp in self.navThread.waypoints:
+				pos = wp.renderPos
+				if wp.active:
+					Color(0, 1, 0)
+				else:
+					Color(1, 1, 0)
+				Rectangle(pos=(pos[0] + 55, pos[1] - 5), size=(10, 10))
+			# draw cursor underlay
+			pos = self.navThread.cursorRenderPos
+			Color(0, 0, 0, 0.3)
+			Ellipse(pos=(pos[0] + 51, pos[1] - 7), size=(16, 16))
+	
+	# handle clicks on the map
+	def mapClick(self, pos, button):
+		# check if it's actually on the visible potion of the map
+		if pos[0] > 60 and pos[1] < Window.height - 80:
+			self.navThread.mailbox.put({"click":(int(pos[0] - 60),
+				int(pos[1]), button)})
+	
+	# def changeDegreeMode(self):
+		
 # End of BaseApp class
-
-# In code references of Kv widgets
+# In code references of Kv widgets:
 
 class TelemetryScreen(Screen):
 	def updateTime(self, *args):

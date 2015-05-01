@@ -1,0 +1,45 @@
+# settings tab
+<SettingsScreen@BoxLayout>:
+	GridLayout:
+		cols: 4
+		rows: 4
+		col_default_width: root.size[0] / 4
+		row_default_height: root.size[1] / 4
+		spacing: 10
+		BoxLayout:
+			orientation: "vertical"
+			canvas:
+				Color:
+					rgb: 0, 0.4, 0
+				Rectangle:
+					pos: self.pos
+					size: self.size
+			Label:
+				text: "Throttle: " + str(int(throttle.value)) + "%"
+				font_size: 20
+			Slider:
+				id: throttle
+				padding: 30
+				value: 30
+				step: 10
+				on_value: app.commThread.mailbox.put({"throttle":self.value_normalized})
+		BoxLayout:
+			orientation: "vertical"
+			canvas:
+				Color:
+					rgb: 0, 0, 0.5
+				Rectangle:
+					pos: self.pos
+					size: self.size
+			Label:
+				text: "Tower Aim: " + str(int(antennaAim.value)) + "°"
+				font_size: 20
+			Slider:
+				id: antennaAim
+				padding: 30
+				min: -45
+				max: 45
+				value: 0
+				step: 5
+				on_value: app.commThread.mailbox.put({"towerAim":int(self.value)})
+

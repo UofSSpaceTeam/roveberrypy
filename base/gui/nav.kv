@@ -1,0 +1,100 @@
+# map tab
+
+<NavigationScreen@FloatLayout>:
+	# Map static properties, more are handled in code.
+	Image:
+		id: map
+		allow_stretch: True
+		keep_ratio: False
+		size_hint: (None, None)
+		source: app.settings["mapFile"]
+		on_touch_down: app.mapClick(args[1].pos, args[1].button)
+		# canvas:
+			# Color:
+				# rgba: 0, 0, 0, 0.3
+			# Ellipse:
+				# pos: ((root.width + 60) / 2 - 11, (root.height - 30) / 2 - 10)
+				# size: (20, 20)
+	Label:
+		size_hint: (None, None)
+		size: (0, 0)
+		pos: ((root.width + 60) / 2, (root.height - 30) / 2)
+		text: "+"
+		color: [0, 1, 0, 1]
+		font_size: 20
+	# map view control bars
+	BoxLayout:
+		orientation: "vertical"
+		spacing: 5
+		pos: (0, 0)
+		canvas:
+			Color:
+				rgb: 0.4, 0.4, 0.4
+			Rectangle:
+				pos: self.pos
+				size: (60, self.size[1])
+		Label:
+			text: "Snap"
+			size_hint: (None, None)
+			size: (60, 25)
+			color: [1, 1, 1, 1]
+			bold: True
+			font_size: 14
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "Rover"
+			on_release: app.navThread.mailbox.put({"snap":"rover"})
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "Center"
+			on_release: app.navThread.mailbox.put({"snap":"center"})
+	BoxLayout:
+		orientation: "horizontal"
+		pos: (60, root.size[1] - 30)
+		height: 30
+		canvas:
+			Color:
+				rgb: 0.4, 0.4, 0.4
+			Rectangle:
+				pos: self.pos
+				size: (self.size[0], 30)
+		Label:
+			text: "Cursor: "
+			size_hint: (None, None)
+			size: (300, 30)
+			color: [1, 1, 1, 1]
+			bold: True
+			font_size: 16
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "Mode"
+			on_release: app.changeDegreeMode()
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "Prev"
+			on_release: app.navThread.mailbox.put({"waypoint":"prev"})
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "Next"
+			on_release: app.navThread.mailbox.put({"waypoint":"next"})
+		Button:
+			size_hint: (None, None)
+			size: (30, 30)
+			text: "/\\"
+			on_release: app.navThread.mailbox.put({"scroll":(0, 40)})
+		Button:
+			size_hint: (None, None)
+			size: (30, 30)
+			text: "\\/"
+			on_release: app.navThread.mailbox.put({"scroll":(0, -40)})
+		Button:
+			size_hint: (None, None)
+			size: (30, 30)
+			text: "C"
+			on_release: app.navThread.mailbox.put({"snap":"center"})
+

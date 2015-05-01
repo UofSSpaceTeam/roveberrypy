@@ -59,5 +59,5 @@ class CommunicationThread(threading.Thread):
 				print outData
 				self.socket.sendto(outData, (self.roverIP, self.port))
 				self.socket.sendto(outData, (self.towerIP, self.port))
-			time.sleep(0.01)
+			time.sleep(0.05)
 

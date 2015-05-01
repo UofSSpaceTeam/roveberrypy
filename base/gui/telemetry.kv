@@ -1,0 +1,15 @@
+# telemetry / rover information tab
+<TelemetryScreen@BoxLayout>:
+	# Main Window
+	GridLayout:
+		cols: 3
+
+# Mission time countdown
+<MissionClock@ScatterLayout>:
+	id: mission
+	clock_text: "00:00:00"
+	Label:
+		text: root.clock_text
+		bold: True
+		font_size: 20
+
