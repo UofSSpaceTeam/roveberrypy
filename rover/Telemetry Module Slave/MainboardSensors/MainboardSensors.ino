@@ -37,6 +37,15 @@ int adc0, adc1;
 float vout, isense;
 
 
+//for sending data
+float gx_data, gy_data, gz_data, pitch_data, roll_data, ax_data, ay_data, az_data, heading_data;
+float lat_data, lon_data, alt_data, mps_data, gps_heading_data, time_data, date_data;
+float aroll_data, apitch_data; 
+float vout_data, isense_data;
+
+int iter = 0; 
+
+
 void setup() {
   // Begin the LSM9DS0
   dof.begin();
@@ -95,9 +104,9 @@ void loop() {
   // MPU6050
   accelgyro.getMotion6(&aax, &aay, &aaz, &agx, &agy, &agz);
   //Low Pass Filter
-  fXg = gx * alpha + (fXg * (1.0 - alpha));
-  fYg = gy * alpha + (fYg * (1.0 - alpha));
-  fZg = gz * alpha + (fZg * (1.0 - alpha));
+  fXg = agx * alpha + (fXg * (1.0 - alpha));
+  fYg = agy * alpha + (fYg * (1.0 - alpha));
+  fZg = agz * alpha + (fZg * (1.0 - alpha));
   aroll  = ((atan2(-fYg, fZg)*180.0)/pi );
   apitch = ((atan2(fXg, sqrt(fYg*fYg + fZg*fZg))*180.0)/pi);
   
@@ -111,50 +120,103 @@ void loop() {
   //Serial.println(vout);
   //Serial.println(isense); 
   
-  // print all data : pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense
-  Serial.print("#");
-  Serial.print(pitch); //0
-  Serial.print(" ");
-  Serial.print(roll); //1
-  Serial.print(" ");
-  Serial.print(gx);  //2
-  Serial.print(" ");
-  Serial.print(gy);  //3
-  Serial.print(" ");
-  Serial.print(gz);  //4
-  Serial.print(" ");
-  Serial.print(ax);  //5
-  Serial.print(" ");
-  Serial.print(ay);  //6
-  Serial.print(" ");
-  Serial.print(az);  //7
-  Serial.print(" ");
-  Serial.print(heading);  //8
-  Serial.print(" ");
-  Serial.print(aroll);  //9
-  Serial.print(" ");
-  Serial.print(apitch);  //10
-  Serial.print(" ");
-  Serial.print(lat,8);  //11
-  Serial.print(" ");
-  Serial.print(lon,8);  //12
-  Serial.print(" ");
-  Serial.print(mps);  //13
-  Serial.print(" ");
-  Serial.print(alt);  //14
-  Serial.print(" ");
-  Serial.print(gps_heading);   //15
-  Serial.print(" ");
-  Serial.print(date);  //16
-  Serial.print(" ");
-  Serial.print(time);  //17
-  Serial.print(" ");
-  Serial.print(vout);  //18
-  Serial.print(" ");
-  Serial.print(isense);  //19
-  Serial.print(" ");
-  Serial.print(checksum(roll,time,heading));
-  Serial.println("$");
+  // collects average of data over 10 iterations
+  if(iter == 0){
+    pitch_data = pitch;
+    roll_data = roll;
+    gx_data = gx;
+    gy_data = gy;
+    gz_data = gz;
+    ax_data = ax;
+    ay_data = ay; 
+    az_data = az;
+    heading_data = heading;
+    aroll_data = aroll;
+    apitch_data = apitch;
+    lat_data = lat;
+    lon_data = lon;
+    mps_data = mps;
+    alt_data = alt;
+    gps_heading_data = gps_heading;
+    date_data = date;
+    time_data = time; 
+    vout_data = vout; 
+    isense_data = isense;
+    
+    iter =+ 1; 
+  } 
+  else if(iter == 10) {
+    // print all data : pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense
+    Serial.print("#");
+    Serial.print(pitch_data / 10); //0
+    Serial.print(" ");
+    Serial.print(roll_data / 10); //1
+    Serial.print(" ");
+    Serial.print(gx_data / 10);  //2
+    Serial.print(" ");
+    Serial.print(gy_data / 10);  //3
+    Serial.print(" ");
+    Serial.print(gz_data / 10);  //4
+    Serial.print(" ");
+    Serial.print(ax_data / 10);  //5
+    Serial.print(" ");
+    Serial.print(ay_data / 10);  //6
+    Serial.print(" ");
+    Serial.print(az_data / 10);  //7
+    Serial.print(" ");
+    Serial.print(heading_data / 10);  //8
+    Serial.print(" ");
+    Serial.print(aroll_data / 10);  //9
+    Serial.print(" ");
+    Serial.print(apitch_data / 10);  //10
+    Serial.print(" ");
+    Serial.print(lat_data / 10,8);  //11
+    Serial.print(" ");
+    Serial.print(lon_data / 10,8);  //12
+    Serial.print(" ");
+    Serial.print(mps_data / 10);  //13
+    Serial.print(" ");
+    Serial.print(alt_data / 10);  //14
+    Serial.print(" ");
+    Serial.print(gps_heading_data / 10);   //15
+    Serial.print(" ");
+    Serial.print(date_data / 10);  //16
+    Serial.print(" ");
+    Serial.print(time_data / 10);  //17
+    Serial.print(" ");
+    Serial.print(vout_data / 10);  //18
+    Serial.print(" ");
+    Serial.print(isense_data / 10);  //19
+    Serial.print(" ");
+    Serial.print(checksum(roll_data / 10,time_data / 10,heading_data / 10));
+    Serial.println("$");
+  
+    iter = 0;
+  }
+  else{
+    pitch_data += pitch;
+    roll_data += roll;
+    gx_data += gx;
+    gy_data += gy;
+    gz_data += gz;
+    ax_data += ax;
+    ay_data += ay; 
+    az_data += az;
+    heading_data += heading;
+    aroll_data += aroll;
+    apitch_data += apitch;
+    lat_data += lat;
+    lon_data += lon;
+    mps_data += mps;
+    alt_data += alt;
+    gps_heading_data += gps_heading;
+    date_data += date;
+    time_data += time; 
+    vout_data += vout; 
+    isense_data += isense;
+    
+    iter += 1; 
+  } 
 }
 
 int checksum(float a, float b, float c){

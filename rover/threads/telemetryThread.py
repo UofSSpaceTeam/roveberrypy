@@ -27,17 +27,18 @@ class telemetryThread(threading.Thread):
                         time.sleep(1)
                         msg.update(self.sensorInfo())
                         
-                        if value["gx"] is None:
+                        if msg["gx"] is None:
                                 print("error in packet")
                         else:
                                 print("packet good")
+                                #print(msg)
                                 self.parent.commThread.mailbox.put(msg)
                         
         # simulates receiving info from a sensor                
         def sensorInfo(self):
                 # set up serial, Serial(port, buadrate)
                 # will need to be change when on rover 
-                ser = serial.Serial("COM7", 115200)
+                ser = serial.Serial("COM9", 115200)
                 value = {}
                 #add values to test
                 #using c1j1y arbitrarily 
@@ -45,11 +46,15 @@ class telemetryThread(threading.Thread):
                 # read data from serial (USB)
                 str = ser.readline() 
                 # TODO: parse data and send it through mailbox 
-                # TODO: add checksum 
                 # prints in the order pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense
                 data = str.split();
                 #print(data)
                 
+				#make sure packet is complete 
+                if len(data) != 21:
+					value["gx"] = None
+					return value 
+
                 value["pitch"] = data[0].lstrip("#")
                 value["roll"] = data[1]
                 value["gx"] = data[2]
@@ -69,15 +74,13 @@ class telemetryThread(threading.Thread):
                 value["date"] = data[16]
                 value["time"] = data[17]
                 value["vout"] = data[18]
-                value["isense"] = data[19].rstrip("$")
+                value["isense"] = data[19]
+                checksum = data[20].rstrip("$")
 
-                print(data[19])
-                print(self.checksum( float(value["roll"]), float(value["time"]), float(value["heading"])))
-
-                if float(data[19]) == self.checksum( float(value["roll"]), float(value["time"]), float(value["heading"])):
+                if float(checksum) == self.checksum( float(value["roll"]), float(value["time"]), float(value["heading"])):
                         return value
                 else:
-                        print("Error: invalid packet")
+                        #print("Error: invalid packet")
                         #value in gx arbitrary picked to send error 
                         value["gx"] = None
                         return value
