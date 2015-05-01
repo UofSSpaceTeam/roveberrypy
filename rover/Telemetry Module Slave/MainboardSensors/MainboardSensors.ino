@@ -113,45 +113,45 @@ void loop() {
   
   // print all data : pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense
   Serial.print("#");
-  Serial.print(pitch);
+  Serial.print(pitch); //0
   Serial.print(" ");
-  Serial.print(roll);
+  Serial.print(roll); //1
   Serial.print(" ");
-  Serial.print(gx);
+  Serial.print(gx);  //2
   Serial.print(" ");
-  Serial.print(gy);
+  Serial.print(gy);  //3
   Serial.print(" ");
-  Serial.print(gz);
+  Serial.print(gz);  //4
   Serial.print(" ");
-  Serial.print(ax);
+  Serial.print(ax);  //5
   Serial.print(" ");
-  Serial.print(ay);
+  Serial.print(ay);  //6
   Serial.print(" ");
-  Serial.print(az);
+  Serial.print(az);  //7
   Serial.print(" ");
-  Serial.print(heading);
+  Serial.print(heading);  //8
   Serial.print(" ");
-  Serial.print(aroll);
+  Serial.print(aroll);  //9
   Serial.print(" ");
-  Serial.print(apitch);
+  Serial.print(apitch);  //10
   Serial.print(" ");
-  Serial.print(lat,8);
+  Serial.print(lat,8);  //11
   Serial.print(" ");
-  Serial.print(lon,8);
+  Serial.print(lon,8);  //12
   Serial.print(" ");
-  Serial.print(mps);
+  Serial.print(mps);  //13
   Serial.print(" ");
-  Serial.print(alt);
+  Serial.print(alt);  //14
   Serial.print(" ");
-  Serial.print(gps_heading);
+  Serial.print(gps_heading);   //15
   Serial.print(" ");
-  Serial.print(date);  
+  Serial.print(date);  //16
   Serial.print(" ");
-  Serial.print(time);
+  Serial.print(time);  //17
   Serial.print(" ");
-  Serial.print(vout);  
+  Serial.print(vout);  //18
   Serial.print(" ");
-  Serial.print(isense);
+  Serial.print(isense);  //19
   Serial.print(" ");
   Serial.print(checksum(roll,time,heading));
   Serial.println("$");

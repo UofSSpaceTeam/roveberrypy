@@ -27,11 +27,11 @@ class telemetryThread(threading.Thread):
                         time.sleep(1)
                         msg.update(self.sensorInfo())
                         
-                        if msg is None:
+                        if value["gx"] is None:
                                 print("error in packet")
                         else:
-                                #print(msg)
-                                #self.parent.commThread.mailbox.put(msg)
+                                print("packet good")
+                                self.parent.commThread.mailbox.put(msg)
                         
         # simulates receiving info from a sensor                
         def sensorInfo(self):
@@ -69,20 +69,19 @@ class telemetryThread(threading.Thread):
                 value["date"] = data[16]
                 value["time"] = data[17]
                 value["vout"] = data[18]
-                #checksum = data[19] 
-                value["isense"] = data[20].rstrip("$")
-                                
+                value["isense"] = data[19].rstrip("$")
+
                 print(data[19])
                 print(self.checksum( float(value["roll"]), float(value["time"]), float(value["heading"])))
-                                
-                
-        
+
                 if float(data[19]) == self.checksum( float(value["roll"]), float(value["time"]), float(value["heading"])):
                         return value
                 else:
                         print("Error: invalid packet")
+                        #value in gx arbitrary picked to send error 
+                        value["gx"] = None
                         return value
-                                                
+                        
                 
                 
         def checksum(self, a, b, c):
