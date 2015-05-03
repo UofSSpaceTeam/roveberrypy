@@ -11,7 +11,7 @@ class CommunicationThread(threading.Thread):
 		threading.Thread.__init__(self)
 		self.name = "communicationThread"
 		self.parent = parent
-		self.debug = False
+		self.debug = True
 		self.mailbox = Queue()
 		self.port = port
 		self.roverIP = roverIP

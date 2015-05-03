@@ -21,16 +21,20 @@ class InputThread(threading.Thread):
 			self.armController = pygame.joystick.Joystick(1)
 			self.armController.init()
 
-	def run(self):	
+	def run(self):
 		while True:
 			msg = {}
 			pygame.event.pump()
 			if self.driveController: 
-				msg["c1j1y"] = self.filter(self.cont[0].get_axis(1) * -1)
-				msg["c1j2y"] = self.filter(self.cont[0].get_axis(3) * -1)
+				msg["c1j1y"] = self.filter(self.driveController.get_axis(1) * -1)
+				msg["c1j2y"] = self.filter(self.driveController.get_axis(3) * -1)
 				
 			if self.armController:
-				pass
+				msg["c2t"] = self.filter(self.armController.get_axis(2) * -1)
+				msg["c2j1y"] = self.filter(self.armController.get_axis(1)*-1)
+				msg["c2j2y"] = self.filter(self.armController.get_axis(3)*-1)
+				msg["c2j1x"] = self.filter(self.armController.get_axis(0))
+				msg["c2j2x"] = self.filter(self.armController.get_axis(4))
 					
 				# Messages for controller inputs (for refrence)
 				# msg["c1t"] = self.filter(self.cont[0].get_axis(2) * -1)
