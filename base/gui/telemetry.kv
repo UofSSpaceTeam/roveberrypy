@@ -1,15 +1,72 @@
 # telemetry / rover information tab
-<TelemetryScreen@BoxLayout>:
+<TelemetryScreen@FloatLayout>:
 	# Main Window
-	GridLayout:
-		cols: 3
+	canvas:
+        Color:
+            rgba: .4, .4, 1, 1
+        Line:
+            points: self.points
+            joint: self.joint
+            cap: self.cap
+            width: self.linewidth
+            close: self.close
+        Color:
+            rgba: 1, .4, .4, 1
+        Line:
+            points: self.points2
+            joint: self.joint
+            cap: self.cap
+            width: self.linewidth
+            close: self.close
+        Color:
+            rgba: 0, 1, 0, 1
+        Line:
+            points: self.points3
+            joint: self.joint
+            cap: self.cap
+            width: self.linewidth
+            close: self.close
+
+    GridLayout:
+        cols: 2
+        size_hint: 1, None
+        height: 44 * 5
+
+        GridLayout:
+            cols: 2
+            
+            Label:
+                text: 'Gx'
+            Label:
+                text: str(root.gx)
+
+            Label:
+                text: 'Gy'
+            Label:
+                text: str(root.gy)
+
+            Label:
+                text: 'Gz'
+            Label:
+                text: str(root.gz)
+                
+        AnchorLayout:
+            GridLayout:
+                cols: 1
+                size_hint: None, None
+                size: self.minimum_size
+                ToggleButton:
+                    size_hint: None, None
+                    size: 100, 44
+                    text: 'Start'
+                    on_state: root.animate(self.state == 'down')
 
 # Mission time countdown
-<MissionClock@ScatterLayout>:
-	id: mission
-	clock_text: "00:00:00"
-	Label:
-		text: root.clock_text
-		bold: True
-		font_size: 20
+#<MissionClock@ScatterLayout>:
+#	id: mission
+#	clock_text: "00:00:00"
+#	Label:
+#		text: root.clock_text
+#		bold: True
+#		font_size: 20
 
