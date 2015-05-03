@@ -35,7 +35,6 @@ class armThread(threading.Thread):
 		self.name = "armThread"
 		self.exit = False
 		self.mailbox = Queue()
-		self.enabled = False
 
 	def run(self):
 		command = Command()
@@ -47,20 +46,23 @@ class armThread(threading.Thread):
 		while True:
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
-				if "aMode" in data:
-					self.enabled = (data["aMode"])
-				if self.enabled:
-					if "c1t" in data:
-						baseSpeed = int(data["c1t"] * 255) # -255 to 255
-						print baseSpeed
-					if "c1j1y" in data:
-						L1 = int(data["c1j1y"] * 255)
-						print L1
+				if "c2j1x" in data:
+					baseSpeed = int(data["c2j1x"] * 255) # -255 to 255
+					print baseSpeed
+				if "c2j1y" in data:
+					L1 = int(data["c2j1y"] * 255)
+					print L1
+				if "c2j2x" in data:
+					L2 = int(data["c2j2x"] * 255)
+					print L2
+				if "c2j2y" in data:
+					L3 = int(data["c2j2y"] * 255)
+					print L3
 			
-			baseSpeed = 128
-			L1 = 101
-			L2 = 56
-			L3 = 98
+			#baseSpeed = 128
+			#L1 = 101
+			#L2 = 56
+			#L3 = 98
 			# send on complete input update
 			if baseSpeed is not None and L1 is not None and L2 is not None:
 				command.type = CommandType.setPos
