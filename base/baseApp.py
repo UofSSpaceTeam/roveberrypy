@@ -7,6 +7,7 @@ import os
 import time
 import json
 import logging
+from math import cos, sin
 
 # threading imports
 from threads.communicationThread import CommunicationThread
@@ -32,6 +33,8 @@ from kivy.uix.label import Label
 from kivy.graphics import *
 from kivy.clock import Clock
 from kivy.uix.textinput import TextInput
+from kivy.properties import OptionProperty, NumericProperty, ListProperty, BooleanProperty
+
 
 # application python code
 class BaseApp(App):	
@@ -194,14 +197,90 @@ class BaseApp(App):
 				int(pos[1]), button)})
 	
 	# def changeDegreeMode(self):
-		
+
+	
 # End of BaseApp class
 # In code references of Kv widgets:
 
 class TelemetryScreen(Screen):
-	def updateTime(self, *args):
-		pass
-		#self.ids.mission.clock_text = time.asctime()
+	#pass
+	#def updateTime(self, *args):
+	#	self.ids.mission.clock_text = time.asctime()
+	close = False #BooleanProperty(False)
+	points = ListProperty([])
+	points2 = ListProperty([])
+	points3 = ListProperty([])
+	joint = 'miter' #OptionProperty('none', options=('round', 'miter', 'bevel', 'none'))
+	cap = 'round' #OptionProperty('none', options=('round', 'square', 'none'))
+	linewidth = 1 #NumericProperty(1)
+	dt = NumericProperty(0)
+
+	x_pos = NumericProperty(0)
+
+	current_width = NumericProperty(0)
+	current_height = NumericProperty(0)
+
+
+	gx = NumericProperty(0)
+	gy = NumericProperty(0)
+	gz = NumericProperty(0)
+	
+
+	def animate(self, do_animation):
+		if do_animation:
+			Clock.schedule_interval(self.update_points_animation, 0)
+		else:
+			Clock.unschedule(self.update_points_animation)
+
+	def update_points_animation(self, dt):
+		cy = self.height * 0.6
+		cx = self.width * 0.1
+		w = self.width * 0.8
+		self.dt += dt
+		data = {}
+		time.sleep(.1)
+		data.update(self.getData())
+		self.gx = data["gx"]
+		self.gy = data["gy"]
+		self.gz = data["gz"]
+		
+		#check change in window size
+		#d_width = self.width - self.current_width
+		#d_higth = self.height - self.current_height
+		
+		self.points.append(cx + (self.x_pos) )
+		self.points.append(cy + self.gx )
+
+		self.points2.append(cx + (self.x_pos) )
+		self.points2.append(cy + self.gy )
+		
+		self.points3.append(cx + (self.x_pos) )
+		self.points3.append(cy + self.gz )
+
+		self.current_width = self.width
+		self.current_height = self.height
+		
+		self.x_pos += 1
+
+		
+		
+		
+	def getData(self):
+
+		data = {}
+		data["gx"] = 1 + self.gx 
+		data["gy"] = 5 + self.gy
+		data["gz"] = 10 + self.gz
+
+		if self.gx > 200:
+			data["gx"] = 0
+
+		if self.gy > 200:
+			data["gy"] = 0
+
+		if self.gz > 200:
+			data["gz"] = 0
+		return data
 
 class NavigationScreen(Screen):
 	pass
