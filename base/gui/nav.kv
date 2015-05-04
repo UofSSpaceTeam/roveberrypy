@@ -1,6 +1,11 @@
 # map tab
-
 <NavigationScreen@FloatLayout>:
+	id: navScreen
+	roverStatusText: ""
+	destStatusText: ""
+	destColor: [1, 0.4, 0.4, 1]
+	printMode: ""
+	numMarkers: ""
 	# Map static properties, more are handled in code.
 	Image:
 		id: map
@@ -9,35 +14,67 @@
 		size_hint: (None, None)
 		source: app.settings["mapFile"]
 		on_touch_down: app.mapClick(args[1].pos, args[1].button)
-		# canvas:
-			# Color:
-				# rgba: 0, 0, 0, 0.3
-			# Ellipse:
-				# pos: ((root.width + 60) / 2 - 11, (root.height - 30) / 2 - 10)
-				# size: (20, 20)
 	Label:
+		canvas:
+			Color:
+				rgba: 0, 0, 0, 0.08
+			Ellipse:
+				pos: ((root.width + 43) / 2, (root.height - 45) / 2)
+				size: (16, 16)
 		size_hint: (None, None)
 		size: (0, 0)
 		pos: ((root.width + 60) / 2, (root.height - 30) / 2)
 		text: "+"
 		color: [0, 1, 0, 1]
 		font_size: 20
+	# Map markers
+	FloatLayout:
+		id: markers
 	# map view control bars
 	BoxLayout:
 		orientation: "vertical"
 		spacing: 5
-		pos: (0, 0)
 		canvas:
 			Color:
-				rgb: 0.4, 0.4, 0.4
+				rgba: 0, 0, 0, 0.8
 			Rectangle:
-				pos: self.pos
+				pos: (0, 0)
 				size: (60, self.size[1])
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "Go To..."
+			color: [0, 1, 1, 1]
+			bold: True
+			on_release: app.createForm("chooseMarker")
 		Label:
-			text: "Snap"
+			text: "Markers"
 			size_hint: (None, None)
 			size: (60, 25)
 			color: [1, 1, 1, 1]
+			bold: True
+			font_size: 14
+		Label:
+			text: root.numMarkers
+			size_hint: (None, None)
+			size: (60, 20)
+			color: [0, 1, 0, 1]
+			bold: True
+			font_size: 14
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "Add"
+			on_release: app.createForm("newMarker")
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "Remove"
+			on_release: app.createForm("removeMarker")
+		Label:
+			text: "View"
+			size_hint: (None, None)
+			size: (60, 25)
 			bold: True
 			font_size: 14
 		Button:
@@ -48,53 +85,291 @@
 		Button:
 			size_hint: (None, None)
 			size: (60, 30)
-			text: "Center"
-			on_release: app.navThread.mailbox.put({"snap":"center"})
+			text: "Base"
+			on_release: app.navThread.mailbox.put({"snap":"tower"})
+		Label:
+			text: "Format"
+			size_hint: (None, None)
+			size: (60, 25)
+			bold: True
+			font_size: 14
+		Label:
+			text: "[ " + root.printMode + " ]"
+			size_hint: (None, None)
+			size: (60, 25)
+			color: [0, 1, 0, 1]
+			bold: True
+			font_size: 14
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "Dd"
+			on_release: if app.activeForm is None: app.navThread.mailbox.put({"printMode":"Dd"})
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "DMm"
+			on_release: if app.activeForm is None: app.navThread.mailbox.put({"printMode":"DMm"})
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "DMS"
+			on_release: if app.activeForm is None: app.navThread.mailbox.put({"printMode":"DMS"})
 	BoxLayout:
 		orientation: "horizontal"
 		pos: (60, root.size[1] - 30)
 		height: 30
 		canvas:
 			Color:
-				rgb: 0.4, 0.4, 0.4
+				rgba: 0, 0, 0, 0.8
 			Rectangle:
 				pos: self.pos
 				size: (self.size[0], 30)
-		Label:
-			text: "Cursor: "
+		Button:
 			size_hint: (None, None)
-			size: (300, 30)
-			color: [1, 1, 1, 1]
+			size: (60, 30)
+			text: "Info"
+			on_release: app.navThread.mailbox.put({"displayToggle":""})
+		Label:
+			text: root.roverStatusText
+			size_hint: (None, None)
+			size: (350, 30)
+			color: [0.4, 0.4, 1, 1]
 			bold: True
 			font_size: 16
-		Button:
+		Label:
+			text: root.destStatusText
 			size_hint: (None, None)
-			size: (60, 30)
-			text: "Mode"
-			on_release: app.changeDegreeMode()
+			size: (500, 30)
+			color: root.destColor
+			bold: True
+			font_size: 16
+
+# forms
+
+<NewMarkerFormDd>:
+	BoxLayout:
+		size_hint: (None, None)
+		size: (300, 400)
+		pos: ((root.size[0] - self.size[0]) / 2, (root.size[1] - self.size[1]) / 2)
+		orientation: "vertical"
+		padding: 10
+		canvas:
+			Color:
+				rgba: 0, 0, 0, 0.8
+			Rectangle:
+				pos: self.pos
+				size: self.size
+		Label:
+			text: "New Marker"
+			font_size: 32
+			bold: True
+		Label:
+			text: "Name:"
+			font_size: 16
+		TextInput:
+			id: name
+			text: "WPT " + str(len(app.navThread.markers))
+			write_tab: False
 		Button:
-			size_hint: (None, None)
-			size: (60, 30)
-			text: "Prev"
-			on_release: app.navThread.mailbox.put({"waypoint":"prev"})
+			text: "Place at Crosshair"
+			on_release: vc = app.navThread.viewCenter; app.submitForm((name.text, vc[0], vc[1]))
+		Label:
+			text: "Latitude: (+N, -S)"
+			font_size: 16
+		TextInput:
+			id: lat
+			hint_text: "degrees (decimal)"
+			write_tab: False
+		Label:
+			text: "Longitude: (+E, -W)"
+			font_size: 16
+		TextInput:
+			id: lon
+			hint_text: "degrees (decimal)"
+			write_tab: False
+		BoxLayout:
+			orientation: "horizontal"
+			Button:
+				text: "Add"
+				on_release: app.submitForm((name.text, lat.text, lon.text))
+			Button:
+				text: "Cancel"
+				on_release: app.submitForm(None)
+
+<NewMarkerFormDMm>:
+	BoxLayout:
+		size_hint: (None, None)
+		size: (300, 400)
+		pos: ((root.size[0] - self.size[0]) / 2, (root.size[1] - self.size[1]) / 2)
+		orientation: "vertical"
+		padding: 10
+		canvas:
+			Color:
+				rgba: 0, 0, 0, 0.8
+			Rectangle:
+				pos: self.pos
+				size: self.size
+		Label:
+			text: "New Marker"
+			font_size: 32
+			bold: True
+		Label:
+			text: "Name:"
+			font_size: 16
+		TextInput:
+			id: name
+			text: "WPT " + str(len(app.navThread.markers))
+			write_tab: False
 		Button:
-			size_hint: (None, None)
-			size: (60, 30)
-			text: "Next"
-			on_release: app.navThread.mailbox.put({"waypoint":"next"})
+			text: "Place at Crosshair"
+			on_release: vc = app.navThread.viewCenter; app.submitForm((name.text, vc[0], vc[1]))
+		Label:
+			text: "Latitude: (+N, -S)"
+			font_size: 16
+		BoxLayout:
+			orientation: "horizontal"
+			TextInput:
+				id: latD
+				hint_text: "degrees (integer)"
+				write_tab: False
+			TextInput:
+				id: latM
+				hint_text: "minutes (decimal)"
+				write_tab: False
+		Label:
+			text: "Longitude: (+E, -W)"
+			font_size: 16
+		BoxLayout:
+			orientation: "horizontal"
+			TextInput:
+				id: lonD
+				hint_text: "degrees (integer)"
+				write_tab: False
+			TextInput:
+				id: lonM
+				hint_text: "minutes (decimal)"
+				write_tab: False
+		BoxLayout:
+			orientation: "horizontal"
+			Button:
+				text: "Add"
+				on_release: app.submitForm((name.text, (latD.text, latM.text), (lonD.text, lonM.text)))
+			Button:
+				text: "Cancel"
+				on_release: app.submitForm(None)
+
+<NewMarkerFormDMS>:
+	BoxLayout:
+		size_hint: (None, None)
+		size: (300, 400)
+		pos: ((root.size[0] - self.size[0]) / 2, (root.size[1] - self.size[1]) / 2)
+		orientation: "vertical"
+		padding: 10
+		canvas:
+			Color:
+				rgba: 0, 0, 0, 0.8
+			Rectangle:
+				pos: self.pos
+				size: self.size
+		Label:
+			text: "New Marker"
+			font_size: 32
+			bold: True
+		Label:
+			text: "Name:"
+			font_size: 16
+		TextInput:
+			id: name
+			text: "WPT " + str(len(app.navThread.markers))
+			write_tab: False
 		Button:
-			size_hint: (None, None)
-			size: (30, 30)
-			text: "/\\"
-			on_release: app.navThread.mailbox.put({"scroll":(0, 40)})
+			text: "Place at Crosshair"
+			on_release: vc = app.navThread.viewCenter; app.submitForm((name.text, vc[0], vc[1]))
+		Label:
+			text: "Latitude: (+N, -S)"
+			font_size: 16
+		BoxLayout:
+			orientation: "horizontal"
+			TextInput:
+				id: latD
+				hint_text: "deg (int)"
+				write_tab: False
+			TextInput:
+				id: latM
+				hint_text: "min (int)"
+				write_tab: False
+			TextInput:
+				id: latS
+				hint_text: "sec (dec)"
+				write_tab: False
+		Label:
+			text: "Longitude: (+E, -W)"
+			font_size: 16
+		BoxLayout:
+			orientation: "horizontal"
+			TextInput:
+				id: lonD
+				hint_text: "deg (int)"
+				write_tab: False
+			TextInput:
+				id: lonM
+				hint_text: "min (int)"
+				write_tab: False
+			TextInput:
+				id: lonS
+				hint_text: "sec (dec)"
+				write_tab: False
+		BoxLayout:
+			orientation: "horizontal"
+			Button:
+				text: "Add"
+				on_release: app.submitForm((name.text, (latD.text, latM.text, latS.text), (lonD.text, lonM.text, lonS.text)))
+			Button:
+				text: "Cancel"
+				on_release: app.submitForm(None)
+
+<ChooseMarkerForm>:
+	BoxLayout:
+		id: list
+		size_hint: (None, None)
+		size: (300, 400)
+		pos: ((root.size[0] - self.size[0]) / 2, (root.size[1] - self.size[1]) / 2)
+		orientation: "vertical"
+		padding: 15
+		canvas:
+			Color:
+				rgba: 0, 0, 0, 0.8
+			Rectangle:
+				pos: self.pos
+				size: self.size
+		Label:
+			text: "Navigate To"
+			font_size: 32
+			bold: True
 		Button:
-			size_hint: (None, None)
-			size: (30, 30)
-			text: "\\/"
-			on_release: app.navThread.mailbox.put({"scroll":(0, -40)})
+			text: "Base"
+			on_release: app.submitForm("Base")
+
+<RemoveMarkerForm>:
+	BoxLayout:
+		id: list
+		size_hint: (None, None)
+		size: (300, 400)
+		pos: ((root.size[0] - self.size[0]) / 2, (root.size[1] - self.size[1]) / 2)
+		orientation: "vertical"
+		padding: 15
+		canvas:
+			Color:
+				rgba: 0, 0, 0, 0.8
+			Rectangle:
+				pos: self.pos
+				size: self.size
+		Label:
+			text: "Remove Marker"
+			font_size: 32
+			bold: True
 		Button:
-			size_hint: (None, None)
-			size: (30, 30)
-			text: "C"
-			on_release: app.navThread.mailbox.put({"snap":"center"})
+			text: "Cancel"
+			on_release: app.submitForm(None)
 

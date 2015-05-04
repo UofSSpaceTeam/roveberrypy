@@ -10,7 +10,10 @@ inputList = ([])
 
 telemetryList = (["ax", "ay", "az", "da", "bi" , "bv"])
 
-navList = (["hd", "p", "v"])
+navList = (["roverGPS", "towerGPS"])
+# roverGPS = (latitude, longitude, speed, direction)
+# speed in meters per minute
+# towerGPS = (latitude, longitude)
 
 guiList = (["batt", "tilt", "c1t"])
 

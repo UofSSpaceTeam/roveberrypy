@@ -79,69 +79,6 @@ AppRoot:
 		keep_ratio: True
 		source: "gui/resource/splash.jpg"
 
-# turret-mounted camera view tab (video player built in python)
-<TurretScreen@FloatLayout>:
-	# static background image
-	Image:
-		pos: (0, 0)
-		id: loadImg
-		size: root.size
-		allow_stretch: True
-		keep_ratio: False
-		source: "gui/resource/loading.jpg"
-	
-	FloatLayout:
-		id: controls
-		# picture-taking button
-		Button:
-			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
-			size_hint: (None, None)
-			size: (70, 25)
-			text: "Capture"
-			on_release: app.takePicture("turret")
-
-# front-mounted camera view tab (video player built in python)
-<DriveScreen@FloatLayout>:
-	# static background image
-	Image:
-		pos: (0, 0)
-		id: loadImg
-		size: root.size
-		allow_stretch: True
-		keep_ratio: False
-		source: "gui/resource/loading.jpg"
-	
-	FloatLayout:
-		id: controls
-		# picture-taking button
-		Button:
-			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
-			size_hint: (None, None)
-			size: (70, 25)
-			text: "Capture"
-			on_release: app.takePicture("drive")
-
-# arm-mounted camera view tab (video player built in python)
-<ArmScreen@FloatLayout>:
-	# static background image
-	Image:
-		pos: (0, 0)
-		id: loadImg
-		size: root.size
-		allow_stretch: True
-		keep_ratio: False
-		source: "gui/resource/loading.jpg"
-	
-	FloatLayout:
-		id: controls
-		# picture-taking button
-		Button:
-			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
-			size_hint: (None, None)
-			size: (70, 25)
-			text: "Capture"
-			on_release: app.takePicture("arm")
-
 # image analysis tab
 <ImageScreen@BoxLayout>:
 

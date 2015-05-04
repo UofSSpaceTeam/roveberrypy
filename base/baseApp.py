@@ -5,6 +5,7 @@ import sys
 sys.dont_write_bytecode = True
 import os
 import time
+import math
 import json
 import logging
 from math import cos, sin
@@ -12,7 +13,7 @@ from math import cos, sin
 # threading imports
 from threads.communicationThread import CommunicationThread
 from threads.inputThread import InputThread
-from threads.navigationThread import NavigationThread
+from threads.navigationThread import *
 from threads.panelThread import PanelThread
 import baseMessages
 from threads.unicodeConvert import convert
@@ -28,11 +29,14 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.lang import Builder
 from kivy.core.window import Window
 from kivy.uix.image import Image
+from kivy.uix.button import Button
 from kivy.uix.video import Video
 from kivy.uix.label import Label
+from kivy.uix.widget import Widget
+from kivy.uix.textinput import TextInput
+from kivy.properties import *
 from kivy.graphics import *
 from kivy.clock import Clock
-from kivy.uix.textinput import TextInput
 from kivy.properties import OptionProperty, NumericProperty, ListProperty, BooleanProperty
 
 
@@ -70,6 +74,7 @@ class BaseApp(App):
 		Window.size = settings["windowSize"]
 		self.title = "USST Rover Control Application"
 		Window.bind(on_resize=self.windowResized)
+		self.activeForm = None
 		# set up map
 		self.setupMap()
 		# center antenna tower
@@ -88,8 +93,53 @@ class BaseApp(App):
 	def on_stop(self):
 		os._exit(0)
 	
+	def createForm(self, operation):
+		if self.activeForm is not None:
+			return
+		if operation == "newMarker":
+			if self.navThread.printMode == "Dd":
+				self.activeForm = NewMarkerFormDd()
+			elif self.navThread.printMode == "DMm":
+				self.activeForm = NewMarkerFormDMm()
+			else: # DMS
+				self.activeForm = NewMarkerFormDMS()
+			self.sm.current_screen.add_widget(self.activeForm)
+		elif operation == "chooseMarker":
+			self.activeForm = ChooseMarkerForm()
+			for mk in self.navThread.markers:
+				btn = Button(text=mk.name)
+				btn.bind(on_release=lambda btn:
+					self.submitForm(btn.text))
+				self.activeForm.ids.list.add_widget(btn)
+			self.sm.current_screen.add_widget(self.activeForm)
+		elif operation == "removeMarker":
+			self.activeForm = RemoveMarkerForm()
+			for mk in self.navThread.markers:
+				btn = Button(text=mk.name)
+				btn.bind(on_release=lambda btn:
+					self.submitForm(btn.text))
+				self.activeForm.ids.list.add_widget(btn)
+			self.sm.current_screen.add_widget(self.activeForm)
+	
+	def submitForm(self, result):
+		if self.activeForm is None:
+			return
+		if result is None:
+			pass
+		elif isinstance(self.activeForm, NewMarkerForm):
+			self.navThread.mailbox.put({"newMarker":result})
+		elif isinstance(self.activeForm, ChooseMarkerForm):
+			self.navThread.mailbox.put({"chooseMarker":result})
+		elif isinstance(self.activeForm, RemoveMarkerForm):
+			self.navThread.mailbox.put({"removeMarker":result})
+		self.sm.current_screen.remove_widget(self.activeForm)
+		self.activeForm = None
+		
+	
 	# Changes or refreshes the screen (tab)
 	def changeScreen(self, name):
+		if self.activeForm is not None:
+			return
 		curScreen = self.sm.current_screen.name
 		if curScreen == "turret" or curScreen == "drive" or curScreen == "arm":
 			self.stopVideo(curScreen)
@@ -157,7 +207,8 @@ class BaseApp(App):
 		self.navThread.mailbox.put({"resize":(width - 60, height - 80)})
 	
 	def setupMap(self):
-		self.map = self.sm.get_screen("navigation").ids.map
+		self.navScreen = self.sm.get_screen("navigation")
+		self.map = self.navScreen.ids.map
 		self.map.size = (Window.size[0] - 60, Window.size[1] - 80)
 		self.map.pos = (60, 0)
 		self.navThread.mailbox.put({"imageSize":self.map.texture.size})
@@ -168,35 +219,57 @@ class BaseApp(App):
 		self.map.size = self.navThread.mapRenderSize
 		self.map.pos[0] = self.navThread.mapRenderPos[0] + 60
 		self.map.pos[1] = self.navThread.mapRenderPos[1]
+		self.navScreen.roverStatusText = self.navThread.roverStatusText
+		self.navScreen.destStatusText = self.navThread.destStatusText
+		self.navScreen.printMode = self.navThread.printMode
+		self.navScreen.numMarkers = "Num: " + str(len(self.navThread.markers))
 		self.map.canvas.after.clear()
+		rpos = self.navThread.roverRenderPos
+		tpos = self.navThread.towerRenderPos
+		base = True
 		with self.map.canvas.after:
-			# draw rover
-			pos = self.navThread.roverRenderPos
-			Color(1, 1, 1)
-			Ellipse(pos=(pos[0] + 51, pos[1] - 7), size=(16, 16))
-			Color(0, 0, 1)
-			Ellipse(pos=(pos[0] + 54, pos[1] - 4), size=(10, 10))
-			# draw waypoints
-			for wp in self.navThread.waypoints:
-				pos = wp.renderPos
-				if wp.active:
+		# draw markers
+			for mk in self.navThread.markers:
+				Color(0, 0, 0)
+				mpos = mk.renderPos
+				Rectangle(pos=(mpos[0] + 54, mpos[1] - 4), size=(10, 10))
+				if mk.selected:
+					base = False
+					self.navScreen.destColor = [0.4, 1, 0.4, 1]
 					Color(0, 1, 0)
+					Line(points=(rpos[0] + 59, rpos[1] + 1, mpos[0] + 54,
+						mpos[1] - 4))
 				else:
 					Color(1, 1, 0)
-				Rectangle(pos=(pos[0] + 55, pos[1] - 5), size=(10, 10))
-			# draw cursor underlay
-			pos = self.navThread.cursorRenderPos
-			Color(0, 0, 0, 0.3)
-			Ellipse(pos=(pos[0] + 51, pos[1] - 7), size=(16, 16))
-	
+				Rectangle(pos=(mpos[0] + 55, mpos[1] - 3), size=(8, 8))
+			# draw rover and tower
+			hdg = math.radians(self.navThread.roverDirection)
+			Color(0, 0, 0)
+			Rectangle(pos=(tpos[0] + 54, tpos[1] - 4), size=(10, 10))
+			Color(1, 0, 0)
+			if base:
+				self.navScreen.destColor = [1, 0.4, 0.4, 1]
+				Line(points=(tpos[0] + 59, tpos[1] + 1, rpos[0] + 54,
+					rpos[1] - 4))
+			Rectangle(pos=(tpos[0] + 55, tpos[1] - 3), size=(8, 8))
+			Color(0.2, 0.2, 1)
+			px = rpos[0] + 59
+			py = rpos[1] + 1
+			Triangle(points=(px + 10 * math.sin(hdg),
+				py + 10 * math.cos(hdg),
+				px + 8 * math.sin(hdg + math.pi * 0.75),
+				py + 8 * math.cos(hdg + math.pi * 0.75),
+				px + 8 * math.sin(hdg + math.pi * 1.25),
+				py + 8 * math.cos(hdg + math.pi * 1.25)))			
+		
 	# handle clicks on the map
 	def mapClick(self, pos, button):
 		# check if it's actually on the visible potion of the map
+		if self.activeForm is not None:
+			return
 		if pos[0] > 60 and pos[1] < Window.height - 80:
 			self.navThread.mailbox.put({"click":(int(pos[0] - 60),
 				int(pos[1]), button)})
-	
-	# def changeDegreeMode(self):
 
 	
 # End of BaseApp class
@@ -283,6 +356,24 @@ class TelemetryScreen(Screen):
 		return data
 
 class NavigationScreen(Screen):
+	pass
+
+class NewMarkerForm(Widget):
+	pass
+
+class NewMarkerFormDd(NewMarkerForm):
+	pass
+
+class NewMarkerFormDMm(NewMarkerForm):
+	pass
+
+class NewMarkerFormDMS(NewMarkerForm):
+	pass
+
+class ChooseMarkerForm(Widget):
+	pass
+
+class RemoveMarkerForm(Widget):
 	pass
 
 class TurretScreen(Screen):
