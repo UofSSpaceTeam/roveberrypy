@@ -3,6 +3,8 @@
 // Written for Arduino Micro.
 
 #include <Wire.h>
+#include <math.h>
+#include <VNH3SP30.h>
 
 #define TIMEOUT 750
 
@@ -12,16 +14,18 @@ enum command_type // instructions from the Pi
 {
 	STOP, // stop all motors
 	SET_POS, // set desired speed for left / right sides
+        NUDGE
 };
 
 typedef struct
 {
 	byte header;
 	byte type; // actually used as enum command_type, that's ok
-	short d1; // x direction
-	short d2; // y direction
-	short d3; // z direction
-	byte csum; // sum of cmd_type, d1, d2, d3
+	short d1; // Base rotation
+	short d2; // LinAc. 1
+	short d3; // LinAc. 2
+        short d4; // LinAc. 3
+	byte csum; // sum of cmd_type, d1, d2, d3, d4
 	byte trailer;
 } command;
 
@@ -36,8 +40,8 @@ enum motor_state // describes possible states of motors
 const byte i2c_address = 0x08;
 
 // traction control data
-motor_state m_state[] = {OK, OK, OK}; // current state
-volatile short position[] = {0, 0, 0}; // commanded speed commanded
+motor_state m_state[] = {OK, OK, OK, OK}; // current state
+volatile short position[] = {0, 0, 0, 0}; // commanded speed commanded
 
 // state information
 const byte CMD_HEADER = 0xF7;
@@ -58,7 +62,7 @@ void receiveEvent(int count);
 void processCommand();
 
 // Could be used to send data to the Pi, watch out for 5v <-> 3.3v issues
-void requestEvent();
+void requestEvent(); //currently not used
 
 // functions
 
@@ -88,15 +92,20 @@ void loop()
 	}
 	
 	//Do stuff here
-        Serial.println(position[0]);
-        Serial.println(position[1]);
-        Serial.println(position[2]);
+        Serial.print(position[0]);
+        Serial.print(',');
+        Serial.print(position[1]);
+        Serial.print(',');
+        Serial.print(position[2]);
+        Serial.print(',');
+        Serial.print(position[3]);
+        Serial.println();
 
-	/*if(millis() - timeout > TIMEOUT)
+	if(millis() - timeout > TIMEOUT)
 	{
 		Serial.println("TO");
 		timeout = millis();
-	}*/
+	}
 }
 
 void receiveEvent(int count)
@@ -132,7 +141,7 @@ void receiveEvent(int count)
 		{
 			if(in == CMD_TRAILER)
 			{
-				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3;
+				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4;
 				if(csum == cmd.csum)
 					new_cmd = true;
 			}
@@ -143,28 +152,21 @@ void receiveEvent(int count)
 
 void processCommand()
 {
-	// Serial.println("got command");
 	switch(cmd.type)
 	{
 		case STOP:
 			break;
 
 		case SET_POS:
-			/* bounds checking
-			if(cmd.d1 > 255 || cmd.d1 < -255)
-				break; */
 			position[0] = cmd.d1;
 			position[1] = cmd.d2;
 			position[2] = cmd.d3;
+                        position[3] = cmd.d4;
 			timeout = millis();
 			break;
 
-		/*case SET_MOTOR:
-			if(cmd.d1 < 0 || cmd.d1 > 5)
-				break;
-			position[cmd.d1] = cmd.d2;
-			timeout = millis();
-			break; */
+		case NUDGE:
+                      break;
 	}
 }
 

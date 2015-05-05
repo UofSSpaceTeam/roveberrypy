@@ -1,41 +1,47 @@
 
+/*
 
-#include "VNH3SP30.h"
+
+
+*/
+
+#include <VNH3SP30.h>
 
 // number of linear actuator being used
-#define numLinac 2  // all arrays must be of length numLinac. However dir must be length numLinac + 1
+int numLinac = 2;  // all arrays must be of length numLinac. However dir must be length numLinac + 1
 
 
 // pin connections
-#define L1inA 
-#define L1inB 
-#define L1pwm 
-#define L2inA 
-#define L2inB 
-#define L2pwm 
+#define L1inA 13
+#define L1inB 12
+#define L1pwm 10
+#define L2inA 4 
+#define L2inB 5 
+#define L2pwm 6
 // #define L3inA
 // #define L3inB
 // #define L3pwm
-#define BASEinA 
-#define BASEinB 
-#define BASEpwm 
+#define BASEinA 7
+#define BASEinB 8
+#define BASEpwm 9
 
-int wiper[numLinac];       
-int minimum[numLinac];
-int maximum[numLinac];
+int wiper[2];       
+int minimum[2];
+int maximum[2];
 
 // create objects
-VNH3SP30 linac[numLinac] = { VNH3SP30(L1inA, L1inB, L1pwm) , VNH3SP30(L2inA, L2inB, L2pwm) };
+VNH3SP30 linac[2] = { VNH3SP30(L1inA, L1inB, L1pwm) ,
+                      VNH3SP30(L2inA, L2inB, L2pwm) };
                 //    VNH3SP30(L3inA, L3inB, L3pwm) };
 VNH3SP30 base (BASEinA, BASEinB, BASEpwm);
 
 
 // global variables
-int newPosition[numLinac];    // analogReadValue which the linac is being set to
-int initialPosition[numLinac];      // intial position of the linac
-bool inMotion[numLinac];   // bool :: whether or not the linac's position is being set 
-int dir[numLinac + 1];         // direction the linac needs to go
-float scalingCoeff[numLinac];  // scaling coefficient to convert analogReadValue to mm
+int newPosition[2];    // analogReadValue which the linac is being set to
+int initialPosition[2];      // intial position of the linac
+bool inMotion[2];   // bool :: whether or not the linac's position is being set 
+int dir[3];         // direction the linac needs to go
+float scalingCoeff[2];  // scaling coefficient to convert analogReadValue to mm
 
 // base variables
 int interrupt_counter;
@@ -58,32 +64,59 @@ void setup() {
   Serial.println("ARM_controller test!");
 
   //initalize interrupts
-  attachInterrupt(0,positionChange,CHANGE);
-  attachInterrupt(1,positionChange,CHANGE);
+//  attachInterrupt(0,positionChange,CHANGE);
+//  attachInterrupt(1,positionChange,CHANGE);
+
 
   //initalize pins and linear actuator constants
-  wiper[0] = A0;
+  wiper[0] = A1;
   minimum[0] = 392;
   maximum[0] = 583;
   scalingCoeff[0] = 0.615;
 
-  wiper[1] = A1;
+  wiper[1] = A0;
   minimum[1] = 410;
   maximum[1] = 583;
   scalingCoeff[1] = 0.615;
 
-  // ...
-  // wiper[numLinac] = A2;
-  // minimum[numLinac] = ;
-  // maximum[numLinac] = ;
+  // wiper[2] = A2;
+  // minimum[2] = ;
+  // maximum[2] = ;
 
   // make sure the linac are in brake position
   for(int i = 0; i < numLinac ; i++){
     inMotion[i] = false;
     linac[i].setDutyCycle(0);
   }
+  
+  // set position
+  float positionArr[2];
+  
+  positionArr[0] = 50;
+  positionArr[1] = 50;
+  positionArr[2] = 0;
+  
+  
+  Serial.println("Setting positions: ");
+  Serial.print("L1: ");
+  Serial.println(minimum[0] + 2 + positionArr[0]/scalingCoeff[0]);
+  Serial.print("L1 is currently at: ");
+  Serial.println(analogRead(A1));
+  Serial.print("L2: ");
+  Serial.println(minimum[1] + 2 + positionArr[1]/scalingCoeff[1]);
+  Serial.print("L2 is currently at: ");
+  Serial.println(analogRead(A0));
+  Serial.print("BASE: ");
+  Serial.println(positionArr[2]);
+  Serial.print("BASE is currently at: ");
+  Serial.println("not connected");
+  
+  setPosition(positionArr);
+  
 
 }
+
+
 
 
 void loop() {
@@ -91,14 +124,19 @@ void loop() {
   checkLinacPosition();
   checkBasePosition();
 
-  // get position somehow
-  // call setPosition(position), where position is array of positions
-  // position[0] is new position of L1 , [mm]
-  // position[1] is new position of L2 , [mm]
-  // position[2] is new position of L3 , [mm]
-  // position[3] is new position of BASE , [deg]
+  
+  // if(Serial.available() && !inMotion[0] && !inMotion[1] && !rotationInProgress){
+  //   Serial.println("Set position of the arm.")
+  //   Serial.println("Enter L1 length [ 0 mm , 109 mm]")
+  //   float input[numLinac] = { 0 , 0 , 0 };
 
-
+  //   Serial.print("The current position is: ");
+  //   Serial.println(analogRead(A1));
+  //   float pos[1] ={ Serial.parseFloat()};
+  //   if(pos[0] != 0){
+  //     setPosition(pos);
+  //   }
+  // }
 }
 
 //-------------------------------------------------------------------------
@@ -126,7 +164,7 @@ void checkLinacPosition(){
   for(int i = 0; i < numLinac ; i++){
     if(inMotion[i]){ // if the position of lineac[i] is currently being set
       float currentPosition = analogRead(wiper[i]); // read the current position (0 to 1023)
-      Serial.println(dir[i]*(newPosition[i] - currentPosition));
+      Serial.println((newPosition[i] - currentPosition));
       if((dir[i]*(newPosition[i] - currentPosition) < 0) || (currentPosition < minimum[i]) || (currentPosition > maximum[i]) ){ // check if linac is at proper pos
           inMotion[i] = false;
           linac[i].setDutyCycle(0);
@@ -154,7 +192,7 @@ void setPosition(float* pos){
   }
 
   // set up base rotation
-  newPositionCount = pphr/180.0*pos[numLinac] - base.getPosition();
+  newPositionCount = pphr/180.0*pos[2] - base.getPosition();
   if(newPositionCount != 0){
     rotationInProgress = true;
     base.updatePosition(interrupt_counter*dir[numLinac]);
@@ -163,6 +201,7 @@ void setPosition(float* pos){
     newPositionCount = abs(newPositionCount);
   }
   
+  
 
 }
 
@@ -170,3 +209,4 @@ void setPosition(float* pos){
 // int* inverseKinecmatics(float* pos){
 //    [inverse kinematic code]
 // }
+
