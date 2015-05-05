@@ -52,6 +52,11 @@ class CommunicationThread(threading.Thread):
 							self.parent.armThread.mailbox.put({key:value})
 							if self.debug:
 								print("sent " + msg + " to armThread")
+					for msg in messages.antenaList:
+						if key == msg:
+							self.parent.antenaCameraThread.mailbox.put({key:value})
+							if self.debug:
+								print("sent " + msg + " to antenaCameraThread")
 					for msg in messages.experimentList:
 						if key == msg:
 							self.parent.experimentThread.mailbox.put({key:value})

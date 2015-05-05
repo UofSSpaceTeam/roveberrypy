@@ -28,9 +28,10 @@ class InputThread(threading.Thread):
 			if self.driveController: 
 				msg["c1j1y"] = self.filter(self.driveController.get_axis(1) * -1)
 				msg["c1j2y"] = self.filter(self.driveController.get_axis(3) * -1)
-				
+				msg["c1d_x"] = self.filter(self.driveController.get_hat(0)[0])
+				msg["c1d_y"] = self.filter(self.driveController.get_hat(0)[1])
+
 			if self.armController:
-				msg["c2t"] = self.filter(self.armController.get_axis(2) * -1)
 				msg["c2j1y"] = self.filter(self.armController.get_axis(1)*-1)
 				msg["c2j2y"] = self.filter(self.armController.get_axis(3)*-1)
 				msg["c2j1x"] = self.filter(self.armController.get_axis(0))

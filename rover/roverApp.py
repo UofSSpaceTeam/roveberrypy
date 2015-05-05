@@ -8,6 +8,7 @@ from threads.armThread import armThread
 from threads.driveThread import driveThread
 from threads.telemetryThread import telemetryThread
 from threads.cameraThread import cameraThread
+from threads.antenaCameraThread import antenaCameraThread
 
 import time
 class roverApp():
@@ -18,6 +19,7 @@ class roverApp():
 		self.telemetryThread = telemetryThread(self)
 		self.driveThread = driveThread(self)
 		self.armThread = armThread(self)
+		self.antenaCameraThread = antenaCameraThread(self)
 		self.experimentThread = experimentThread(self)
 
 
@@ -27,6 +29,7 @@ class roverApp():
 		#self.teleThread.stop()
 		self.driveThread.stop()
 		self.armThread.stop()
+		self.antenaCameraThread.stop()
 		#experimentThread.stop()
 
 	def startThreads(self):
@@ -36,6 +39,7 @@ class roverApp():
 		# self.telemetryThread.start()
 		self.driveThread.start()
 		self.armThread.start()
+		self.antenaCameraThread.start()
 		# self.experimentThread.start()
 	
 	def run(self):
