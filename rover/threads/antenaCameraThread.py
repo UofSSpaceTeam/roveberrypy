@@ -29,14 +29,14 @@ class antenaCameraThread(threading.Thread):
 						pitch = 45
 					elif pitch < -45:
 						pitch = -45
-					print pitch
+					#print pitch
 				elif "c1d_x" in data:
 					base += int(data["c1d_x"]) * 10
 					if base > 360:
 						base = 360;
 					elif base < 0:
 						base = 0
-					print base
+					#print base
 
 			if pitch is not None and base is not None:
 				if -45 < pitch <= 45:
