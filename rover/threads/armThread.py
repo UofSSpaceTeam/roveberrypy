@@ -1,3 +1,4 @@
+
 import roverMessages
 import threading
 import json
@@ -29,12 +30,13 @@ i2c = smbus.SMBus(1)
 address = 0x08
 
 class armThread(threading.Thread):
-	def __init__(self, parent):
+	def __init__(self, parent, i2cSemaphore):
 		threading.Thread.__init__(self)
 		self.parent = parent
 		self.name = "armThread"
 		self.exit = False
 		self.mailbox = Queue()
+		self.i2cSem = i2cSemaphore
 
 	def run(self):
 		command = Command()
@@ -46,23 +48,20 @@ class armThread(threading.Thread):
 		while True:
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
+				#print data
 				if "c2j1x" in data:
 					baseSpeed = int(data["c2j1x"] * 255) # -255 to 255
-					print baseSpeed
+					#print baseSpeed
 				if "c2j1y" in data:
 					L1 = int(data["c2j1y"] * 255)
-					print L1
+					#print L1
 				if "c2j2x" in data:
 					L2 = int(data["c2j2x"] * 255)
-					print L2
+					#print L2
 				if "c2j2y" in data:
 					L3 = int(data["c2j2y"] * 255)
-					print L3
+					#print L3
 			
-			#baseSpeed = 128
-			#L1 = 101
-			#L2 = 56
-			#L3 = 98
 			# send on complete input update
 			if baseSpeed is not None and L1 is not None and L2 is not None:
 				command.type = CommandType.setPos
@@ -80,6 +79,7 @@ class armThread(threading.Thread):
 	def sendCommand(self, command):
 		command.csum = (command.type + command.d1 + command.d2 + command.d3 + command.d4) % 256
 		try:
+			self.i2cSem.acquire()
 			i2c.write_byte(address, command.header)
 			i2c.write_byte(address, command.type)
 			i2c.write_byte(address, command.d1 & 0xFF)
@@ -92,8 +92,10 @@ class armThread(threading.Thread):
 			i2c.write_byte(address, command.d4 >> 8)
 			i2c.write_byte(address, command.csum)
 			i2c.write_byte(address, command.trailer)
+			self.i2cSem.release()
 		except IOError:
-			print("got IOError")
+			print("Arm thread got IOError")
+			self.i2cSem.release()
 	
 
 	def stop(self):

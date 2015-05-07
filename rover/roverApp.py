@@ -10,16 +10,19 @@ from threads.telemetryThread import telemetryThread
 from threads.cameraThread import cameraThread
 from threads.antenaCameraThread import antenaCameraThread
 
+from threading import Semaphore
 import time
+
+i2cSemaphore = Semaphore(1)
 class roverApp():
 	def __init__(self):
 		# make each top-level thread
 		self.commThread = CommunicationThread(self, 35001, 35000)
 		self.cameraThread = cameraThread(self)
 		self.telemetryThread = telemetryThread(self)
-		self.driveThread = driveThread(self)
-		self.armThread = armThread(self)
-		self.antenaCameraThread = antenaCameraThread(self)
+		self.driveThread = driveThread(self, i2cSemaphore)
+		self.armThread = armThread(self,i2cSemaphore)
+		self.antenaCameraThread = antenaCameraThread(self,i2cSemaphore)
 		self.experimentThread = experimentThread(self)
 
 

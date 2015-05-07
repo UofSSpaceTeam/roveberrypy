@@ -30,12 +30,13 @@ i2c = smbus.SMBus(1)
 address = 0x07
 
 class driveThread(threading.Thread):
-	def __init__(self, parent):
+	def __init__(self, parent, i2cSemaphore):
 		threading.Thread.__init__(self)
 		self.parent = parent
 		self.name = "driveThread"
 		self.exit = False
 		self.mailbox = Queue()
+		self.i2cSem = i2cSemaphore
 		
 	def run(self):
 		command = Command()
@@ -45,7 +46,7 @@ class driveThread(threading.Thread):
 		while True:
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
-				print data
+				#print data
 				if "c1j1y" in data:
 					leftSpeed = int(data["c1j1y"] * 255) # -255 to 255
 				elif "c1j2y" in data:
@@ -67,6 +68,7 @@ class driveThread(threading.Thread):
 	def sendCommand(self, command):
 		command.csum = (command.type + command.d1 + command.d2) % 256
 		try:
+			self.i2cSem.acquire()
 			i2c.write_byte(address, command.header)
 			i2c.write_byte(address, command.type)
 			i2c.write_byte(address, command.d1 & 0xFF)
@@ -75,8 +77,10 @@ class driveThread(threading.Thread):
 			i2c.write_byte(address, command.d2 >> 8)
 			i2c.write_byte(address, command.csum)
 			i2c.write_byte(address, command.trailer)
+			self.i2cSem.release()
 		except IOError:
-			print("got IOError")
+			print("Drive thread got IOError")
+			self.i2cSem.release()
 	
 	
 	def stop(self):
