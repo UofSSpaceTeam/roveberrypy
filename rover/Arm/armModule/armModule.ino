@@ -4,7 +4,7 @@
 
 #include <Wire.h>
 #include <math.h>
-#include <VNH3SP30.h>
+#include "MC33926.h"
 
 #define TIMEOUT 750
 
@@ -66,6 +66,8 @@ void requestEvent(); //currently not used
 
 // functions
 
+MC33926 gripper = MC33926(9,10);
+
 void setup()
 {
 	Serial.begin(9600); // debug
@@ -76,7 +78,7 @@ void setup()
 	// initialize outputs (done by the H_Bridge class)
 
 	// clear cmd struct
-	for(int i = 0; i < sizeof(command); i++)
+	for(unsigned int i = 0; i < sizeof(command); i++)
 		cmd_ptr[i] = 0x00;
 
 	// arm timeout
@@ -100,6 +102,7 @@ void loop()
         Serial.print(',');
         Serial.print(position[3]);
         Serial.println();
+        gripper.setDutyCycle(position[0]);
 
 	if(millis() - timeout > TIMEOUT)
 	{
