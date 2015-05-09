@@ -63,6 +63,8 @@ volatile byte cmd_count = 0;
 volatile bool new_cmd = false;
 volatile bool stall_enable = true; // anti-stall enable/disable
 volatile bool spin_enable = true; // anti-wheelspin enable/disable
+volatile bool pulseHigh = true; //for stalled motor pulsing
+unsigned long prevTime; // for stalled motor pulsing
 
 
 // function prototypes
@@ -117,6 +119,7 @@ void setup()
 	
 	// arm timeout
 	timeout = millis();
+        prevTime = millis();
 }
 
 void loop()
@@ -133,13 +136,25 @@ void loop()
 		if(stall_enable && m_state[i] == STALL)
 		{
 			// stall handling logic
-			;
+			//pulse motor
+                        int currTime = millis();
+                        if(currTime - prevTime >= PULSE_TIME){
+                          prevTime = currTime;
+                          if(pulseHigh) {
+                            //turn m[i] off
+                            m_cmd[i] = 0;
+                            pulseHigh = false;
+                          } else {
+                            //don't modify m[i]
+                            pulseHigh = true;
+                          }
+                          
 		}
 		
 		if(spin_enable && m_state[i] == SPIN)
 		{
 			// spin handling logic
-			;
+			m_cmd[i] /= 5;
 		}
 		
 		setMotor(i, m_cmd[i]);
