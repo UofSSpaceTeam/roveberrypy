@@ -4,6 +4,7 @@
 #include <Wire.h>
 
 #define TIMEOUT 750
+#define PULSE_TIME 30
 
 // definition of structures and enums
 
@@ -148,6 +149,7 @@ void loop()
                             //don't modify m[i]
                             pulseHigh = true;
                           }
+                        }
                           
 		}
 		
