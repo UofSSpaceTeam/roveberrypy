@@ -1,31 +1,32 @@
-# telemetry / rover information tab
-<TelemetryScreen@FloatLayout>:
-	# Main Window
+
+<TelemetryWidget>:
+
+
 	canvas:
         Color:
             rgba: .4, .4, 1, 1
         Line:
-            points: self.points
-            joint: self.joint
-            cap: self.cap
-            width: self.linewidth
-            close: self.close
+            points: self.points1
+            joint: 'miter'
+            cap: 'round'
+            width: 1
+            close: False
         Color:
             rgba: 1, .4, .4, 1
         Line:
             points: self.points2
-            joint: self.joint
-            cap: self.cap
-            width: self.linewidth
-            close: self.close
+            joint: 'miter'
+            cap: 'round'
+            width: 1
+            close: False
         Color:
             rgba: 0, 1, 0, 1
         Line:
             points: self.points3
-            joint: self.joint
-            cap: self.cap
-            width: self.linewidth
-            close: self.close
+            joint: 'miter'
+            cap: 'round'
+            width: 1
+            close: False
 
     GridLayout:
         cols: 2
@@ -33,22 +34,35 @@
         height: 44 * 5
 
         GridLayout:
-            cols: 2
-            
-            Label:
-                text: 'Gx'
-            Label:
-                text: str(root.gx)
+            cols: 3
 
+            Label:
+                text: ''
+            Label:
+                text: 'data'
+            Label:
+                text: 'max'
+
+            Label:
+                text: 'gx'
+            Label:
+                text: str(root.data1)
+            Label:
+                text: str(root.max_data1)
+            
             Label:
                 text: 'Gy'
             Label:
-                text: str(root.gy)
+                text: str(root.data2)
+            Label:
+                text: str(root.max_data2)
 
             Label:
                 text: 'Gz'
             Label:
-                text: str(root.gz)
+                text: str(root.data3)
+            Label:
+                text: str(root.max_data3)
                 
         AnchorLayout:
             GridLayout:
@@ -57,9 +71,27 @@
                 size: self.minimum_size
                 ToggleButton:
                     size_hint: None, None
-                    size: 100, 44
+                    #size: 100, 44
                     text: 'Start'
                     on_state: root.animate(self.state == 'down')
+
+					
+<TelemetryScreen@FloatLayout>:
+	
+	GridLayout:
+        cols: 3
+		
+        TelemetryWidget:
+			id: widget1
+			
+		TelemetryWidget:
+			id: widget2
+
+
+	
+	
+
+
 
 # Mission time countdown
 #<MissionClock@ScatterLayout>:

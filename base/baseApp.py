@@ -276,84 +276,101 @@ class BaseApp(App):
 # In code references of Kv widgets:
 
 class TelemetryScreen(Screen):
-	#pass
-	#def updateTime(self, *args):
-	#	self.ids.mission.clock_text = time.asctime()
-	close = False #BooleanProperty(False)
-	points = ListProperty([])
-	points2 = ListProperty([])
-	points3 = ListProperty([])
-	joint = 'miter' #OptionProperty('none', options=('round', 'miter', 'bevel', 'none'))
-	cap = 'round' #OptionProperty('none', options=('round', 'square', 'none'))
-	linewidth = 1 #NumericProperty(1)
-	dt = NumericProperty(0)
-
-	x_pos = NumericProperty(0)
-
-	current_width = NumericProperty(0)
-	current_height = NumericProperty(0)
-
-
-	gx = NumericProperty(0)
-	gy = NumericProperty(0)
-	gz = NumericProperty(0)
-	
-
-	def animate(self, do_animation):
-		if do_animation:
-			Clock.schedule_interval(self.update_points_animation, 0)
-		else:
-			Clock.unschedule(self.update_points_animation)
-
-	def update_points_animation(self, dt):
-		cy = self.height * 0.6
-		cx = self.width * 0.1
-		w = self.width * 0.8
-		self.dt += dt
-		data = {}
-		time.sleep(.1)
-		data.update(self.getData())
-		self.gx = data["gx"]
-		self.gy = data["gy"]
-		self.gz = data["gz"]
-		
-		#check change in window size
-		#d_width = self.width - self.current_width
-		#d_higth = self.height - self.current_height
-		
-		self.points.append(cx + (self.x_pos) )
-		self.points.append(cy + self.gx )
-
-		self.points2.append(cx + (self.x_pos) )
-		self.points2.append(cy + self.gy )
-		
-		self.points3.append(cx + (self.x_pos) )
-		self.points3.append(cy + self.gz )
-
-		self.current_width = self.width
-		self.current_height = self.height
-		
-		self.x_pos += 1
+		pass
+        #wid1 = ObjectProperty(None)
+        #def updateTime(self, *args):
 
 		
+class TelemetryWidget(Widget):
+
+        points1 = ListProperty([])
+        points2 = ListProperty([])
+        points3 = ListProperty([])
+        dt = NumericProperty(0)
+        x_pos = NumericProperty(0)
 		
+        data1 = NumericProperty(0)
+        data2 = NumericProperty(0)
+        data3 = NumericProperty(0)
 		
-	def getData(self):
+        max_data1 = NumericProperty(0)
+        max_data2 = NumericProperty(0)
+        max_data3 = NumericProperty(0)
 
-		data = {}
-		data["gx"] = 1 + self.gx 
-		data["gy"] = 5 + self.gy
-		data["gz"] = 10 + self.gz
+        def animate(self, do_animation):
+                if do_animation:
+                        Clock.schedule_interval(self.update_points_animation, 0)
+                else:
+                        Clock.unschedule(self.update_points_animation)
 
-		if self.gx > 200:
-			data["gx"] = 0
+        def update_points_animation(self, dt):
+                cy = self.height * 0.6
+                cx = self.width * 0.1
+                w = self.width * 0.8
+                self.dt += dt
+                data = {}
+                #time.sleep(.1)
+                data.update(self.getData())
+                self.data1 = data["1"]
+                self.data2 = data["2"]
+                self.data3 = data["3"]
 
-		if self.gy > 200:
-			data["gy"] = 0
+                if self.x_pos <= self.width * 0.8:
+                    
+                    self.points1.append(cx + (self.x_pos) )
+                    self.points1.append(cy + self.data1 )
+                    self.points2.append(cx + (self.x_pos) )
+                    self.points2.append(cy + self.data2 )
+                    self.points3.append(cx + (self.x_pos) )
+                    self.points3.append(cy + self.data3 )
+                    self.x_pos += 1
+                else:
+                    self.points1.pop(0)
+                    self.points1.pop(0)
+                    self.points2.pop(0)
+                    self.points2.pop(0)
+                    self.points3.pop(0)
+                    self.points3.pop(0)
+					
+                    for i in range(0, len(self.points1)):
+                        if i % 2 == 0:
+                            self.points1[i] = self.points1[i] - 1
+                            self.points2[i] = self.points2[i] - 1
+                            self.points3[i] = self.points3[i] - 1
+							
+                    self.points1.append(cx + (self.x_pos) )
+                    self.points1.append(cy + self.data1 )
 
-		if self.gz > 200:
-			data["gz"] = 0
-		return data
+                    self.points2.append(cx + (self.x_pos) )
+                    self.points2.append(cy + self.data2 )
+                    
+                    self.points3.append(cx + (self.x_pos) )
+                    self.points3.append(cy + self.data3 )
+					
+                self.updateMax()
+ 
+        def getData(self):
+                data = {}
+                data["1"] = 1 + self.data1 
+                data["2"] = 5 + self.data2
+                data["3"] = 10 + self.data3
+                if self.data1 > 200:
+                        data["1"] = 0
+                if self.data2 > 200:
+                        data["2"] = 0
+                if self.data3 > 200:
+                        data["3"] = 0
+                return data
+                
+        def updateMax(self):
+                if self.data1 > self.max_data1:
+                    self.max_data1 = self.data1
+                if self.data2 > self.max_data2:
+                    self.max_data2 = self.data2
+                if self.data3 > self.max_data3:
+                    self.max_data3 = self.data3
+			
+			
 
 class NavigationScreen(Screen):
 	pass
