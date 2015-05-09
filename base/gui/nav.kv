@@ -71,6 +71,16 @@
 			size: (60, 30)
 			text: "Remove"
 			on_release: app.createForm("removeMarker")
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "Load"
+			on_release: app.createForm("loadMarkers")
+		Button:
+			size_hint: (None, None)
+			size: (60, 30)
+			text: "Save"
+			on_release: app.createForm("saveMarkers")
 		Label:
 			text: "View"
 			size_hint: (None, None)
@@ -170,7 +180,6 @@
 		TextInput:
 			id: name
 			text: "WPT " + str(len(app.navThread.markers))
-			write_tab: False
 		Button:
 			text: "Place at Crosshair"
 			on_release: vc = app.navThread.viewCenter; app.submitForm((name.text, vc[0], vc[1]))
@@ -180,14 +189,12 @@
 		TextInput:
 			id: lat
 			hint_text: "degrees (decimal)"
-			write_tab: False
 		Label:
 			text: "Longitude: (+E, -W)"
 			font_size: 16
 		TextInput:
 			id: lon
 			hint_text: "degrees (decimal)"
-			write_tab: False
 		BoxLayout:
 			orientation: "horizontal"
 			Button:
@@ -220,7 +227,6 @@
 		TextInput:
 			id: name
 			text: "WPT " + str(len(app.navThread.markers))
-			write_tab: False
 		Button:
 			text: "Place at Crosshair"
 			on_release: vc = app.navThread.viewCenter; app.submitForm((name.text, vc[0], vc[1]))
@@ -232,11 +238,9 @@
 			TextInput:
 				id: latD
 				hint_text: "degrees (integer)"
-				write_tab: False
 			TextInput:
 				id: latM
 				hint_text: "minutes (decimal)"
-				write_tab: False
 		Label:
 			text: "Longitude: (+E, -W)"
 			font_size: 16
@@ -245,11 +249,9 @@
 			TextInput:
 				id: lonD
 				hint_text: "degrees (integer)"
-				write_tab: False
 			TextInput:
 				id: lonM
 				hint_text: "minutes (decimal)"
-				write_tab: False
 		BoxLayout:
 			orientation: "horizontal"
 			Button:
@@ -282,7 +284,6 @@
 		TextInput:
 			id: name
 			text: "WPT " + str(len(app.navThread.markers))
-			write_tab: False
 		Button:
 			text: "Place at Crosshair"
 			on_release: vc = app.navThread.viewCenter; app.submitForm((name.text, vc[0], vc[1]))
@@ -294,15 +295,12 @@
 			TextInput:
 				id: latD
 				hint_text: "deg (int)"
-				write_tab: False
 			TextInput:
 				id: latM
 				hint_text: "min (int)"
-				write_tab: False
 			TextInput:
 				id: latS
 				hint_text: "sec (dec)"
-				write_tab: False
 		Label:
 			text: "Longitude: (+E, -W)"
 			font_size: 16
@@ -311,15 +309,12 @@
 			TextInput:
 				id: lonD
 				hint_text: "deg (int)"
-				write_tab: False
 			TextInput:
 				id: lonM
 				hint_text: "min (int)"
-				write_tab: False
 			TextInput:
 				id: lonS
 				hint_text: "sec (dec)"
-				write_tab: False
 		BoxLayout:
 			orientation: "horizontal"
 			Button:
@@ -372,4 +367,70 @@
 		Button:
 			text: "Cancel"
 			on_release: app.submitForm(None)
+
+<LoadMarkersForm>:
+	BoxLayout:
+		size_hint: (None, None)
+		size: (300, 150)
+		pos: ((root.size[0] - self.size[0]) / 2, (root.size[1] - self.size[1]) / 2)
+		orientation: "vertical"
+		padding: 15
+		canvas:
+			Color:
+				rgba: 0, 0, 0, 0.8
+			Rectangle:
+				pos: self.pos
+				size: self.size
+		Label:
+			text: "Load Markers"
+			font_size: 32
+			bold: True
+		Label:
+			text: "Filename:"
+			font_size: 14
+		TextInput:
+			id: filename
+			text: "wpts.txt"
+		BoxLayout:
+			orientation: "horizontal"
+			Button:
+				text: "Load"
+				on_release: app.submitForm(filename.text)
+			Button:
+				text: "Cancel"
+				on_release: app.submitForm(None)
+
+<SaveMarkersForm>:
+	BoxLayout:
+		size_hint: (None, None)
+		size: (300, 150)
+		pos: ((root.size[0] - self.size[0]) / 2, (root.size[1] - self.size[1]) / 2)
+		orientation: "vertical"
+		padding: 15
+		canvas:
+			Color:
+				rgba: 0, 0, 0, 0.8
+			Rectangle:
+				pos: self.pos
+				size: self.size
+		Label:
+			text: "Save Markers"
+			font_size: 32
+			bold: True
+		Label:
+			text: "Filename:"
+			font_size: 14
+		TextInput:
+			id: filename
+			text: "wpts.txt"
+		BoxLayout:
+			orientation: "horizontal"
+			Button:
+				text: "Save"
+				on_release: app.submitForm(filename.text)
+			Button:
+				text: "Cancel"
+				on_release: app.submitForm(None)
+
+			
 

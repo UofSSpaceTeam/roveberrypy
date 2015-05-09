@@ -4,6 +4,7 @@ import threading
 from Queue import Queue
 import time
 import math
+import pickle
 from unicodeConvert import convert
 
 class Marker():
@@ -115,6 +116,28 @@ class NavigationThread(threading.Thread):
 						if mk.name == data["removeMarker"]:
 							self.markers.remove(mk)
 							break
+				
+				if "loadMarkers" in data:
+					try:
+						wptFile = open(data["loadMarkers"])
+						unpickler = pickle.Unpickler(wptFile)
+						self.markers = unpickler.load()
+						wptFile.close()
+					except Exception:
+						pass
+					finally:
+						wptFile.close()
+				
+				if "saveMarkers" in data:
+					try:
+						wptFile = open(data["saveMarkers"], "w")
+						pickler = pickle.Pickler(wptFile)
+						pickler.dump(self.markers)
+						wptFile.close()
+					except Exception:
+						pass
+					finally:
+						wptFile.close()
 				
 				if "printMode" in data:
 					self.printMode = data["printMode"]

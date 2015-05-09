@@ -120,6 +120,12 @@ class BaseApp(App):
 					self.submitForm(btn.text))
 				self.activeForm.ids.list.add_widget(btn)
 			self.sm.current_screen.add_widget(self.activeForm)
+		elif operation == "loadMarkers":
+			self.activeForm = LoadMarkersForm()
+			self.sm.current_screen.add_widget(self.activeForm)
+		elif operation == "saveMarkers":
+			self.activeForm = SaveMarkersForm()
+			self.sm.current_screen.add_widget(self.activeForm)
 	
 	def submitForm(self, result):
 		if self.activeForm is None:
@@ -132,6 +138,10 @@ class BaseApp(App):
 			self.navThread.mailbox.put({"chooseMarker":result})
 		elif isinstance(self.activeForm, RemoveMarkerForm):
 			self.navThread.mailbox.put({"removeMarker":result})
+		elif isinstance(self.activeForm, LoadMarkersForm):
+			self.navThread.mailbox.put({"loadMarkers":result})
+		elif isinstance(self.activeForm, SaveMarkersForm):
+			self.navThread.mailbox.put({"saveMarkers":result})
 		self.sm.current_screen.remove_widget(self.activeForm)
 		self.activeForm = None
 		
@@ -391,6 +401,12 @@ class ChooseMarkerForm(Widget):
 	pass
 
 class RemoveMarkerForm(Widget):
+	pass
+
+class LoadMarkersForm(Widget):
+	pass
+
+class SaveMarkersForm(Widget):
 	pass
 
 class TurretScreen(Screen):
