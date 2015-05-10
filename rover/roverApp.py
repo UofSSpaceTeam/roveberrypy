@@ -23,7 +23,7 @@ class roverApp():
 		self.driveThread = driveThread(self, i2cSemaphore)
 		self.armThread = armThread(self,i2cSemaphore)
 		self.antenaCameraThread = antenaCameraThread(self,i2cSemaphore)
-		self.experimentThread = experimentThread(self)
+		self.experimentThread = experimentThread(self, i2cSemaphore)
 
 
 	def stopThreads(self):
@@ -33,7 +33,7 @@ class roverApp():
 		self.driveThread.stop()
 		self.armThread.stop()
 		self.antenaCameraThread.stop()
-		#experimentThread.stop()
+		experimentThread.stop()
 
 	def startThreads(self):
 		print("starting threads")
@@ -43,7 +43,7 @@ class roverApp():
 		self.driveThread.start()
 		self.armThread.start()
 		self.antenaCameraThread.start()
-		# self.experimentThread.start()
+		self.experimentThread.start()
 	
 	def run(self):
 		self.startThreads()

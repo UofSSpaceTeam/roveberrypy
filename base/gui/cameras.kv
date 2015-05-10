@@ -39,6 +39,47 @@
 			size: (70, 25)
 			text: "Capture"
 			on_release: app.takePicture("drive")
+			
+		Button:
+			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
+			size_hint: (None, None)
+			size: (70, 25)
+			text: "Capture"
+			on_release: app.takePicture("drive")
+			
+		GridLayout:
+			pos: (root.size[0] / 2 - 200, root.size[1] - 50)
+			size_hint: (None, None)
+			size: (50, 50)
+			rows: 2
+			cols: 1
+			
+			Label:
+				text: "Traction Control"
+			Switch:
+				active: False
+			
+		GridLayout:
+			pos: (root.size[0] / 2 + 150, root.size[1] - 50)
+			size_hint: (None, None)
+			size: (50, 50)
+			rows: 2
+			cols: 1
+			
+			Label:
+				text: "Drill Mode"
+			Switch:
+				active: False
+				
+<ExperimentControls>:
+	BoxLayout:
+		Button:
+			text: "Laser 1"
+		Button:
+			text: "Laser 2"
+		Button:
+			text: "Laser 3"
+				
 
 # arm-mounted camera view tab (video player built in python)
 <ArmScreen@FloatLayout>:
