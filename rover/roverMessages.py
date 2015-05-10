@@ -10,5 +10,4 @@ armList = (["c2j1x", "c2j1y", "c2j2x", "c2j2y"])
 
 antennaList = (["c1d_x", "c1d_y"])
 
-experimentList = (["c2j2y", "c2j2y", "laser1", "laser2", "laser3"])
-
+experimentList = (["drillenable", "drillin", "drillout", "drillSpd", "elevup", "elevdn," "elevspd", "laser1", "laser2", "laser3"])

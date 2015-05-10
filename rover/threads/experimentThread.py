@@ -1,4 +1,3 @@
-
 import roverMessages
 import threading
 import json
@@ -38,19 +37,52 @@ class driveThread(threading.Thread):
 		
 	def run(self):
 		command = Command()
-		drillSpeed = None
-		elevSpeed = None
+		drillEnable = False
+		drillSpeed = 0.3
+		elevSpeed = 0.3
 		lasers = [0, 0, 0]
-		scale = 1
+		drillDir = 0
+		elevDir = 0
 		while True:
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
-				#print data
-				if "c1j1y" in data:
-					drillSpeed = int(data["c1j1y"] * 255) # -255 to 255
-				elif "c1j2y" in data:
-					elevSpeed = int(data["c1j2y"] * 255) # -255 to 255
+				
+				# Only send commands when drill is enabled
+				if "drillenable" in data:
+					drillEnable = data["drillenable"]
+					if !drillEnable:
+						command.type = CommandType.stop
+						command.d1 = 0
+						command.d2 = 0
+						self.sendCommand(command)
 					
+				if "drillspd" in data:
+					drillSpeed = int(data["drillspd"]) # 0 to 1
+				elif "elevspd" in data:
+					drillSpeed = int(data["elevspd"]) # 0 to 1
+					
+				if "drillin" in data:
+					if data["drillin"]:
+						drillDir = 1
+					else:
+						drillDir = 0
+				elif "drillout" in data:
+					if data["drillout"]:
+						drillDir = -1
+					else:
+						drillDir = 0
+					
+				if "elevdn" in data:
+					if data["elevdn"]:
+						elevDir = 1
+					else:
+						elevDir = 0
+				elif "elevup" in data:
+					if data["elevup"]:
+						elevDir = -1
+					else:
+						elevDir = 0
+						
 				if "laser1" in data:
 					lasers[1] = int(data["laser1"])
 				elif "laser2" in data:
@@ -58,24 +90,24 @@ class driveThread(threading.Thread):
 				elif "laser3" in data:
 					lasers[3] = int(data["laser3"])
 				
-			# send on complete input update
-			if drillSpeed is not None and elevSpeed is not None:
-				command.type = CommandType.setSpeed
-				command.d1 = int(drillSpeed * scale)
-				command.d2 = int(elevSpeed * scale)
-				leftSpeed = None
-				rightSpeed = None
-				self.sendCommand(command)
-				
-			for i in [0, 1, 2]:
-				if lasers[i] is not None:
-					command.type = CommandType.setLaser
-					command.d1 = i
-					command.d2 = lasers[i]
-					lasers[i] = None
+				if drillEnable:
+					command.type = CommandType.setSpeed
+					command.d1 = int(drillSpeed*drillDir*255)
+					command.d2 = int(elevSpeed*elevDir*255)
 					self.sendCommand(command)
-			time.sleep(0.01)
-	
+					
+							
+					for i in [0, 1, 2]:
+						command.type = CommandType.setLaser
+						command.d1 = i
+						command.d2 = lasers[i]
+						self.sendCommand(command)
+						
+				else:
+					# when drill is not enabled, run less
+					time.sleep(0.5)
+			
+				time.sleep(0.01)
 	
 	def sendCommand(self, command):
 		command.csum = (command.type + command.d1 + command.d2) % 256
@@ -97,4 +129,3 @@ class driveThread(threading.Thread):
 	
 	def stop(self):
 		self._Thread__stop()
-

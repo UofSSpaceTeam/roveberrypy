@@ -40,7 +40,7 @@
 			text: "Capture"
 			on_release: app.takePicture("drive")
 			
-		ToggleButton:
+		Button:
 			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
 			size_hint: (None, None)
 			size: (70, 25)
@@ -74,62 +74,75 @@
 			ToggleButton:
 				text: "DRILL"
 				on_release: app.drillMode()
+				on_state: app.commThread.mailbox.put({"drillenable":(self.state!="normal")})
 				
 <ExperimentControls>:
 	FloatLayout:
 		BoxLayout:
-			pos: (root.size[0] / 2 - 150, 0)
+			orientation: "vertical"
+			pos: (root.size[0] / 2 - 150, 5)
 			size_hint: (None, None)
-			size: (300, 35)
-			ToggleButton:
-				text: "Laser 1"
-				group: "laser"
-			ToggleButton:
-				text: "Laser 2"
-				group: "laser"
-			ToggleButton:
-				text: "Laser 3"
-				group: "laser"
+			size: (300, 70)
+			Label:
+				id: laserData
+				text: "No Laser Data"
+			BoxLayout:
+				
+				ToggleButton:
+					text: "Laser 1"
+					group: "laser"
+					on_state: app.commThread.mailbox.put({"laser1":(self.state!="normal")})
+				ToggleButton:
+					text: "Laser 2"
+					group: "laser"
+					on_state: app.commThread.mailbox.put({"laser2":(self.state!="normal")})
+				ToggleButton:
+					text: "Laser 3"
+					group: "laser"
+					on_state: app.commThread.mailbox.put({"laser3":(self.state!="normal")})
 				
 		BoxLayout:
-			pos: (root.size[0] / 2 - 400, 0)
+			pos: (root.size[0] / 2 - 400, 5)
 			size_hint: (None, None)
 			size: (200, 60)
 			orientation: 'vertical'
 			BoxLayout:
 				ToggleButton:
-					text: "Drill In!"
+					text: "Drill In"
 					group: "drill"
+					on_state: app.commThread.mailbox.put({"drillin":(self.state!="normal")})
 				ToggleButton:
-					text: "Drill Out!"
+					text: "Drill Out"
 					group: "drill"
+					on_state: app.commThread.mailbox.put({"drillout":(self.state!="normal")})
 			Slider:
 				id: drillSpeed
 				padding: 30
 				value: 30
 				step: 10
-				on_value: app.commThread.mailbox.put({"drillspeed":self.value_normalized})
+				on_value: app.commThread.mailbox.put({"drillspd":self.value_normalized})
 			
 		BoxLayout:
-			pos: (root.size[0] / 2 + 200, 0)
+			pos: (root.size[0] / 2 + 200, 5)
 			size_hint: (None, None)
 			size: (200, 60)
 			orientation: 'vertical'
 			BoxLayout:
 				ToggleButton:
 					group: "elev"
-					text: "Move Up!"
+					text: "Move Up"
+					on_state: app.commThread.mailbox.put({"elevup":(self.state!="normal")})
 				ToggleButton:
 					group: "elev"
-					text: "Move Down!"
+					text: "Move Down"
+					on_state: app.commThread.mailbox.put({"elevdn":(self.state!="normal")})
 			Slider:
 				id: elevSpeed
 				padding: 30
 				value: 30
 				step: 10
-				on_value: app.commThread.mailbox.put({"elevspeed":self.value_normalized})
+				on_value: app.commThread.mailbox.put({"elevspd":self.value_normalized})
 		
-
 # arm-mounted camera view tab (video player built in python)
 <ArmScreen@FloatLayout>:
 	# static background image
@@ -150,4 +163,3 @@
 			size: (70, 25)
 			text: "Capture"
 			on_release: app.takePicture("arm")
-
