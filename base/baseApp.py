@@ -75,12 +75,14 @@ class BaseApp(App):
 		self.title = "USST Rover Control Application"
 		Window.bind(on_resize=self.windowResized)
 		self.activeForm = None
+		self.drillUI = None
 		# set up map
 		self.setupMap()
 		# center antenna tower
 		self.commThread.mailbox.put({"towerAim":0})
 		# Scheduled events
 		Clock.schedule_interval(self.checkMail, 0.2)
+		
 		return self.root
 	
 	# read messages in the inbox
@@ -280,6 +282,27 @@ class BaseApp(App):
 		if pos[0] > 60 and pos[1] < Window.height - 80:
 			self.navThread.mailbox.put({"click":(int(pos[0] - 60),
 				int(pos[1]), button)})
+				
+				
+	## Drive Screen Controls
+	def drillMode(self):
+		state = self.sm.current_screen.ids.drillLabel.text
+		if state == "Drill Mode Enabled":
+			self.sm.current_screen.ids.drillLabel.text = "Drill Mode Disabled"
+			if self.drillUI is not None:
+				self.sm.current_screen.remove_widget(self.drillUI)
+		else:
+			self.sm.current_screen.ids.drillLabel.text = "Drill Mode Enabled"
+			self.drillUI = ExperimentControls()
+			self.sm.current_screen.add_widget(self.drillUI)
+		
+		
+	def tracMode(self):
+		state = self.sm.current_screen.ids.tracLabel.text
+		if state == "Traction Control Enabled":
+			self.sm.current_screen.ids.tracLabel.text = "Traction Control Disabled"
+		else:
+			self.sm.current_screen.ids.tracLabel.text = "Traction Control Enabled"
 
 	
 # End of BaseApp class
@@ -413,6 +436,9 @@ class TurretScreen(Screen):
 	pass
 
 class DriveScreen(Screen):
+	pass
+	
+class ExperimentControls(Widget):
 	pass
 
 class ArmScreen(Screen):

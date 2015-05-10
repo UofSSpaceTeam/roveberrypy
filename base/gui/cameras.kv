@@ -40,7 +40,7 @@
 			text: "Capture"
 			on_release: app.takePicture("drive")
 			
-		Button:
+		ToggleButton:
 			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
 			size_hint: (None, None)
 			size: (70, 25)
@@ -55,9 +55,11 @@
 			cols: 1
 			
 			Label:
-				text: "Traction Control"
-			Switch:
-				active: False
+				id: tracLabel
+				text: "Traction Control Disabled"
+			ToggleButton:
+				text: "TRAC"
+				on_release: app.tracMode()
 			
 		GridLayout:
 			pos: (root.size[0] / 2 + 150, root.size[1] - 50)
@@ -67,19 +69,66 @@
 			cols: 1
 			
 			Label:
-				text: "Drill Mode"
-			Switch:
-				active: False
+				id: drillLabel
+				text: "Drill Mode Disabled"
+			ToggleButton:
+				text: "DRILL"
+				on_release: app.drillMode()
 				
 <ExperimentControls>:
-	BoxLayout:
-		Button:
-			text: "Laser 1"
-		Button:
-			text: "Laser 2"
-		Button:
-			text: "Laser 3"
+	FloatLayout:
+		BoxLayout:
+			pos: (root.size[0] / 2 - 150, 0)
+			size_hint: (None, None)
+			size: (300, 35)
+			ToggleButton:
+				text: "Laser 1"
+				group: "laser"
+			ToggleButton:
+				text: "Laser 2"
+				group: "laser"
+			ToggleButton:
+				text: "Laser 3"
+				group: "laser"
 				
+		BoxLayout:
+			pos: (root.size[0] / 2 - 400, 0)
+			size_hint: (None, None)
+			size: (200, 60)
+			orientation: 'vertical'
+			BoxLayout:
+				ToggleButton:
+					text: "Drill In!"
+					group: "drill"
+				ToggleButton:
+					text: "Drill Out!"
+					group: "drill"
+			Slider:
+				id: drillSpeed
+				padding: 30
+				value: 30
+				step: 10
+				on_value: app.commThread.mailbox.put({"drillspeed":self.value_normalized})
+			
+		BoxLayout:
+			pos: (root.size[0] / 2 + 200, 0)
+			size_hint: (None, None)
+			size: (200, 60)
+			orientation: 'vertical'
+			BoxLayout:
+				ToggleButton:
+					group: "elev"
+					text: "Move Up!"
+				ToggleButton:
+					group: "elev"
+					text: "Move Down!"
+			Slider:
+				id: elevSpeed
+				padding: 30
+				value: 30
+				step: 10
+				on_value: app.commThread.mailbox.put({"elevspeed":self.value_normalized})
+		
 
 # arm-mounted camera view tab (video player built in python)
 <ArmScreen@FloatLayout>:
