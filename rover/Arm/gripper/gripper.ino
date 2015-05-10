@@ -4,6 +4,7 @@
 
 #include <Wire.h>
 #include <math.h>
+#include "MC33926.h"
 
 #define TIMEOUT 750
 
@@ -40,7 +41,7 @@ const byte i2c_address = 0x08;
 
 // traction control data
 motor_state m_state[] = {OK, OK, OK, OK}; // current state
-volatile short position[] = {0, 0, 0, 0}; // commanded speed commanded
+volatile int position[] = {0, 0, 0, 0}; // commanded speed commanded
 
 // state information
 const byte CMD_HEADER = 0xF7;
@@ -64,6 +65,9 @@ void processCommand();
 void requestEvent(); //currently not used
 
 // functions
+
+MC33926 gripperRotation = MC33926(22,23);
+MC33926 gripperOpen = MC33926(9,10);
 
 void setup()
 {
@@ -94,11 +98,16 @@ void loop()
         Serial.print(position[0]);
         Serial.print(',');
         Serial.print(position[1]);
-        Serial.print(',');
-        Serial.print(position[2]);
-        Serial.print(',');
-        Serial.print(position[3]);
+        //Serial.print(',');
+        //Serial.print(position[2]);
+        //Serial.print(',');
+       // Serial.print(position[3]);
         Serial.println();
+        //ensure this servo gets 9V at most
+        int rotationValue = position[0];
+        Serial.println(rotationValue);
+        gripperRotation.setDutyCycle(rotationValue);
+        gripperOpen.setDutyCycle(position[1]);
 
 	if(millis() - timeout > TIMEOUT)
 	{
@@ -140,7 +149,7 @@ void receiveEvent(int count)
 		{
 			if(in == CMD_TRAILER)
 			{
-				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4;
+				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3;
 				if(csum == cmd.csum)
 					new_cmd = true;
 			}
@@ -160,7 +169,7 @@ void processCommand()
 			position[0] = cmd.d1;
 			position[1] = cmd.d2;
 			position[2] = cmd.d3;
-                        position[3] = cmd.d4;
+                        //position[3] = cmd.d4;
 			timeout = millis();
 			break;
 

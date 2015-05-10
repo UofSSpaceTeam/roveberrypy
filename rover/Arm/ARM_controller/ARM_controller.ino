@@ -8,7 +8,7 @@
 #include "VNH3SP30.h"
 
 // number of linear actuator being used
-int numLinac = 2;  // all arrays must be of length numLinac. However dir must be length numLinac + 1
+int numLinac  = 2;  // all arrays must be of length numLinac. However dir must be length numLinac + 1
 
 #define TIMEOUT 750
 
@@ -16,7 +16,7 @@ int numLinac = 2;  // all arrays must be of length numLinac. However dir must be
 #define L1inA 13
 #define L1inB 12
 #define L1pwm 10
-#define L2inA 4 
+#define L2inA 4
 #define L2inB 5 
 #define L2pwm 6
 // #define L3inA
@@ -43,7 +43,7 @@ typedef struct
 	short d1; // Base rotation
 	short d2; // LinAc. 1
 	short d3; // LinAc. 2
-        short d4; // LinAc. 3
+        //short d4; // LinAc. 3
 	byte csum; // sum of cmd_type, d1, d2, d3, d4
 	byte trailer;
 } command;
@@ -59,7 +59,7 @@ const byte i2c_address = 0x08;
 
 // traction control data
 motor_state m_state[] = {OK, OK, OK, OK}; // current state
-volatile short position[] = {0, 0, 0, 0}; // commanded speed commanded
+float position[] = {0, 0, 0, 0}; // commanded speed commanded
 
 // state information
 const byte CMD_HEADER = 0xF7;
@@ -107,6 +107,7 @@ void processCommand();
 void setup() {
   // setup serial
   Serial.begin(9600);
+  delay(1000);
   Serial.println("ARM_controller test!");
 
   //initalize interrupts
@@ -157,16 +158,16 @@ void setup() {
   Serial.print("BASE is currently at: ");
   Serial.println("not connected");
   
-  setPosition(positionArr);
+  setPosition(positionArr); 
   
-  Wire.begin(i2c_address);
-  Wire.onReceive(receiveEvent);
+  //Wire.begin(i2c_address);
+  //Wire.onReceive(receiveEvent);
 
   // initialize outputs (done by the H_Bridge class)
 
   // clear cmd struct
-  for(unsigned int i = 0; i < sizeof(command); i++)
-	cmd_ptr[i] = 0x00;
+  //for(unsigned int i = 0; i < sizeof(command); i++)
+	//cmd_ptr[i] = 0x00;
 
   // arm timeout
   timeout = millis();
@@ -178,18 +179,26 @@ void setup() {
 
 
 void loop() {
-  if(new_cmd) {
+  /*if(new_cmd) {
 	processCommand();
 	new_cmd = false;
-  }
+  }*/
 
   checkLinacPosition();
   checkBasePosition();
+  /*Serial.print(position[0]);
+  Serial.print(',');
+  Serial.print(position[1]);
+  Serial.print(',');
+  Serial.print(position[2]);
+  Serial.print(',');
+  Serial.println();
+  setPosition(position); */
   
-  if(millis() - timeout > TIMEOUT) {
+  /*if(millis() - timeout > TIMEOUT) {
 	Serial.println("TO");
 	timeout = millis();
-  }
+  }*/
 
   
   // if(Serial.available() && !inMotion[0] && !inMotion[1] && !rotationInProgress){
@@ -245,11 +254,12 @@ void checkLinacPosition(){
 }
 
 
-void setPosition(float* pos){ 
+void setPosition(float* pos){
 
+  float* lengths = inverseKinematics(pos);
   // set up setPosition for each linac
   for(int i = 0; i < numLinac ; i++){
-    newPosition[i] = minimum[i] + 2 + pos[i]/scalingCoeff[i]; // analog read value corresponding to <pos> mm.
+    newPosition[i] = minimum[i] + 2 + lengths[i]/scalingCoeff[i]; // analog read value corresponding to <pos> mm.
     initialPosition[i] = (analogRead(wiper[i]));      // inital position...currently not used but here for set speed algo
     
     if(initialPosition[i] != pos[i]){              // check that we are not already at the proper position
@@ -259,7 +269,7 @@ void setPosition(float* pos){
   }
 
   // set up base rotation
-  newPositionCount = pphr/180.0*pos[2] - base.getPosition();
+  newPositionCount = pphr/180.0*lengths[numLinac] - base.getPosition();
   if(newPositionCount != 0){
     rotationInProgress = true;
     base.updatePosition(interrupt_counter*dir[numLinac]);
@@ -273,9 +283,36 @@ void setPosition(float* pos){
 }
 
 
-// int* inverseKinecmatics(float* pos){
-//    [inverse kinematic code]
-// }
+float* inverseKinematics(float* pos){
+  //constants
+  float x = pos[0];
+  float y = pos[1];
+  float z = pos[2];
+  float phi = pos[3];
+  float a0x = 30.34;
+  float a0z = 95.25;
+  float a1 = 335.95;
+  float a2 = 393;
+  //intermediate calculations
+  float t = sqrt((x+a0x)*(x+a0x) + y*y);
+  float p = z - a0z;
+  float c3 = (t*t + p*p - a1*a1 - a2*a2)/(2*a1*a2);
+  float g3 = acos(c3);
+  float K1 = a1 + a2*cos(g3);
+  float K2 = a2*sin(g3);
+  float g2 = atan2(p,t) - atan2(K1, K2);
+  //output angles
+  float T1 = atan2(x,y)*180.0/PI;
+  float T2 = 90.0 - g2*180.0/PI;
+  float T3 = 180.0  - g3*180.0/PI;
+  float T4 = 180.0 + phi - T3 - T2;
+  //Actuator lengths
+  float L1 = sqrt(130621.0-67573.0*cos(T2+38.84)*PI/180.0) - 292.35;
+  float L2 = sqrt(118487.0-50392.0*cos(T3*PI/180.0)) - 292.35;
+  float L3 = sqrt(54750.0-24580.0*cos(PI/2.0-T4*PI/180.0)) - 167.5;
+  float lengths[] = {L1, L2, L3, T1};
+  return lengths;
+}
 
 void receiveEvent(int count)
 {
@@ -310,8 +347,9 @@ void receiveEvent(int count)
 		{
 			if(in == CMD_TRAILER)
 			{
-				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4;
+				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3;
 				if(csum == cmd.csum)
+                                        //Serial.println("checksum passed");
 					new_cmd = true;
 			}
 			cmd_count = 0;
@@ -330,7 +368,7 @@ void processCommand()
 			position[0] = cmd.d1;
 			position[1] = cmd.d2;
 			position[2] = cmd.d3;
-                        position[3] = cmd.d4;
+                        //position[3] = cmd.d4;
 			timeout = millis();
 			break;
 
