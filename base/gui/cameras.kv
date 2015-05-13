@@ -163,3 +163,55 @@
 			size: (70, 25)
 			text: "Capture"
 			on_release: app.takePicture("arm")
+			
+		BoxLayout:
+			orientation: "vertical"
+			pos: (root.size[0] / 2 - 150, 5)
+			size_hint: (None, None)
+			size: (300, 70)
+			Label:
+				id: ArmMode
+				text: "Press to change ArmMode"
+			BoxLayout:
+				
+				ToggleButton:
+					text: "Absolute Control"
+					on_state: app.commThread.mailbox.put({"armabs":(self.state!="normal")})
+				
+		BoxLayout:
+			pos: (50, 5)
+			size_hint: (None, None)
+			size: (200, 350)
+			orientation: 'vertical'
+			Label:
+				text: "x"
+			Slider:
+				id: armX
+				padding: 30
+				value: 30
+				step: 1
+				on_value: app.commThread.mailbox.put({"armX":self.value_normalized})
+			Label:
+				text: "y"
+			Slider:
+				id: armY
+				padding: 30
+				value: 30
+				step: 1
+				on_value: app.commThread.mailbox.put({"armY":self.value_normalized})
+			Label:
+				text: "z"
+			Slider:
+				id: armZ
+				padding: 30
+				value: 30
+				step: 1
+				on_value: app.commThread.mailbox.put({"armZ":self.value_normalized})
+			Label:
+				text: "theta"
+			Slider:
+				id: armTheta
+				padding: 30
+				value: 30
+				step: 1
+				on_value: app.commThread.mailbox.put({"armTheta":self.value_normalized})
