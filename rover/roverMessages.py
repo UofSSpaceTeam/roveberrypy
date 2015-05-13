@@ -6,7 +6,7 @@ telemetryList = (["pitch", "roll", "gx", "gy", "gz", "ax", "ay", "az", "heading"
 
 driveList = (["c1j1y", "c1j2y", "throttle", "steerRate", "c1t"])
 
-armList = (["c2j1x", "c2j1y", "c2j2x", "c2j2y", "arm-gui_x", "arm-gui_y", "arm-gui_z", "arm-gui_phi"])
+armList = (["AbsEnable","c2j1x", "c2j1y", "c2j2x", "c2j2y", "arm-gui_x", "arm-gui_y", "arm-gui_z", "arm-gui_phi"])
 
 antenaList = (["c1d_x", "c1d_y"])
 

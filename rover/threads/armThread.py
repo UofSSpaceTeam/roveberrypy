@@ -13,7 +13,7 @@ import struct
 class CommandType:
 	stop = 0x00
 	setPos = 0x01
-	nudge = 0x02
+	setAbs = 0x02
 class Command:
 	def __init__(self):
 		self.header = 0xF7
@@ -41,38 +41,57 @@ class armThread(threading.Thread):
 	def run(self):
 		command = Command()
 		baseSpeed = None
+		dx = None
+		dy = None
+		dz = None
+		dphi = None
 		x = None
 		y = None
 		z = None
 		phi = None
+		absMode = False
 		print "arm thread started"
 		while True:
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
 				#print data
 				if "c2j1x" in data:
-					x = int(data["c2j1x"] * 10) # -255 to 255
+					dx = int(data["c2j1x"] * 10) # -255 to 255
 					#print baseSpeed
-				if "c2j1y" in data:
-					y = int(data["c2j1y"] * 10)
+				elif "c2j1y" in data:
+					dy = int(data["c2j1y"] * 10)
 					#print L1
-				if "c2j2x" in data:
-					z = int(data["c2j2x"] * 10)
+				elif "c2j2x" in data:
+					dz = int(data["c2j2x"] * 10)
 					#print L2
-				if "c2j2y" in data:
-					phi = int(data["c2j2y"] * 10)
-				if "arm-gui_x" in data:
-					x = int(data["arm-gui_x"]) * 10)
-				if "arm-gui_y" in data:
-					y = int(data["arm-gui_y"]) * 10)
-				if "arm-gui_z" in data:
-					z = int(data["arm-gui_z"]) * 10)
-				if "arm-gui_phi" in data:
-					phi = int(data["arm-gui_phi"]) * 10)
+				elif "c2j2y" in data:
+					dphi = int(data["c2j2y"] * 10)
+				elif "arm-gui_x" in data:
+					x = int(data["arm-gui_x"])
+				elif "arm-gui_y" in data:
+					y = int(data["arm-gui_y"])
+				elif "arm-gui_z" in data:
+					z = int(data["arm-gui_z"])
+				elif "arm-gui_phi" in data:
+					phi = int(data["arm-gui_phi"])
+				elif "AbsEnable" in data:
+					absMode = data["AbsEnable"]
 
 			
-			if x is not None and y is not None and z is not None and phi is not None:
+			if not absMode and dx is not None and dy is not None and dz is not None and dphi is not None:
 				command.type = CommandType.setPos
+				command.d1 = int(dx)
+				command.d2 = int(dy)
+				command.d3 = int(dz)
+				command.d4 = int(dphi)
+				dx = None
+				dy = None
+				dz = None
+				dphi = None
+				self.sendCommand(command)
+			
+			elif absMode and x is not Node and y is not None and z is not Node and phi is not None:
+				command.type = CommandType.setAbs
 				command.d1 = int(x)
 				command.d2 = int(y)
 				command.d3 = int(z)
