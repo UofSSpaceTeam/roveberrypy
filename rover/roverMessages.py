@@ -6,8 +6,9 @@ telemetryList = (["pitch", "roll", "gx", "gy", "gz", "ax", "ay", "az", "heading"
 
 driveList = (["c1j1y", "c1j2y", "throttle", "steerRate", "c1t"])
 
-armList = (["c2j1x", "c2j1y", "c2j2x", "c2j2y"])
+armList = (["c2j1x", "c2j1y", "c2j2x", "c2j2y", "arm-gui_x", "arm-gui_y", "arm-gui_z", "arm-gui_phi"])
 
-antennaList = (["c1d_x", "c1d_y"])
+antenaList = (["c1d_x", "c1d_y"])
 
-experimentList = (["drillenable", "drillin", "drillout", "drillSpd", "elevup", "elevdn," "elevspd", "laser1", "laser2", "laser3"])
+experimentList = ([])
+

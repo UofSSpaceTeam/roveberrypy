@@ -41,38 +41,46 @@ class armThread(threading.Thread):
 	def run(self):
 		command = Command()
 		baseSpeed = None
-		L1 = None
-		L2 = None
-		L3 = None
+		x = None
+		y = None
+		z = None
+		phi = None
 		print "arm thread started"
 		while True:
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
 				#print data
 				if "c2j1x" in data:
-					baseSpeed = int(data["c2j1x"] * 255) # -255 to 255
+					x = int(data["c2j1x"] * 10) # -255 to 255
 					#print baseSpeed
 				if "c2j1y" in data:
-					L1 = int(data["c2j1y"] * 255)
+					y = int(data["c2j1y"] * 10)
 					#print L1
 				if "c2j2x" in data:
-					L2 = int(data["c2j2x"] * 255)
+					z = int(data["c2j2x"] * 10)
 					#print L2
 				if "c2j2y" in data:
-					L3 = int(data["c2j2y"] * 255)
-					#print L3
+					phi = int(data["c2j2y"] * 10)
+				if "arm-gui_x" in data:
+					x = int(data["arm-gui_x"]) * 10)
+				if "arm-gui_y" in data:
+					y = int(data["arm-gui_y"]) * 10)
+				if "arm-gui_z" in data:
+					z = int(data["arm-gui_z"]) * 10)
+				if "arm-gui_phi" in data:
+					phi = int(data["arm-gui_phi"]) * 10)
+
 			
-			# send on complete input update
-			if baseSpeed is not None and L1 is not None and L2 is not None:
+			if x is not None and y is not None and z is not None and phi is not None:
 				command.type = CommandType.setPos
-				command.d1 = int(baseSpeed)
-				command.d2 = int(L1)
-				command.d3 = int(L2)
-				command.d4 = int(L3)
-				baseSpeed = None
-				L1 = None
-				L2 = None
-				L3 = None
+				command.d1 = int(x)
+				command.d2 = int(y)
+				command.d3 = int(z)
+				command.d4 = int(phi)
+				x = None
+				y = None
+				z = None
+				phi = None
 				self.sendCommand(command)
 			time.sleep(0.01)
 
@@ -80,6 +88,9 @@ class armThread(threading.Thread):
 		command.csum = (command.type + command.d1 + command.d2 + command.d3 + command.d4) % 256
 		try:
 			self.i2cSem.acquire()
+			#print(command.d1)
+			#print(command.d2)
+			#print(command.d3)
 			i2c.write_byte(address, command.header)
 			i2c.write_byte(address, command.type)
 			i2c.write_byte(address, command.d1 & 0xFF)
