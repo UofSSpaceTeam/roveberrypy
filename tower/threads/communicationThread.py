@@ -1,4 +1,4 @@
-import roverMessages as messages
+import towerMessages as messages
 import threading
 import socket
 import json
@@ -11,8 +11,6 @@ class CommunicationThread(threading.Thread):
 		threading.Thread.__init__(self)
 		self.name = "communicationThread"
 		self.parent = parent
-		self.debug = False
-		self.exit = False
 		self.mailbox = Queue()
 		self.port = port
 		self.baseAddress = None
@@ -22,7 +20,7 @@ class CommunicationThread(threading.Thread):
 		self.socket.bind(("", port))
 
 	def run(self):
-		while not self.exit:
+		while True:
 			try:
 				inData, address = self.socket.recvfrom(self.port)
 				self.baseAddress = address
@@ -31,47 +29,20 @@ class CommunicationThread(threading.Thread):
 			else:
 				inData = convert(json.loads(inData))
 				for key, value in inData.iteritems():
-					for msg in messages.cameraList:
-						if key == msg:
-							self.parent.cameraThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to cameraThread")
 					for msg in messages.telemetryList:
 						if key == msg:
 							self.parent.telemetryThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to telemetryThread")
-					for msg in messages.driveList:
+					for msg in messages.motorList:
 						if key == msg:
-							self.parent.driveThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to driveThread")
-					for msg in messages.armList:
-						if key == msg:
-							self.parent.armThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to armThread")
-					for msg in messages.antenaList:
-						if key == msg:
-							self.parent.antenaCameraThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to antenaCameraThread")
-					for msg in messages.experimentList:
-						if key == msg:
-							self.parent.experimentThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to experimentThread")
+							self.parent.motorThread.mailbox.put({key:value})
 
 			if not self.mailbox.empty():
 				outDict = {}
 				while not self.mailbox.empty():
 					outDict.update(self.mailbox.get())
+				print outDict
 				outData = json.dumps(outDict)
 				if self.baseAddress != None:
 					self.socket.sendto(outData, self.baseAddress)
-			time.sleep(0.01)
-
-
-	def stop(self):
-		self.exit = True
+			time.sleep(0.1)
 

@@ -11,7 +11,6 @@ class CommunicationThread(threading.Thread):
 		threading.Thread.__init__(self)
 		self.name = "communicationThread"
 		self.parent = parent
-		self.debug = True
 		self.mailbox = Queue()
 		self.port = port
 		self.roverIP = roverIP
@@ -28,28 +27,20 @@ class CommunicationThread(threading.Thread):
 			except socket.error: # no incoming data
 				pass
 			else:
-				inData = convert(json.loads(data))
+				inData = convert(json.loads(inData))
 				for key, value in inData.iteritems():
 					for msg in messages.inputList:
 						if key == msg:
 							self.parent.inputThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to inputThread")
 					for msg in messages.navList:
 						if key == msg:
 							self.parent.navThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to navThread")
 					for msg in messages.panelList:
 						if key == msg:
 							self.parent.panelThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to panelThread")
 					for msg in messages.guiList:
 						if key == msg:
 							self.parent.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to guiThread")
 
 			if not self.mailbox.empty():
 				outDict = {}

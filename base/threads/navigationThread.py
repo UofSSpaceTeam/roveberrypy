@@ -66,6 +66,7 @@ class NavigationThread(threading.Thread):
 					self.roverDirection = data["roverGPS"][3]
 				
 				if "towerGPS" in data:
+					print data["towerGPS"]
 					self.towerLocation = data["towerGPS"]
 					
 				if "imageSize" in data:
@@ -125,8 +126,6 @@ class NavigationThread(threading.Thread):
 						wptFile.close()
 					except Exception:
 						pass
-					finally:
-						wptFile.close()
 				
 				if "saveMarkers" in data:
 					try:
@@ -136,8 +135,6 @@ class NavigationThread(threading.Thread):
 						wptFile.close()
 					except Exception:
 						pass
-					finally:
-						wptFile.close()
 				
 				if "printMode" in data:
 					self.printMode = data["printMode"]

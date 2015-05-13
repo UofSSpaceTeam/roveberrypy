@@ -1,11 +1,11 @@
 {
 	"windowSize": [1024, 600],
 	"roverIP": "192.168.1.103",
-	"towerIP": "192.168.1.150",
+	"towerIP": "192.168.1.104",
 	"port": 35001,
 	"throttle": 0.3,
-	"mapFile": "gui/resource/campusmap.jpg",
-	"mapBottomLeft": [52.127204, -106.647735],
-	"mapTopRight": [52.139176, -106.618917]
+	"mapFile": "gui/resource/campuspic.jpg",
+	"mapBottomLeft": [52.129221, -106.638841],
+	"mapTopRight": [52.133586, -106.625878]
 }
 

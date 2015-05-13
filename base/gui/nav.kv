@@ -371,7 +371,7 @@
 <LoadMarkersForm>:
 	BoxLayout:
 		size_hint: (None, None)
-		size: (300, 150)
+		size: (300, 175)
 		pos: ((root.size[0] - self.size[0]) / 2, (root.size[1] - self.size[1]) / 2)
 		orientation: "vertical"
 		padding: 15
@@ -391,6 +391,9 @@
 		TextInput:
 			id: filename
 			text: "wpts.txt"
+		Label:
+			text: "Current marker set will be replaced."
+			font_size: 14
 		BoxLayout:
 			orientation: "horizontal"
 			Button:

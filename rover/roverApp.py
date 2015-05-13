@@ -17,7 +17,7 @@ i2cSemaphore = Semaphore(1)
 class roverApp():
 	def __init__(self):
 		# make each top-level thread
-		self.commThread = CommunicationThread(self, 35001, 35000)
+		self.commThread = CommunicationThread(self, 35001)
 		self.cameraThread = cameraThread(self)
 		self.telemetryThread = telemetryThread(self)
 		self.driveThread = driveThread(self, i2cSemaphore)

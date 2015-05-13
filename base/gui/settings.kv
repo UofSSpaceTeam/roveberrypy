@@ -42,4 +42,18 @@
 				value: 0
 				step: 5
 				on_value: app.commThread.mailbox.put({"towerAim":int(self.value)})
+		BoxLayout:
+			orientation: "vertical"
+			canvas:
+				Color:
+					rgb: 0.4, 0, 0.4
+				Rectangle:
+					pos: self.pos
+					size: self.size
+			Label:
+				text: "3D Vision System"
+				font_size: 20
+			Button:
+				text: "Center Camera"
+				on_release: app.commThread.mailbox.put({"centerCameraButton":""})
 
