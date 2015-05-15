@@ -310,8 +310,6 @@ class BaseApp(App):
 
 class TelemetryScreen(Screen):
 		pass
-        #wid1 = ObjectProperty(None)
-        #def updateTime(self, *args):
 
 		
 class TelemetryWidget(Widget):
@@ -321,6 +319,10 @@ class TelemetryWidget(Widget):
         points3 = ListProperty([])
         dt = NumericProperty(0)
         x_pos = NumericProperty(0)
+		
+        name1 = StringProperty('')
+        name2 = StringProperty('')
+        name3 = StringProperty('')
 		
         data1 = NumericProperty(0)
         data2 = NumericProperty(0)
@@ -332,7 +334,7 @@ class TelemetryWidget(Widget):
 
         def animate(self, do_animation):
                 if do_animation:
-                        Clock.schedule_interval(self.update_points_animation, 0)
+                        Clock.schedule_interval(self.update_points_animation, 0.2)
                 else:
                         Clock.unschedule(self.update_points_animation)
 
@@ -365,7 +367,7 @@ class TelemetryWidget(Widget):
                     self.points3.pop(0)
                     self.points3.pop(0)
 					
-                    for i in range(0, len(self.points1)):
+                    for i in range(0, min(len(self.points1), len(self.points2), len(self.points3)) ):
                         if i % 2 == 0:
                             self.points1[i] = self.points1[i] - 1
                             self.points2[i] = self.points2[i] - 1
@@ -383,6 +385,7 @@ class TelemetryWidget(Widget):
                 self.updateMax()
  
         def getData(self):
+				#for testing
                 data = {}
                 data["1"] = 1 + self.data1 
                 data["2"] = 5 + self.data2
@@ -394,6 +397,19 @@ class TelemetryWidget(Widget):
                 if self.data3 > 200:
                         data["3"] = 0
                 return data
+				
+				
+				#actual data code
+				
+				data = self.mailbox.get()
+				#print data
+				if "gx" in data:
+					leftSpeed = float(data["gx"]) 
+				elif "c1j2y" in data:
+					rightSpeed = float(data["gy"]) 
+				elif "throttle" in data:
+					throttle = float(data["gz"]) 
+				
                 
         def updateMax(self):
                 if self.data1 > self.max_data1:

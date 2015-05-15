@@ -1,7 +1,9 @@
 
 <TelemetryWidget>:
 
-
+	#size: 500, 500
+	#size_hint: 1, 1
+	
 	canvas:
         Color:
             rgba: .4, .4, 1, 1
@@ -30,8 +32,11 @@
 
     GridLayout:
         cols: 2
-        size_hint: 1, None
-        height: 44 * 5
+        size_hint: None, None
+		#size: 200, 200
+        #height: 44 * 5
+		height: root.height * .5
+		width: root.width
 
         GridLayout:
             cols: 3
@@ -44,48 +49,61 @@
                 text: 'max'
 
             Label:
-                text: 'gx'
+                text: root.name1
             Label:
                 text: str(root.data1)
             Label:
                 text: str(root.max_data1)
             
             Label:
-                text: 'Gy'
+                text: root.name2
             Label:
                 text: str(root.data2)
             Label:
                 text: str(root.max_data2)
 
             Label:
-                text: 'Gz'
+                text: root.name3
             Label:
                 text: str(root.data3)
             Label:
                 text: str(root.max_data3)
                 
-        AnchorLayout:
-            GridLayout:
-                cols: 1
-                size_hint: None, None
-                size: self.minimum_size
-                ToggleButton:
-                    size_hint: None, None
-                    #size: 100, 44
-                    text: 'Start'
-                    on_state: root.animate(self.state == 'down')
+        BoxLayout:
+			#cols: 1
+			#size_hint: None, None
+			#size: self.minimum_size
+			ToggleButton:
+				size_hint: None, None
+				#size: 100, 44
+				text: 'Start'
+				on_state: root.animate(self.state == 'down')
 
-					
-<TelemetryScreen@FloatLayout>:
-	
-	GridLayout:
-        cols: 3
-		
-        TelemetryWidget:
+				
+<TelemetryScreen@BoxLayout>:
+	orientation: "horizontal"
+	BoxLayout:
+		TelemetryWidget:
 			id: widget1
-			
+			name1: 'gx'
+			name2: 'gy'
+			name3: 'gz'
+	
+	BoxLayout:
 		TelemetryWidget:
 			id: widget2
+			name1: '1'
+			name2: '2'
+			name3: '3'
+	
+	BoxLayout:
+		TelemetryWidget:
+			id: widget3
+			name1: 'accelx'
+			name2: 'accely'
+			name3: 'accelz'
+		
+		
 
 
 	

@@ -19,7 +19,7 @@ class roverApp():
 		# make each top-level thread
 		self.commThread = CommunicationThread(self, 35001)
 		self.cameraThread = cameraThread(self)
-		self.telemetryThread = telemetryThread(self)
+		#self.telemetryThread = telemetryThread(self)
 		self.driveThread = driveThread(self, i2cSemaphore)
 		self.armThread = armThread(self,i2cSemaphore)
 		self.antenaCameraThread = antenaCameraThread(self,i2cSemaphore)
@@ -29,7 +29,7 @@ class roverApp():
 	def stopThreads(self):
 		self.commThread.stop()
 		self.cameraThread.stop()
-		#self.teleThread.stop()
+		self.teleThread.stop()
 		self.driveThread.stop()
 		self.armThread.stop()
 		self.antenaCameraThread.stop()
@@ -39,7 +39,7 @@ class roverApp():
 		print("starting threads")
 		self.commThread.start()
 		self.cameraThread.start()
-		# self.telemetryThread.start()
+		#self.telemetryThread.start()
 		self.driveThread.start()
 		self.armThread.start()
 		self.antenaCameraThread.start()

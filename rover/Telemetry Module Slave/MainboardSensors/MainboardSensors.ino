@@ -1,5 +1,6 @@
 #include <Wire.h>
 
+const int ledPin = 13;
 
 // Stuff for LSM9DS0
 #include <SPI.h> // Included for SFE_LSM9DS0 library for some timing stuff?
@@ -47,6 +48,9 @@ int iter = 0;
 
 
 void setup() {
+  
+  pinMode(ledPin, OUTPUT);
+  
   // Begin the LSM9DS0
   dof.begin();
   
@@ -133,19 +137,12 @@ void loop() {
     heading_data = heading;
     aroll_data = aroll;
     apitch_data = apitch;
-    lat_data = lat;
-    lon_data = lon;
-    mps_data = mps;
-    alt_data = alt;
-    gps_heading_data = gps_heading;
-    date_data = date;
-    time_data = time; 
-    vout_data = vout; 
-    isense_data = isense;
     
     iter =+ 1; 
   } 
   else if(iter == 10) {
+    //turn on led to show that data is being sent
+    digitalWrite(ledPin, HIGH);  
     // print all data : pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense
     Serial.print("#");
     Serial.print(pitch_data / 10); //0
@@ -170,26 +167,29 @@ void loop() {
     Serial.print(" ");
     Serial.print(apitch_data / 10);  //10
     Serial.print(" ");
-    Serial.print(lat_data / 10,8);  //11
+    Serial.print(lat,8);  //11
     Serial.print(" ");
-    Serial.print(lon_data / 10,8);  //12
+    Serial.print(lon,8);  //12
     Serial.print(" ");
-    Serial.print(mps_data / 10);  //13
+    Serial.print(mps);  //13
     Serial.print(" ");
-    Serial.print(alt_data / 10);  //14
+    Serial.print(alt);  //14
     Serial.print(" ");
-    Serial.print(gps_heading_data / 10);   //15
+    Serial.print(gps_heading);   //15
     Serial.print(" ");
-    Serial.print(date_data / 10);  //16
+    Serial.print(date);  //16
     Serial.print(" ");
-    Serial.print(time_data / 10);  //17
+    Serial.print(time);  //17
     Serial.print(" ");
-    Serial.print(vout_data / 10);  //18
+    Serial.print(vout);  //18
     Serial.print(" ");
-    Serial.print(isense_data / 10);  //19
+    Serial.print(isense);  //19
     Serial.print(" ");
-    Serial.print(checksum(roll_data / 10,time_data / 10,heading_data / 10));
+    Serial.print(checksum(roll_data / 10,time ,heading_data / 10));
     Serial.println("$");
+    
+    digitalWrite(ledPin, LOW);  
+ 
   
     iter = 0;
   }
@@ -205,15 +205,6 @@ void loop() {
     heading_data += heading;
     aroll_data += aroll;
     apitch_data += apitch;
-    lat_data += lat;
-    lon_data += lon;
-    mps_data += mps;
-    alt_data += alt;
-    gps_heading_data += gps_heading;
-    date_data += date;
-    time_data += time; 
-    vout_data += vout; 
-    isense_data += isense;
     
     iter += 1; 
   } 
@@ -230,7 +221,7 @@ float getHeading(float hx, float hy)
 {
   float heading;
   float dec = 10.65; // Saskatoon
-  // float dec = 10.90; // utah 
+  // float dec = 10.90; // Hanksville utah 
   
   if (hy > 0){
     heading = 90 -  (atan(hx / hy) * (180 / PI));
@@ -242,7 +233,7 @@ float getHeading(float hx, float hy)
     if (hx < 0) heading = 180;
     else heading = 0;
   }
-  // declination for Saskatoon
+  // add declination
   heading = heading + dec;
   
   if (heading >= 360) {

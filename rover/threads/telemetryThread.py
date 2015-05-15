@@ -31,8 +31,8 @@ class telemetryThread(threading.Thread):
                                 print("error in packet")
                         else:
                                 print("packet good")
-                                #print(msg)
-                                self.parent.commThread.mailbox.put(msg)
+                                print(msg)
+                                #self.parent.commThread.mailbox.put(msg)
                         
         # simulates receiving info from a sensor                
         def sensorInfo(self):
@@ -75,7 +75,19 @@ class telemetryThread(threading.Thread):
                 value["time"] = data[17]
                 value["vout"] = data[18]
                 value["isense"] = data[19]
+				
+                speed = float(value["mps"]) * 60
+				
+                value["roverGPS"] = [value["lat"], value["lon"], speed, value["gps_heading"]]
+                vaulue["towerGPS"] = [value["lat"], value["lon"]]
+				
                 checksum = data[20].rstrip("$")
+				
+				# TODO: add roverGPS = (latitude, longitude, speed, direction)
+				# speed in meters per minute
+				# and towerGPS = (latitude, longitude)
+
+				
 
                 if float(checksum) == self.checksum( float(value["roll"]), float(value["time"]), float(value["heading"])):
                         return value
