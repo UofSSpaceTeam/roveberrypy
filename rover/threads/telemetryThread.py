@@ -27,8 +27,8 @@ class telemetryThread(threading.Thread):
 								print("error in packet")
 						else:
 								print("packet good")
-								print(msg)
-								#self.parent.commThread.mailbox.put(msg)
+								#print(msg)
+								self.parent.commThread.mailbox.put(msg)
                         
         # simulates receiving info from a sensor                
         def sensorInfo(self):
@@ -38,7 +38,13 @@ class telemetryThread(threading.Thread):
                 #ser = serial.Serial("COM9", 9600, timeout=1 )
                 value = {}
                 # read data from serial (USB)
-                str = ser.readline() 
+				try:
+					str = ser.readline()
+                except:
+					value["gx"] = None
+					return value
+				
+				
                 # prints in the order pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense
                 data = str.split();
                 
@@ -74,20 +80,14 @@ class telemetryThread(threading.Thread):
                 vaulue["towerGPS"] = [value["lat"], value["lon"]]
 				
                 checksum = data[20].rstrip("$")
-				
-				# TODO: add roverGPS = (latitude, longitude, speed, direction)
-				# speed in meters per minute
-				# and towerGPS = (latitude, longitude)
 
-				
-
-                if float(checksum) == self.checksum( float(value["roll"]), float(value["time"]), float(value["heading"])):
-                        return value
-                else:
+                #if float(checksum) == self.checksum( float(value["roll"]), float(value["time"]), float(value["heading"])):
+                return value
+                #else:
                         #print("Error: invalid packet")
                         #value in gx arbitrary picked to send error 
-                        value["gx"] = None
-                        return value
+                        #value["gx"] = None
+                        #return value
                         
                 
                 
