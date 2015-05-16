@@ -63,7 +63,7 @@ class ExperimentThread(threading.Thread):
 	def setLasers(self, laser):
 		for i in range(1, 4):
 			command = Command()
-			print "laser " + i + str(i == laser)
+			print "laser " + str(i) + str(i == laser)
 			command.type = CommandType.setLaser
 			command.d1 = i
 			command.d2 = (i == laser)
@@ -73,14 +73,14 @@ class ExperimentThread(threading.Thread):
 		command.csum = (command.type + command.d1 + command.d2) % 256
 		try:
 			self.i2cSem.acquire()
-			i2c.write_byte(address, command.header)
-			i2c.write_byte(address, command.type)
-			i2c.write_byte(address, command.d1 & 0xFF)
-			i2c.write_byte(address, command.d1 >> 8)
-			i2c.write_byte(address, command.d2 & 0xFF)
-			i2c.write_byte(address, command.d2 >> 8)
-			i2c.write_byte(address, command.csum)
-			i2c.write_byte(address, command.trailer)
+			self.i2c.write_byte(self.i2cAddress, command.header)
+			self.i2c.write_byte(self.i2cAddress, command.type)
+			self.i2c.write_byte(self.i2cAddress, command.d1 & 0xFF)
+			self.i2c.write_byte(self.i2cAddress, command.d1 >> 8)
+			self.i2c.write_byte(self.i2cAddress, command.d2 & 0xFF)
+			self.i2c.write_byte(self.i2cAddress, command.d2 >> 8)
+			self.i2c.write_byte(self.i2cAddress, command.csum)
+			self.i2c.write_byte(self.i2cAddress, command.trailer)
 		except IOError:
 			print("Experiment thread got IOError")
 		self.i2cSem.release()

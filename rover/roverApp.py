@@ -32,10 +32,10 @@ class RoverApp():
 		print("starting threads")
 		self.commThread.start()
 		self.cameraThread.start()
-		self.telemetryThread.start()
+		#self.telemetryThread.start()
 		self.driveThread.start()
 		self.armThread.start()
-		self.antennaCameraThread.start()
+		#self.antennaCameraThread.start()
 		self.experimentThread.start()
 	
 	def run(self):

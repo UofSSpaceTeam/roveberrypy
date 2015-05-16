@@ -35,6 +35,7 @@ typedef struct
 // pin connetions for motor
 const byte m_pwm[] = {9, 10};
 const byte l_pwr[] = {3, 4, 5};
+
 // arduino address on bus
 const byte i2c_address = 0x09;
 
@@ -85,16 +86,14 @@ void stopAll();
 
 // functions
 
-void setup() 
-{
+void setup() {
 	Serial.begin(9600); // debug
 	Wire.begin(i2c_address);
 	Wire.onReceive(receiveEvent);
 	Wire.onRequest(requestEvent);
-
 		
-		drillMotor.attach(m_pwm[0]);
-		elevMotor.attach(m_pwm[1]);
+	drillMotor.attach(m_pwm[0]);
+	elevMotor.attach(m_pwm[1]);
 	
 	// clear cmd struct
 	for(int i = 0; i < sizeof(command); i++)

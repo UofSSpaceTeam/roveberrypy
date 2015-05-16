@@ -17,7 +17,6 @@ class AntennaCameraThread(threading.Thread):
 		self.i2cSem = i2cSemaphore
 
 	def run(self):
-		print "antenna thread started"
 		servoDriver = ServoDriver()
 		pitch = 0
 		base = 0
