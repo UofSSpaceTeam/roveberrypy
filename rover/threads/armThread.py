@@ -1,19 +1,16 @@
-
-import roverMessages
 import threading
 import json
 from Queue import Queue
 import time
-from unicodeConvert import convert
-
 import smbus
-import struct
+import roverMessages
 
 # matching structures from arduino
 class CommandType:
 	stop = 0x00
 	setPos = 0x01
 	setAbs = 0x02
+	
 class Command:
 	def __init__(self):
 		self.header = 0xF7
@@ -25,18 +22,15 @@ class Command:
 		self.csum = 0x00
 		self.trailer = 0xF8
 
-# Setting up I2C
-i2c = smbus.SMBus(1)
-address = 0x08
-
-class armThread(threading.Thread):
+class ArmThread(threading.Thread):
 	def __init__(self, parent, i2cSemaphore):
 		threading.Thread.__init__(self)
 		self.parent = parent
-		self.name = "armThread"
-		self.exit = False
+		self.period = 0.05
 		self.mailbox = Queue()
 		self.i2cSem = i2cSemaphore
+		self.i2c = smbus.SMBus(1)
+		self.i2cAddress = 0x08
 
 	def run(self):
 		command = Command()
@@ -50,8 +44,8 @@ class armThread(threading.Thread):
 		z = None
 		phi = None
 		absMode = False
-		print "arm thread started"
 		while True:
+			time.sleep(self.period)
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
 				#print data
@@ -76,7 +70,6 @@ class armThread(threading.Thread):
 					phi = int(data["arm-gui_phi"])
 				elif "AbsEnable" in data:
 					absMode = data["AbsEnable"]
-
 			
 			if not absMode and dx is not None and dy is not None and dz is not None and dphi is not None:
 				command.type = CommandType.setPos
@@ -101,32 +94,24 @@ class armThread(threading.Thread):
 				z = None
 				phi = None
 				self.sendCommand(command)
-			time.sleep(0.01)
 
 	def sendCommand(self, command):
 		command.csum = (command.type + command.d1 + command.d2 + command.d3 + command.d4) % 256
 		try:
 			self.i2cSem.acquire()
-			#print(command.d1)
-			#print(command.d2)
-			#print(command.d3)
-			i2c.write_byte(address, command.header)
-			i2c.write_byte(address, command.type)
-			i2c.write_byte(address, command.d1 & 0xFF)
-			i2c.write_byte(address, command.d1 >> 8)
-			i2c.write_byte(address, command.d2 & 0xFF)
-			i2c.write_byte(address, command.d2 >> 8)
-			i2c.write_byte(address, command.d3 & 0xFF)
-			i2c.write_byte(address, command.d3 >> 8)
-			i2c.write_byte(address, command.d4 & 0xFF)
-			i2c.write_byte(address, command.d4 >> 8)
-			i2c.write_byte(address, command.csum)
-			i2c.write_byte(address, command.trailer)
-			self.i2cSem.release()
+			self.i2c.write_byte(self.i2cAddress, command.header)
+			self.i2c.write_byte(self.i2cAddress, command.type)
+			self.i2c.write_byte(self.i2cAddress, command.d1 & 0xFF)
+			self.i2c.write_byte(self.i2cAddress, command.d1 >> 8)
+			self.i2c.write_byte(self.i2cAddress, command.d2 & 0xFF)
+			self.i2c.write_byte(self.i2cAddress, command.d2 >> 8)
+			self.i2c.write_byte(self.i2cAddress, command.d3 & 0xFF)
+			self.i2c.write_byte(self.i2cAddress, command.d3 >> 8)
+			self.i2c.write_byte(self.i2cAddress, command.d4 & 0xFF)
+			self.i2c.write_byte(self.i2cAddress, command.d4 >> 8)
+			self.i2c.write_byte(self.i2cAddress, command.csum)
+			self.i2c.write_byte(self.i2cAddress, command.trailer)	
 		except IOError:
 			print("Arm thread got IOError")
-			self.i2cSem.release()
-	
+		self.i2cSem.release()
 
-	def stop(self):
-		self._Thread__stop()

@@ -7,17 +7,17 @@ import time
 from ServoDriver import *
 
 
-class antenaCameraThread(threading.Thread):
+class AntennaCameraThread(threading.Thread):
 	def __init__(self, parent, i2cSemaphore):
 		threading.Thread.__init__(self)
 		self.parent = parent
-		self.name = "antenaCameraThread"
+		self.name = "antennaCameraThread"
 		self.exit = False
 		self.mailbox = Queue()
 		self.i2cSem = i2cSemaphore
 
 	def run(self):
-		print "antena thread started"
+		print "antenna thread started"
 		servoDriver = ServoDriver()
 		pitch = 0
 		base = 0
@@ -47,7 +47,7 @@ class antenaCameraThread(threading.Thread):
 						servoDriver.setServo(0,int(pos1))
 						self.i2cSem.release()
 					except:
-						print("Antena camera failed to adjust pitch.")
+						print("Antenna camera failed to adjust pitch.")
 						self.i2cSem.release()
 				if 0 <= base <= 360:
 					pos2 = 115*base/36 + 950
@@ -56,7 +56,7 @@ class antenaCameraThread(threading.Thread):
 						servoDriver.setServo(1,int(pos2))
 						self.i2cSem.release()
 					except:
-						print("Antena camera failed to rotate base.")
+						print("Antenna camera failed to rotate base.")
 						self.i2cSem.release()
 			
 			time.sleep(0.01)

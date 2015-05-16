@@ -1,11 +1,7 @@
-import roverMessages
 import threading
-import json
 from Queue import Queue
-import time
 import smbus
-import struct
-from unicodeConvert import convert
+import roverMessages
 
 # matching structures from arduino
 class CommandType:
@@ -22,92 +18,56 @@ class Command:
 		self.csum = 0x00
 		self.trailer = 0xF8
 
-# Setting up I2C
-i2c = smbus.SMBus(1)
-address = 0x09
-
-class driveThread(threading.Thread):
+class ExperimentThread(threading.Thread):
 	def __init__(self, parent, i2cSemaphore):
 		threading.Thread.__init__(self)
 		self.parent = parent
-		self.name = "driveThread"
-		self.exit = False
 		self.mailbox = Queue()
 		self.i2cSem = i2cSemaphore
+		self.i2c = smbus.SMBus(1)
+		self.i2cAddress = 0x09
+		self.drillSpeed = 0.3
+		self.elevSpeed = 0.3
+		self.drillDir = 0
+		self.elevDir = 0
 		
 	def run(self):
-		command = Command()
-		drillEnable = False
-		drillSpeed = 0.3
-		elevSpeed = 0.3
-		lasers = [0, 0, 0]
-		drillDir = 0
-		elevDir = 0
 		while True:
-			while not self.mailbox.empty():
-				data = self.mailbox.get()
-				
-				# Only send commands when drill is enabled
-				if "drillenable" in data:
-					drillEnable = data["drillenable"]
-					if !drillEnable:
-						command.type = CommandType.stop
-						command.d1 = 0
-						command.d2 = 0
-						self.sendCommand(command)
-					
-				if "drillspd" in data:
-					drillSpeed = int(data["drillspd"]) # 0 to 1
-				elif "elevspd" in data:
-					drillSpeed = int(data["elevspd"]) # 0 to 1
-					
-				if "drillin" in data:
-					if data["drillin"]:
-						drillDir = 1
-					else:
-						drillDir = 0
-				elif "drillout" in data:
-					if data["drillout"]:
-						drillDir = -1
-					else:
-						drillDir = 0
-					
-				if "elevdn" in data:
-					if data["elevdn"]:
-						elevDir = 1
-					else:
-						elevDir = 0
-				elif "elevup" in data:
-					if data["elevup"]:
-						elevDir = -1
-					else:
-						elevDir = 0
-						
-				if "laser1" in data:
-					lasers[1] = int(data["laser1"])
-				elif "laser2" in data:
-					lasers[2] = int(data["laser2"])
-				elif "laser3" in data:
-					lasers[3] = int(data["laser3"])
-				
-				if drillEnable:
-					command.type = CommandType.setSpeed
-					command.d1 = int(drillSpeed*drillDir*255)
-					command.d2 = int(elevSpeed*elevDir*255)
-					self.sendCommand(command)
-					
-							
-					for i in [0, 1, 2]:
-						command.type = CommandType.setLaser
-						command.d1 = i
-						command.d2 = lasers[i]
-						self.sendCommand(command)
-						
-				else:
-					# when drill is not enabled, run less
-					time.sleep(0.5)
+			drillChange = False
+			data = self.mailbox.get()
+			if "drillspd" in data:
+				self.drillSpeed = int(data["drillspd"]) # 0 to 1
+				drillChange = True
+			if "elevspd" in data:
+				self.drillSpeed = int(data["elevspd"]) # 0 to 1
+				drillChange = True
+			if "drill" in data:
+				self.drillDir = int(data["drill"])
+				drillChange = True
+			if "elev" in data:
+				self.elevDir = int(data["elev"])
+				drillChange = True
+			if "laser" in data:
+				self.setLasers(data["laser"])
 			
-				time.sleep(0.01)
+			if drillChange:
+				self.setDrill()
+	
+	def setDrill(self):
+		command = Command()
+		command.type = CommandType.setSpeed
+		command.d1 = int(self.drillSpeed * self.drillDir * 255)
+		command.d2 = int(self.elevSpeed * self.elevDir * 255)
+		self.sendCommand(command)
+	
+	def setLasers(self, laser):
+		for i in range(1, 4):
+			command = Command()
+			print "laser " + i + str(i == laser)
+			command.type = CommandType.setLaser
+			command.d1 = i
+			command.d2 = (i == laser)
+			self.sendCommand(command)	
 	
 	def sendCommand(self, command):
 		command.csum = (command.type + command.d1 + command.d2) % 256
@@ -121,11 +81,7 @@ class driveThread(threading.Thread):
 			i2c.write_byte(address, command.d2 >> 8)
 			i2c.write_byte(address, command.csum)
 			i2c.write_byte(address, command.trailer)
-			self.i2cSem.release()
 		except IOError:
 			print("Experiment thread got IOError")
-			self.i2cSem.release()
-	
-	
-	def stop(self):
-		self._Thread__stop()
+		self.i2cSem.release()
+

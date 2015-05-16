@@ -9,10 +9,8 @@ from unicodeConvert import convert
 class CommunicationThread(threading.Thread):
 	def __init__(self, parent, port):
 		threading.Thread.__init__(self)
-		self.name = "communicationThread"
+		self.period = 0.05
 		self.parent = parent
-		self.debug = False
-		self.exit = False
 		self.mailbox = Queue()
 		self.port = port
 		self.baseAddress = None
@@ -22,56 +20,39 @@ class CommunicationThread(threading.Thread):
 		self.socket.bind(("", port))
 
 	def run(self):
-		while not self.exit:
+		while True:
+			time.sleep(self.period)
 			try:
 				inData, address = self.socket.recvfrom(self.port)
 				self.baseAddress = address
-			except socket.error: # no incoming data
-				pass
+			except socket.error: # no data
+				continue
 			else:
 				inData = convert(json.loads(inData))
 				for key, value in inData.iteritems():
 					for msg in messages.cameraList:
 						if key == msg:
 							self.parent.cameraThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to cameraThread")
 					for msg in messages.telemetryList:
 						if key == msg:
 							self.parent.telemetryThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to telemetryThread")
 					for msg in messages.driveList:
 						if key == msg:
 							self.parent.driveThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to driveThread")
 					for msg in messages.armList:
 						if key == msg:
 							self.parent.armThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to armThread")
-					for msg in messages.antenaList:
+					for msg in messages.antennaList:
 						if key == msg:
-							self.parent.antenaCameraThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to antenaCameraThread")
+							self.parent.antennaCameraThread.mailbox.put({key:value})
 					for msg in messages.experimentList:
 						if key == msg:
 							self.parent.experimentThread.mailbox.put({key:value})
-							if self.debug:
-								print("sent " + msg + " to experimentThread")
 
-			if not self.mailbox.empty():
 				outDict = {}
 				while not self.mailbox.empty():
 					outDict.update(self.mailbox.get())
 				outData = json.dumps(outDict)
-				if self.baseAddress != None:
+				if self.baseAddress is not None:
 					self.socket.sendto(outData, self.baseAddress)
-			time.sleep(0.01)
-
-
-	def stop(self):
-		self.exit = True
 

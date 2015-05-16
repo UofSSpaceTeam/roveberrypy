@@ -1,12 +1,7 @@
-
-import roverMessages
 import threading
-import json
 from Queue import Queue
-import time
 import smbus
-import struct
-from unicodeConvert import convert
+import roverMessages
 
 # matching structures from arduino
 class CommandType:
@@ -25,17 +20,13 @@ class Command:
 		self.csum = 0x00
 		self.trailer = 0xF8
 
-# Setting up I2C
-i2c = smbus.SMBus(1)
-address = 0x07
-
-class driveThread(threading.Thread):
+class DriveThread(threading.Thread):
 	def __init__(self, parent, i2cSemaphore):
 		threading.Thread.__init__(self)
 		self.parent = parent
-		self.name = "driveThread"
-		self.exit = False
 		self.mailbox = Queue()
+		self.i2c = smbus.SMBus(1)
+		self.i2cAddress = 0x07
 		self.i2cSem = i2cSemaphore
 		
 	def run(self):
@@ -44,17 +35,14 @@ class driveThread(threading.Thread):
 		rightSpeed = None
 		throttle = 0.3
 		while True:
-			while not self.mailbox.empty():
-				data = self.mailbox.get()
-				#print data
-				if "c1j1y" in data:
-					leftSpeed = int(data["c1j1y"] * 255) # -255 to 255
-				elif "c1j2y" in data:
-					rightSpeed = int(data["c1j2y"] * 255) # -255 to 255
-				elif "throttle" in data:
-					throttle = float(data["throttle"]) # 0.0 to 1.0
+			data = self.mailbox.get()
+			if "c1j1y" in data:
+				leftSpeed = int(data["c1j1y"] * 255) # -255 to 255
+			if "c1j2y" in data:
+				rightSpeed = int(data["c1j2y"] * 255) # -255 to 255
+			if "throttle" in data:
+				throttle = float(data["throttle"]) # 0.0 to 1.0
 			
-			# send on complete input update
 			if leftSpeed is not None and rightSpeed is not None:
 				command.type = CommandType.setSpeed
 				command.d1 = int(leftSpeed * throttle)
@@ -62,27 +50,20 @@ class driveThread(threading.Thread):
 				leftSpeed = None
 				rightSpeed = None
 				self.sendCommand(command)
-			time.sleep(0.01)
-	
 	
 	def sendCommand(self, command):
 		command.csum = (command.type + command.d1 + command.d2) % 256
 		try:
 			self.i2cSem.acquire()
-			i2c.write_byte(address, command.header)
-			i2c.write_byte(address, command.type)
-			i2c.write_byte(address, command.d1 & 0xFF)
-			i2c.write_byte(address, command.d1 >> 8)
-			i2c.write_byte(address, command.d2 & 0xFF)
-			i2c.write_byte(address, command.d2 >> 8)
-			i2c.write_byte(address, command.csum)
-			i2c.write_byte(address, command.trailer)
-			self.i2cSem.release()
+			self.i2c.write_byte(self.i2cAddress, command.header)
+			self.i2c.write_byte(self.i2cAddress, command.type)
+			self.i2c.write_byte(self.i2cAddress, command.d1 & 0xFF)
+			self.i2c.write_byte(self.i2cAddress, command.d1 >> 8)
+			self.i2c.write_byte(self.i2cAddress, command.d2 & 0xFF)
+			self.i2c.write_byte(self.i2cAddress, command.d2 >> 8)
+			self.i2c.write_byte(self.i2cAddress, command.csum)
+			self.i2c.write_byte(self.i2cAddress, command.trailer)
 		except IOError:
 			print("Drive thread got IOError")
-			self.i2cSem.release()
+		self.i2cSem.release()
 	
-	
-	def stop(self):
-		self._Thread__stop()
-

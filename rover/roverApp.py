@@ -1,62 +1,54 @@
 import sys
 sys.dont_write_bytecode = True
+import os
+import json
 
-#Import all of the thread modules
 from threads.communicationThread import CommunicationThread
-from threads.experimentThread import experimentThread
-from threads.armThread import armThread
-from threads.driveThread import driveThread
-from threads.telemetryThread import telemetryThread
-from threads.cameraThread import cameraThread
-from threads.antenaCameraThread import antenaCameraThread
-
+from threads.experimentThread import ExperimentThread
+from threads.armThread import ArmThread
+from threads.driveThread import DriveThread
+from threads.telemetryThread import TelemetryThread
+from threads.cameraThread import CameraThread
+from threads.antennaCameraThread import AntennaCameraThread
 from threading import Semaphore
 import time
 
-i2cSemaphore = Semaphore(1)
-class roverApp():
+class RoverApp():
 	def __init__(self):
-		# make each top-level thread
-		self.commThread = CommunicationThread(self, 35001)
-		self.cameraThread = cameraThread(self)
-		#self.telemetryThread = telemetryThread(self)
-		self.driveThread = driveThread(self, i2cSemaphore)
-		self.armThread = armThread(self,i2cSemaphore)
-		self.antenaCameraThread = antenaCameraThread(self,i2cSemaphore)
-		self.experimentThread = experimentThread(self, i2cSemaphore)
+		self.settings = json.loads(open("settings.json").read())
+		self.i2cSemaphore = Semaphore(1)
+		self.commThread = CommunicationThread(self, self.settings["port"])
+		self.cameraThread = CameraThread(self)
+		self.telemetryThread = TelemetryThread(self)
+		self.driveThread = DriveThread(self, self.i2cSemaphore)
+		self.armThread = ArmThread(self, self.i2cSemaphore)
+		self.antennaCameraThread = AntennaCameraThread(self, self.i2cSemaphore)
+		self.experimentThread = ExperimentThread(self, self.i2cSemaphore)
 
-
-	def stopThreads(self):
-		self.commThread.stop()
-		self.cameraThread.stop()
-		self.teleThread.stop()
-		self.driveThread.stop()
-		self.armThread.stop()
-		self.antenaCameraThread.stop()
-		experimentThread.stop()
+	def quit(self):
+		os._exit(0)
 
 	def startThreads(self):
 		print("starting threads")
 		self.commThread.start()
 		self.cameraThread.start()
-		#self.telemetryThread.start()
+		self.telemetryThread.start()
 		self.driveThread.start()
 		self.armThread.start()
-		self.antenaCameraThread.start()
+		self.antennaCameraThread.start()
 		self.experimentThread.start()
 	
 	def run(self):
 		self.startThreads()
-		# go until error
 		try:
 			while True:
-				pass
+				time.sleep(1)
 		except KeyboardInterrupt:
 			print("stopping")
-			self.stopThreads()
+			self.quit()
 		except:
-			self.stopThreads()
+			self.quit()
 			raise
 
-app = roverApp()
-app.run()
+RoverApp().run()
+

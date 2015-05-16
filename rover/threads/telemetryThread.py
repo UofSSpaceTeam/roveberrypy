@@ -1,12 +1,9 @@
-import roverMessages as messages
 import threading
-import json
 from Queue import Queue
 import time
-from unicodeConvert import convert
 import serial 
 
-class telemetryThread(threading.Thread):
+class TelemetryThread(threading.Thread):
         def __init__(self, parent):
                 threading.Thread.__init__(self)
                 self.parent = parent
