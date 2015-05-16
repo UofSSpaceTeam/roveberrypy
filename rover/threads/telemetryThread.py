@@ -16,26 +16,26 @@ class telemetryThread(threading.Thread):
                 self.mailbox = Queue()
                 
         def run(self):
-                while not self.exit:
-                        msg = {} 
-                        #print(msg)
-                        # get info from sensor every 1 sec
-                        time.sleep(1)
-                        msg.update(self.sensorInfo())
-                        
-                        if msg["gx"] is None:
-                                print("error in packet")
-                        else:
-                                print("packet good")
-                                print(msg)
-                                #self.parent.commThread.mailbox.put(msg)
+                while True:
+						msg = {} 
+						#print(msg)
+						# get info from sensor every 1 sec
+						time.sleep(1)
+						msg.update(self.sensorInfo())
+						
+						if msg["gx"] is None:
+								print("error in packet")
+						else:
+								print("packet good")
+								print(msg)
+								#self.parent.commThread.mailbox.put(msg)
                         
         # simulates receiving info from a sensor                
         def sensorInfo(self):
                 # set up serial, Serial(port, buadrate)
                 # will need to be change when on rover 
-				ser = serial.Serial("/dev/ttyAMA0",9600)
-                #ser = serial.Serial("COM9", 9600)
+                ser = serial.Serial("/dev/ttyAMA0",9600, timeout=1)
+                #ser = serial.Serial("COM9", 9600, timeout=1 )
                 value = {}
                 # read data from serial (USB)
                 str = ser.readline() 
@@ -97,4 +97,4 @@ class telemetryThread(threading.Thread):
                 
 
         def stop(self):
-                self.exit = True
+				self._Thread__stop()
