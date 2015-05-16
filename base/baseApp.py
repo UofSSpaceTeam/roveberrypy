@@ -9,6 +9,7 @@ from Queue import Queue
 from threads.communicationThread import CommunicationThread
 from threads.inputThread import InputThread
 from threads.navigationThread import *
+#from threads.teleThread import TeleThread
 
 from kivy.config import Config
 Config.set("input", "mouse", "mouse,disable_multitouch")
@@ -34,6 +35,7 @@ class BaseApp(App):
 			self.settings["towerIP"], self.settings["port"])
 		self.inputThread = InputThread(self)
 		self.navThread = NavigationThread(self)
+		#self.teleThread = TeleThread(self)
 		
 		Builder.load_file("gui/telemetry.kv")
 		Builder.load_file("gui/settings.kv")
@@ -47,6 +49,7 @@ class BaseApp(App):
 		self.commThread.start()
 		self.inputThread.start()
 		self.navThread.start()
+		#self.teleThread.start()
 		
 		Window.size = self.settings["windowSize"]
 		self.title = "USST Rover Control Application"
@@ -365,15 +368,10 @@ class TelemetryWidget(Widget):
 		
 		
 		#actual data code
+		#data[1] = self.teleThread.gx
+		#data[2] = self.teleThread.gy
+		#data[3] = self.teleThread.gz
 		
-		data = self.mailbox.get()
-		#print data
-		if "gx" in data:
-			leftSpeed = float(data["gx"]) 
-		elif "c1j2y" in data:
-			rightSpeed = float(data["gy"]) 
-		elif "throttle" in data:
-			throttle = float(data["gz"]) 
 			
 			
 	def updateMax(self):
