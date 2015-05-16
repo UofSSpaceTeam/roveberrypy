@@ -11,13 +11,16 @@
 	
 	FloatLayout:
 		id: controls
-		# picture-taking button
-		Button:
-			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
+		BoxLayout:
+			pos: (root.size[0] / 2 - 60, root.size[1] - 30)
 			size_hint: (None, None)
-			size: (70, 25)
-			text: "Capture"
-			on_release: app.takePicture("turret")
+			size: (120, 25)
+			Button:
+				text: "Capture"
+				on_release: app.commThread.mailbox.put({"picture":"take"})
+			Button:
+				text: "Upload"
+				on_release: app.commThread.mailbox.put({"picture":"upload"})
 
 # front-mounted camera view tab (video player built in python)
 <DriveScreen@FloatLayout>:
@@ -32,20 +35,16 @@
 	
 	FloatLayout:
 		id: controls
-		# picture-taking button
-		Button:
-			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
+		BoxLayout:
+			pos: (root.size[0] / 2 - 60, root.size[1] - 30)
 			size_hint: (None, None)
-			size: (70, 25)
-			text: "Capture"
-			on_release: app.takePicture("drive")
-			
-		Button:
-			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
-			size_hint: (None, None)
-			size: (70, 25)
-			text: "Capture"
-			on_release: app.takePicture("drive")
+			size: (120, 25)
+			Button:
+				text: "Capture"
+				on_release: app.commThread.mailbox.put({"picture":"take"})
+			Button:
+				text: "Upload"
+				on_release: app.commThread.mailbox.put({"picture":"upload"})
 			
 		GridLayout:
 			pos: (root.size[0] / 2 - 200, root.size[1] - 50)
@@ -56,6 +55,7 @@
 			
 			Label:
 				id: tracLabel
+				color: [0, 1, 0, 1]
 				text: "Traction Control Disabled"
 			ToggleButton:
 				text: "TRAC"
@@ -70,11 +70,11 @@
 			
 			Label:
 				id: drillLabel
+				color: [0, 1, 0, 1]
 				text: "Drill Mode Disabled"
 			ToggleButton:
 				text: "DRILL"
 				on_release: app.drillMode()
-				on_state: app.commThread.mailbox.put({"drillenable":(self.state!="normal")})
 				
 <ExperimentControls>:
 	FloatLayout:
@@ -82,25 +82,26 @@
 			orientation: "vertical"
 			pos: (root.size[0] / 2 - 150, 5)
 			size_hint: (None, None)
-			size: (300, 70)
+			size: (330, 70)
 			Label:
 				id: laserData
-				text: "No Laser Data"
+				color: [0, 1, 0, 1]
+				text: "Photo data: NONE"
 			BoxLayout:
-				
-				ToggleButton:
-					text: "Laser 1"
+				Button:
+					text: "Fire Laser 1"
+					on_press: app.commThread.mailbox.put({"laser":1})
+					on_release:	app.commThread.mailbox.put({"laser":0})
+				Button:
+					text: "Fire Laser 2"
 					group: "laser"
-					on_state: app.commThread.mailbox.put({"laser1":(self.state!="normal")})
-				ToggleButton:
-					text: "Laser 2"
+					on_press: app.commThread.mailbox.put({"laser":2})
+					on_release:	app.commThread.mailbox.put({"laser":0})
+				Button:
+					text: "Fire Laser 3"
 					group: "laser"
-					on_state: app.commThread.mailbox.put({"laser2":(self.state!="normal")})
-				ToggleButton:
-					text: "Laser 3"
-					group: "laser"
-					on_state: app.commThread.mailbox.put({"laser3":(self.state!="normal")})
-				
+					on_press: app.commThread.mailbox.put({"laser":3})
+					on_release:	app.commThread.mailbox.put({"laser":0})
 		BoxLayout:
 			pos: (root.size[0] / 2 - 400, 5)
 			size_hint: (None, None)
@@ -110,11 +111,11 @@
 				ToggleButton:
 					text: "Drill In"
 					group: "drill"
-					on_state: app.commThread.mailbox.put({"drillin":(self.state!="normal")})
+					on_state: app.commThread.mailbox.put({"drill":0 if self.state == "normal" else 1})
 				ToggleButton:
 					text: "Drill Out"
 					group: "drill"
-					on_state: app.commThread.mailbox.put({"drillout":(self.state!="normal")})
+					on_state: app.commThread.mailbox.put({"drill":0 if self.state == "normal" else -1})
 			Slider:
 				id: drillSpeed
 				padding: 30
@@ -128,14 +129,16 @@
 			size: (200, 60)
 			orientation: 'vertical'
 			BoxLayout:
-				ToggleButton:
+				Button:
 					group: "elev"
 					text: "Move Up"
-					on_state: app.commThread.mailbox.put({"elevup":(self.state!="normal")})
-				ToggleButton:
+					on_press: app.commThread.mailbox.put({"elev":1})
+					on_release: app.commThread.mailbox.put({"elev":0})
+				Button:
 					group: "elev"
 					text: "Move Down"
-					on_state: app.commThread.mailbox.put({"elevdn":(self.state!="normal")})
+					on_press: app.commThread.mailbox.put({"elev":-1})
+					on_release: app.commThread.mailbox.put({"elev":0})
 			Slider:
 				id: elevSpeed
 				padding: 30
@@ -156,14 +159,6 @@
 	
 	FloatLayout:
 		id: controls
-		# picture-taking button
-		Button:
-			pos: (root.size[0] / 2 - 35, root.size[1] - 40)
-			size_hint: (None, None)
-			size: (70, 25)
-			text: "Capture"
-			on_release: app.takePicture("arm")
-			
 		BoxLayout:
 			orientation: "vertical"
 			pos: (root.size[0] / 2 - 150, 5)

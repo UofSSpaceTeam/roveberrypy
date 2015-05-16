@@ -1,15 +1,13 @@
-import baseMessages as messages
 import threading
 import pygame
 from Queue import Queue
 import time
-from unicodeConvert import convert
 
 class InputThread(threading.Thread):
 	def __init__(self, parent):
 		threading.Thread.__init__(self)
-		self.name = "inputThread"
 		self.parent = parent
+		self.period = 0.2
 		self.mailbox = Queue()
 		pygame.init()
 		self.driveController = None
@@ -23,6 +21,7 @@ class InputThread(threading.Thread):
 
 	def run(self):
 		while True:
+			time.sleep(self.period)
 			msg = {}
 			pygame.event.pump()
 			if self.driveController: 
@@ -70,12 +69,9 @@ class InputThread(threading.Thread):
 				# msg["c2d_x"] = self.cont[1].get_hat(0)[0]
 				# msg["c2d_y"] = self.cont[1].get_hat(0)[1]	
 				
-			if self.driveController or self.armController:
+			if (self.driveController is not None
+				or self.armController is not None):
 				self.parent.commThread.mailbox.put(msg)
-			time.sleep(0.2)
-
-	def stop(self):
-		self._Thread__stop()
 	
 	def filter(self, value):
 		if abs(value) < 0.15: # deadzone

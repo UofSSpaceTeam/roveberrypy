@@ -14,13 +14,11 @@ from math import cos, sin
 from threads.communicationThread import CommunicationThread
 from threads.inputThread import InputThread
 from threads.navigationThread import *
-from threads.panelThread import PanelThread
+from threads.imageThread import ImageThread
 import baseMessages
 from threads.unicodeConvert import convert
 from Queue import Queue
 
-# kivy imports
-# get rid of weird touchscreen emulation
 from kivy.config import Config
 Config.set("input", "mouse", "mouse,disable_multitouch")
 import kivy
@@ -37,52 +35,43 @@ from kivy.uix.textinput import TextInput
 from kivy.properties import *
 from kivy.graphics import *
 from kivy.clock import Clock
-from kivy.properties import OptionProperty, NumericProperty, ListProperty, BooleanProperty
+from kivy.properties import *
 
 
 # application python code
 class BaseApp(App):	
 	def build(self):
-		# read startup settings from file
-		global settings
-		settings = json.loads(open("settings.json").read())
-		self.settings = settings # just an alias
-		# set up threads
+		self.settings = json.loads(open("settings.json").read())
 		self.mailbox = Queue()
-		self.commThread = CommunicationThread(self, settings["roverIP"],
-			settings["towerIP"], settings["port"])
+		
+		self.commThread = CommunicationThread(self, self.settings["roverIP"],
+			self.settings["towerIP"], self.settings["port"])
 		self.inputThread = InputThread(self)
 		self.navThread = NavigationThread(self)
-		self.panelThread = PanelThread(self)
-		# build widget tree, root gets returned later
+		self.imageThread = ImageThread(self, self.settings["picturePort"])
+		
 		Builder.load_file("gui/telemetry.kv")
 		Builder.load_file("gui/settings.kv")
 		Builder.load_file("gui/nav.kv")
-		Builder.load_file("gui/image.kv")
 		Builder.load_file("gui/cameras.kv")
 		self.root = Builder.load_file("gui/app.kv")
-		# screen manager
 		self.sm = self.root.ids.sm
 		self.sm.current = "splash"
 		self.sm.transition = NoTransition()
-		# start threads
+		
 		self.commThread.start()
 		self.inputThread.start()
 		self.navThread.start()
-		self.panelThread.start()
-		# set up application window
-		Window.size = settings["windowSize"]
+		self.imageThread.start()
+		
+		Window.size = self.settings["windowSize"]
 		self.title = "USST Rover Control Application"
 		Window.bind(on_resize=self.windowResized)
 		self.activeForm = None
 		self.drillUI = None
-		# set up map
 		self.setupMap()
-		# center antenna tower
 		self.commThread.mailbox.put({"towerAim":0})
-		# Scheduled events
 		Clock.schedule_interval(self.checkMail, 0.2)
-		
 		return self.root
 	
 	# read messages in the inbox
@@ -173,8 +162,6 @@ class BaseApp(App):
 			self.title = "Arm Camera"
 		elif name == "navigation":
 			self.title = "Navigation"
-		elif name == "image":
-			self.title = "Image Analysis"
 	
 	# create video widget on named screen
 	def startVideo(self, name):
@@ -209,10 +196,6 @@ class BaseApp(App):
 		if screen.video is not None:
 			screen.video.source = "http://192.168.1.103:40000/?action=stream"
 			screen.video.state = "play"
-
-	# get still camera image from given camera
-	def takePicture(self, camera):
-		self.commThread.mailbox.put({"picture":camera})
 
 	# informs other threads that the window size has changed
 	def windowResized(self, window, width, height):
@@ -309,115 +292,113 @@ class BaseApp(App):
 # In code references of Kv widgets:
 
 class TelemetryScreen(Screen):
-		pass
-
+	pass
 		
 class TelemetryWidget(Widget):
+	points1 = ListProperty([])
+	points2 = ListProperty([])
+	points3 = ListProperty([])
+	dt = NumericProperty(0)
+	x_pos = NumericProperty(0)
+	
+	name1 = StringProperty('')
+	name2 = StringProperty('')
+	name3 = StringProperty('')
+	
+	data1 = NumericProperty(0)
+	data2 = NumericProperty(0)
+	data3 = NumericProperty(0)
+	
+	max_data1 = NumericProperty(0)
+	max_data2 = NumericProperty(0)
+	max_data3 = NumericProperty(0)
 
-        points1 = ListProperty([])
-        points2 = ListProperty([])
-        points3 = ListProperty([])
-        dt = NumericProperty(0)
-        x_pos = NumericProperty(0)
-		
-        name1 = StringProperty('')
-        name2 = StringProperty('')
-        name3 = StringProperty('')
-		
-        data1 = NumericProperty(0)
-        data2 = NumericProperty(0)
-        data3 = NumericProperty(0)
-		
-        max_data1 = NumericProperty(0)
-        max_data2 = NumericProperty(0)
-        max_data3 = NumericProperty(0)
+	def animate(self, do_animation):
+		if do_animation:
+				Clock.schedule_interval(self.update_points_animation, 0.2)
+		else:
+				Clock.unschedule(self.update_points_animation)
 
-        def animate(self, do_animation):
-                if do_animation:
-                        Clock.schedule_interval(self.update_points_animation, 0.2)
-                else:
-                        Clock.unschedule(self.update_points_animation)
+	def update_points_animation(self, dt):
+		cy = self.height * 0.6
+		cx = self.width * 0.1
+		w = self.width * 0.8
+		self.dt += dt
+		data = {}
+		#time.sleep(.1)
+		data.update(self.getData())
+		self.data1 = data["1"]
+		self.data2 = data["2"]
+		self.data3 = data["3"]
 
-        def update_points_animation(self, dt):
-                cy = self.height * 0.6
-                cx = self.width * 0.1
-                w = self.width * 0.8
-                self.dt += dt
-                data = {}
-                #time.sleep(.1)
-                data.update(self.getData())
-                self.data1 = data["1"]
-                self.data2 = data["2"]
-                self.data3 = data["3"]
-
-                if self.x_pos <= self.width * 0.8:
-                    
-                    self.points1.append(cx + (self.x_pos) )
-                    self.points1.append(cy + self.data1 )
-                    self.points2.append(cx + (self.x_pos) )
-                    self.points2.append(cy + self.data2 )
-                    self.points3.append(cx + (self.x_pos) )
-                    self.points3.append(cy + self.data3 )
-                    self.x_pos += 1
-                else:
-                    self.points1.pop(0)
-                    self.points1.pop(0)
-                    self.points2.pop(0)
-                    self.points2.pop(0)
-                    self.points3.pop(0)
-                    self.points3.pop(0)
+		if self.x_pos <= self.width * 0.8:
+			self.points1.append(cx + (self.x_pos) )
+			self.points1.append(cy + self.data1 )
+			self.points2.append(cx + (self.x_pos) )
+			self.points2.append(cy + self.data2 )
+			self.points3.append(cx + (self.x_pos) )
+			self.points3.append(cy + self.data3 )
+			self.x_pos += 1
+		else:
+			self.points1.pop(0)
+			self.points1.pop(0)
+			self.points2.pop(0)
+			self.points2.pop(0)
+			self.points3.pop(0)
+			self.points3.pop(0)
+			
+			for i in range(0, min(len(self.points1), len(self.points2),
+				len(self.points3))):
+				if i % 2 == 0:
+					self.points1[i] = self.points1[i] - 1
+					self.points2[i] = self.points2[i] - 1
+					self.points3[i] = self.points3[i] - 1
 					
-                    for i in range(0, min(len(self.points1), len(self.points2), len(self.points3)) ):
-                        if i % 2 == 0:
-                            self.points1[i] = self.points1[i] - 1
-                            self.points2[i] = self.points2[i] - 1
-                            self.points3[i] = self.points3[i] - 1
-							
-                    self.points1.append(cx + (self.x_pos) )
-                    self.points1.append(cy + self.data1 )
+			self.points1.append(cx + (self.x_pos) )
+			self.points1.append(cy + self.data1 )
 
-                    self.points2.append(cx + (self.x_pos) )
-                    self.points2.append(cy + self.data2 )
-                    
-                    self.points3.append(cx + (self.x_pos) )
-                    self.points3.append(cy + self.data3 )
-					
-                self.updateMax()
- 
-        def getData(self):
-				#for testing
-                data = {}
-                data["1"] = 1 + self.data1 
-                data["2"] = 5 + self.data2
-                data["3"] = 10 + self.data3
-                if self.data1 > 200:
-                        data["1"] = 0
-                if self.data2 > 200:
-                        data["2"] = 0
-                if self.data3 > 200:
-                        data["3"] = 0
-                return data
-				
-				
-				#actual data code
-				
-				data = self.mailbox.get()
-				#print data
-				if "gx" in data:
-					leftSpeed = float(data["gx"]) 
-				elif "c1j2y" in data:
-					rightSpeed = float(data["gy"]) 
-				elif "throttle" in data:
-					throttle = float(data["gz"]) 
-				
-                
-        def updateMax(self):
-                if self.data1 > self.max_data1:
-                    self.max_data1 = self.data1
-                if self.data2 > self.max_data2:
-                    self.max_data2 = self.data2
-                if self.data3 > self.max_data3:
-                    self.max_data3 = self.data3
+			self.points2.append(cx + (self.x_pos) )
+			self.points2.append(cy + self.data2 )
+			
+			self.points3.append(cx + (self.x_pos) )
+			self.points3.append(cy + self.data3 )
+			
+		self.updateMax()
+
+	def getData(self):
+		#for testing
+		data = {}
+		data["1"] = 1 + self.data1 
+		data["2"] = 5 + self.data2
+		data["3"] = 10 + self.data3
+		if self.data1 > 200:
+				data["1"] = 0
+		if self.data2 > 200:
+				data["2"] = 0
+		if self.data3 > 200:
+				data["3"] = 0
+		return data
+		
+		
+		#actual data code
+		
+		data = self.mailbox.get()
+		#print data
+		if "gx" in data:
+			leftSpeed = float(data["gx"]) 
+		elif "c1j2y" in data:
+			rightSpeed = float(data["gy"]) 
+		elif "throttle" in data:
+			throttle = float(data["gz"]) 
+			
+			
+	def updateMax(self):
+		if self.data1 > self.max_data1:
+			self.max_data1 = self.data1
+		if self.data2 > self.max_data2:
+			self.max_data2 = self.data2
+		if self.data3 > self.max_data3:
+			self.max_data3 = self.data3
 			
 			
 

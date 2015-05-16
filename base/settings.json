@@ -3,6 +3,7 @@
 	"roverIP": "192.168.1.103",
 	"towerIP": "192.168.1.104",
 	"port": 35001,
+	"picturePort": 35002,
 	"throttle": 0.3,
 	"mapFile": "gui/resource/campuspic.jpg",
 	"mapBottomLeft": [52.129221, -106.638841],

@@ -9,8 +9,8 @@ from unicodeConvert import convert
 class CommunicationThread(threading.Thread):
 	def __init__(self, parent, roverIP, towerIP, port):
 		threading.Thread.__init__(self)
-		self.name = "communicationThread"
 		self.parent = parent
+		self.period = 0.05
 		self.mailbox = Queue()
 		self.port = port
 		self.roverIP = roverIP
@@ -35,9 +35,6 @@ class CommunicationThread(threading.Thread):
 					for msg in messages.navList:
 						if key == msg:
 							self.parent.navThread.mailbox.put({key:value})
-					for msg in messages.panelList:
-						if key == msg:
-							self.parent.panelThread.mailbox.put({key:value})
 					for msg in messages.guiList:
 						if key == msg:
 							self.parent.mailbox.put({key:value})

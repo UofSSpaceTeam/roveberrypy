@@ -22,8 +22,6 @@ AppRoot:
 			name: "drive" 
 		ArmScreen:
 			name: "arm"
-		ImageScreen:
-			name: "image"
 		SettingsScreen:
 			name: "settings"
 
@@ -57,10 +55,6 @@ AppRoot:
 					on_release: app.changeScreen("turret")
 			ActionGroup:
 				ActionButton:
-					text: "Image Analysis"
-					on_release: app.changeScreen("image")
-			ActionGroup:
-				ActionButton:
 					text: "Arm Camera"
 					on_release: app.changeScreen("arm")
 			ActionGroup:
@@ -78,7 +72,4 @@ AppRoot:
 		allow_stretch: True
 		keep_ratio: True
 		source: "gui/resource/splash.jpg"
-
-# image analysis tab
-<ImageScreen@BoxLayout>:
 

@@ -1,11 +1,8 @@
 # -*- coding: UTF-8 -*-
-import baseMessages as messages
 import threading
 from Queue import Queue
-import time
 import math
 import pickle
-from unicodeConvert import convert
 
 class Marker():
 	def __init__(self, name, lat, lon):
@@ -17,7 +14,6 @@ class Marker():
 class NavigationThread(threading.Thread):
 	def __init__(self, parent):
 		threading.Thread.__init__(self)
-		self.name = "navigationThread"
 		self.parent = parent
 		self.mailbox = Queue()
 
@@ -53,120 +49,117 @@ class NavigationThread(threading.Thread):
 	
 	def run(self):
 		while True:
-			while self.mailbox.empty():
-				time.sleep(0.1)
-			while not self.mailbox.empty():
-				data = self.mailbox.get()
-				# print data
-				if "roverGPS" in data:
-					# (lat, lon, speed, direction)
-					# speed in meters / minute
-					self.roverLocation = data["roverGPS"][0:2]
-					self.roverSpeed = data["roverGPS"][2]
-					self.roverDirection = data["roverGPS"][3]
+			data = self.mailbox.get()
+			# print data
+			if "roverGPS" in data:
+				# (lat, lon, speed, direction)
+				# speed in meters / minute
+				self.roverLocation = data["roverGPS"][0:2]
+				self.roverSpeed = data["roverGPS"][2]
+				self.roverDirection = data["roverGPS"][3]
+			
+			if "towerGPS" in data:
+				print data["towerGPS"]
+				self.towerLocation = data["towerGPS"]
 				
-				if "towerGPS" in data:
-					print data["towerGPS"]
-					self.towerLocation = data["towerGPS"]
-					
-				if "imageSize" in data:
-					self.imageSize = data["imageSize"]
-					
-				if "resize" in data:
-					self.windowSize = data["resize"]
+			if "imageSize" in data:
+				self.imageSize = data["imageSize"]
 				
-				if "newMarker" in data:
-					md = data["newMarker"]
-					try:
-						if not isinstance(data["newMarker"][1], tuple): # Dd
-							self.markers.append(Marker(md[0], float(md[1]),
-								float(md[2])))
-						elif len(data["newMarker"][1]) == 2: # DMm
-							latD = int(md[1][0])
-							latM = float(md[1][1])
-							lonD = int(md[2][0])
-							lonM = float(md[2][1])
-							self.markers.append(Marker(md[0],
-								latD + cmp(latD, 0) * latM / 60.0,
-								lonD + cmp(lonD, 0) * lonM / 60.0))
-						elif len(data["newMarker"][1]) == 3: # DMS
-							latD = int(md[1][0])
-							latM = int(md[1][1])
-							latS = float(md[1][2])
-							lonD = int(md[2][0])
-							lonM = int(md[2][1])
-							lonS = float(md[2][2])
-							self.markers.append(Marker(md[0],
-								latD + cmp(latD, 0) * (latM / 60.0 +
-								latS / 3600.0),
-								lonD + cmp(lonD, 0) * (lonM / 60.0 +
-								lonS / 3600.0)))
-					except ValueError:
-						pass
-					
-				if "chooseMarker" in data:
-					self.clearSelection()
-					if data["chooseMarker"] != "Base":
-						for mk in self.markers:
-							if mk.name == data["chooseMarker"]:
-								mk.selected = True
-								break
+			if "resize" in data:
+				self.windowSize = data["resize"]
+			
+			if "newMarker" in data:
+				md = data["newMarker"]
+				try:
+					if not isinstance(data["newMarker"][1], tuple): # Dd
+						self.markers.append(Marker(md[0], float(md[1]),
+							float(md[2])))
+					elif len(data["newMarker"][1]) == 2: # DMm
+						latD = int(md[1][0])
+						latM = float(md[1][1])
+						lonD = int(md[2][0])
+						lonM = float(md[2][1])
+						self.markers.append(Marker(md[0],
+							latD + cmp(latD, 0) * latM / 60.0,
+							lonD + cmp(lonD, 0) * lonM / 60.0))
+					elif len(data["newMarker"][1]) == 3: # DMS
+						latD = int(md[1][0])
+						latM = int(md[1][1])
+						latS = float(md[1][2])
+						lonD = int(md[2][0])
+						lonM = int(md[2][1])
+						lonS = float(md[2][2])
+						self.markers.append(Marker(md[0],
+							latD + cmp(latD, 0) * (latM / 60.0 +
+							latS / 3600.0),
+							lonD + cmp(lonD, 0) * (lonM / 60.0 +
+							lonS / 3600.0)))
+				except ValueError:
+					pass
 				
-				if "removeMarker" in data:
+			if "chooseMarker" in data:
+				self.clearSelection()
+				if data["chooseMarker"] != "Base":
 					for mk in self.markers:
-						if mk.name == data["removeMarker"]:
-							self.markers.remove(mk)
+						if mk.name == data["chooseMarker"]:
+							mk.selected = True
 							break
+			
+			if "removeMarker" in data:
+				for mk in self.markers:
+					if mk.name == data["removeMarker"]:
+						self.markers.remove(mk)
+						break
+			
+			if "loadMarkers" in data:
+				try:
+					wptFile = open(data["loadMarkers"])
+					unpickler = pickle.Unpickler(wptFile)
+					self.markers = unpickler.load()
+					wptFile.close()
+				except Exception:
+					pass
+			
+			if "saveMarkers" in data:
+				try:
+					wptFile = open(data["saveMarkers"], "w")
+					pickler = pickle.Pickler(wptFile)
+					pickler.dump(self.markers)
+					wptFile.close()
+				except Exception:
+					pass
+			
+			if "printMode" in data:
+				self.printMode = data["printMode"]
+			
+			if "displayToggle" in data:
+				if self.displayStatus == "vector":
+					self.displayStatus = "location"
+				else:
+					self.displayStatus = "vector"
 				
-				if "loadMarkers" in data:
-					try:
-						wptFile = open(data["loadMarkers"])
-						unpickler = pickle.Unpickler(wptFile)
-						self.markers = unpickler.load()
-						wptFile.close()
-					except Exception:
-						pass
-				
-				if "saveMarkers" in data:
-					try:
-						wptFile = open(data["saveMarkers"], "w")
-						pickler = pickle.Pickler(wptFile)
-						pickler.dump(self.markers)
-						wptFile.close()
-					except Exception:
-						pass
-				
-				if "printMode" in data:
-					self.printMode = data["printMode"]
-				
-				if "displayToggle" in data:
-					if self.displayStatus == "vector":
-						self.displayStatus = "location"
-					else:
-						self.displayStatus = "vector"
-					
-				if "scroll" in data:
-					self.viewCenter[1] += data["scroll"][0] * getXScale()
-					self.viewCenter[0] += data["scroll"][1] * getYScale()
-				
-				if "click" in data:
-					if data["click"][2] == "right": # move
-						self.viewCenter = self.getActualPos(data["click"][0:2])
-					elif data["click"][2] == "left":
-						self.select(data["click"][0:2])
-					elif data["click"][2] == "middle": # testing
-						self.roverLocation = self.getActualPos(data["click"][0:2])
-					elif data["click"][2] == "scrollup":
-						self.zoom /= 1.2
-					elif data["click"][2] == "scrolldown":
-						self.zoom *= 1.2
-				
-				if "snap" in data:
-					if data["snap"] == "rover":
-						if self.roverLocation is not None:
-							self.viewCenter = self.roverLocation
-					elif data["snap"] == "tower":
-						self.viewCenter = list(self.towerLocation)
+			if "scroll" in data:
+				self.viewCenter[1] += data["scroll"][0] * getXScale()
+				self.viewCenter[0] += data["scroll"][1] * getYScale()
+			
+			if "click" in data:
+				if data["click"][2] == "right": # move
+					self.viewCenter = self.getActualPos(data["click"][0:2])
+				elif data["click"][2] == "left":
+					self.select(data["click"][0:2])
+				elif data["click"][2] == "middle": # testing
+					self.roverLocation = self.getActualPos(data["click"][0:2])
+				elif data["click"][2] == "scrollup":
+					self.zoom /= 1.2
+				elif data["click"][2] == "scrolldown":
+					self.zoom *= 1.2
+			
+			if "snap" in data:
+				if data["snap"] == "rover":
+					if self.roverLocation is not None:
+						self.viewCenter = self.roverLocation
+				elif data["snap"] == "tower":
+					self.viewCenter = list(self.towerLocation)
 
 			self.mapRenderSize[0] = self.imageSize[0] * self.zoom
 			self.mapRenderSize[1] = self.imageSize[1] * self.zoom
