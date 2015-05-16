@@ -1,17 +1,14 @@
-# Main base station control application, run with Kivy.
-
 import sys
 sys.dont_write_bytecode = True
 import os
 import time
 import math
 import json
-from math import cos, sin
+from Queue import Queue
 
 from threads.communicationThread import CommunicationThread
 from threads.inputThread import InputThread
 from threads.navigationThread import *
-from Queue import Queue
 
 from kivy.config import Config
 Config.set("input", "mouse", "mouse,disable_multitouch")

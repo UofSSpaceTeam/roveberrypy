@@ -13,7 +13,7 @@
 			size_hint: (None, None)
 			size: (70, 25)
 			text: "Capture"
-			on_release: app.commThread.mailbox.put({"picture":"take"})
+			on_release: app.commThread.mailbox.put({"takePicture":""})
 
 <DriveScreen@FloatLayout>:
 	Image:
@@ -25,12 +25,6 @@
 		source: "gui/resource/loading.jpg"
 	FloatLayout:
 		id: controls
-		Button:
-			pos: (root.size[0] / 2 - 35, root.size[1] - 30)
-			size_hint: (None, None)
-			size: (70, 25)
-			text: "Capture"
-			on_release: app.commThread.mailbox.put({"picture":"take"})	
 		GridLayout:
 			pos: (root.size[0] / 2 - 200, root.size[1] - 50)
 			size_hint: (None, None)

@@ -16,24 +16,20 @@ class CameraThread(threading.Thread):
 			data = self.mailbox.get()
 			if "vidsource" in data:
 				self.setVideoSource(data["vidsource"])
-			if "picture" in data:
-				if data["picture"] == "take"
-					self.takePicture()
-				else:
-					
-			if "stop" in data:
-				self.stopStreams()
+			if "takePicture" in data:
+				self.takePicture()
 
 	# change / reload / deactivate a video stream
 	def setVideoSource(self, camera):
 		self.stopStreams()
-		if camera == "drive" or camera == "turret":
-			self.startPiCam(camera)
+		if camera == "turret":
+			self.startTurretCam()
 		elif camera == "arm":
-			self.startUSBCam()
+			self.startArmCam()
+		elif camera == "drive":
+			self.startDriveCam()
 
-	# Basic photo taking (stops video)
-	# Possibly might want to GPS tag them for plotting on a map
+	# todo: add gps tag
 	def takePicture(self):
 		print("taking picture")
 		timestamp = str(time.time()) % 10000
@@ -42,14 +38,7 @@ class CameraThread(threading.Thread):
 		self.stopStreams()
 		subprocess.Popen(command, shell = True)
 
-	# Starts PiCam
-	# ToDo: Optimize quality, use Multiplexer
-	# Probably not final location for mjpg_streamer
-	def startPiCam(self, camera):
-		if camera == "drive":
-			pass # set multiplexer
-		elif camera == "turret":
-			pass # set multiplexer
+	def startTurretCam(self):
 		command = ("LD_LIBRARY_PATH=/root/mjpgStreamer && "
 			"/root/mjpgStreamer/./mjpg_streamer -o \"output_http.so"
 			"-p 40000 -w ./www\" -i \"input_raspicam.so -x 320 -y 240"
@@ -57,12 +46,19 @@ class CameraThread(threading.Thread):
 		subprocess.Popen(command, env = dict(os.environ,
 			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 
-	# Starts USB/Arm Cam
-	# ToDo: Optimize quality
-	def startUSBCam(self):
+	def startArmCam(self):
 		command = ("LD_LIBRARY_PATH=/root/mjpgStreamer && "
 			"/root/mjpgStreamer/./mjpg_streamer -o \"output_http.so"
-			"-p 40000 -w ./www\" -i \"input_uvc.so\" &")
+			"-p 40000 -w ./www\" -i \"input_uvc.so -d /dev/video0\" &")
+		print command
+		subprocess.Popen(command, env = dict(os.environ,
+			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
+	
+	def startDriveCam(self):
+		command = ("LD_LIBRARY_PATH=/root/mjpgStreamer && "
+			"/root/mjpgStreamer/./mjpg_streamer -o \"output_http.so"
+			"-p 40000 -w ./www\" -i \"input_uvc.so -d /dev/video1\" &")
+		print command
 		subprocess.Popen(command, env = dict(os.environ,
 			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 
