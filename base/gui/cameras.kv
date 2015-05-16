@@ -1,6 +1,4 @@
-# turret-mounted camera view tab (video player built in python)
 <TurretScreen@FloatLayout>:
-	# static background image
 	Image:
 		pos: (0, 0)
 		id: loadImg
@@ -8,23 +6,16 @@
 		allow_stretch: True
 		keep_ratio: False
 		source: "gui/resource/loading.jpg"
-	
 	FloatLayout:
 		id: controls
-		BoxLayout:
-			pos: (root.size[0] / 2 - 60, root.size[1] - 30)
+		Button:
+			pos: (root.size[0] / 2 - 35, root.size[1] - 30)
 			size_hint: (None, None)
-			size: (120, 25)
-			Button:
-				text: "Capture"
-				on_release: app.commThread.mailbox.put({"picture":"take"})
-			Button:
-				text: "Upload"
-				on_release: app.commThread.mailbox.put({"picture":"upload"})
+			size: (70, 25)
+			text: "Capture"
+			on_release: app.commThread.mailbox.put({"picture":"take"})
 
-# front-mounted camera view tab (video player built in python)
 <DriveScreen@FloatLayout>:
-	# static background image
 	Image:
 		pos: (0, 0)
 		id: loadImg
@@ -32,48 +23,40 @@
 		allow_stretch: True
 		keep_ratio: False
 		source: "gui/resource/loading.jpg"
-	
 	FloatLayout:
 		id: controls
-		BoxLayout:
-			pos: (root.size[0] / 2 - 60, root.size[1] - 30)
+		Button:
+			pos: (root.size[0] / 2 - 35, root.size[1] - 30)
 			size_hint: (None, None)
-			size: (120, 25)
-			Button:
-				text: "Capture"
-				on_release: app.commThread.mailbox.put({"picture":"take"})
-			Button:
-				text: "Upload"
-				on_release: app.commThread.mailbox.put({"picture":"upload"})
-			
+			size: (70, 25)
+			text: "Capture"
+			on_release: app.commThread.mailbox.put({"picture":"take"})	
 		GridLayout:
 			pos: (root.size[0] / 2 - 200, root.size[1] - 50)
 			size_hint: (None, None)
 			size: (50, 50)
 			rows: 2
 			cols: 1
-			
 			Label:
 				id: tracLabel
 				color: [0, 1, 0, 1]
 				text: "Traction Control Disabled"
 			ToggleButton:
 				text: "TRAC"
-				on_release: app.tracMode()
-			
+				on_release: app.tracMode()	
 		GridLayout:
 			pos: (root.size[0] / 2 + 150, root.size[1] - 50)
 			size_hint: (None, None)
 			size: (50, 50)
 			rows: 2
-			cols: 1
-			
+			cols: 1	
 			Label:
 				id: drillLabel
 				color: [0, 1, 0, 1]
 				text: "Drill Mode Disabled"
 			ToggleButton:
 				text: "DRILL"
+				on_state: app.commThread.mailbox.put({"drill":0})
 				on_release: app.drillMode()
 				
 <ExperimentControls>:
@@ -122,7 +105,6 @@
 				value: 30
 				step: 10
 				on_value: app.commThread.mailbox.put({"drillspd":self.value_normalized})
-			
 		BoxLayout:
 			pos: (root.size[0] / 2 + 200, 5)
 			size_hint: (None, None)
@@ -146,9 +128,7 @@
 				step: 10
 				on_value: app.commThread.mailbox.put({"elevspd":self.value_normalized})
 		
-# arm-mounted camera view tab (video player built in python)
 <ArmScreen@FloatLayout>:
-	# static background image
 	Image:
 		pos: (0, 0)
 		id: loadImg
@@ -156,7 +136,6 @@
 		allow_stretch: True
 		keep_ratio: False
 		source: "gui/resource/loading.jpg"
-	
 	FloatLayout:
 		id: controls
 		BoxLayout:
@@ -168,11 +147,9 @@
 				id: ArmMode
 				text: "Press to change ArmMode"
 			BoxLayout:
-				
 				ToggleButton:
 					text: "Absolute Control"
-					on_state: app.commThread.mailbox.put({"armabs":(self.state!="normal")})
-				
+					on_state: app.commThread.mailbox.put({"armabs":(self.state!="normal")})		
 		BoxLayout:
 			pos: (50, 5)
 			size_hint: (None, None)
@@ -210,3 +187,4 @@
 				value: 30
 				step: 1
 				on_value: app.commThread.mailbox.put({"armTheta":self.value_normalized})
+

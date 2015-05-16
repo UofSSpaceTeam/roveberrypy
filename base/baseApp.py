@@ -1,22 +1,16 @@
 # Main base station control application, run with Kivy.
 
-# python imports
 import sys
 sys.dont_write_bytecode = True
 import os
 import time
 import math
 import json
-import logging
 from math import cos, sin
 
-# threading imports
 from threads.communicationThread import CommunicationThread
 from threads.inputThread import InputThread
 from threads.navigationThread import *
-from threads.imageThread import ImageThread
-import baseMessages
-from threads.unicodeConvert import convert
 from Queue import Queue
 
 from kivy.config import Config
@@ -26,17 +20,12 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.lang import Builder
 from kivy.core.window import Window
-from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.video import Video
-from kivy.uix.label import Label
 from kivy.uix.widget import Widget
-from kivy.uix.textinput import TextInput
-from kivy.properties import *
+from kivy.properties import ListProperty, StringProperty, NumericProperty
 from kivy.graphics import *
 from kivy.clock import Clock
-from kivy.properties import *
-
 
 # application python code
 class BaseApp(App):	
@@ -48,7 +37,6 @@ class BaseApp(App):
 			self.settings["towerIP"], self.settings["port"])
 		self.inputThread = InputThread(self)
 		self.navThread = NavigationThread(self)
-		self.imageThread = ImageThread(self, self.settings["picturePort"])
 		
 		Builder.load_file("gui/telemetry.kv")
 		Builder.load_file("gui/settings.kv")
@@ -62,7 +50,6 @@ class BaseApp(App):
 		self.commThread.start()
 		self.inputThread.start()
 		self.navThread.start()
-		self.imageThread.start()
 		
 		Window.size = self.settings["windowSize"]
 		self.title = "USST Rover Control Application"
