@@ -14,10 +14,6 @@ class telemetryThread(threading.Thread):
                 self.exit = False
                 self.commThread = None
                 self.mailbox = Queue()
-                # set up serial, Serial(port, buadrate)
-                # will need to be change when on rover 
-                #ser = serial.Serial("COM7", 115200)
-
                 
         def run(self):
                 while not self.exit:
@@ -38,17 +34,13 @@ class telemetryThread(threading.Thread):
         def sensorInfo(self):
                 # set up serial, Serial(port, buadrate)
                 # will need to be change when on rover 
-                ser = serial.Serial("COM9", 115200)
+				ser = serial.Serial("/dev/ttyAMA0",9600)
+                #ser = serial.Serial("COM9", 9600)
                 value = {}
-                #add values to test
-                #using c1j1y arbitrarily 
-                #value["c1j1y"] = 0.5
                 # read data from serial (USB)
                 str = ser.readline() 
-                # TODO: parse data and send it through mailbox 
                 # prints in the order pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense
                 data = str.split();
-                #print(data)
                 
 				#make sure packet is complete 
                 if len(data) != 21:
