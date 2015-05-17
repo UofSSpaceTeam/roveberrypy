@@ -19,15 +19,17 @@ class TelemetryThread(threading.Thread):
 					data["gps_heading"])}
 				self.parent.commThread.mailbox.put(msg)
 								
-	def gerSerialData(self):
+	def getSerialData(self):
 		inData = ""
 		outData = {}
 		# wait for message start
-		while self.serial.read() != "#":
+		while self.port.read() != "#":
 			pass
 		# wait for message end
-		while (inChar = self.serial.read()) != "$":
+		inChar = self.port.read()
+		while inChar != "$":
 			inData += inChar
+			inChar = self.port.read()
 		# parse message
 		print inData
 		inData = inData.split();

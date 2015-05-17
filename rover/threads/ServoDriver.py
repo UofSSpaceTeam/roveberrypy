@@ -78,13 +78,14 @@ class I2C:
 		try:
 			self.bus.write_byte_data(0x40, reg, value)
 		except IOError, err:
-			print "Error accessing servo board at 0x40: Check your I2C"
+			pass
+			#print "Error accessing servo board at 0x40: Check your I2C"
 
 	def read(self, reg):
 		try:
 			result = self.bus.read_byte_data(0x40, reg)
 			return result
 		except IOError, err:
-			print "Error accessing servo board at 0x40: Check your I2C"
+			#print "Error accessing servo board at 0x40: Check your I2C"
 			return None
 

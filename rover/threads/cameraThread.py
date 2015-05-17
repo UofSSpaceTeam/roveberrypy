@@ -3,6 +3,7 @@ from Queue import Queue
 import time
 import subprocess
 import os
+from ServoDriver import ServoDriver
 
 class CameraThread(threading.Thread):
 	def __init__(self, parent, i2cSemaphore):
@@ -13,7 +14,11 @@ class CameraThread(threading.Thread):
 		self.i2cSem = i2cSemaphore
 		self.cameraPitch = 0
 		self.cameraYaw = 0
-		self.servoDriver = ServoDriver()
+		try:
+			self.servoDriver = ServoDriver() # throws if no I2C connection
+		except:
+			self.servoDriver = None
+			print "CameraThread: ServoDriver not available"
 
 	def run(self):
 		while True:
@@ -30,11 +35,13 @@ class CameraThread(threading.Thread):
 				self.cameraYaw = min(max(self.cameraYaw, -90), 90)
 				self.turnCamera(self.cameraPitch, self.cameraYaw)
 	
-	def turnCamera(self, pitch, yaw)
+	def turnCamera(self, pitch, yaw):
+		if self.servoDriver == None:
+			return
 		try:
 			self.i2cSem.acquire()
-			servoDriver.setServo(0, int(pitch + self.center[0]))
-			servoDriver.setServo(1, int(yaw + self.center[1]))
+			self.servoDriver.setServo(0, int(pitch + self.center[0]))
+			self.servoDriver.setServo(1, int(yaw + self.center[1]))
 		except:
 			print("couldn't move antenna camera.")
 		self.i2cSem.release()

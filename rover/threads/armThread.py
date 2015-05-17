@@ -52,7 +52,7 @@ class ArmThread(threading.Thread):
 		command.d5 = int(self.throttle * 255)
 		self.sendCommand(command)
 	
-	def setSpeed(self, speeds)
+	def setSpeed(self, speeds):
 		command = Command()
 		command.type = CommandType.setSpeed
 		command.d1 = int(speeds[0]) # base rotation
