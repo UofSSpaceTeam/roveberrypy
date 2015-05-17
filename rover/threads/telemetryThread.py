@@ -1,91 +1,57 @@
 import threading
 from Queue import Queue
-import time
-import serial 
+import serial
 
 class TelemetryThread(threading.Thread):
 	def __init__(self, parent):
 		threading.Thread.__init__(self)
 		self.parent = parent
-		self.name = "telemetryThread"
-		self.exit = False
-		self.commThread = None
+		self.name = "Telemetry"
 		self.mailbox = Queue()
+		self.port = serial.Serial("/dev/ttyAMA0", 57600)
+		self.messageElements = 21
 				
 	def run(self):
 		while True:
-			msg = {} 
-			#print(msg)
-			# get info from sensor every 1 sec
-			time.sleep(1)
-			msg.update(self.sensorInfo())
-			
-			if msg["gx"] is None:
-				print("error in packet")
-			else:
-				print("packet good")
-				#print(msg)
+			data = self.getSerialData()
+			if data is not None:
+				msg = {"roverGPS":(data["lat"], data["lon"], data["speed"],
+					data["gps_heading"])}
 				self.parent.commThread.mailbox.put(msg)
-					
-	# simulates receiving info from a sensor				
-	def sensorInfo(self):
-		# set up serial, Serial(port, buadrate)
-		# will need to be change when on rover 
-		ser = serial.Serial("/dev/ttyAMA0",9600, timeout=1)
-		#ser = serial.Serial("COM9", 9600, timeout=1 )
-		value = {}
-		# read data from serial (USB)
-		try:
-			str = ser.readline()
-		except:
-			value["gx"] = None
-			return value
-			
-			
-		# prints in the order pitch roll gx gy gz ax ay az heading aroll apitch lat lon mps alt gps_heading date time vout isense
-		data = str.split();
-			
-			#make sure packet is complete 
-		if len(data) != 21:
-			value["gx"] = None
-			return value 
-		value["pitch"] = data[0].lstrip("#")
-		value["roll"] = data[1]
-		value["gx"] = data[2]
-		value["gy"] = data[3]
-		value["gz"] = data[4]
-		value["ax"] = data[5]
-		value["ay"] = data[6]
-		value["az"] = data[7]
-		value["heading"] = data[8]
-		value["aroll"] = data[9]
-		value["apitch"] = data[10]
-		value["lat"] = data[11]
-		value["lon"] = data[12]
-		value["mps"] = data[13]
-		value["alt"] = data[14]
-		value["gps_heading"] = data[15]
-		value["date"] = data[16]
-		value["time"] = data[17]
-		value["vout"] = data[18]
-		value["isense"] = data[19]
-		
-		speed = float(value["mps"]) * 60
-			
-		value["roverGPS"] = [value["lat"], value["lon"], speed, value["gps_heading"]]
-		vaulue["towerGPS"] = [value["lat"], value["lon"]]
-		
-		checksum = data[20].rstrip("$")
+								
+	def gerSerialData(self):
+		inData = ""
+		outData = {}
+		# wait for message start
+		while self.serial.read() != "#":
+			pass
+		# wait for message end
+		while (inChar = self.serial.read()) != "$":
+			inData += inChar
+		# parse message
+		print inData
+		inData = inData.split();
+		if len(inData) != self.messageElements:
+			return None
+		outData["pitch"] = float(inData[0])
+		outData["roll"] = float(inData[1])
+		outData["gx"] = float(inData[2])
+		outData["gy"] = float(inData[3])
+		outData["gz"] = float(inData[4])
+		outData["ax"] = float(inData[5])
+		outData["ay"] = float(inData[6])
+		outData["az"] = float(inData[7])
+		outData["heading"] = int(inData[8])
+		outData["aroll"] = float(inData[9])
+		outData["apitch"] = float(inData[10])
+		outData["lat"] = float(inData[11])
+		outData["lon"] = float(inData[12])
+		outData["speed"] = float(inData[13]) / 60
+		outData["alt"] = int(inData[14])
+		outData["gps_heading"] = int(inData[15])
+		outData["date"] = inData[16]
+		outData["time"] = inData[17]
+		outData["vout"] = float(inData[18])
+		outData["isense"] = float(inData[19])
+		return outData
 
-		return value
-
-					
-			
-			
-	def checksum(self, a, b, c):
-		sum = a * b * c
-		return sum % 256 
-			
-
-	def stop(self):
-		self._Thread__stop()

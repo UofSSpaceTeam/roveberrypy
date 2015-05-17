@@ -11,6 +11,7 @@ class CommunicationThread(threading.Thread):
 		threading.Thread.__init__(self)
 		self.period = 0.05
 		self.parent = parent
+		self.name = "Communication"
 		self.mailbox = Queue()
 		self.port = port
 		self.baseAddress = None

@@ -10,23 +10,6 @@
 			orientation: "vertical"
 			canvas:
 				Color:
-					rgb: 0, 0.4, 0
-				Rectangle:
-					pos: self.pos
-					size: self.size
-			Label:
-				text: "Throttle: " + str(int(throttle.value)) + "%"
-				font_size: 20
-			Slider:
-				id: throttle
-				padding: 30
-				value: 30
-				step: 10
-				on_value: app.commThread.mailbox.put({"throttle":self.value_normalized})
-		BoxLayout:
-			orientation: "vertical"
-			canvas:
-				Color:
 					rgb: 0, 0, 0.5
 				Rectangle:
 					pos: self.pos

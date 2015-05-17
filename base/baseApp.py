@@ -67,7 +67,7 @@ class BaseApp(App):
 			data = self.mailbox.get()
 			if "updateMap" in data:
 				self.updateMap()
-	
+				
 	def on_stop(self):
 		os._exit(0)
 	
@@ -251,32 +251,16 @@ class BaseApp(App):
 			return
 		if pos[0] > 60 and pos[1] < Window.height - 80:
 			self.navThread.mailbox.put({"click":(int(pos[0] - 60),
-				int(pos[1]), button)})
-				
+				int(pos[1]), button)})			
 				
 	## Drive Screen Controls
 	def drillMode(self):
-		state = self.sm.current_screen.ids.drillLabel.text
-		if state == "Drill Mode Enabled":
-			self.sm.current_screen.ids.drillLabel.text = "Drill Mode Disabled"
-			if self.drillUI is not None:
-				self.sm.current_screen.remove_widget(self.drillUI)
-		else:
-			self.sm.current_screen.ids.drillLabel.text = "Drill Mode Enabled"
+		if self.drillUI is None:
 			self.drillUI = ExperimentControls()
 			self.sm.current_screen.add_widget(self.drillUI)
-		
-		
-	def tracMode(self):
-		state = self.sm.current_screen.ids.tracLabel.text
-		if state == "Traction Control Enabled":
-			self.sm.current_screen.ids.tracLabel.text = "Traction Control Disabled"
 		else:
-			self.sm.current_screen.ids.tracLabel.text = "Traction Control Enabled"
-
-	
-# End of BaseApp class
-# In code references of Kv widgets:
+			self.sm.current_screen.remove_widget(self.drillUI)
+			self.drillUI = None
 
 class TelemetryScreen(Screen):
 	pass

@@ -1,15 +1,13 @@
 import threading
-import json
 from Queue import Queue
 import time
 import smbus
-import roverMessages
 
 # matching structures from arduino
 class CommandType:
 	stop = 0x00
-	setPos = 0x01
-	setAbs = 0x02
+	setSpeeds = 0x01
+	setPosition = 0x02
 	
 class Command:
 	def __init__(self):
@@ -19,6 +17,7 @@ class Command:
 		self.d2 = 0x0000
 		self.d3 = 0x0000
 		self.d4 = 0x0000
+		self.d5 = 0x0000
 		self.csum = 0x00
 		self.trailer = 0xF8
 
@@ -26,77 +25,46 @@ class ArmThread(threading.Thread):
 	def __init__(self, parent, i2cSemaphore):
 		threading.Thread.__init__(self)
 		self.parent = parent
-		self.period = 0.05
+		self.name = "Arm"
 		self.mailbox = Queue()
 		self.i2cSem = i2cSemaphore
 		self.i2c = smbus.SMBus(1)
 		self.i2cAddress = 0x08
+		self.throttle = 0.5
 
 	def run(self):
-		command = Command()
-		baseSpeed = None
-		dx = None
-		dy = None
-		dz = None
-		dphi = None
-		x = None
-		y = None
-		z = None
-		phi = None
-		absMode = False
 		while True:
-			time.sleep(self.period)
-			while not self.mailbox.empty():
-				data = self.mailbox.get()
-				#print data
-				if "c2j1x" in data:
-					dx = int(data["c2j1x"] * 10) # -255 to 255
-					#print baseSpeed
-				elif "c2j1y" in data:
-					dy = int(data["c2j1y"] * 10)
-					#print L1
-				elif "c2j2x" in data:
-					dz = int(data["c2j2x"] * 10)
-					#print L2
-				elif "c2j2y" in data:
-					dphi = int(data["c2j2y"] * 10)
-				elif "arm-gui_x" in data:
-					x = int(data["arm-gui_x"])
-				elif "arm-gui_y" in data:
-					y = int(data["arm-gui_y"])
-				elif "arm-gui_z" in data:
-					z = int(data["arm-gui_z"])
-				elif "arm-gui_phi" in data:
-					phi = int(data["arm-gui_phi"])
-				elif "AbsEnable" in data:
-					absMode = data["AbsEnable"]
-			
-			if not absMode and dx is not None and dy is not None and dz is not None and dphi is not None:
-				command.type = CommandType.setPos
-				command.d1 = int(dx)
-				command.d2 = int(dy)
-				command.d3 = int(dz)
-				command.d4 = int(dphi)
-				dx = None
-				dy = None
-				dz = None
-				dphi = None
-				self.sendCommand(command)
-			
-			elif absMode and x is not Node and y is not None and z is not Node and phi is not None:
-				command.type = CommandType.setAbs
-				command.d1 = int(x)
-				command.d2 = int(y)
-				command.d3 = int(z)
-				command.d4 = int(phi)
-				x = None
-				y = None
-				z = None
-				phi = None
-				self.sendCommand(command)
+			data = self.mailbox.get()
+			if "armAbsolute" in data:
+				self.setPosition(data["armAbsolute"])
+			if "armDirect" in data:
+				self.setSpeed(data["armDirect"])
+			if "armThrottle" in data:
+				self.throttle = (data["armThrottle"])
+	
+	def setPosition(self, coords):
+		command = Command()
+		command.type = CommandType.setPosition
+		command.d1 = int(coords[0]) # x
+		command.d2 = int(coords[1]) # y 
+		command.d3 = int(coords[2]) # z
+		command.d4 = int(coords[3]) # phi
+		command.d5 = int(self.throttle * 255)
+		self.sendCommand(command)
+	
+	def setSpeed(self, speeds)
+		command = Command()
+		command.type = CommandType.setSpeed
+		command.d1 = int(speeds[0]) # base rotation
+		command.d2 = int(speeds[1]) # actuator 1
+		command.d3 = int(speeds[2]) # actuator 2
+		command.d4 = int(speeds[3]) # wrist actuator
+		command.d5 = int(self.throttle * 255)
+		self.sendCommand(command)
 
 	def sendCommand(self, command):
-		command.csum = (command.type + command.d1 + command.d2 + command.d3 + command.d4) % 256
+		command.csum = ((command.type + command.d1 + command.d2 + command.d3 +
+			command.d4 + command.d5) % 256)
 		try:
 			self.i2cSem.acquire()
 			self.i2c.write_byte(self.i2cAddress, command.header)
@@ -109,6 +77,8 @@ class ArmThread(threading.Thread):
 			self.i2c.write_byte(self.i2cAddress, command.d3 >> 8)
 			self.i2c.write_byte(self.i2cAddress, command.d4 & 0xFF)
 			self.i2c.write_byte(self.i2cAddress, command.d4 >> 8)
+			self.i2c.write_byte(self.i2cAddress, command.d5 & 0xFF)
+			self.i2c.write_byte(self.i2cAddress, command.d5 >> 8)
 			self.i2c.write_byte(self.i2cAddress, command.csum)
 			self.i2c.write_byte(self.i2cAddress, command.trailer)	
 		except IOError:

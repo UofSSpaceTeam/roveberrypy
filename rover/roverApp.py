@@ -18,7 +18,7 @@ class RoverApp():
 		self.settings = json.loads(open("settings.json").read())
 		self.i2cSemaphore = Semaphore(1)
 		self.commThread = CommunicationThread(self, self.settings["port"])
-		self.cameraThread = CameraThread(self)
+		self.cameraThread = CameraThread(self, self.i2cSemaphore)
 		self.telemetryThread = TelemetryThread(self)
 		self.driveThread = DriveThread(self, self.i2cSemaphore)
 		self.armThread = ArmThread(self, self.i2cSemaphore)

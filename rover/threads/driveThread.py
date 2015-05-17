@@ -1,15 +1,10 @@
 import threading
 from Queue import Queue
 import smbus
-import roverMessages
 
 # matching structures from arduino
 class CommandType:
-	stop = 0x00
-	stallEnable = 0x01
-	spinEnable = 0x02
-	setSpeed = 0x03
-	setMotor = 0x04
+	setMotors = 0x00
 
 class Command:
 	def __init__(self):
@@ -24,33 +19,28 @@ class DriveThread(threading.Thread):
 	def __init__(self, parent, i2cSemaphore):
 		threading.Thread.__init__(self)
 		self.parent = parent
+		self.name = "Drive"
 		self.mailbox = Queue()
 		self.i2c = smbus.SMBus(1)
 		self.i2cAddress = 0x07
 		self.i2cSem = i2cSemaphore
+		self.cameraPitch = 0
+		self.cameraYaw = 0
 		
 	def run(self):
-		command = Command()
-		leftSpeed = None
-		rightSpeed = None
-		throttle = 0.3
 		while True:
 			data = self.mailbox.get()
-			if "c1j1y" in data:
-				leftSpeed = int(data["c1j1y"] * 255) # -255 to 255
-			if "c1j2y" in data:
-				rightSpeed = int(data["c1j2y"] * 255) # -255 to 255
-			if "throttle" in data:
-				throttle = float(data["throttle"]) # 0.0 to 1.0
-			
-			if leftSpeed is not None and rightSpeed is not None:
-				command.type = CommandType.setSpeed
-				command.d1 = int(leftSpeed * throttle)
-				command.d2 = int(rightSpeed * throttle)
-				leftSpeed = None
-				rightSpeed = None
-				self.sendCommand(command)
-	
+			if "motorSpeeds" in data:
+				self.setMotors(data["motorSpeeds"])
+
+
+	def setMotors(self, speeds):
+		command = Command()
+		command.type = CommandType.setMotors
+		command.d1 = speeds[0] # left
+		command.d2 = -speeds[1] # right
+		self.sendCommand(command)
+		
 	def sendCommand(self, command):
 		command.csum = (command.type + command.d1 + command.d2) % 256
 		try:
@@ -66,4 +56,4 @@ class DriveThread(threading.Thread):
 		except IOError:
 			print("Drive thread got IOError")
 		self.i2cSem.release()
-	
+

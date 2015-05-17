@@ -22,6 +22,7 @@ class ExperimentThread(threading.Thread):
 	def __init__(self, parent, i2cSemaphore):
 		threading.Thread.__init__(self)
 		self.parent = parent
+		self.name = "Experiment"
 		self.mailbox = Queue()
 		self.i2cSem = i2cSemaphore
 		self.i2c = smbus.SMBus(1)

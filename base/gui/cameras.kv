@@ -23,35 +23,28 @@
 		allow_stretch: True
 		keep_ratio: False
 		source: "gui/resource/loading.jpg"
-	FloatLayout:
+	BoxLayout:
 		id: controls
-		GridLayout:
-			pos: (root.size[0] / 2 - 200, root.size[1] - 50)
-			size_hint: (None, None)
-			size: (50, 50)
-			rows: 2
-			cols: 1
+		size_hint: (None, None)
+		size: (240, 40)
+		pos: (root.width/2 - 120, root.height - 40)
+		BoxLayout:
+			orientation: "vertical"
 			Label:
-				id: tracLabel
 				color: [0, 1, 0, 1]
-				text: "Traction Control Disabled"
-			ToggleButton:
-				text: "TRAC"
-				on_release: app.tracMode()	
-		GridLayout:
-			pos: (root.size[0] / 2 + 150, root.size[1] - 50)
+				text: "Throttle: " + str(int(throttle.value)) + "%"
+			Slider:
+				id: throttle
+				padding: 20
+				value: 30
+				step: 10
+				on_value: app.inputThread.mailbox.put({"driveThrottle":self.value_normalized})
+		ToggleButton:
 			size_hint: (None, None)
-			size: (50, 50)
-			rows: 2
-			cols: 1	
-			Label:
-				id: drillLabel
-				color: [0, 1, 0, 1]
-				text: "Drill Mode Disabled"
-			ToggleButton:
-				text: "DRILL"
-				on_state: app.commThread.mailbox.put({"drill":0})
-				on_release: app.drillMode()
+			size: (80, 25)
+			text: "SCIENCE"
+			on_state: app.commThread.mailbox.put({"drill":0})
+			on_release: app.drillMode()
 				
 <ExperimentControls>:
 	FloatLayout:
@@ -130,55 +123,73 @@
 		allow_stretch: True
 		keep_ratio: False
 		source: "gui/resource/loading.jpg"
-	FloatLayout:
+	BoxLayout:
+		size_hint: (None, None)
+		size: (root.width / 2, 25)
+		pos: (root.width / 4, root.height - 25)
+		Label:
+			color: [0, 1, 0, 1]
+			text: "Power: " + str(int(throttle.value)) + "%"
+		Slider:
+			id: throttle
+			padding: 20
+			value: 50
+			step: 10
+			on_value: app.inputThread.mailbox.put({"armThrottle":self.value_normalized})
+		ToggleButton:
+			id: invKin
+			text: "Inverse Kin"
+			on_state: app.inputThread.mailbox.put({"armMode":(self.state!="normal", armCont.state!="normal")})
+		ToggleButton:
+			id: armCont
+			text: "Controller"
+			on_state: app.inputThread.mailbox.put({"armMode":(invKin.state!="normal", self.state!="normal")})
+	BoxLayout:
+		size_hint: (None, None)
+		size: (root.width, 35)
 		id: controls
 		BoxLayout:
 			orientation: "vertical"
-			pos: (root.size[0] / 2 - 150, 5)
-			size_hint: (None, None)
-			size: (300, 70)
-			Label:
-				id: ArmMode
-				text: "Press to change ArmMode"
-			BoxLayout:
-				ToggleButton:
-					text: "Absolute Control"
-					on_state: app.commThread.mailbox.put({"armabs":(self.state!="normal")})		
-		BoxLayout:
-			pos: (50, 5)
-			size_hint: (None, None)
-			size: (200, 350)
-			orientation: 'vertical'
-			Label:
-				text: "x"
 			Slider:
 				id: armX
 				padding: 30
-				value: 30
+				value: 50
 				step: 1
-				on_value: app.commThread.mailbox.put({"armX":self.value_normalized})
+				on_value: app.inputThread.mailbox.put({"armX":self.value_normalized})
 			Label:
-				text: "y"
+				color: [0, 1, 0, 1]
+				text: "Left                    Right"
+		BoxLayout:
+			orientation: "vertical"
 			Slider:
 				id: armY
 				padding: 30
-				value: 30
+				value: 50
 				step: 1
-				on_value: app.commThread.mailbox.put({"armY":self.value_normalized})
+				on_value: app.inputThread.mailbox.put({"armY":self.value_normalized})
 			Label:
-				text: "z"
+				color: [0, 1, 0, 1]
+				text: "Down                      Up"
+		BoxLayout:
+			orientation: "vertical"
 			Slider:
 				id: armZ
 				padding: 30
-				value: 30
+				value: 50
 				step: 1
-				on_value: app.commThread.mailbox.put({"armZ":self.value_normalized})
+				on_value: app.inputThread.mailbox.put({"armZ":self.value_normalized})
 			Label:
-				text: "theta"
+				color: [0, 1, 0, 1]
+				text: "In                          Out"
+		BoxLayout:
+			orientation: "vertical"
 			Slider:
-				id: armTheta
+				id: armPhi
 				padding: 30
-				value: 30
+				value: 50
 				step: 1
-				on_value: app.commThread.mailbox.put({"armTheta":self.value_normalized})
+				on_value: app.inputThread.mailbox.put({"armPhi":self.value_normalized})
+			Label:
+				color: [0, 1, 0, 1]
+				text: "Down     [Wrist]      Up"
 

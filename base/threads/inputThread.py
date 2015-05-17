@@ -18,63 +18,108 @@ class InputThread(threading.Thread):
 		if pygame.joystick.get_count() > 1:
 			self.armController = pygame.joystick.Joystick(1)
 			self.armController.init()
-
+		self.armMode = "disabled" # absolute / relative / direct / disabled
+		self.armCoords = [0, 0, 0, 0]
+		self.armThrottle = 0.5
+		self.driveThrottle = 0.3
+	
 	def run(self):
 		while True:
 			time.sleep(self.period)
-			msg = {}
-			pygame.event.pump()
-			if self.driveController: 
-				msg["c1j1y"] = self.filter(self.driveController.get_axis(1) * -1)
-				msg["c1j2y"] = self.filter(self.driveController.get_axis(3) * -1)
-				msg["c1d_x"] = self.filter(self.driveController.get_hat(0)[0])
-				msg["c1d_y"] = self.filter(self.driveController.get_hat(0)[1])
-
-			if self.armController:
-				msg["c2j1y"] = self.filter(self.armController.get_axis(1)*-1)
-				msg["c2j2y"] = self.filter(self.armController.get_axis(3)*-1)
-				msg["c2j1x"] = self.filter(self.armController.get_axis(0))
-				msg["c2j2x"] = self.filter(self.armController.get_axis(4))
+			armChanged = False
+			while not self.mailbox.empty():
+				data = self.mailbox.get()
+				if "armX" in data and self.armMode == "absolute":
+					self.armCoords[0] = data["armX"] * 2000 - 1000
+					armChanged = True
+				if "armY" in data and self.armMode == "absolute":
+					self.armCoords[1] = data["armY"] * 2000 - 1000
+					armChanged = True
+				if "armZ" in data and self.armMode == "absolute":
+					self.armCoords[2] = data["armZ"] * 2000 - 1000
+					armChanged = True
+				if "armPhi" in data and self.armMode == "absolute":
+					self.armCoords[3] = data["armPhi"] * 2000 - 1000
+					armChanged = True
+				if "driveThrottle" in data:
+					self.driveThrottle = data["driveThrottle"]
+				if "armThrottle" in data:
+					self.armThrottle = data["armThrottle"]
+				if "armMode" in data:
+					kin = data["armMode"][0]
+					cont = data["armMode"][1]
+					if not kin and not cont:
+						self.armMode = "disabled"
+					elif not kin and cont:
+						self.armMode = "direct"
+					elif kin and not cont:
+						self.armMode = "absolute"
+					else:
+						self.armMode = "relative"
 					
-				# Messages for controller inputs (for refrence)
-				# msg["c1t"] = self.filter(self.cont[0].get_axis(2) * -1)
-				# msg["c1j1x"] = self.filter(self.cont[0].get_axis(0))
-				# msg["c1j1y"] = self.filter(self.cont[0].get_axis(1) * -1)
-				# msg["c1j2x"] = self.filter(self.cont[0].get_axis(4))
-				# msg["c1j2y"] = self.filter(self.cont[0].get_axis(3) * -1)
-				# msg["c1b_a"] = self.cont[0].get_button(0)
-				# msg["c1b_b"] = self.cont[0].get_button(1)
-				# msg["c1b_x"] = self.cont[0].get_button(2)
-				# msg["c1b_y"] = self.cont[0].get_button(3)
-				# msg["c1b_lb"] = self.cont[0].get_button(4)
-				# msg["c1b_rb"] = self.cont[0].get_button(5)
-				# msg["c1b_ba"] = self.cont[0].get_button(6)
-				# msg["c1b_st"] = self.cont[0].get_button(7)
-				# msg["c1d_x"] = self.cont[0].get_hat(0)[0]
-				# msg["c1d_y"] = self.cont[0].get_hat(0)[1]
-
-				# msg["c2t"] = self.filter(self.cont[1].get_axis(2) * -1)
-				# msg["c2j1x"] = self.filter(self.cont[1].get_axis(0))
-				# msg["c2j1y"] = self.filter(self.cont[1].get_axis(1) * -1)
-				# msg["c2j2x"] = self.filter(self.cont[1].get_axis(4))
-				# msg["c2j2y"] = self.filter(self.cont[1].get_axis(3) * -1)
-				# msg["c2b_a"] = self.cont[1].get_button(0)
-				# msg["c2b_b"] = self.cont[1].get_button(1)
-				# msg["c2b_x"] = self.cont[1].get_button(2)
-				# msg["c2b_y"] = self.cont[1].get_button(3)
-				# msg["c2b_lb"] = self.cont[1].get_button(4)
-				# msg["c2b_rb"] = self.cont[1].get_button(5)
-				# msg["c2b_ba"] = self.cont[1].get_button(6)
-				# msg["c2b_st"] = self.cont[1].get_button(7)
-				# msg["c2d_x"] = self.cont[1].get_hat(0)[0]
-				# msg["c2d_y"] = self.cont[1].get_hat(0)[1]	
-				
-			if (self.driveController is not None
+			pygame.event.pump()
+			if self.driveController is not None:
+				self.sendDriveMessages()
+				self.sendAntennaCameraMessages()
+			if ((self.armMode == "absolute" and armChanged)
 				or self.armController is not None):
-				self.parent.commThread.mailbox.put(msg)
+				self.sendArmMessages()		
+	
+	def sendArmMessages(self):
+		if self.armMode != "disabled":
+			msg = {"armThrottle":self.armThrottle}
+			self.parent.commThread.mailbox.put(msg)
+		if self.armMode == "absolute":
+			self.sendArmCoords()
+		elif self.armMode == "relative":
+			deltaX = self.filter(self.armController.get_axis(0))
+			self.armCoords[0] += deltaX * 30
+			self.armCoords[0] = min(max(self.armCoords[0], -1000), 1000)
+			deltaY = self.filter(self.armController.get_axis(1)) * -1.0
+			self.armCoords[1] += deltaY * 30
+			self.armCoords[1] = min(max(self.armCoords[1], -1000), 1000)
+			deltaZ = self.filter(self.armController.get_axis(3)) * -1.0
+			self.armCoords[2] += deltaZ * 30
+			self.armCoords[2] = min(max(self.armCoords[2], -1000), 1000)
+			deltaPhi = self.filter(self.armController.get_axis(4))
+			self.armCoords[3] += deltaPhi * 30
+			self.armCoords[3] = min(max(self.armCoords[3], -1000), 1000)
+			try:
+				sliders = self.parent.sm.current_screen.ids
+				sliders.armX.value = int(self.armCoords[0] + 1000) / 20
+				sliders.armY.value = int(self.armCoords[1] + 1000) / 20
+				sliders.armZ.value = int(self.armCoords[2] + 1000) / 20
+				sliders.armPhi.value = int(self.armCoords[3] + 1000) / 20
+			except:
+				pass
+			self.sendArmCoords()
+		elif self.armMode == "direct":
+			baseSpeed = self.filter(self.armController.get_axis(0))
+			ac1Speed = self.filter(self.armController.get_axis(1)) * -1.0
+			ac2Speed = self.filter(self.armController.get_axis(3)) * -1.0
+			wristSpeed = self.filter(self.armController.get_axis(4))
+			msg = {"armDirect":(baseSpeed, ac1Speed, ac2Speed, wristSpeed)}
+			self.parent.commThread.mailbox.put(msg)
+	
+	def sendArmCoords(self):
+		msg = {"armAbsolute":self.armCoords}
+		self.parent.commThread.mailbox.put(msg)
+	
+	def sendAntennaCameraMessages(self):
+		cameraMovement = self.driveController.get_hat(0)
+		msg = {"cameraMovement":cameraMovement}
+		self.parent.commThread.mailbox.put(msg)
+	
+	def sendDriveMessages(self):
+		leftSpeed = self.filter(self.driveController.get_axis(1)) * -1.0
+		rightSpeed = self.filter(self.driveController.get_axis(3)) * -1.0
+		leftSpeed *= self.driveThrottle
+		rightSpeed *= self.driveThrottle
+		msg = {"motorSpeeds":(leftSpeed, rightSpeed)}
+		self.parent.commThread.mailbox.put(msg)
 	
 	def filter(self, value):
-		if abs(value) < 0.15: # deadzone
+		if abs(value) < 0.25: # deadzone
 			return 0.0
 		elif value > 1.0:
 			return 1.0

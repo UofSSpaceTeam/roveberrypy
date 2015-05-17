@@ -6,12 +6,11 @@ telemetryList = (["pitch", "roll", "gx", "gy", "gz", "ax", "ay", "az",
 	"heading", "aroll", "apitch", "lat", "lon", "mps", "alt", "gps_heading",
 	"date", "time", "vout", "isense"])
 
-driveList = (["c1j1y", "c1j2y", "throttle", "steerRate"])
+driveList = (["motorSpeeds"])
 
-armList = (["AbsEnable","c2j1x", "c2j1y", "c2j2x", "c2j2y", "arm-gui_x",
-	"arm-gui_y", "arm-gui_z", "arm-gui_phi"])
+armList = (["armAbsolute", "armDirect"])
 
-antennaList = (["c1d_x", "c1d_y"])
+antennaList = (["cameraMovement"])
 
 experimentList = (["drillspd", "elevspd", "drill", "elev", "laser"])
 
