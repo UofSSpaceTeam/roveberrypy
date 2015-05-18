@@ -24,7 +24,7 @@ typedef struct
 	short d1; // Base rotation
 	short d2; // LinAc. 1
 	short d3; // LinAc. 2
-        //short d4; // LinAc. 3
+        short d4; // LinAc. 3
 	byte csum; // sum of cmd_type, d1, d2, d3, d4
 	byte trailer;
 } command;
@@ -149,7 +149,7 @@ void receiveEvent(int count)
 		{
 			if(in == CMD_TRAILER)
 			{
-				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3;
+				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4;
 				if(csum == cmd.csum)
 					new_cmd = true;
 			}

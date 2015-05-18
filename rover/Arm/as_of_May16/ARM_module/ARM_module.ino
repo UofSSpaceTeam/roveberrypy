@@ -1,4 +1,5 @@
 #include "VNH3SP30.h"
+#include "MC33926.h"
 #include <Wire.h>
 
 // pin connections
@@ -22,8 +23,8 @@
 enum command_type // instructions from the Pi
 {
 	STOP, // stop all motors
-	SET_POS, // set desired speed for left / right sides
-        NUDGE
+	SET_SPEEDS, // set desired speed for left / right sides
+        SET_POS
 };
 
 typedef struct
@@ -33,16 +34,13 @@ typedef struct
 	short d1; // Base rotation
 	short d2; // LinAc. 1
 	short d3; // LinAc. 2
-        //short d4; // LinAc. 3
+        short d4; // LinAc. 3
+        short d5;
+        short d6;
+        short d7;
 	byte csum; // sum of cmd_type, d1, d2, d3, d4
 	byte trailer;
 } command;
-
-enum motor_state // describes possible states of motors
-{
-	OK,
-	STALL
-};
 
 
 int numLinac = 3;
@@ -53,8 +51,11 @@ VNH3SP30 linac[3] = { VNH3SP30(L1inA, L1inB, L1pwm) ,
                       VNH3SP30(L3inA, L3inB, L3pwm) };
 VNH3SP30 base (BASEinA, BASEinB, BASEpwm);
 
+MC33926 gripperRotation = MC33926(22,23);
+MC33926 gripperOpen = MC33926(9,10);
+
 // ------------------- set positions --------------------------
-float pos[4] = {400,0,100,-60};
+float pos[4] = {400,0,200,-60}; //{x,y,y,phi}
 float dutyCycle = 255;  // adjust proper level to avoid jerking
 // global variable definitions
 
@@ -63,8 +64,8 @@ float dutyCycle = 255;  // adjust proper level to avoid jerking
 const byte i2c_address = 0x08;
 
 // traction control data
-motor_state m_state[] = {OK, OK, OK, OK}; // current state
-volatile int position[] = {0, 0, 0, 0}; // commanded speed commanded
+//motor_state m_state[] = {OK, OK, OK, OK}; // current state
+int Speeds[] = {0, 0, 0, 0}; // commanded speed commanded
 
 // state information
 const byte CMD_HEADER = 0xF7;
@@ -81,7 +82,7 @@ int interrupt_counter, newPositionCount, dir;
 const int pphr = 13390;
 int base_dir;
 void positionChange(){ interrupt_counter ++; }
-int tolerance[4] = {5,5,8,5} ;
+int tolerance[4] = {10,10,15,10}; // 5 5 12 20
 float maxPos[3] = {109,104,100};
 float minPos[3] = {0,9,33};
 
@@ -150,11 +151,11 @@ void loop() {
     new_cmd = false;
   }
   
-  inverseKinematics(pos);
-  setPosition();
+  //inverseKinematics(pos);
+  //setPosition();
   
   if(millis() - timeout > TIMEOUT) {
-    Serial.println("TO");
+    //Serial.println("TIMEOUT");
     timeout = millis();
   }
 }
@@ -172,13 +173,13 @@ void setPosition(){
     dir = (setTo - curr)/abs(setTo - curr);
     setTo += dir*tolerance[i]/2;               // THIS COULD BE A LINE WHICH CAUSES PROBLEMS ( ARM DRIFTING)  
     if((abs(curr-setTo) > tolerance[i])&& !((curr <= minimum[i])&&(dir==-1)) && !((curr >= maximum[i])&&(dir==1)) ){
-    
+      Serial.print(i);
+      Serial.print(": ");
+      Serial.println(positions[i]);
       linac[i].setDutyCycle(dutyCycle*dir);
     }
     else{linac[i].setDutyCycle(0);
-    Serial.print(i);
-    Serial.print(": ");
-    Serial.println(setTo);
+    
     }
   }
   
@@ -193,6 +194,26 @@ void setPosition(){
     base_dir = 0;
   }
 }
+
+void setSpeeds(int speeds[]) {
+  for(int i=0;i<numLinac;i++) {
+    float sum = 0;
+    for(int j = 0 ; j < 5 ; j++){
+      sum += analogRead(wiper[i]);
+    } 
+    
+    curr = sum/5.0;
+    if(!((curr <= minimum[i])&&(dir==-1)) && !((curr >= maximum[i])&&(dir==1)) ){
+      linac[i].setDutyCycle(speeds[i]);
+    }
+  }
+  base.setDutyCycle(speeds[numLinac]);
+  int rotationValue = speeds[4]*3.0/4.0;
+  gripperRotation.setDutyCycle(rotationValue);
+  gripperOpen.setDutyCycle(speeds[5]);
+}
+
+
 void inverseKinematics(float* coordinate){
   //constants
   float x = coordinate[0];
@@ -220,9 +241,12 @@ void inverseKinematics(float* coordinate){
   positions[0] = sqrt(130621.0-67573.0*cos((T2+38.84)*PI/180)) - 292.35;
   positions[1] = sqrt(118487.0-50392.0*cos(T3*PI/180.0)) - 292.35;
   positions[2] = sqrt(54750.0-24580.0*cos(PI/2.0-T4*PI/180.0)) - 167.5;
- 
+      
 	
   for(int i = 0; i < 3 ; i++){
+    Serial.print(i);
+      Serial.print(": ");
+      Serial.println(positions[i]);
     if( positions[i] < minPos[i]){ positions[i] = minPos[i]; }
     else if(positions[i] > maxPos[i]){ positions[i] = maxPos[i]; }
   }
@@ -261,7 +285,7 @@ void receiveEvent(int count)
 		{
 			if(in == CMD_TRAILER)
 			{
-				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3;
+				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4 + cmd.d5 + cmd.d6 + cmd.d7;
 				if(csum == cmd.csum)
 					new_cmd = true;
 			}
@@ -277,15 +301,47 @@ void processCommand()
 		case STOP:
 			break;
 
-		case SET_POS:
-			position[0] = cmd.d1;
-			position[1] = cmd.d2;
-			position[2] = cmd.d3;
-                        //position[3] = cmd.d4;
+		case SET_SPEEDS:
+			Speeds[0] = cmd.d1;
+			Speeds[1] = cmd.d2;
+			Speeds[2] = cmd.d3;
+                        Speeds[3] = cmd.d4;
+                        dutyCycle = cmd.d5;
+                        Speeds[4] = cmd.d6;
+                        Speeds[5] = cmd.d7;
+                        Serial.print(Speeds[0]);
+                        Serial.print(',');
+                        Serial.print(Speeds[1]);
+                        Serial.print(',');
+                        Serial.print(Speeds[2]);
+                        Serial.print(',');
+                        Serial.print(Speeds[3]);
+                        Serial.print(',');
+                        Serial.println();
+                        setSpeeds(Speeds);
 			timeout = millis();
 			break;
 
-		case NUDGE:
+		case SET_POS:
+                        pos[0] = map(cmd.d1,-1000,1000,-793.5,793.5);
+                        pos[1] = map(cmd.d2,-1000,1000,-793.5,793.5);
+                        pos[2] = map(cmd.d3,-1000,1000,-239,800);
+                        pos[3] = map(cmd.d4,-1000,1000,-45,45);
+                        dutyCycle = cmd.d5;
+                        Serial.print(pos[0]);
+                        Serial.print(',');
+                        Serial.print(pos[1]);
+                        Serial.print(',');
+                        Serial.print(pos[2]);
+                        Serial.print(',');
+                        Serial.print(pos[3]);
+                        Serial.print(',');
+                        Serial.println();
+                        inverseKinematics(pos);
+                        setPosition();
+                        gripperRotation.setDutyCycle(cmd.d6*3.0/4.0);
+                        gripperOpen.setDutyCycle(cmd.d7);
+                        timeout = millis();
                       break;
 	}
 }
