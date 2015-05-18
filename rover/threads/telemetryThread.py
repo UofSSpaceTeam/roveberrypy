@@ -9,16 +9,16 @@ class TelemetryThread(threading.Thread):
 		self.name = "Telemetry"
 		self.mailbox = Queue()
 		self.port = serial.Serial("/dev/ttyAMA0", 57600)
-		self.messageElements = 21
-				
+		self.messageElements = 18
+
 	def run(self):
 		while True:
 			data = self.getSerialData()
 			if data is not None:
 				msg = {"roverGPS":(data["lat"], data["lon"], data["speed"],
-					data["gps_heading"])}
+					data["heading"])}
 				self.parent.commThread.mailbox.put(msg)
-								
+
 	def getSerialData(self):
 		inData = ""
 		outData = {}
@@ -35,25 +35,23 @@ class TelemetryThread(threading.Thread):
 		inData = inData.split();
 		if len(inData) != self.messageElements:
 			return None
-		outData["pitch"] = float(inData[0])
-		outData["roll"] = float(inData[1])
-		outData["gx"] = float(inData[2])
-		outData["gy"] = float(inData[3])
-		outData["gz"] = float(inData[4])
-		outData["ax"] = float(inData[5])
-		outData["ay"] = float(inData[6])
-		outData["az"] = float(inData[7])
-		outData["heading"] = int(inData[8])
-		outData["aroll"] = float(inData[9])
-		outData["apitch"] = float(inData[10])
-		outData["lat"] = float(inData[11])
-		outData["lon"] = float(inData[12])
-		outData["speed"] = float(inData[13]) / 60
-		outData["alt"] = int(inData[14])
-		outData["gps_heading"] = int(inData[15])
-		outData["date"] = inData[16]
-		outData["time"] = inData[17]
-		outData["vout"] = float(inData[18])
-		outData["isense"] = float(inData[19])
+		outData["gx"] = float(inData[0])
+		outData["gy"] = float(inData[1])
+		outData["gz"] = float(inData[2])
+		outData["ax"] = float(inData[3])
+		outData["ay"] = float(inData[4])
+		outData["az"] = float(inData[5])
+		outData["mx"] = float(inData[6])
+		outData["my"] = float(inData[7])
+		outData["mz"] = float(inData[8])
+		outData["lat"] = float(inData[9])
+		outData["lon"] = float(inData[10])
+		outData["speed"] = float(inData[11]) / 60
+		outData["alt"] = int(inData[12])
+		outData["heading"] = int(inData[13])
+		outData["date"] = inData[14]
+		outData["time"] = inData[15]
+		outData["vout"] = float(inData[16])
+		outData["isense"] = float(inData[17])
 		return outData
 

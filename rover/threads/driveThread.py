@@ -30,15 +30,15 @@ class DriveThread(threading.Thread):
 	def run(self):
 		while True:
 			data = self.mailbox.get()
+			print data
 			if "motorSpeeds" in data:
 				self.setMotors(data["motorSpeeds"])
-
 
 	def setMotors(self, speeds):
 		command = Command()
 		command.type = CommandType.setMotors
-		command.d1 = speeds[0] # left
-		command.d2 = -speeds[1] # right
+		command.d1 = int(speeds[0] * 255) # left
+		command.d2 = int(speeds[1] * 255) # right
 		self.sendCommand(command)
 		
 	def sendCommand(self, command):

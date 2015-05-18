@@ -31,7 +31,7 @@ class ExperimentThread(threading.Thread):
 		self.elevSpeed = 0.3
 		self.drillDir = 0
 		self.elevDir = 0
-		
+
 	def run(self):
 		while True:
 			drillChange = False
@@ -50,17 +50,17 @@ class ExperimentThread(threading.Thread):
 				drillChange = True
 			if "laser" in data:
 				self.setLasers(data["laser"])
-			
+
 			if drillChange:
 				self.setDrill()
-	
+
 	def setDrill(self):
 		command = Command()
 		command.type = CommandType.setSpeed
 		command.d1 = int(self.drillSpeed * self.drillDir * 255)
 		command.d2 = int(self.elevSpeed * self.elevDir * 255)
 		self.sendCommand(command)
-	
+
 	def setLasers(self, laser):
 		for i in range(1, 4):
 			command = Command()
@@ -68,8 +68,8 @@ class ExperimentThread(threading.Thread):
 			command.type = CommandType.setLaser
 			command.d1 = i
 			command.d2 = (i == laser)
-			self.sendCommand(command)	
-	
+			self.sendCommand(command)
+
 	def sendCommand(self, command):
 		command.csum = (command.type + command.d1 + command.d2) % 256
 		try:

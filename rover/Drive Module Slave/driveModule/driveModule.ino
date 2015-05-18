@@ -24,9 +24,9 @@ typedef struct
 } command;
 
 // Wiring connections per motor
-const byte m_a[] = {4, 12, 4, 12, 4, 12};
-const byte m_b[] = {7, 8, 7, 8, 7, 8};
-const byte m_pwm[] = {13,11,10,9,6,5};
+const byte m_a[] = {12, 12, 12, 4, 4, 4};
+const byte m_b[] = {8, 8, 8, 7, 7, 7};
+const byte m_pwm[] = {5, 6, 9, 10, 11, 13}; //5 6 9 10 11 13
 
 unsigned long timeout;
 volatile command cmd;
@@ -121,12 +121,12 @@ void processCommand()
 		case SET_MOTORS:
 		cmd.d1 = constrain(cmd.d1, -255, 255);
 		cmd.d2 = constrain(cmd.d2, -255, 255);
+		setMotor(0, cmd.d1);
 		setMotor(1, cmd.d1);
-		setMotor(3, cmd.d1);
-		setMotor(5, cmd.d1);
-		setMotor(0, cmd.d2);
-		setMotor(2, cmd.d2);
+		setMotor(2, cmd.d1);
+		setMotor(3, cmd.d2);
 		setMotor(4, cmd.d2);
+		setMotor(5, cmd.d2);
 		timeout = millis();
 		break;
 	}
@@ -139,15 +139,14 @@ void setMotor(byte index, short value)
 		digitalWrite(m_pwm[index], LOW);
 	else if(value > 0)
 	{
-	
-		digitalWrite(m_a[index], LOW);
-		digitalWrite(m_b[index], HIGH);
+		digitalWrite(m_a[index], HIGH);
+		digitalWrite(m_b[index], LOW);
 		analogWrite(m_pwm[index], abs(value));
 	}
 	else
 	{
-		digitalWrite(m_a[index], HIGH);
-		digitalWrite(m_b[index], LOW);
+		digitalWrite(m_a[index], LOW);
+		digitalWrite(m_b[index], HIGH);
 		analogWrite(m_pwm[index], abs(value));
 	}
 }

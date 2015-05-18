@@ -11,7 +11,5 @@ navList = (["roverGPS", "towerGPS"])
 
 guiList = ([])
 
-
-
-
+inputList = ([])
 
