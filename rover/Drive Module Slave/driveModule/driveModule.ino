@@ -1,6 +1,3 @@
-// Code for the Arduino controlling the motor drivers.
-// Written for Arduino Micro.
-
 #include <Wire.h>
 
 #define TIMEOUT 750
@@ -10,7 +7,7 @@
 
 enum command_type // instructions from the Pi
 {
-	SET_MOTORS // 0: set power for left and right side motors
+	SET_MOTORS
 };
 
 typedef struct
@@ -26,26 +23,22 @@ typedef struct
 // Wiring connections per motor
 const byte m_a[] = {12, 12, 12, 4, 4, 4};
 const byte m_b[] = {8, 8, 8, 7, 7, 7};
-const byte m_pwm[] = {5, 6, 9, 10, 11, 13}; //5 6 9 10 11 13
+const byte m_pwm[] = {5, 6, 9, 10, 11, 13};
 
-unsigned long timeout;
+unsigned long timer;
 volatile command cmd;
-byte* cmd_ptr = (byte*)(&cmd);
-volatile byte cmd_count = 0;
-volatile bool new_cmd = false;
+byte* cmdPointer = (byte*)(&cmd);
+volatile byte cmdCount = 0;
+volatile bool newCommand = false;
 
-// Interrupt handler for receiving a byte via I2C
-void receiveEvent(int count);
+void receiveEvent(int count); // incoming I2C byte
 
-// function to actually process command
 void processCommand();
 
-// sets a single motor to the specified direction and power level.
 // index: which motor, 0 to 5
-// value: speed and direction, -255 to 255
+// value: speed, -255 to 255
 void setMotor(byte index, short value);
 
-// stops all motors.
 void stopAll();
 
 void setup() 
@@ -60,56 +53,53 @@ void setup()
 		pinMode(m_pwm[i], OUTPUT);
 	}
 	stopAll();
-	timeout = millis();
+	timer = millis();
 }
 
 void loop()
 {
-	if(new_cmd)
+	if(newCommand)
 		processCommand();
-	else if(millis() - timeout > TIMEOUT)
+	else if(millis() - timer > TIMEOUT)
 	{
 		stopAll();
-		timeout = millis();
+		timer = millis();
 	}
 }
 
 void receiveEvent(int count)
 {
-	if(new_cmd)
+	if(newCommand)
 		return;
 	while(Wire.available())
 	{
 		byte in = Wire.read();
 		
-		// wait for header
-		if(cmd_count == 0)
+		if(cmdCount == 0) // wait for header
 		{
 			if(in == CMD_HEADER)
 			{
-				cmd_ptr[cmd_count] = in;
-				cmd_count++;
+				cmdPointer[cmdCount] = in;
+				cmdCount++;
 			}
 			continue;
 		}
 		
-		// add middle bytes
-		if(cmd_count < sizeof(command))
+		if(cmdCount < sizeof(command)) // add middle bytes
 		{
-			cmd_ptr[cmd_count] = in;
-			cmd_count++;
+			cmdPointer[cmdCount] = in;
+			cmdCount++;
 		}
 		
-		// check for complete
-		if(cmd_count == sizeof(command))
+		if(cmdCount == sizeof(command)) // check for complete
 		{
 			if(in == CMD_TRAILER)
 			{
 				byte csum = cmd.type + cmd.d1 + cmd.d2;
 				if(csum == cmd.csum)
-					new_cmd = true;
+					newCommand = true;
 			}
-			cmd_count = 0;
+			cmdCount = 0;
 		}
 	}
 }
@@ -127,10 +117,10 @@ void processCommand()
 		setMotor(3, cmd.d2);
 		setMotor(4, cmd.d2);
 		setMotor(5, cmd.d2);
-		timeout = millis();
+		timer = millis();
 		break;
 	}
-	new_cmd = false;
+	newCommand = false;
 }
 
 void setMotor(byte index, short value)
