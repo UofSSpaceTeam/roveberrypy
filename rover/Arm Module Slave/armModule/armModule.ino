@@ -238,7 +238,7 @@ void setPosition() // blocking until move is done
 	byte baseDir;
 	int newCount = getNewCount(kinOutputBase);
 	int count = base.getCount();
-	if(abs(newCount - count) > countsPerDegree)
+	if(abs(newCount - count) > BASETOLERANCE)
 	{
 		if(newCount > count)
 		{
@@ -437,5 +437,4 @@ void receiveEvent(int count)
 		}
 	}
 }
-
 
