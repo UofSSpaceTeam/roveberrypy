@@ -32,16 +32,26 @@ class ArmThread(threading.Thread):
 		self.i2c = smbus.SMBus(1)
 		self.i2cAddress = 0x08
 		self.throttle = 0.5
+		self.period = 0.25
+		self.position = None
 
 	def run(self):
 		while True:
-			data = self.mailbox.get()
+			if self.position is not None: # absolute mode
+				self.setPosition(self.position)
+				time.sleep(self.period)
+				if self.mailbox.empty(): # don't block in absolute mode
+					continue
+			data = self.mailbox.get() # only block in direct mode
 			if "armAbsolute" in data:
-				self.setPosition(data["armAbsolute"])
+				self.position = data["armAbsolute"]
 			if "armDirect" in data:
 				self.setSpeed(data["armDirect"])
+				self.position = None
 			if "armThrottle" in data:
 				self.throttle = (data["armThrottle"])
+			
+			
 	
 	def setPosition(self, coords):
 		command = Command()
