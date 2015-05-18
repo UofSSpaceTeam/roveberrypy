@@ -187,82 +187,59 @@ void processCommand()
 
 void setPosition() // blocking until move is done
 {
-	byte L1Dir;
 	float newLengthL1 = getNewLength(0, kinOutputL1);
 	int length = averageReading(L1WIPER, 5);
 	if(abs(newLengthL1 - length) > L1TOLERANCE)
 	{
 		if(newLengthL1 > length)
-		{
 			L1.set(throttle);
-			L1Dir = 1;
-		}
 		else
-		{
 			L1.set(-throttle);
-			L1Dir = -1;
-		}
 	}
-	byte L2Dir;
+			
 	float newLengthL2 = getNewLength(1, kinOutputL2);
 	length = averageReading(L2WIPER, 5);
 	if(abs(newLengthL2 - length) > L2TOLERANCE)
 	{
 		if(newLengthL2 > length)
-		{
 			L2.set(throttle);
-			L2Dir = 1;
-		}
 		else
-		{
 			L2.set(-throttle);
-			L2Dir = -1;
-		}
 	}
-	byte L3Dir;
+			
 	float newLengthL3 = getNewLength(2, kinOutputL3);
 	length = averageReading(L3WIPER, 5);
 	if(abs(newLengthL3 - length) > L3TOLERANCE)
 	{
 		if(newLengthL3 > length)
-		{
 			L3.set(throttle);
-			L3Dir = 1;
-		}
 		else
-		{
 			L3.set(-throttle);
-			L3Dir = -1;
-		}
 	}
-	byte baseDir;
+	
 	int newCount = getNewCount(kinOutputBase);
 	int count = base.getCount();
 	if(abs(newCount - count) > BASETOLERANCE)
 	{
 		if(newCount > count)
-		{
 			base.set(throttle);
-			baseDir = 1;
-		}
 		else
-		{
 			base.set(-throttle);
-			baseDir = -1;
-		}
 	}
 	
 	boolean L1Done = false;
 	boolean L2Done = false;
 	boolean L3Done = false;
 	boolean baseDone = false;
+	char direction;
 	while(!L1Done || !L2Done || !L3Done || !baseDone)
 	{
 		if(!L1Done)
 		{
 			length = averageReading(L1WIPER, 5);
-			if((L1Dir > 0 && length > newLengthL1) \
-				|| (L1Dir < 0 && length < newLengthL1))
+			direction = L1.getDirection();
+			if((direction > 0 && length > newLengthL1) \
+				|| (direction < 0 && length < newLengthL1))
 			{
 				L1.set(0);
 				L1Done = true;
@@ -271,8 +248,9 @@ void setPosition() // blocking until move is done
 		if(!L2Done)
 		{
 			length = averageReading(L2WIPER, 5);
-			if((L2Dir > 0 && length > newLengthL2) \
-				|| (L2Dir < 0 && length < newLengthL2))
+			direction = L2.getDirection();
+			if((direction > 0 && length > newLengthL2) \
+				|| (direction < 0 && length < newLengthL2))
 			{
 				L2.set(0);
 				L2Done = true;
@@ -281,8 +259,9 @@ void setPosition() // blocking until move is done
 		if(!L3Done)
 		{
 			length = averageReading(L3WIPER, 5);
-			if((L3Dir > 0 && length > newLengthL3) \
-				|| (L3Dir < 0 && length < newLengthL3))
+			direction = L3.getDirection();
+			if((direction > 0 && length > newLengthL3) \
+				|| (direction < 0 && length < newLengthL3))
 			{
 				L3.set(0);
 				L3Done = true;
@@ -291,8 +270,9 @@ void setPosition() // blocking until move is done
 		if(!baseDone)
 		{
 			count = base.getCount();
-			if((baseDir > 0 && count > newCount) \
-				|| (baseDir < 0 && count < newCount))
+			direction = base.getDirection();
+			if((direction > 0 && count > newCount) \
+				|| (direction < 0 && count < newCount))
 			{
 				base.set(0);
 				baseDone = true;
@@ -437,4 +417,5 @@ void receiveEvent(int count)
 		}
 	}
 }
+
 

@@ -10,6 +10,7 @@ class VNH3SP30
 		int motorB;
 		int motorPWM;
 		volatile int count;
+		char direction; // -1, 0, or 1
 	
 	public:		
 		VNH3SP30(int A, int B, int PWM);
@@ -20,6 +21,8 @@ class VNH3SP30
 		void addToCount(int num);
 		
 		int getCount();
+		
+		char getDirection();
 };
 
 #endif

@@ -9,6 +9,7 @@ class MC33926
 		int motorA;
 		int motorB;
 		volatile int count;
+		char direction; // -1, 0, or 1
 	
 	public:		
 		MC33926(int in1, int in2);
@@ -19,6 +20,8 @@ class MC33926
 		void addToCount(int num);
 
 		int getCount();
+		
+		char getDirection();
 };
 
 #endif
