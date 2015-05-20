@@ -29,17 +29,57 @@
             cap: 'round'
             width: 1
             close: False
+		Color:
+            rgba: .4, 1, .4, 1
+        Line:
+            points: self.points4
+            joint: 'miter'
+            cap: 'round'
+            width: 1
+            close: False
+        Color:
+            rgba: 1, 0, 0, 1
+        Line:
+            points: self.points5
+            joint: 'miter'
+            cap: 'round'
+            width: 1
+            close: False
+        Color:
+            rgba: 0, 0, 1, 1
+        Line:
+            points: self.points6
+            joint: 'miter'
+            cap: 'round'
+            width: 1
+            close: False
+		Color:
+            rgba: 1, 1, 0, 1
+        Line:
+            points: self.points7
+            joint: 'miter'
+            cap: 'round'
+            width: 1
+            close: False
+        Color:
+            rgba: 0, 1, 1, 1
+        Line:
+            points: self.points8
+            joint: 'miter'
+            cap: 'round'
+            width: 1
+            close: False
 
     GridLayout:
-        cols: 2
-        size_hint: None, None
+        cols: 4
+        size_hint: 1, 1
 		#size: 200, 200
         #height: 44 * 5
 		height: root.height * .5
 		width: root.width
 
         GridLayout:
-            cols: 3
+            cols: 4
 
             Label:
                 text: ''
@@ -47,28 +87,109 @@
                 text: 'data'
             Label:
                 text: 'max'
+			Label:
+                text: 'average'
 
             Label:
-                text: root.name1
+                text: 'gx'
             Label:
                 text: str(root.data1)
             Label:
                 text: str(root.max_data1)
+			Label:
+                text: str(root.avg_data1)
+				
             
             Label:
-                text: root.name2
+                text: 'gy'
             Label:
                 text: str(root.data2)
             Label:
                 text: str(root.max_data2)
+			Label:
+                text: str(root.avg_data2)
 
+				
             Label:
-                text: root.name3
+                text: 'gz'
             Label:
                 text: str(root.data3)
             Label:
                 text: str(root.max_data3)
-                
+			Label:
+                text: str(root.avg_data3)
+				
+		GridLayout:
+            cols: 4
+
+            Label:
+                text: ''
+            Label:
+                text: 'data'
+            Label:
+                text: 'max'
+			Label:
+                text: 'average'
+				
+            Label:
+                text: 'ax'
+            Label:
+                text: str(root.data4)
+            Label:
+                text: str(root.max_data4)
+			Label:
+                text: str(root.avg_data4)
+            
+            Label:
+                text: 'ay'
+            Label:
+                text: str(root.data5)
+            Label:
+                text: str(root.max_data5)
+			Label:
+                text: str(root.avg_data5)
+
+            Label:
+                text: 'az'
+            Label:
+                text: str(root.data6)
+            Label:
+                text: str(root.max_data6)
+			Label:
+                text: str(root.avg_data6)
+
+		GridLayout:
+            cols: 4
+
+            Label:
+                text: ''
+            Label:
+                text: 'data'
+            Label:
+                text: 'max'
+			Label:
+                text: 'average'
+				
+            Label:
+                text: 'vout'
+            Label:
+                text: str(root.data7)
+            Label:
+                text: str(root.max_data7)
+			Label:
+                text: str(root.avg_data7)
+            
+            Label:
+                text: 'isense'
+            Label:
+                text: str(root.data8)
+            Label:
+                text: str(root.max_data8)
+			Label:
+                text: str(root.avg_data8)
+
+
+			
         BoxLayout:
 			#cols: 1
 			#size_hint: None, None
@@ -81,27 +202,11 @@
 
 				
 <TelemetryScreen@BoxLayout>:
-	orientation: "horizontal"
-	BoxLayout:
-		TelemetryWidget:
-			id: widget1
-			name1: 'gx'
-			name2: 'gy'
-			name3: 'gz'
-	
-	BoxLayout:
-		TelemetryWidget:
-			id: widget2
-			name1: '1'
-			name2: '2'
-			name3: '3'
-	
-	BoxLayout:
-		TelemetryWidget:
-			id: widget3
-			name1: 'accelx'
-			name2: 'accely'
-			name3: 'accelz'
+	#orientation: "horizontal"
+	#BoxLayout:
+	TelemetryWidget:
+		id: widget1
+
 		
 		
 
