@@ -72,9 +72,9 @@ typedef struct
 } command;
 
 VNH3SP30 base = VNH3SP30(BASEA, BASEB, BASEPWM);
-VNH3SP30 L1 = VNH3SP30(L1A, L1B, L1PWM);
-VNH3SP30 L2 = VNH3SP30(L2A, L2B, L2PWM);
-VNH3SP30 L3 = VNH3SP30(L3A, L3B, L3PWM);
+VNH3SP30 LA[3] = {VNH3SP30(L1A, L1B, L1PWM),
+				VNH3SP30(L2A, L2B, L2PWM),
+				VNH3SP30(L3A, L3B, L3PWM)};
 MC33926 handSpin = MC33926(HANDSPINA, HANDSPINB);
 MC33926 handOpen = MC33926(HANDOPENA, HANDOPENB);
 
@@ -91,6 +91,8 @@ int spin, open;
 int throttle = 128; // 0 - 255
 
 // actuator config
+int wiperPin[3] = {L1WIPER, L2WIPER, L3WIPER};
+int tolerance[3] = {L1TOLERANCE, L2TOLERANCE, L3TOLERANCE};
 double co0[] = {602.7172151459694, 609.5148521804905, -9.5409};
 double co1[] = {2.6706077615978, 2.4617644953818, 6.5606};
 double co2[] = {-0.0046229045464, 0.0004252476161, 0.041};
@@ -98,15 +100,9 @@ double co3[] = {0.0000267147227, -0.0000047310008, -0.0001};
 
 // inverse kin stuff
 float kinOutputBase; // degrees
-float kinOutputL1;
-float kinOutputL2;
-float kinOutputL3;
-float minOutputL1 = 0.0;
-float maxOutputL1 = 109.0;
-float minOutputL2 = 9.0;
-float maxOutputL2 = 104.0;
-float minOutputL3 = 33.0;
-float maxOutputL3 = 100.0;
+float kinOutput[3];
+float minOutput[3] = {0.0, 9.0, 33.0};
+float maxOutput[3] = {109.0, 104.0, 100.0};
 float countsPerDegree = 74.39;
 
 // prototypes
@@ -118,8 +114,9 @@ void setGripper();
 void doInverseKinematics();
 int averageReading(int pin, int num);
 void baseInterrupt();
-float getNewLength(int index, double target);
+int getNewLength(int index, double target);
 int getNewCount(float angle);
+void printCommand();
 
 void setup()
 {
@@ -128,9 +125,9 @@ void setup()
 	Wire.onReceive(receiveEvent);
 	attachInterrupt(BASEINT1, baseInterrupt, RISING);
 	base.set(0);
-	L1.set(0);
-	L2.set(0);
-	L3.set(0);
+	LA[0].set(0);
+	LA[1].set(0);
+	LA[2].set(0);
 	timer = millis();
 }
 
@@ -140,7 +137,7 @@ void loop()
 		processCommand();
 	else if(millis() - timer > TIMEOUT)
 	{
-		for(int i = 0; i < 6; i++)
+		for(int i = 0; i < 4; i++)
 			speed[i] = 0;
 		spin = 0;
 		open = 0;
@@ -156,13 +153,14 @@ void processCommand()
 	switch(cmd.type)
 	{
 		case SET_SPEEDS:
-		speed[0] = cmd.d1;
-		speed[1] = cmd.d2;
-		speed[2] = cmd.d3;
-		speed[3] = cmd.d4;
+		speed[3] = cmd.d1; // base
+		speed[0] = cmd.d2; // LA1
+		speed[1] = cmd.d3; // LA2
+		speed[2] = cmd.d4; // LA3
 		spin = constrain(cmd.d5, -255, 255);
 		open = constrain(cmd.d6, -255, 255);
 		throttle = constrain(cmd.d7, 0, 255);
+		printCommand();
 		setSpeeds();
 		setGripper();
 		timer = millis();
@@ -185,40 +183,37 @@ void processCommand()
 	newCommand = false;
 }
 
+void printCommand()
+{
+	char buf[32];
+	if(cmd.type == SET_SPEEDS)
+		Serial.print("Speeds: ");
+	else if(cmd.type == SET_POSITION)
+		Serial.print("Position: ");
+	sprintf(buf, "(%i, %i, %i, %i, %i, %i, %i)", \
+		cmd.d1, cmd.d2, cmd.d3, cmd.d4, cmd.d5, cmd.d6, cmd.d7);
+	Serial.println(buf);
+}
+
 void setPosition() // blocking until move is done
 {
-	float newLengthL1 = getNewLength(0, kinOutputL1);
-	int length = averageReading(L1WIPER, 5);
-	if(abs(newLengthL1 - length) > L1TOLERANCE)
+	int newLength[3];
+	int length, newCount, count;
+	for(int i = 0; i < 3; i++)
 	{
-		if(newLengthL1 > length)
-			L1.set(throttle);
-		else
-			L1.set(-throttle);
-	}
-			
-	float newLengthL2 = getNewLength(1, kinOutputL2);
-	length = averageReading(L2WIPER, 5);
-	if(abs(newLengthL2 - length) > L2TOLERANCE)
-	{
-		if(newLengthL2 > length)
-			L2.set(throttle);
-		else
-			L2.set(-throttle);
-	}
-			
-	float newLengthL3 = getNewLength(2, kinOutputL3);
-	length = averageReading(L3WIPER, 5);
-	if(abs(newLengthL3 - length) > L3TOLERANCE)
-	{
-		if(newLengthL3 > length)
-			L3.set(throttle);
-		else
-			L3.set(-throttle);
+		newLength[i] = getNewLength(i, kinOutput[i]);
+		length = averageReading(wiperPin[i], 5);
+		if(abs(newLength[i] - length) > tolerance[i])
+		{
+			if(newLength[i] > length)
+				LA[i].set(throttle);
+			else
+				LA[i].set(-throttle);
+		}
 	}
 	
-	int newCount = getNewCount(kinOutputBase);
-	int count = base.getCount();
+	newCount = getNewCount(kinOutputBase);
+	count = base.getCount();
 	if(abs(newCount - count) > BASETOLERANCE)
 	{
 		if(newCount > count)
@@ -227,48 +222,28 @@ void setPosition() // blocking until move is done
 			base.set(-throttle);
 	}
 	
-	boolean L1Done = false;
-	boolean L2Done = false;
-	boolean L3Done = false;
+	boolean done[3] = {false, false, false};
 	boolean baseDone = false;
 	char direction;
-	while(!L1Done || !L2Done || !L3Done || !baseDone)
+	while(!done[0] || !done[1] || !done[2] || !baseDone)
 	{
-		if(!L1Done)
+		for(int i = 0; i < 3; i++)
 		{
-			length = averageReading(L1WIPER, 5);
-			direction = L1.getDirection();
-			if((direction > 0 && length > newLengthL1) \
-				|| (direction < 0 && length < newLengthL1))
+			if(!done[i])
 			{
-				L1.set(0);
-				L1Done = true;
-			}
-		}
-		if(!L2Done)
-		{
-			length = averageReading(L2WIPER, 5);
-			direction = L2.getDirection();
-			if((direction > 0 && length > newLengthL2) \
-				|| (direction < 0 && length < newLengthL2))
-			{
-				L2.set(0);
-				L2Done = true;
-			}
-		}
-		if(!L3Done)
-		{
-			length = averageReading(L3WIPER, 5);
-			direction = L3.getDirection();
-			if((direction > 0 && length > newLengthL3) \
-				|| (direction < 0 && length < newLengthL3))
-			{
-				L3.set(0);
-				L3Done = true;
+				length = averageReading(wiperPin[i], 10);
+				direction = LA[i].getDirection();
+				if((direction > 0 && length > newLength[i]) \
+					|| (direction < 0 && length < newLength[i]))
+				{
+					LA[i].set(0);
+					done[i] = true;
+				}
 			}
 		}
 		if(!baseDone)
 		{
+			baseDone = true;
 			count = base.getCount();
 			direction = base.getDirection();
 			if((direction > 0 && count > newCount) \
@@ -281,9 +256,9 @@ void setPosition() // blocking until move is done
 	}
 }
 
-float getNewLength(int index, double target)
+int getNewLength(int index, double target)
 {
-	return ((co3[index] * pow(target, 3)) + (co2[index] * pow(target,2)) + \
+	return int((co3[index] * pow(target, 3)) + (co2[index] * pow(target,2)) + \
 		(co1[index] * target) + (co0[index]));
 }
 
@@ -294,31 +269,18 @@ int getNewCount(float angle)
 
 void setSpeeds()
 {
-	int length = averageReading(L1WIPER, 10);
-	if((length < L1MAX && length > L1MIN) || \
-		(length > L1MAX && speed[0] < 0) || \
-		(length < L1MIN && speed[0] > 0))
-		L1.set(speed[0]);
-	else
-		L1.set(0);
-	
-	length = averageReading(L2WIPER, 10);
-	if((length < L2MAX && length > L2MIN) || \
-		(length > L2MAX && speed[0] < 0) || \
-		(length < L2MIN && speed[0] > 0))
-		L2.set(speed[0]);
-	else
-		L2.set(0);
-	
-	length = averageReading(L3WIPER, 10);
-	if((length < L3MAX && length > L3MIN) || \
-		(length > L3MAX && speed[0] < 0) || \
-		(length < L3MIN && speed[0] > 0))
-		L3.set(speed[0]);
-	else
-		L3.set(0);
-	
-	base.set(speed[0]);
+	int length;
+	for(int i = 0; i < 3; i++)
+	{
+		// length = averageReading(wiperPin[i], 10);
+		// if((length < L1MAX && length > L1MIN) || \
+			// (length > L1MAX && speed[0] < 0) || \
+			// (length < L1MIN && speed[0] > 0))
+			LA[i].set(speed[i]);
+	// else
+		// LA[i].set(0);
+	}
+	base.set(speed[3]);
 }
 
 int averageReading(int pin, int num)
@@ -359,16 +321,16 @@ void doInverseKinematics()
 	float T4 = 180.0 + phi - T3 - T2;
 
 	// L1
-	kinOutputL1 = sqrt(130621.0-67573.0*cos((T2+38.84)*PI/180)) - 292.35;
-	kinOutputL1 = constrain(kinOutputL1, minOutputL1, maxOutputL1);
+	kinOutput[0] = sqrt(130621.0-67573.0*cos((T2+38.84)*PI/180)) - 292.35;
+	kinOutput[0] = constrain(kinOutput[0], minOutput[0], maxOutput[0]);
 
 	// L2
-	kinOutputL2 = sqrt(118487.0-50392.0*cos(T3*PI/180.0)) - 292.35;
-	kinOutputL2 = constrain(kinOutputL2, minOutputL2, maxOutputL2);
+	kinOutput[1] = sqrt(118487.0-50392.0*cos(T3*PI/180.0)) - 292.35;
+	kinOutput[1] = constrain(kinOutput[1], minOutput[1], maxOutput[1]);
 
 	// L3
-	kinOutputL3 = sqrt(54750.0-24580.0*cos(PI/2.0-T4*PI/180.0)) - 167.5;
-	kinOutputL3 = constrain(kinOutputL3, minOutputL3, minOutputL3);
+	kinOutput[2] = sqrt(54750.0-24580.0*cos(PI/2.0-T4*PI/180.0)) - 167.5;
+	kinOutput[2] = constrain(kinOutput[2], minOutput[2], minOutput[2]);
 	
 	// Base
 	kinOutputBase = atan2(y, x) * (180.0 / PI);

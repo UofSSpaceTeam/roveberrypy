@@ -49,9 +49,7 @@ class ArmThread(threading.Thread):
 				self.setSpeed(data["armDirect"])
 				self.position = None
 			if "armThrottle" in data:
-				self.throttle = (data["armThrottle"])
-			
-			
+				self.throttle = (data["armThrottle"])		
 	
 	def setPosition(self, coords):
 		command = Command()
@@ -71,7 +69,7 @@ class ArmThread(threading.Thread):
 		command.d1 = int(speeds[0]) # base rotation
 		command.d2 = int(speeds[1]) # actuator 1
 		command.d3 = int(speeds[2]) # actuator 2
-		command.d4 = int(speeds[3]) # wrist actuator
+		command.d4 = int(speeds[3]) # actuator 3
 		command.d5 = int(0) # hand rotation
 		command.d6 = int(0) # hand open/close
 		command.d7 = int(self.throttle * 255)
