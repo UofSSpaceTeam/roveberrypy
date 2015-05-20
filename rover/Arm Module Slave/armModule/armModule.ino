@@ -93,6 +93,8 @@ int throttle = 128; // 0 - 255
 // actuator config
 int wiperPin[3] = {L1WIPER, L2WIPER, L3WIPER};
 int tolerance[3] = {L1TOLERANCE, L2TOLERANCE, L3TOLERANCE};
+int LA_MAX[3] = {L1MAX, L2MAX, L3MAX};
+int LA_MIN[3] = {L1MIN, L2MIN, L3MIN};
 double co0[] = {602.7172151459694, 609.5148521804905, -9.5409};
 double co1[] = {2.6706077615978, 2.4617644953818, 6.5606};
 double co2[] = {-0.0046229045464, 0.0004252476161, 0.041};
@@ -174,6 +176,7 @@ void processCommand()
 		spin = constrain(cmd.d5, -255, 255);
 		open = constrain(cmd.d6, -255, 255);
 		throttle = constrain(cmd.d7, 0, 255);
+                printCommand();
 		doInverseKinematics();
 		setPosition();
 		setGripper();
@@ -199,19 +202,26 @@ void setPosition() // blocking until move is done
 {
 	int newLength[3];
 	int length, newCount, count;
+        boolean done[3] = {false, false, false};
+        boolean baseDone = false;
 	for(int i = 0; i < 3; i++)
 	{
 		newLength[i] = getNewLength(i, kinOutput[i]);
+                Serial.print(newLength[i]);
+                Serial.print(", ");
 		length = averageReading(wiperPin[i], 5);
 		if(abs(newLength[i] - length) > tolerance[i])
 		{
+                        //Serial.println(i);
 			if(newLength[i] > length)
 				LA[i].set(throttle);
 			else
 				LA[i].set(-throttle);
-		}
+		} else {
+                   done[i] = true;
+                }
 	}
-	
+        Serial.println();
 	newCount = getNewCount(kinOutputBase);
 	count = base.getCount();
 	if(abs(newCount - count) > BASETOLERANCE)
@@ -220,22 +230,28 @@ void setPosition() // blocking until move is done
 			base.set(throttle);
 		else
 			base.set(-throttle);
-	}
+	} else {
+            baseDone = true;
+        }
 	
-	boolean done[3] = {false, false, false};
-	boolean baseDone = false;
+	
+
 	char direction;
 	while(!done[0] || !done[1] || !done[2] || !baseDone)
 	{
 		for(int i = 0; i < 3; i++)
 		{
+                        
 			if(!done[i])
 			{
+                                
 				length = averageReading(wiperPin[i], 10);
 				direction = LA[i].getDirection();
-				if((direction > 0 && length > newLength[i]) \
-					|| (direction < 0 && length < newLength[i]))
+				if((direction > 0 && length < newLength[i]) \
+					|| (direction < 0 && length > newLength[i]))
 				{
+                                        //Serial.print(i);
+                                        //Serial.println("done");
 					LA[i].set(0);
 					done[i] = true;
 				}
@@ -272,13 +288,13 @@ void setSpeeds()
 	int length;
 	for(int i = 0; i < 3; i++)
 	{
-		// length = averageReading(wiperPin[i], 10);
-		// if((length < L1MAX && length > L1MIN) || \
-			// (length > L1MAX && speed[0] < 0) || \
-			// (length < L1MIN && speed[0] > 0))
+		 length = averageReading(wiperPin[i], 10);
+                  if((length < LA_MAX[i] && length > LA_MIN[i]) ||
+			 (length >= LA_MAX[i] && speed[i] < 0) ||
+			 (length <= LA_MIN[i] && speed[i] > 0))
 			LA[i].set(speed[i]);
-	// else
-		// LA[i].set(0);
+	          else
+		   LA[i].set(0);
 	}
 	base.set(speed[3]);
 }
@@ -288,6 +304,8 @@ int averageReading(int pin, int num)
 	unsigned long result = 0;
 	for(int i = 0; i < num; i++)
 		result += analogRead(pin);
+        if(pin == L3WIPER)
+          //Serial.println(result/num);
 	return int(result / num);
 }
 
@@ -330,7 +348,7 @@ void doInverseKinematics()
 
 	// L3
 	kinOutput[2] = sqrt(54750.0-24580.0*cos(PI/2.0-T4*PI/180.0)) - 167.5;
-	kinOutput[2] = constrain(kinOutput[2], minOutput[2], minOutput[2]);
+	kinOutput[2] = constrain(kinOutput[2], minOutput[2], maxOutput[2]);
 	
 	// Base
 	kinOutputBase = atan2(y, x) * (180.0 / PI);
@@ -338,6 +356,7 @@ void doInverseKinematics()
 
 void baseInterrupt()
 {
+         Serial.println("base interupt");
 	if(digitalRead(BASEINT2) == HIGH)
 		base.addToCount(1);
 	else
@@ -351,6 +370,7 @@ void receiveEvent(int count)
 	while(Wire.available())
 	{
 		byte in = Wire.read();
+                
 		
 		if(cmdCount == 0) // wait for header
 		{
@@ -370,10 +390,12 @@ void receiveEvent(int count)
 		{
 			if(in == CMD_TRAILER)
 			{
-				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4 \
+				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4
 					+ cmd.d5 + cmd.d6 + cmd.d7;
-				if(csum == cmd.csum)
+				if(csum == cmd.csum) {
+                                        //Serial.println("csum");
 					newCommand = true;
+                                } 
 			}
 			cmdCount = 0;
 		}
