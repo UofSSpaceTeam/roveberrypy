@@ -26,6 +26,7 @@ const int ledPin = 13;
 
 void setup()
 {
+        delay(1000)
 	Serial1.begin(9600); // GPS + pi
 	pinMode(ledPin, OUTPUT);
 	resetAverages();
