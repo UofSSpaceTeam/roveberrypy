@@ -99,6 +99,7 @@ double co0[] = {602.7172151459694, 609.5148521804905, -9.5409};
 double co1[] = {2.6706077615978, 2.4617644953818, 6.5606};
 double co2[] = {-0.0046229045464, 0.0004252476161, 0.041};
 double co3[] = {0.0000267147227, -0.0000047310008, -0.0001};
+int pphr = 13390;
 
 // inverse kin stuff
 float kinOutputBase; // degrees
@@ -169,14 +170,24 @@ void processCommand()
 		break;
 
 		case SET_POSITION:
-		position[0] = map(cmd.d1, -1000, 1000, MIN_X, MAX_X);
+		/*position[0] = map(cmd.d1, -1000, 1000, MIN_X, MAX_X);
 		position[1] = map(cmd.d2, -1000, 1000, MIN_Y, MAX_Y);
 		position[2] = map(cmd.d3, -1000, 1000, MIN_Z, MAX_Z);
-		position[3] = map(cmd.d4, -1000, 1000, MIN_PHI, MAX_PHI);
+		position[3] = map(cmd.d4, -1000, 1000, MIN_PHI, MAX_PHI);*/
+                position[0] = cmd.d1;
+                position[1] = cmd.d2;
+                position[2] = cmd.d3;
+                position[3] = cmd.d4;
+                Serial.print("Position ");
+                for(int i=0;i<4;i++) {
+                  //Serial.print(position[i]);
+                  //Serial.print(',');
+                }
+                Serial.println();
 		spin = constrain(cmd.d5, -255, 255);
 		open = constrain(cmd.d6, -255, 255);
 		throttle = constrain(cmd.d7, 0, 255);
-                printCommand();
+                //printCommand();
 		doInverseKinematics();
 		setPosition();
 		setGripper();
@@ -198,6 +209,43 @@ void printCommand()
 	Serial.println(buf);
 }
 
+
+void setPosition(){
+  for(int i = 0; i < 3 ; i ++){
+    double x = kinOutput[i];
+    double setTo = co3[i]*pow(x,3)+ co2[i]*pow(x,2)+ co1[i]*pow(x,1)+ co0[i];
+    float sum = 0;
+    for(int j = 0 ; j < 5 ; j++){
+      sum += analogRead(wiperPin[i]);
+    } 
+    
+    double curr = sum/5.0;
+    int dir = (setTo - curr)/abs(setTo - curr);
+    setTo += dir*tolerance[i]/2;               // THIS COULD BE A LINE WHICH CAUSES PROBLEMS ( ARM DRIFTING)  
+    if((abs(curr-setTo) > tolerance[i])&& !((curr <= LA_MIN[i])&&(dir==-1)) && !((curr >= LA_MAX[i])&&(dir==1)) ){
+    
+      LA[i].set(throttle*dir);
+    }
+    else{LA[i].set(0);
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.println(setTo);
+    }
+  }
+
+  int newPositionCount = pphr/180.0*position[3]-base.getCount();
+  //base.getDirection() = newPositionCount/abs(newPositionCount);
+  newPositionCount = abs(newPositionCount);
+  if(newPositionCount > tolerance[3]){base.set(throttle*base.getDirection());}
+  else{
+    base.set(0);
+  }
+//  Serial.println(base.getPosition());
+//  Serial.println(interrupt_counter);
+}
+
+
+/*
 void setPosition() // blocking until move is done
 {
 	int newLength[3];
@@ -271,6 +319,7 @@ void setPosition() // blocking until move is done
 		}
 	}
 }
+*/
 
 int getNewLength(int index, double target)
 {
@@ -317,33 +366,56 @@ void setGripper()
 
 void doInverseKinematics()
 {
-	float x = position[0];
-	float y = position[1];
+	float x = position[0]*cos(position[1]*PI/180.0);
+	float y = position[0]*sin(position[1]*PI/180.0);
 	float z = position[2];
 	float phi = position[3];
+        Serial.print(x); Serial.print(",");
+        Serial.print(y); Serial.print(",");
+        Serial.print(z); Serial.print(",");
+        Serial.println();
 	float a0x = 30.34;
 	float a0z = 95.25;
 	float a1 = 335.95;
 	float a2 = 393;
 
 	float t = hypot(x + a0x, y);
+        //Serial.print("t ");
+        //Serial.println(t);
 	float p = z - a0z;
+        //Serial.print("p ");
+        //Serial.println(p);
 	float c3 = (pow(t, 2) + pow(p, 2) - pow(a1, 2) - pow(a2, 2)) / (2 * a1 * a2);
+        //Serial.print("c3 ");
+        //Serial.println(c3);
 	float g3 = acos(c3);
+        //Serial.print("g3 ");
+        //Serial.println(g3);
 	float K1 = a1 + (a2 * cos(g3));
+        //Serial.print("K1 ");
+        //Serial.println(K1);
 	float K2 = a2 * sin(g3);
-	float g2 = atan2(p, t) - atan2(K1, K2);
+        //Serial.print("K2 ");
+        //Serial.println(K2);
+	float g2 = atan2(t, p) - atan2(K2, K1);
+        //Serial.println(atan2(K2,K1));
 
 	float T2 = 90.0 - (g2 * 180.0 / PI);
+        //Serial.println(90.0 - (g2 * 180.0 / PI));
+        //Serial.print("T2 ");
+        //Serial.println(T2);
 	float T3 = 180.0 - (g3 * 180.0 / PI);
 	float T4 = 180.0 + phi - T3 - T2;
 
 	// L1
 	kinOutput[0] = sqrt(130621.0-67573.0*cos((T2+38.84)*PI/180)) - 292.35;
+        //Serial.println(sqrt(130621.0-67573.0*cos((T2+38.84)*PI/180)));
+        //Serial.println(67573.0*cos((T2+38.84)*PI/180));
+        //Serial.println(kinOutput[0]);
 	kinOutput[0] = constrain(kinOutput[0], minOutput[0], maxOutput[0]);
 
 	// L2
-	kinOutput[1] = sqrt(118487.0-50392.0*cos(T3*PI/180.0)) - 292.35;
+	kinOutput[1] = sqrt(118487.0 - 50392.0*cos(T3*PI/180.0)) - 292.35;
 	kinOutput[1] = constrain(kinOutput[1], minOutput[1], maxOutput[1]);
 
 	// L3
@@ -352,6 +424,12 @@ void doInverseKinematics()
 	
 	// Base
 	kinOutputBase = atan2(y, x) * (180.0 / PI);
+        for(int i=0;i<3;i++) {
+          Serial.print(kinOutput[i]);
+          Serial.print(',');
+        }
+        Serial.print(kinOutputBase);
+        Serial.println();
 }
 
 void baseInterrupt()

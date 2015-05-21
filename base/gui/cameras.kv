@@ -151,17 +151,6 @@
 		BoxLayout:
 			orientation: "vertical"
 			Slider:
-				id: armX
-				padding: 30
-				value: 80
-				step: .05
-				on_value: app.inputThread.mailbox.put({"armX":self.value_normalized})
-			Label:
-				color: [0, 1, 0, 1]
-				text: "Left                    Right"
-		BoxLayout:
-			orientation: "vertical"
-			Slider:
 				id: armY
 				padding: 30
 				value: 50
@@ -169,18 +158,29 @@
 				on_value: app.inputThread.mailbox.put({"armY":self.value_normalized})
 			Label:
 				color: [0, 1, 0, 1]
-				text: "Down                      Up"
+				text: "Left                    Right"
 		BoxLayout:
 			orientation: "vertical"
 			Slider:
 				id: armZ
 				padding: 30
-				value: 65
+				value: 70
 				step: .05
 				on_value: app.inputThread.mailbox.put({"armZ":self.value_normalized})
 			Label:
 				color: [0, 1, 0, 1]
-				text: "In                          Out"
+				text: "Hight"
+		BoxLayout:
+			orientation: "vertical"
+			Slider:
+				id: armX
+				padding: 30
+				value: 80
+				step: .05
+				on_value: app.inputThread.mailbox.put({"armX":self.value_normalized})
+			Label:
+				color: [0, 1, 0, 1]
+				text: "Radius"
 		BoxLayout:
 			orientation: "vertical"
 			Slider:

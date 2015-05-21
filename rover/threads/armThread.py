@@ -5,9 +5,9 @@ import smbus
 
 # matching structures from arduino
 class CommandType:
-	setSpeeds = 0x00
+	setSpeed = 0x00
 	setPosition = 0x01
-	
+
 class Command:
 	def __init__(self):
 		self.header = 0xF7
@@ -55,21 +55,21 @@ class ArmThread(threading.Thread):
 		command = Command()
 		command.type = CommandType.setPosition
 		command.d1 = int(coords[0]) # x
-		command.d2 = int(coords[1]) # y 
+		command.d2 = int(coords[1]) # y
 		command.d3 = int(coords[2]) # z
 		command.d4 = int(coords[3]) # phi
 		command.d5 = int(0)
 		command.d6 = int(0)
 		command.d7 = int(self.throttle * 255)
 		self.sendCommand(command)
-	
+
 	def setSpeed(self, speeds):
 		command = Command()
 		command.type = CommandType.setSpeed
-		command.d1 = int(speeds[0]) # base rotation
-		command.d2 = int(speeds[1]) # actuator 1
-		command.d3 = int(speeds[2]) # actuator 2
-		command.d4 = int(speeds[3]) # actuator 3
+		command.d1 = int(speeds[0]*255) # base rotation
+		command.d2 = int(speeds[1]*255) # actuator 1
+		command.d3 = int(speeds[2]*255) # actuator 2
+		command.d4 = int(speeds[3]*255) # actuator 3
 		command.d5 = int(0) # hand rotation
 		command.d6 = int(0) # hand open/close
 		command.d7 = int(self.throttle * 255)
@@ -97,7 +97,7 @@ class ArmThread(threading.Thread):
 			self.i2c.write_byte(self.i2cAddress, command.d7 & 0xFF)
 			self.i2c.write_byte(self.i2cAddress, command.d7 >> 8)
 			self.i2c.write_byte(self.i2cAddress, command.csum)
-			self.i2c.write_byte(self.i2cAddress, command.trailer)	
+			self.i2c.write_byte(self.i2cAddress, command.trailer)
 		except IOError:
 			print("Arm thread got IOError")
 		self.i2cSem.release()
