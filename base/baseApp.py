@@ -9,7 +9,7 @@ from Queue import Queue
 from threads.communicationThread import CommunicationThread
 from threads.inputThread import InputThread
 from threads.navigationThread import *
-#from threads.teleThread import TeleThread
+from threads.teleThread import TeleThread
 
 from kivy.config import Config
 Config.set("input", "mouse", "mouse,disable_multitouch")
@@ -35,7 +35,7 @@ class BaseApp(App):
 			self.settings["towerIP"], self.settings["port"])
 		self.inputThread = InputThread(self)
 		self.navThread = NavigationThread(self)
-		#self.teleThread = TeleThread(self)
+		self.teleThread = TeleThread(self)
 		
 		Builder.load_file("gui/telemetry.kv")
 		Builder.load_file("gui/settings.kv")
@@ -49,7 +49,7 @@ class BaseApp(App):
 		self.commThread.start()
 		self.inputThread.start()
 		self.navThread.start()
-		#self.teleThread.start()
+		self.teleThread.start()
 		
 		Window.size = self.settings["windowSize"]
 		self.title = "USST Rover Control Application"
@@ -407,28 +407,28 @@ class TelemetryWidget(Widget):
 	def getData(self):
 		#for testing
 		data = {}
-		data["1"] = 1 + self.data1 
-		data["2"] = 5 + self.data2
-		data["3"] = 10 + self.data3
-		if self.data1 > 200:
-				data["1"] = 0
-		if self.data2 > 200:
-				data["2"] = 0
-		if self.data3 > 200:
-				data["3"] = 0
-		return data
+		#data["1"] = 1 + self.data1 
+		#data["2"] = 5 + self.data2
+		#data["3"] = 10 + self.data3
+		#if self.data1 > 200:
+		#		data["1"] = 0
+		#if self.data2 > 200:
+		#		data["2"] = 0
+		#if self.data3 > 200:
+		#		data["3"] = 0
+		#return data
 		
 		
 		#actual data code
-		#data[1] = self.teleThread.gx
-		#data[2] = self.teleThread.gy
-		#data[3] = self.teleThread.gz
-		#data[4] = self.telethread.ax
-		#data[5] = self.telethread.ay
-		#data[6] = self.telethread.az
-		#data[7] = self.telethread.vout
-		#data[8] = self.telethread.isense
-		
+		data[1] = self.teleThread.gx
+		data[2] = self.teleThread.gy
+		data[3] = self.teleThread.gz
+		data[4] = self.telethread.ax
+		data[5] = self.telethread.ay
+		data[6] = self.telethread.az
+		data[7] = self.telethread.vout
+		data[8] = self.telethread.isense
+		return data
 				
 	def updateMax(self):
 		if self.data1 > self.max_data1:
