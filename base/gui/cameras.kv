@@ -135,7 +135,7 @@
 			padding: 20
 			value: 50
 			step: 10
-			on_value: app.inputThread.mailbox.put({"armThrottle":self.value_normalized})
+			on_value: app.commThread.mailbox.put({"armThrottle":self.value_normalized})
 		ToggleButton:
 			id: invKin
 			text: "Inverse Kin"
@@ -153,8 +153,8 @@
 			Slider:
 				id: armX
 				padding: 30
-				value: 50
-				step: 1
+				value: 80
+				step: .05
 				on_value: app.inputThread.mailbox.put({"armX":self.value_normalized})
 			Label:
 				color: [0, 1, 0, 1]
@@ -165,7 +165,7 @@
 				id: armY
 				padding: 30
 				value: 50
-				step: 1
+				step: .05
 				on_value: app.inputThread.mailbox.put({"armY":self.value_normalized})
 			Label:
 				color: [0, 1, 0, 1]
@@ -175,8 +175,8 @@
 			Slider:
 				id: armZ
 				padding: 30
-				value: 50
-				step: 1
+				value: 65
+				step: .05
 				on_value: app.inputThread.mailbox.put({"armZ":self.value_normalized})
 			Label:
 				color: [0, 1, 0, 1]
@@ -186,8 +186,8 @@
 			Slider:
 				id: armPhi
 				padding: 30
-				value: 50
-				step: 1
+				value: 48
+				step: .05
 				on_value: app.inputThread.mailbox.put({"armPhi":self.value_normalized})
 			Label:
 				color: [0, 1, 0, 1]
