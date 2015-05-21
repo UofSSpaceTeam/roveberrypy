@@ -11,21 +11,22 @@
 
 LSM9DS0 imu(MODE_I2C, LSM9DS0_G, LSM9DS0_XM);
 TinyGPS gps;
-Adafruit_ADS1115 adc;
+Adafruit_ADS1115 adc(0x48);
+Adafruit_ADS1015 adcExp(0x49);
+
 
 float lat, lon, alt, mps, heading;
 unsigned long fix_age, time, date;
-float gx, gy, gz, ax, ay, az, mx, my, mz, vout, isense;
+float gx, gy, gz, ax, ay, az, mx, my, mz, vout, isense, laser, ph, moist;
 float gx_avg, gy_avg, gz_avg, ax_avg, ay_avg, az_avg;
-float mx_avg, my_avg, mz_avg, vout_avg, isense_avg;
+float mx_avg, my_avg, mz_avg, vout_avg, isense_avg, laser_avg, ph_avg, moist_avg;
 
 int count = 0;
 const int ledPin = 13;
 
 void setup()
 {
-	Serial1.begin(9600); // GPS
-	Serial.begin(57600); // pi
+	Serial1.begin(9600); // GPS + pi
 	pinMode(ledPin, OUTPUT);
 	resetAverages();
 	
@@ -34,6 +35,10 @@ void setup()
 	
 	adc.setGain(GAIN_TWOTHIRDS); // 2/3x gain +/- 6.144V 1 bit = 3mV 0.1875mV
 	adc.begin();
+
+        adcExp.setGain(GAIN_ONE);
+        adcExp.begin();
+
 }
 
 void loop()
@@ -67,6 +72,12 @@ void loop()
 	isense = adc.readADC_SingleEnded(0);
 	vout = adc.readADC_SingleEnded(1);
 	vout = (vout * 0.000778547) - 0.0866782;
+
+        adcExp.setGain(GAIN_ONE);
+        laser = adcExp.readADC_SingleEnded(0);
+        adcExp.setGain(GAIN_FOUR);
+        ph = adcExp.readADC_SingleEnded(1);
+        moist = adcExp.readADC_SingleEnded(2);
 	
 	// collects average of data over 10 iterations
 	if(count < ITERATIONS)
@@ -87,42 +98,48 @@ void loop()
 void sendData()
 {
 	Serial.print("#");
-	Serial.print(gx_avg / 10); // 1
-	Serial.print(" ");
-	Serial.print(gy_avg / 10); // 2
-	Serial.print(" ");
-	Serial.print(gz_avg / 10); // 3
-	Serial.print(" ");
-	Serial.print(ax_avg / 10); // 4
-	Serial.print(" ");
-	Serial.print(ay_avg / 10); // 5
-	Serial.print(" ");
-	Serial.print(az_avg / 10); // 6
-	Serial.print(" ");
-	Serial.print(mx_avg / 10); // 7
-	Serial.print(" ");
-	Serial.print(my_avg / 10); // 8
-	Serial.print(" ");
-	Serial.print(mz_avg / 10); // 9
-	Serial.print(" ");
-	Serial.print(lat, 8); // 10
-	Serial.print(" ");
-	Serial.print(lon, 8); // 11
-	Serial.print(" ");
-	Serial.print(mps); // 12
-	Serial.print(" ");
-	Serial.print(alt); // 13
-	Serial.print(" ");
-	Serial.print(heading); // 14
-	Serial.print(" ");
-	Serial.print(date); // 15
-	Serial.print(" ");
-	Serial.print(time); // 16
-	Serial.print(" ");
-	Serial.print(vout); // 17
-	Serial.print(" ");
-	Serial.print(isense); // 18
-	Serial.println("$");
+	Serial1.print(gx_avg / 10); // 1
+	Serial1.print(" ");
+	Serial1.print(gy_avg / 10); // 2
+	Serial1.print(" ");
+	Serial1.print(gz_avg / 10); // 3
+	Serial1.print(" ");
+	Serial1.print(ax_avg / 10); // 4
+	Serial1.print(" ");
+	Serial1.print(ay_avg / 10); // 5
+	Serial1.print(" ");
+	Serial1.print(az_avg / 10); // 6
+	Serial1.print(" ");
+	Serial1.print(mx_avg / 10); // 7
+	Serial1.print(" ");
+	Serial1.print(my_avg / 10); // 8
+	Serial1.print(" ");
+	Serial1.print(mz_avg / 10); // 9
+	Serial1.print(" ");
+	Serial1.print(lat, 8); // 10
+	Serial1.print(" ");
+	Serial1.print(lon, 8); // 11
+	Serial1.print(" ");
+	Serial1.print(mps); // 12
+	Serial1.print(" ");
+	Serial1.print(alt); // 13
+	Serial1.print(" ");
+	Serial1.print(heading); // 14
+	Serial1.print(" ");
+	Serial1.print(date); // 15
+	Serial1.print(" ");
+	Serial1.print(time); // 16
+	Serial1.print(" ");
+	Serial1.print(vout_avg); // 17
+	Serial1.print(" ");
+	Serial1.print(isense_avg); // 18
+        Serial1.print(" ");
+        Serial1.print(laser_avg); // 19
+	Serial1.print(" ");
+	Serial1.print(ph_avg); // 20
+        Serial1.print(" ");
+        Serial1.print(moist_avg); //21
+        Serial1.println("$");
 }
 
 void addToAverages()
@@ -138,6 +155,10 @@ void addToAverages()
 	mz_avg += mz;
 	vout_avg += vout;
 	isense_avg += isense;
+        laser_avg += laser;
+        ph_avg += ph;
+        moist_avg += moist;
+        
 }
 
 void resetAverages()
@@ -153,5 +174,8 @@ void resetAverages()
 	mz_avg = 0;
 	vout_avg = 0;
 	isense_avg = 0;
+        laser_avg = 0;
+        ph_avg = 0;
+        moist_avg = 0;
 }
 
