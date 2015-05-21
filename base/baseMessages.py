@@ -2,7 +2,7 @@
 
 telemetryList = ([(["pitch", "roll", "gx", "gy", "gz", "ax", "ay", "az",
 	"heading", "aroll", "apitch", "lat", "lon", "mps", "alt", "gps_heading",
-	"date", "time", "vout", "isense"])])
+	"date", "time", "vout", "isense", "laser", "ph", "moist"])])
 
 navList = (["roverGPS", "towerGPS"])
 # roverGPS = (latitude, longitude, speed, direction)

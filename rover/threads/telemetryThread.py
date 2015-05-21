@@ -53,5 +53,8 @@ class TelemetryThread(threading.Thread):
 		outData["time"] = inData[15]
 		outData["vout"] = float(inData[16])
 		outData["isense"] = float(inData[17])
+		outData["laser"] = float(inData[18])
+		outData["ph"] = float(inData[19])
+		outData["moist"] = float(inData[20])
 		return outData
 

@@ -3,7 +3,7 @@
 #include <Servo.h>
 #include <Wire.h>
 
-#define TIMEOUT 2500
+#define TIMEOUT 2500000
 #define PULSE_TIME 30
 
 // definition of structures and enums
@@ -34,7 +34,7 @@ typedef struct
 
 // pin connetions for motor
 const byte m_pwm[] = {9, 10};
-const byte l_pwr[] = {3, 4, 5};
+const byte l_pwr[] = {4, 6, 5};
 
 // arduino address on bus
 const byte i2c_address = 0x09;
@@ -195,11 +195,11 @@ void processCommand()
 		break;
 		
 		case SET_LASER:
-		if(cmd.d1 > 2 || cmd.d1 < 0)
+		if(cmd.d1 > 3 || cmd.d1 < 0)
 			break;
 		if(cmd.d2 > 1 || cmd.d1 < 0)
 			break;
-		l_cmd[cmd.d1] = cmd.d2;
+		l_cmd[cmd.d1 - 1] = cmd.d2;
 			timeout = millis();
 		break;
 		
@@ -235,8 +235,23 @@ void setMotor(byte index, short value)
 	}
 }
 
-void setLaser(byte index, short value) {
-	digitalWrite(l_pwr[index], value);
+void setLaser(byte index, short value)
+{
+  if(index == 2){
+    if(value) Serial.println("Pen Laser On");  
+   digitalWrite(l_pwr[index], !value);
+  }
+  else{
+    if(value){
+      //if(value && index == 0) Serial.println("A Laser On");
+      //if(value && index == 1) Serial.println("B Laser On");
+      pinMode(l_pwr[index], INPUT);
+    }
+    else{
+      pinMode(l_pwr[index], OUTPUT);
+      digitalWrite(l_pwr[index], LOW);
+    }
+  }
 }
 
 void stopAll()
