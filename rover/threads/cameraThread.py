@@ -29,10 +29,10 @@ class CameraThread(threading.Thread):
 				self.takePicture()
 			if "cameraMovement" in data:
 				change = data["cameraMovement"]
-				self.cameraPitch += int(change[1]) * 5
-				self.cameraYaw += int(change[0]) * 5
-				self.cameraPitch = min(max(self.cameraPitch, -45), 45)
-				self.cameraYaw = min(max(self.cameraYaw, -90), 90)
+				self.cameraPitch += int(change[0]) * -5
+				self.cameraYaw += int(change[1]) * 10
+				self.cameraPitch = min(max(self.cameraPitch, -180), 180)
+				self.cameraYaw = min(max(self.cameraYaw, -180), 180)
 				self.turnCamera(self.cameraPitch, self.cameraYaw)
 	
 	def turnCamera(self, pitch, yaw):
@@ -40,10 +40,14 @@ class CameraThread(threading.Thread):
 			return
 		try:
 			self.i2cSem.acquire()
-			self.servoDriver.setServo(0, int(pitch + self.center[0]))
-			self.servoDriver.setServo(1, int(yaw + self.center[1]))
+			p1 = int(28*pitch/3 + 1690)
+			p2 = int(115*yaw/36 + 1400)
+			print p1, p2
+			self.servoDriver.setServo(0, p1)
+			self.servoDriver.setServo(1, p2)
 		except:
 			print("couldn't move antenna camera.")
+			raise
 		self.i2cSem.release()
 
 	# change / reload / deactivate a video stream
@@ -59,8 +63,7 @@ class CameraThread(threading.Thread):
 	# todo: add gps tag
 	def takePicture(self):
 		timestamp = str(time.time() % 10000)
-		command = ("raspistill -o /home/root/" + timestamp + ".jpg"
-			"-t 2 -w 1920 -h 1080 -q 100")
+		command = ("raspistill -o /root/" + str(timestamp) + ".jpg -t 2 -w 1920 -h 1080 -q 100")
 		self.stopStreams()
 		subprocess.Popen(command, shell = True)
 
