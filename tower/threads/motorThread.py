@@ -73,12 +73,12 @@ class motorThread(threading.Thread):
 			GPIO.output(11, False)
 			GPIO.output(11, True)
 
-		#Read data from pin
-		if GPIO.input(7) == True:
-			 b = 1
-		else:
-			 b = 0
-		rotation = rotation + b * pow(2, 10-(x+1))
+			#Read data from pin
+			if GPIO.input(7) == True:
+				 b = 1
+			else:
+				 b = 0   
+			rotation = rotation + b * pow(2, 10-(x+1))
 
 		#Run clock again for 7 iterations to allow for lag
 		for x in range(0,6):

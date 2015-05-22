@@ -24,7 +24,7 @@ class CommunicationThread(threading.Thread):
 		while True:
 			time.sleep(self.period)
 			try:
-				inData, address = self.socket.recvfrom(self.port)
+				inData, address = self.socket.recvfrom(8192)
 				self.baseAddress = address
 			except socket.error: # no data
 				continue

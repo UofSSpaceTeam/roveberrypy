@@ -23,7 +23,8 @@ class CommunicationThread(threading.Thread):
 	def run(self):
 		while True:
 			try:
-				inData, address = self.socket.recvfrom(8192)
+				inData, address = self.socket.recvfrom(self.port)
+				#print(inData)
 			except socket.error: # no incoming data
 				pass
 			else:
@@ -38,13 +39,16 @@ class CommunicationThread(threading.Thread):
 					for msg in messages.guiList:
 						if key == msg:
 							self.parent.mailbox.put({key:value})
+					for msg in messages.telemetryList:
+						if key == msg:
+							self.parent.teleThread.mailbox.put({key:value})
 
 			if not self.mailbox.empty():
 				outDict = {}
 				while not self.mailbox.empty():
 					outDict.update(self.mailbox.get())
 				outData = json.dumps(outDict)
-				print outData
+				#print outData
 				self.socket.sendto(outData, (self.roverIP, self.port))
 				self.socket.sendto(outData, (self.towerIP, self.port))
 			time.sleep(0.05)

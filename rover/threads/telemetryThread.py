@@ -9,22 +9,22 @@ class TelemetryThread(threading.Thread):
 		self.name = "Telemetry"
 		self.mailbox = Queue()
 		self.port = serial.Serial("/dev/ttyAMA0", 57600)
-		self.messageElements = 18
+		self.messageElements = 21
 
 	def run(self):
 		while True:
 			data = self.getSerialData()
 			if data is not None:
 				msg = {"roverGPS":(data["lat"], data["lon"], data["speed"],
-					data["heading"])}
+					data["heading"]), "gyro":(data["gx"], data["gy"], data["gz"])}
 				self.parent.commThread.mailbox.put(msg)
 
 	def getSerialData(self):
 		inData = ""
 		outData = {}
 		# wait for message start
-		while self.port.read() != "#":
-			pass
+		#while self.port.read() != "#":
+		#	pass
 		# wait for message end
 		inChar = self.port.read()
 		while inChar != "$":
@@ -47,8 +47,8 @@ class TelemetryThread(threading.Thread):
 		outData["lat"] = float(inData[9])
 		outData["lon"] = float(inData[10])
 		outData["speed"] = float(inData[11]) / 60
-		outData["alt"] = int(inData[12])
-		outData["heading"] = int(inData[13])
+		outData["alt"] = float(inData[12])
+		outData["heading"] = float(inData[13])
 		outData["date"] = inData[14]
 		outData["time"] = inData[15]
 		outData["vout"] = float(inData[16])

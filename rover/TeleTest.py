@@ -7,7 +7,7 @@ from threads.telemetryThread import telemetryThread
 import time
 
 class TeleTest():
-        def __init__(self):
+		def __init__(self):
                 self.telemetryThread = telemetryThread(self)
 
         def stopThreads(self):
