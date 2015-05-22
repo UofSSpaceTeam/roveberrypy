@@ -9,7 +9,7 @@ from Queue import Queue
 from threads.communicationThread import CommunicationThread
 from threads.inputThread import InputThread
 from threads.navigationThread import *
-from threads.teleThread import TeleThread
+from threads.teleThread import *
 
 from kivy.config import Config
 Config.set("input", "mouse", "mouse,disable_multitouch")
@@ -25,6 +25,8 @@ from kivy.properties import ListProperty, StringProperty, NumericProperty
 from kivy.graphics import *
 from kivy.clock import Clock
 
+from gui.teleWidget import TelemetryWidget
+
 # application python code
 class BaseApp(App):	
 	def build(self):
@@ -38,7 +40,7 @@ class BaseApp(App):
 		self.teleThread = TeleThread(self)
 		
 		
-		# Builder.load_file("gui/telemetry.kv")
+		Builder.load_file("gui/telemetry.kv")
 		Builder.load_file("gui/settings.kv")
 		Builder.load_file("gui/nav.kv")
 		Builder.load_file("gui/cameras.kv")
@@ -50,7 +52,7 @@ class BaseApp(App):
 		self.commThread.start()
 		self.inputThread.start()
 		self.navThread.start()
-		# self.teleThread.start()
+		self.teleThread.start()
 		
 		Window.size = self.settings["windowSize"]
 		self.title = "USST Rover Control Application"

@@ -1,3 +1,4 @@
+import kivy
 from kivy.app import App
 from kivy.properties import OptionProperty, NumericProperty, ListProperty, \
         BooleanProperty

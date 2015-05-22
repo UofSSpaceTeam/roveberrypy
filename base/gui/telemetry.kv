@@ -8,7 +8,7 @@
         Color:
             rgba: .4, .4, 1, 1
         Line:
-            points: app.teleThread.points1
+            points: self.points1
             joint: 'miter'
             cap: 'round'
             width: 1
@@ -16,7 +16,7 @@
         Color:
             rgba: 1, .4, .4, 1
         Line:
-            points: app.teleThread.points2
+            points: self.points2
             joint: 'miter'
             cap: 'round'
             width: 1
@@ -24,7 +24,7 @@
         Color:
             rgba: 0, 1, 0, 1
         Line:
-            points: app.teleThread.points3
+            points: self.points3
             joint: 'miter'
             cap: 'round'
             width: 1
@@ -32,7 +32,7 @@
 		Color:
             rgba: .4, 1, .4, 1
         Line:
-            points: app.teleThread.points4
+            points: self.points4
             joint: 'miter'
             cap: 'round'
             width: 1
@@ -40,7 +40,7 @@
         Color:
             rgba: 1, 0, 0, 1
         Line:
-            points: app.teleThread.points5
+            points: self.points5
             joint: 'miter'
             cap: 'round'
             width: 1
@@ -48,7 +48,7 @@
         Color:
             rgba: 0, 0, 1, 1
         Line:
-            points: app.teleThread.points6
+            points: self.points6
             joint: 'miter'
             cap: 'round'
             width: 1
@@ -56,7 +56,7 @@
 		Color:
             rgba: 1, 1, 0, 1
         Line:
-            points: app.teleThread.points7
+            points: self.points7
             joint: 'miter'
             cap: 'round'
             width: 1
@@ -64,210 +64,7 @@
         Color:
             rgba: 0, 1, 1, 1
         Line:
-            points: app.teleThread.points8
-            joint: 'miter'
-            cap: 'round'
-            width: 1
-            close: False
-
-    GridLayout:
-        cols: 4
-        size_hint: 1, 1
-		#size: 200, 200
-        #height: 44 * 5
-		height: self.height * .5
-		width: self.width
-
-        GridLayout:
-            cols: 4
-
-            Label:
-                text: ''
-            Label:
-                text: 'data'
-            Label:
-                text: 'max'
-			Label:
-                text: 'average'
-
-            Label:
-                text: 'gx'
-            Label:
-                text: str(app.teleThread.data1)
-            Label:
-                text: str(app.teleThread.max_data1)
-			Label:
-                text: str(app.teleThread.avg_data1)
-				
-            
-            Label:
-                text: 'gy'
-            Label:
-                text: str(app.teleThread.data2)
-            Label:
-                text: str(app.teleThread.max_data2)
-			Label:
-                text: str(app.teleThread.avg_data2)
-
-				
-            Label:
-                text: 'gz'
-            Label:
-                text: str(app.teleThread.data3)
-            Label:
-                text: str(app.teleThread.max_data3)
-			Label:
-                text: str(app.teleThread.avg_data3)
-				
-		GridLayout:
-            cols: 4
-
-            Label:
-                text: ''
-            Label:
-                text: 'data'
-            Label:
-                text: 'max'
-			Label:
-                text: 'average'
-				
-            Label:
-                text: 'ax'
-            Label:
-                text: str(app.teleThread.data4)
-            Label:
-                text: str(app.teleThread.max_data4)
-			Label:
-                text: str(app.teleThread.avg_data4)
-            
-            Label:
-                text: 'ay'
-            Label:
-                text: str(app.teleThread.data5)
-            Label:
-                text: str(app.teleThread.max_data5)
-			Label:
-                text: str(app.teleThread.avg_data5)
-
-            Label:
-                text: 'az'
-            Label:
-                text: str(app.teleThread.data6)
-            Label:
-                text: str(app.teleThread.max_data6)
-			Label:
-                text: str(app.teleThread.avg_data6)
-
-		GridLayout:
-            cols: 4
-
-            Label:
-                text: ''
-            Label:
-                text: 'data'
-            Label:
-                text: 'max'
-			Label:
-                text: 'average'
-				
-            Label:
-                text: 'vout'
-            Label:
-                text: str(app.teleThread.data7)
-            Label:
-                text: str(app.teleThread.max_data7)
-			Label:
-                text: str(app.teleThread.avg_data7)
-            
-            Label:
-                text: 'isense'
-            Label:
-                text: str(app.teleThread.data8)
-            Label:
-                text: str(app.teleThread.max_data8)
-			Label:
-                text: str(app.teleThread.avg_data8)
-
-
-			
-        BoxLayout:
-			#cols: 1
-			#size_hint: None, None
-			#size: self.minimum_size
-			ToggleButton:
-				size_hint: None, None
-				#size: 100, 44
-				text: 'Start'
-				on_state: app.teleThread.animate(self.state == 'down')
-
-				
-<TelemetryScreen@BoxLayout>:
-	#orientation: "horizontal"
-	#BoxLayout:
-	#TelemetryWidget:
-	#	id: telewidget
-	canvas:
-	
-        Color:
-            rgba: .4, .4, 1, 1
-        Line:
-            points: app.teleThread.points1
-            joint: 'miter'
-            cap: 'round'
-            width: 1
-            close: False
-        Color:
-            rgba: 1, .4, .4, 1
-        Line:
-            points: app.teleThread.points2
-            joint: 'miter'
-            cap: 'round'
-            width: 1
-            close: False
-        Color:
-            rgba: 0, 1, 0, 1
-        Line:
-            points: app.teleThread.points3
-            joint: 'miter'
-            cap: 'round'
-            width: 1
-            close: False
-		Color:
-            rgba: .4, 1, .4, 1
-        Line:
-            points: app.teleThread.points4
-            joint: 'miter'
-            cap: 'round'
-            width: 1
-            close: False
-        Color:
-            rgba: 1, 0, 0, 1
-        Line:
-            points: app.teleThread.points5
-            joint: 'miter'
-            cap: 'round'
-            width: 1
-            close: False
-        Color:
-            rgba: 0, 0, 1, 1
-        Line:
-            points: app.teleThread.points6
-            joint: 'miter'
-            cap: 'round'
-            width: 1
-            close: False
-		Color:
-            rgba: 1, 1, 0, 1
-        Line:
-            points: app.teleThread.points7
-            joint: 'miter'
-            cap: 'round'
-            width: 1
-            close: False
-        Color:
-            rgba: 0, 1, 1, 1
-        Line:
-            points: app.teleThread.points8
+            points: self.points8
             joint: 'miter'
             cap: 'round'
             width: 1
@@ -279,7 +76,7 @@
 		#size: 200, 200
         height: 44 * 5
 		#height: self.height * .5
-		width: self.width
+		width: root.width
 
         GridLayout:
             cols: 4
@@ -296,31 +93,31 @@
             Label:
                 text: 'gx'
             Label:
-                text: str(app.teleThread.data1)
+                text: str(root.data1)
             Label:
-                text: str(app.teleThread.max_data1)
+                text: str(root.max_data1)
 			Label:
-                text: str(app.teleThread.avg_data1)
+                text: str(root.avg_data1)
 				
             
             Label:
                 text: 'gy'
             Label:
-                text: str(app.teleThread.data2)
+                text: str(root.data2)
             Label:
-                text: str(app.teleThread.max_data2)
+                text: str(root.max_data2)
 			Label:
-                text: str(app.teleThread.avg_data2)
+                text: str(root.avg_data2)
 
 				
             Label:
                 text: 'gz'
             Label:
-                text: str(app.teleThread.data3)
+                text: str(root.data3)
             Label:
-                text: str(app.teleThread.max_data3)
+                text: str(root.max_data3)
 			Label:
-                text: str(app.teleThread.avg_data3)
+                text: str(root.avg_data3)
 				
 		GridLayout:
             cols: 4
@@ -337,29 +134,29 @@
             Label:
                 text: 'ax'
             Label:
-                text: str(app.teleThread.data4)
+                text: str(root.data4)
             Label:
-                text: str(app.teleThread.max_data4)
+                text: str(root.max_data4)
 			Label:
-                text: str(app.teleThread.avg_data4)
+                text: str(root.avg_data4)
             
             Label:
                 text: 'ay'
             Label:
-                text: str(app.teleThread.data5)
+                text: str(root.data5)
             Label:
-                text: str(app.teleThread.max_data5)
+                text: str(root.max_data5)
 			Label:
-                text: str(app.teleThread.avg_data5)
+                text: str(root.avg_data5)
 
             Label:
                 text: 'az'
             Label:
-                text: str(app.teleThread.data6)
+                text: str(root.data6)
             Label:
-                text: str(app.teleThread.max_data6)
+                text: str(root.max_data6)
 			Label:
-                text: str(app.teleThread.avg_data6)
+                text: str(root.avg_data6)
 
 		GridLayout:
             cols: 4
@@ -376,20 +173,20 @@
             Label:
                 text: 'vout'
             Label:
-                text: str(app.teleThread.data7)
+                text: str(root.data7)
             Label:
-                text: str(app.teleThread.max_data7)
+                text: str(root.max_data7)
 			Label:
-                text: str(app.teleThread.avg_data7)
+                text: str(root.avg_data7)
             
             Label:
                 text: 'isense'
             Label:
-                text: str(app.teleThread.data8)
+                text: str(root.data8)
             Label:
-                text: str(app.teleThread.max_data8)
+                text: str(root.max_data8)
 			Label:
-                text: str(app.teleThread.avg_data8)
+                text: str(root.avg_data8)
 
 
 			
@@ -401,8 +198,13 @@
 				size_hint: None, None
 				#size: 100, 44
 				text: 'Start'
-				on_state: app.teleThread.animate(self.state == 'down')
-	
+				on_state: root.animate(self.state == 'down')
+
+				
+<TelemetryScreen@BoxLayout>:
+	#orientation: "horizontal"
+	TelemetryWidget:
+		id: telewidget
 
 		
 		
