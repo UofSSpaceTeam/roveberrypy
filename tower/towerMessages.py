@@ -1,6 +1,6 @@
 
 # motor control thread
-motorList = (["towerAim", "centerCameraButton"])
+motorList = (["towerAim", "towerJog", "centerCameraButton"])
 
 # sensor thread
 telemetryList = ([])

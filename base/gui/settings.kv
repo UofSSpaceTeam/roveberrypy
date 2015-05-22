@@ -36,6 +36,24 @@
 			Label:
 				text: "3D Vision System"
 				font_size: 20
+			BoxLayout:
+				Button:
+					text: "Jog L"
+					on_release: app.commThread.mailbox.put({"towerJog":"L"})
+				Button:
+					text: "Jog R"
+					on_release: app.commThread.mailbox.put({"towerJog":"R"})
+		BoxLayout:
+			orientation: "vertical"
+			canvas:
+				Color:
+					rgb: 0.4, 0, 0.4
+				Rectangle:
+					pos: self.pos
+					size: self.size
+			Label:
+				text: "3D Vision System"
+				font_size: 20
 			Button:
 				text: "Center Camera"
 				on_release: app.commThread.mailbox.put({"centerCameraButton":""})

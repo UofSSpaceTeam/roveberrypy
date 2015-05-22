@@ -162,7 +162,7 @@ class BaseApp(App):
 		video.allow_stretch = True
 		video.keep_ratio = True
 		# Need asynchronous loading so the pi can keep up
-		Clock.schedule_once(lambda dt: self.startStreamDelay(name), 2)
+		Clock.schedule_once(lambda dt: self.startStreamDelay(name), 1)
 		screen.video = video
 		# add new video player
 		screen.add_widget(video)

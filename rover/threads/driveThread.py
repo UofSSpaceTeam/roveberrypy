@@ -30,7 +30,7 @@ class DriveThread(threading.Thread):
 	def run(self):
 		while True:
 			data = self.mailbox.get()
-			print data
+			# print data
 			if "motorSpeeds" in data:
 				self.setMotors(data["motorSpeeds"])
 

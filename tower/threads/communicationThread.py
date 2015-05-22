@@ -40,7 +40,7 @@ class CommunicationThread(threading.Thread):
 				outDict = {}
 				while not self.mailbox.empty():
 					outDict.update(self.mailbox.get())
-				print outDict
+				# print outDict
 				outData = json.dumps(outDict)
 				if self.baseAddress != None:
 					self.socket.sendto(outData, self.baseAddress)

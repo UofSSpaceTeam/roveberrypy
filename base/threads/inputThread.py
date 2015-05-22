@@ -12,11 +12,11 @@ class InputThread(threading.Thread):
 		pygame.init()
 		self.driveController = None
 		self.armController = None
-		# if pygame.joystick.get_count() > 0:
-		# 	self.driveController = pygame.joystick.Joystick(0)
-		# 	self.driveController.init()
 		if pygame.joystick.get_count() > 0:
-			self.armController = pygame.joystick.Joystick(0)
+			self.driveController = pygame.joystick.Joystick(0)
+			self.driveController.init()
+		if pygame.joystick.get_count() > 1:
+			self.armController = pygame.joystick.Joystick(1)
 			self.armController.init()
 		self.armMode = "disabled" # absolute / relative / direct / disabled
 		self.armCoords = [300, 500, 0, -20, 0, 0]

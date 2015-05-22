@@ -9,6 +9,9 @@ class Pins(Enum):
 	motorA = 23
 	motorB = 24
 	servoPwm = 18
+	sensorClock = 11
+	sensorChipSelect = 9
+	sensorOutput = 7
 	
 class ServoPositions(Enum):
 	lowerBound = 3
@@ -24,66 +27,41 @@ class motorThread(threading.Thread):
 		self.setupGpio()
 		self.setupMotor()
 		self.setupServo()
+		self.setupSensor()
 		
 	def run(self):
 		while True:
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
 				print data
-				if "towerAim" in data:
-					self.rotate(data["towerAim"])
+				# if "towerAim" in data:
+					# self.rotate(data["towerAim"])
+				if "towerJog" in data:
+					self.jog(data["towerJog"])
 				elif "centerCameraButton" in data:
 					self.pressButton()
 			time.sleep(0.1)
 	
 	def getRotation(self):
-	#File Name: rotation_sensor.py
-	#Project: USST Rover 2015
-	#Coder(s): Ghazi Sami
-	#Date Written: 5/11/2015
-	#Description: This code is designed to obtain the output of the EMS22A Rotation Sensor
-	#As a Base-10 number between 0 and 1023. The output is continually updated as the rotation changes.
-
-		#Set pin numbering mode
-		GPIO.setmode(GPIO.BCM)
-
-		#Initialize pins:
-
-		#Set Digital Input (Pin 1 on Sensor) to GND
-		GPIO.setup(11, GPIO.OUT)  #Set clock pin (#2 on sensor) as an output
-		#Set Pin #3 to GND
-		GPIO.setup(7, GPIO.IN) #Set Digital Output (#4 on sensor) as an input
-		#Set Pin #5 to VCC
-		GPIO.setup(9, GPIO.OUT)  #Set chip select pin (#6 on sensor) as an output
-
-		#Set initial values for clock and chip select:
-		GPIO.output(11, True) 
-		GPIO.output(9, False) 
-
-		#Chip select must be high for a min of 500ns between readings
-		GPIO.output(9, True)
-		GPIO.output(9, False)
-
-		#Initialize position output to 0:
-		rotation = 0 ;
-
-		#Read data from clock
-		for x in range(0,9):
-			#Have clock switch between high and low
-			GPIO.output(11, False)
-			GPIO.output(11, True)
-
-			#Read data from pin
-			if GPIO.input(7) == True:
-				 b = 1
+		rotation = 0x0000
+		gpio.output(Pins.sensorChipSelect, 0)
+		# clock in data
+		s = ""
+		for i in range(0, 10):
+			gpio.output(Pins.sensorClock, 0)
+			gpio.output(Pins.sensorClock, 1)
+			if gpio.input(Pins.sensorOutput):
+				s += "1"
+				rotation += 2**i
 			else:
-				 b = 0   
-			rotation = rotation + b * pow(2, 10-(x+1))
-
-		#Run clock again for 7 iterations to allow for lag
-		for x in range(0,6):
-			GPIO.output(11,False)
-			GPIO.output(11,True)
+				s += "0"
+		for i in range(10, 16):
+			gpio.output(Pins.sensorClock, 0)
+			gpio.output(Pins.sensorClock, 1)
+		gpio.output(Pins.sensorChipSelect, 1)
+		# rotation = (rotation-336)*(360/1023.0)	
+		print rotation
+		print s
 		return rotation
 	
 	def rotate(self, rotation):
@@ -102,6 +80,21 @@ class motorThread(threading.Thread):
 					break
 				time.sleep(0.01)
 		self.stopMotor()
+	
+	def jog(self, direction):
+		if direction == "L":
+			self.spinMotorLeft()
+		elif direction == "R":
+			self.spinMotorRight()
+		time.sleep(0.2)
+		try:
+			self.getRotation()
+			self.getRotation()
+			self.getRotation()
+			self.getRotation()
+			self.getRotation()
+		finally:
+			self.stopMotor()
 	
 	def spinMotorLeft(self):
 		gpio.output(Pins.motorA, 0)
@@ -145,3 +138,12 @@ class motorThread(threading.Thread):
 		gpio.setup(Pins.motorA, gpio.OUT)
 		gpio.setup(Pins.motorB, gpio.OUT)
 		self.stopMotor()
+	
+	def setupSensor(self):
+		gpio.setup(Pins.sensorClock, gpio.OUT)
+		gpio.setup(Pins.sensorOutput, gpio.IN)
+		gpio.setup(Pins.sensorChipSelect, gpio.OUT)
+		# Set initial values for clock and chip select:
+		gpio.output(Pins.sensorClock, 1) 
+		gpio.output(Pins.sensorChipSelect, 1) 
+
