@@ -38,7 +38,7 @@ class BaseApp(App):
 		self.teleThread = TeleThread(self)
 		
 		
-		Builder.load_file("gui/telemetry.kv")
+		# Builder.load_file("gui/telemetry.kv")
 		Builder.load_file("gui/settings.kv")
 		Builder.load_file("gui/nav.kv")
 		Builder.load_file("gui/cameras.kv")
@@ -50,7 +50,7 @@ class BaseApp(App):
 		self.commThread.start()
 		self.inputThread.start()
 		self.navThread.start()
-		self.teleThread.start()
+		# self.teleThread.start()
 		
 		Window.size = self.settings["windowSize"]
 		self.title = "USST Rover Control Application"

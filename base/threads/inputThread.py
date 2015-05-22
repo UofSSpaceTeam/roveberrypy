@@ -12,14 +12,14 @@ class InputThread(threading.Thread):
 		pygame.init()
 		self.driveController = None
 		self.armController = None
+		# if pygame.joystick.get_count() > 0:
+		# 	self.driveController = pygame.joystick.Joystick(0)
+		# 	self.driveController.init()
 		if pygame.joystick.get_count() > 0:
-			self.driveController = pygame.joystick.Joystick(0)
-			self.driveController.init()
-		if pygame.joystick.get_count() > 1:
-			self.armController = pygame.joystick.Joystick(1)
+			self.armController = pygame.joystick.Joystick(0)
 			self.armController.init()
 		self.armMode = "disabled" # absolute / relative / direct / disabled
-		self.armCoords = [300, 500, 0, -20]
+		self.armCoords = [300, 500, 0, -20, 0, 0]
 		self.armThrottle = 0.5
 		self.driveThrottle = 0.3
 	
@@ -30,16 +30,16 @@ class InputThread(threading.Thread):
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
 				if "armX" in data and self.armMode == "absolute":
-					self.armCoords[0] = int(data["armX"] * 1600 - 800)
+					self.armCoords[0] = int(data["armX"] * 550 + 150)
 					armChanged = True
 				if "armY" in data and self.armMode == "absolute":
-					self.armCoords[1] = int(data["armY"] * 1600 - 800)
+					self.armCoords[1] = int(data["armY"] * 510 - 255)
 					armChanged = True
 				if "armZ" in data and self.armMode == "absolute":
-					self.armCoords[2] = int(data["armZ"] * 1600 - 800)
+					self.armCoords[2] = int(data["armZ"] * 1050 - 250)
 					armChanged = True
 				if "armPhi" in data and self.armMode == "absolute":
-					self.armCoords[3] = int(data["armPhi"] * 1600 - 800)
+					self.armCoords[3] = int(data["armPhi"] * 100 - 50)
 					armChanged = True
 				if "driveThrottle" in data:
 					self.driveThrottle = data["driveThrottle"]
@@ -76,14 +76,16 @@ class InputThread(threading.Thread):
 			self.armCoords[0] += deltaX * 30
 			self.armCoords[0] = min(max(self.armCoords[0], -1000), 1000)
 			deltaY = self.filter(self.armController.get_axis(1)) * -1.0
-			self.armCoords[1] += deltaY * 30
+			self.armCoords[1] = deltaY * 255
 			self.armCoords[1] = min(max(self.armCoords[1], -1000), 1000)
 			deltaZ = self.filter(self.armController.get_axis(3)) * -1.0
 			self.armCoords[2] += deltaZ * 30
 			self.armCoords[2] = min(max(self.armCoords[2], -1000), 1000)
-			deltaPhi = self.filter(self.armController.get_axis(4))
-			self.armCoords[3] += deltaPhi * 30
+			deltaPhi = self.armController.get_hat(0)[1]
+ 			self.armCoords[3] += deltaPhi * 5
 			self.armCoords[3] = min(max(self.armCoords[3], -1000), 1000)
+ 			self.armCoords[4] = self.armController.get_hat(0)[0]
+ 			self.armCoords[5] = self.filter(self.armController.get_axis(4))
 			try:
 				sliders = self.parent.sm.current_screen.ids
 				sliders.armX.value = int(self.armCoords[0] + 1000) / 20
@@ -96,9 +98,11 @@ class InputThread(threading.Thread):
 		elif self.armMode == "direct":
 			baseSpeed = self.filter(self.armController.get_axis(0))
 			ac1Speed = self.filter(self.armController.get_axis(1)) * -1.0
-			ac2Speed = self.filter(self.armController.get_axis(3)) * -1.0
-			wristSpeed = self.filter(self.armController.get_axis(4))
-			msg = {"armDirect":(baseSpeed, ac1Speed, ac2Speed, wristSpeed)}
+			ac2Speed = self.filter(self.armController.get_axis(3)) * 1.0
+			wristSpeed = self.armController.get_hat(0)[1]
+			gripperRotate = self.armController.get_hat(0)[0]
+			gripperOpen = self.filter(self.armController.get_axis(4)) * -1.0
+			msg = {"armDirect":(baseSpeed, ac1Speed, ac2Speed, wristSpeed, gripperRotate, gripperOpen)}
 			self.parent.commThread.mailbox.put(msg)
 	
 	def sendArmCoords(self):
