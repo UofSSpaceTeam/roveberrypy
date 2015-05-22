@@ -58,8 +58,8 @@ class ArmThread(threading.Thread):
 		command.d2 = int(coords[1]) # y
 		command.d3 = int(coords[2]) # z
 		command.d4 = int(coords[3]) # phi
-		command.d5 = int(0)
-		command.d6 = int(0)
+		command.d5 = int(coords[4]*50)
+		command.d6 = int(coords[5]*255)
 		command.d7 = int(self.throttle * 255)
 		self.sendCommand(command)
 
@@ -69,9 +69,9 @@ class ArmThread(threading.Thread):
 		command.d1 = int(speeds[0]*255) # base rotation
 		command.d2 = int(speeds[1]*255) # actuator 1
 		command.d3 = int(speeds[2]*255) # actuator 2
-		command.d4 = int(speeds[3]*255) # actuator 3
-		command.d5 = int(0) # hand rotation
-		command.d6 = int(0) # hand open/close
+		command.d4 = int(speeds[3]*50) # actuator 3
+		command.d5 = int(speeds[4]*50) # hand rotation
+		command.d6 = int(speeds[5]*255) # hand open/close
 		command.d7 = int(self.throttle * 255)
 		self.sendCommand(command)
 

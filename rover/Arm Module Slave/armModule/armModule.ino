@@ -179,12 +179,12 @@ void processCommand()
                 position[2] = cmd.d3;
                 position[3] = cmd.d4;
                 Serial.print("Position ");
-                for(int i=0;i<4;i++) {
-                  //Serial.print(position[i]);
-                  //Serial.print(',');
+                for(int i=0;i<6;i++) {
+                  Serial.print(position[i]);
+                  Serial.print(',');
                 }
                 Serial.println();
-		spin = constrain(cmd.d5, -255, 255);
+		spin = constrain(cmd.d5, -191, 191);//9 volts maximum
 		open = constrain(cmd.d6, -255, 255);
 		throttle = constrain(cmd.d7, 0, 255);
                 //printCommand();
@@ -232,7 +232,10 @@ void setPosition(){
     Serial.println(setTo);
     }
   }
-
+  
+  base.set(position[1]);
+  
+  /*
   int newPositionCount = pphr/180.0*position[3]-base.getCount();
   //base.getDirection() = newPositionCount/abs(newPositionCount);
   newPositionCount = abs(newPositionCount);
@@ -241,7 +244,7 @@ void setPosition(){
     base.set(0);
   }
 //  Serial.println(base.getPosition());
-//  Serial.println(interrupt_counter);
+//  Serial.println(interrupt_counter); */
 }
 
 
@@ -366,14 +369,14 @@ void setGripper()
 
 void doInverseKinematics()
 {
-	float x = position[0]*cos(position[1]*PI/180.0);
-	float y = position[0]*sin(position[1]*PI/180.0);
+	float x = position[0];
+	float y = 0;
 	float z = position[2];
 	float phi = position[3];
-        Serial.print(x); Serial.print(",");
-        Serial.print(y); Serial.print(",");
-        Serial.print(z); Serial.print(",");
-        Serial.println();
+        //Serial.print(x); Serial.print(",");
+        //Serial.print(y); Serial.print(",");
+        //Serial.print(z); Serial.print(",");
+        //Serial.println();
 	float a0x = 30.34;
 	float a0z = 95.25;
 	float a1 = 335.95;
@@ -424,12 +427,12 @@ void doInverseKinematics()
 	
 	// Base
 	kinOutputBase = atan2(y, x) * (180.0 / PI);
-        for(int i=0;i<3;i++) {
+        /*for(int i=0;i<3;i++) {
           Serial.print(kinOutput[i]);
           Serial.print(',');
         }
         Serial.print(kinOutputBase);
-        Serial.println();
+        Serial.println();*/
 }
 
 void baseInterrupt()
