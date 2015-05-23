@@ -32,7 +32,7 @@ class ArmThread(threading.Thread):
 		self.i2c = smbus.SMBus(1)
 		self.i2cAddress = 0x08
 		self.throttle = 0.5
-		self.period = 0.25
+		self.period = 0.01
 		self.position = None
 
 	def run(self):
@@ -49,8 +49,8 @@ class ArmThread(threading.Thread):
 				self.setSpeed(data["armDirect"])
 				self.position = None
 			if "armThrottle" in data:
-				self.throttle = (data["armThrottle"])		
-	
+				self.throttle = (data["armThrottle"])
+
 	def setPosition(self, coords):
 		command = Command()
 		command.type = CommandType.setPosition

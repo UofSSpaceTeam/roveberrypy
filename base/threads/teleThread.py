@@ -72,7 +72,7 @@ class TeleThread(threading.Thread):
 
 		if hy > 0 :
 			heading = 90 -  (atan(hx / hy) * (180 / PI));
-		else if hy < 0:
+                elif  hy < 0:
 			heading = 270 - (atan(hx / hy) * (180 / PI));
 		else: 
 			hy = 0
