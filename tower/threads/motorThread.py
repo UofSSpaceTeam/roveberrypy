@@ -59,6 +59,7 @@ class motorThread(threading.Thread):
 			gpio.output(Pins.sensorClock, 0)
 			gpio.output(Pins.sensorClock, 1)
 		gpio.output(Pins.sensorChipSelect, 1)
+		time.sleep(0.001)
 		# rotation = (rotation-336)*(360/1023.0)	
 		print rotation
 		print s
@@ -67,7 +68,7 @@ class motorThread(threading.Thread):
 	def rotate(self, rotation):
 		if self.getRotation() < rotation:
 			initialTime = time.time()
-			self.spinMotorLeft()
+			self.spinMotorLeft(initialTime, rotation)
 			while self.getRotation() < rotation:
 				if time.time() - initialTime > 2:
 					break
@@ -96,9 +97,15 @@ class motorThread(threading.Thread):
 		finally:
 			self.stopMotor()
 	
-	def spinMotorLeft(self):
+	def spinMotorLeft(self, initialTime, rotation):
 		gpio.output(Pins.motorA, 0)
-		gpio.output(Pins.motorB, 1)
+		while self.getRotation() < rotation:
+			gpio.output(Pins.motorB, 1)
+			time.sleep(0.03)
+			gpio.output(Pins.motorB, 0)
+			time.sleep(0.01)
+			if time.time() - initialTime > 2:
+				break
 	
 	def spinMotorRight(self):
 		gpio.output(Pins.motorA, 1)
