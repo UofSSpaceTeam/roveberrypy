@@ -25,10 +25,10 @@
 #define BASEPWM 6
 #define BASEINT1 20
 #define BASEINT2 21
-#define HANDSPINA 22
-#define HANDSPINB 23
-#define HANDOPENA 9
-#define HANDOPENB 10
+#define HANDSPINA 9
+#define HANDSPINB 10
+#define HANDOPENA 22
+#define HANDOPENB 23
 
 #define L1MAX 870
 #define L1MIN 591
