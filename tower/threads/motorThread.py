@@ -68,7 +68,7 @@ class motorThread(threading.Thread):
 	def rotate(self, rotation):
 		if self.getRotation() < rotation:
 			initialTime = time.time()
-			self.spinMotorLeft(initialTime, rotation)
+			self.spinMotorLeft(rotation)
 			while self.getRotation() < rotation:
 				if time.time() - initialTime > 2:
 					break
@@ -97,7 +97,8 @@ class motorThread(threading.Thread):
 		finally:
 			self.stopMotor()
 	
-	def spinMotorLeft(self, initialTime, rotation):
+	def spinMotorLeft(self, rotation):
+		initialTime = time.time()
 		gpio.output(Pins.motorA, 0)
 		while self.getRotation() < rotation:
 			gpio.output(Pins.motorB, 1)
