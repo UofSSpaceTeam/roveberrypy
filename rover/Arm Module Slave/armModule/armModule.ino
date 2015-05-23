@@ -160,7 +160,7 @@ void processCommand()
 		speed[0] = cmd.d2; // LA1
 		speed[1] = cmd.d3; // LA2
 		speed[2] = cmd.d4; // LA3
-		spin = constrain(cmd.d5, -255, 255);
+		spin = constrain(cmd.d5, -191, 191);
 		open = constrain(cmd.d6, -255, 255);
 		throttle = constrain(cmd.d7, 0, 255);
 		printCommand();
@@ -178,16 +178,10 @@ void processCommand()
                 position[1] = cmd.d2;
                 position[2] = cmd.d3;
                 position[3] = cmd.d4;
-                Serial.print("Position ");
-                for(int i=0;i<6;i++) {
-                  Serial.print(position[i]);
-                  Serial.print(',');
-                }
-                Serial.println();
 		spin = constrain(cmd.d5, -191, 191);//9 volts maximum
 		open = constrain(cmd.d6, -255, 255);
 		throttle = constrain(cmd.d7, 0, 255);
-                //printCommand();
+                printCommand();
 		doInverseKinematics();
 		setPosition();
 		setGripper();
@@ -356,8 +350,6 @@ int averageReading(int pin, int num)
 	unsigned long result = 0;
 	for(int i = 0; i < num; i++)
 		result += analogRead(pin);
-        if(pin == L3WIPER)
-          //Serial.println(result/num);
 	return int(result / num);
 }
 
@@ -437,7 +429,6 @@ void doInverseKinematics()
 
 void baseInterrupt()
 {
-         Serial.println("base interupt");
 	if(digitalRead(BASEINT2) == HIGH)
 		base.addToCount(1);
 	else
