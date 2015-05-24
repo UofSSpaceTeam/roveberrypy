@@ -6,8 +6,8 @@ import RPi.GPIO as gpio
 from unicodeConvert import convert
 
 class Pins(Enum):
-	motorA = 23
-	motorB = 24
+	motorA = 17
+	motorB = 24 
 	servoPwm = 18
 	sensorClock = 11
 	sensorChipSelect = 9
@@ -60,7 +60,7 @@ class motorThread(threading.Thread):
 			gpio.output(Pins.sensorClock, 1)
 		gpio.output(Pins.sensorChipSelect, 1)
 		time.sleep(0.001)
-		# rotation = (rotation-336)*(360/1023.0)	
+		rotation = (rotation-336)*(360/1023.0)	
 		print rotation
 		print s
 		return rotation
@@ -84,9 +84,11 @@ class motorThread(threading.Thread):
 	
 	def jog(self, direction):
 		if direction == "L":
-			self.spinMotorLeft()
+			slight_left = self.getRotation() + 10
+			self.spinMotorLeft(slight_left)
 		elif direction == "R":
-			self.spinMotorRight()
+			slight_right = self.getRotation() - 10
+			self.spinMotorRight(slight_right)
 		time.sleep(0.2)
 		try:
 			self.getRotation()
@@ -102,15 +104,23 @@ class motorThread(threading.Thread):
 		gpio.output(Pins.motorA, 0)
 		while self.getRotation() < rotation:
 			gpio.output(Pins.motorB, 1)
-			time.sleep(0.03)
-			gpio.output(Pins.motorB, 0)
 			time.sleep(0.01)
+			gpio.output(Pins.motorB, 0)
+			time.sleep(0.03)
 			if time.time() - initialTime > 2:
 				break
 	
-	def spinMotorRight(self):
-		gpio.output(Pins.motorA, 1)
+	def spinMotorRight(self, rotation):
+		initialTime = time.time()
 		gpio.output(Pins.motorB, 0)
+		while self.getRotation() > rotation:
+			gpio.output(Pins.motorA, 1)
+			time.sleep(0.01)
+			gpio.output(Pins.motorA, 0)
+			time.sleep(0.03)
+			if time.time() - initialTime > 2:
+				break
+		gpio.output(Pins.motorA, 1)
 	
 	def stopMotor(self):
 		gpio.output(Pins.motorA, 0)
