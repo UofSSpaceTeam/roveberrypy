@@ -6,6 +6,7 @@ import os
 from threads.communicationThread import CommunicationThread
 from threads.motorThread import motorThread
 from threads.telemetryThread import telemetryThread
+from threads.cameraThread import CameraThread
 import time
 
 class towerApp():
@@ -14,6 +15,7 @@ class towerApp():
 		self.commThread = CommunicationThread(self, 35001)
 		self.telemetryThread = telemetryThread(self)
 		self.motorThread = motorThread(self)
+		self.cameraThread = CameraThread(self, 34567)
 
 	def quit(self):
 		os._exit(0)
@@ -23,6 +25,7 @@ class towerApp():
 		self.commThread.start()
 		self.telemetryThread.start()
 		self.motorThread.start()
+		self.cameraThread.start()
 	
 	def run(self):
 		self.startThreads()
