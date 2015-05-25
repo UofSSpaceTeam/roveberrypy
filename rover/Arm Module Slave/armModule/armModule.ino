@@ -87,7 +87,7 @@ volatile bool newCommand = false;
 // movement commanding
 int position[4] = {400, 0, 200, -60}; // x, y, z, phi
 int speed[4] = {0, 0, 0, 0}; // base, L1, L2, L3
-int spin, open;
+int gspin, gopen;
 int throttle = 128; // 0 - 255
 
 // actuator config
@@ -123,7 +123,7 @@ void printCommand();
 
 void setup()
 {
-	Serial.begin(9600);
+	Serial.begin(57600);
 	Wire.begin(I2C_ADDRESS);
 	Wire.onReceive(receiveEvent);
 	attachInterrupt(BASEINT1, baseInterrupt, RISING);
@@ -142,8 +142,8 @@ void loop()
 	{
 		for(int i = 0; i < 4; i++)
 			speed[i] = 0;
-		spin = 0;
-		open = 0;
+		gspin = 0;
+		gopen = 0;
 		setSpeeds();
 		setGripper();
 		Serial.println("TO");
@@ -160,10 +160,10 @@ void processCommand()
 		speed[0] = cmd.d2; // LA1
 		speed[1] = cmd.d3; // LA2
 		speed[2] = cmd.d4; // LA3
-		spin = constrain(cmd.d5, -191, 191);
-		open = constrain(cmd.d6, -255, 255);
+		gspin = constrain(cmd.d5, -191, 191);
+		gopen = constrain(cmd.d6, -255, 255);
 		throttle = constrain(cmd.d7, 0, 255);
-		printCommand();
+		//printCommand();
 		setSpeeds();
 		setGripper();
 		timer = millis();
@@ -174,14 +174,14 @@ void processCommand()
 		position[1] = map(cmd.d2, -1000, 1000, MIN_Y, MAX_Y);
 		position[2] = map(cmd.d3, -1000, 1000, MIN_Z, MAX_Z);
 		position[3] = map(cmd.d4, -1000, 1000, MIN_PHI, MAX_PHI);*/
-                position[0] = cmd.d1;
-                position[1] = cmd.d2;
-                position[2] = cmd.d3;
-                position[3] = cmd.d4;
-		spin = constrain(cmd.d5, -191, 191);//9 volts maximum
-		open = constrain(cmd.d6, -255, 255);
+		position[0] = cmd.d1;
+		position[1] = cmd.d2;
+		position[2] = cmd.d3;
+		position[3] = cmd.d4;
+		gspin = constrain(cmd.d5, -191, 191);//9 volts maximum
+		gopen = constrain(cmd.d6, -255, 255);
 		throttle = constrain(cmd.d7, 0, 255);
-                printCommand();
+        //printCommand();
 		doInverseKinematics();
 		setPosition();
 		setGripper();
@@ -221,9 +221,9 @@ void setPosition(){
       LA[i].set(throttle*dir);
     }
     else{LA[i].set(0);
-    Serial.print(i);
-    Serial.print(": ");
-    Serial.println(setTo);
+    //Serial.print(i);
+    //Serial.print(": ");
+    //Serial.println(setTo);
     }
   }
   
@@ -354,9 +354,33 @@ int averageReading(int pin, int num)
 }
 
 void setGripper()
-{
-	handSpin.set(spin);
-	handOpen.set(open);
+{	
+        //Serial.print(gopen);
+        Serial.println(gspin/6.1);
+	if(gspin > 0)
+	{
+		analogWrite(HANDSPINA, gspin);
+                analogWrite(HANDSPINB, 0);
+                analogWrite(HANDOPENA, gspin/6);
+                analogWrite(HANDOPENB, 0);
+  	}
+	else
+	{
+		analogWrite(HANDSPINA, 0);
+		analogWrite(HANDSPINB, abs(gspin));
+                analogWrite(HANDOPENA, 0);
+                analogWrite(HANDOPENB, abs(gspin/6));
+	}
+	if(gopen > 0 && gspin == 0)
+	{
+		analogWrite(HANDOPENA, gopen);
+                analogWrite(HANDOPENB, 0);
+  	}
+	else if(gopen < 0 && gspin == 0)
+	{
+		analogWrite(HANDOPENA, 0);
+		analogWrite(HANDOPENB, abs(gopen));
+	}
 }
 
 void doInverseKinematics()

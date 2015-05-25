@@ -1,3 +1,5 @@
+#:import Clock kivy.clock
+
 <TurretScreen@FloatLayout>:
 	Image:
 		pos: (0, 0)
@@ -123,10 +125,12 @@
 		allow_stretch: True
 		keep_ratio: False
 		source: "gui/resource/loading.jpg"
+	ArmSliders:
 	BoxLayout:
+		id: controls
 		size_hint: (None, None)
 		size: (root.width / 2, 25)
-		pos: (root.width / 4, root.height - 25)
+		pos: (root.width / 4, root.height - 30)
 		Label:
 			color: [0, 1, 0, 1]
 			text: "Power: " + str(int(throttle.value)) + "%"
@@ -138,58 +142,88 @@
 			on_value: app.commThread.mailbox.put({"armThrottle":self.value_normalized})
 		ToggleButton:
 			id: invKin
+			group: "mode"
 			text: "Inverse Kin"
 			on_state: app.inputThread.mailbox.put({"armMode":(self.state!="normal", armCont.state!="normal")})
 		ToggleButton:
 			id: armCont
+			group: "mode"
 			text: "Controller"
 			on_state: app.inputThread.mailbox.put({"armMode":(invKin.state!="normal", self.state!="normal")})
-	BoxLayout:
+
+<ArmSliders@Scatter>
+	FloatLayout:
 		size_hint: (None, None)
-		size: (root.width, 35)
-		id: controls
+		size: (475, 550)
+		pos: (0,0)
+		canvas:
+			Color:
+				rgba: 0, 0, 0, 0.5
+			Rectangle:
+				pos: (0, 0)
+				size: (475, 550)
+		Image:
+			size_hint: (None, None)
+			pos: (60, 80)
+			size: (400, 400)
+			source: "gui/resource/armHelper.png"
+			allow_stretch: False
 		BoxLayout:
-			orientation: "vertical"
+			size_hint: (None, None)
+			size: (20, 500)
+			pos: (25,25)
 			Slider:
-				id: armY
-				padding: 30
-				value: 50
-				step: .05
-				on_value: app.inputThread.mailbox.put({"armY":self.value_normalized})
-			Label:
-				color: [0, 1, 0, 1]
-				text: "Left                    Right"
-		BoxLayout:
-			orientation: "vertical"
-			Slider:
+				orientation: "vertical"
 				id: armZ
-				padding: 30
+				padding: 10
 				value: 70
 				step: .05
 				on_value: app.inputThread.mailbox.put({"armZ":self.value_normalized})
-			Label:
-				color: [0, 1, 0, 1]
-				text: "Hight"
 		BoxLayout:
-			orientation: "vertical"
+			size_hint: (None, None)
+			size: (400, 20)
+			pos: (45,500)
 			Slider:
-				id: armX
+				id: armRad
 				padding: 30
 				value: 80
 				step: .05
 				on_value: app.inputThread.mailbox.put({"armX":self.value_normalized})
-			Label:
-				color: [0, 1, 0, 1]
-				text: "Radius"
 		BoxLayout:
-			orientation: "vertical"
+			size_hint: (None, None)
+			size: (400, 20)
+			pos: (45,45)		
+			Slider:
+				id: armBase
+				padding: 30
+				value: 50
+				step: .05
+				on_value: app.inputThread.mailbox.put({"armY":self.value_normalized})
+				on_touch_up: app.centerSliderHelper(self)
+		BoxLayout:
+			size_hint: (None, None)
+			size: (200, 20)
+			pos: (200, 350)	
 			Slider:
 				id: armPhi
 				padding: 30
 				value: 48
 				step: .05
 				on_value: app.inputThread.mailbox.put({"armPhi":self.value_normalized})
-			Label:
-				color: [0, 1, 0, 1]
-				text: "Down     [Wrist]      Up"
+			
+		BoxLayout:
+			size_hint: (None, None)
+			size: (150, 100)
+			pos: (225, 200)
+			orientation: "vertical"
+			BoxLayout:
+				Button:
+					text: "open"
+				Button:
+					text: "close"
+			BoxLayout:
+				Button:
+					text: "left"
+				Button:
+					text: "right"
 

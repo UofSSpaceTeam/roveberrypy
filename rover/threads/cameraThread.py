@@ -68,10 +68,7 @@ class CameraThread(threading.Thread):
 		subprocess.Popen(command, shell = True)
 
 	def startTurretCam(self):
-		command = ("LD_LIBRARY_PATH=/root/mjpgStreamer && "
-			"/root/mjpgStreamer/./mjpg_streamer -o \"output_http.so "
-			"-p 40000 -w ./www\" -i \"input_raspicam.so -x 320 -y 240"
-			"-fps 15 -ex night\" &")
+		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_raspicam.so -x 320 -y 240 -fps 15 -ex night" &''')
 		subprocess.Popen(command, env = dict(os.environ,
 			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 
@@ -85,9 +82,7 @@ class CameraThread(threading.Thread):
 			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 	
 	def startDriveCam(self):
-		command = ("LD_LIBRARY_PATH=/root/mjpgStreamer && "
-			"/root/mjpgStreamer/./mjpg_streamer -o \"output_http.so "
-			"-p 40000 -w ./www\" -i \"input_uvc.so -d /dev/video0\" &")
+		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_uvc.so -d /dev/video0" &''')
 		print command
 		subprocess.Popen(command, env = dict(os.environ,
 			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)

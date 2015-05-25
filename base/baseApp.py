@@ -4,6 +4,7 @@ import os
 import time
 import math
 import json
+import urllib
 from Queue import Queue
 
 from threads.communicationThread import CommunicationThread
@@ -48,6 +49,7 @@ class BaseApp(App):
 		self.sm = self.root.ids.sm
 		self.sm.current = "splash"
 		self.sm.transition = NoTransition()
+		self.tabBar = self.root.ids.tabBar
 		
 		self.commThread.start()
 		self.inputThread.start()
@@ -60,8 +62,10 @@ class BaseApp(App):
 		self.activeForm = None
 		self.drillUI = None
 		self.setupMap()
+		self.rssiData = ""
 		self.commThread.mailbox.put({"towerAim":0})
 		Clock.schedule_interval(self.checkMail, 0.2)
+		Clock.schedule_interval(self.getRssi, 2)
 		return self.root
 	
 	# read messages in the inbox
@@ -264,6 +268,25 @@ class BaseApp(App):
 		else:
 			self.sm.current_screen.remove_widget(self.drillUI)
 			self.drillUI = None
+	
+	## Arm Screen Controls
+	def centerSliderHelper(self, idTgt):
+		if(idTgt.value != 50):
+			Clock.schedule_once(lambda dt: self.centerSliderDelay(idTgt), 0.25)	
+			
+	def centerSliderDelay(self, idTgt):
+		idTgt.value = 50
+		
+	## Antenna Signal Strength
+	def getRssi(self, *args):
+		try:
+			f = urllib.urlopen("http://192.168.1.101/index.json")
+			data = f.read()
+			f.close()
+			x = data.find('rssi')
+			self.tabBar.ids.rssi.text = str(data[x + 6: x + 14])
+		except:
+			self.tabBar.ids.rssi.text = "No Data"
 
 class TelemetryScreen(Screen):
 	pass

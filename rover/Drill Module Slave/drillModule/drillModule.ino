@@ -3,7 +3,7 @@
 #include <Servo.h>
 #include <Wire.h>
 
-#define TIMEOUT 2500000
+#define TIMEOUT 2500
 #define PULSE_TIME 30
 
 // definition of structures and enums
@@ -19,8 +19,8 @@ typedef struct
 {	
 	byte header;
 	byte type; // actually used as enum command_type, that's ok
-	short d1; // 16-bit signed
-	short d2;
+	int d1; // 16-bit signed
+	int d2;
 	byte csum; // sum of cmd_type, d1, d2
 	byte trailer;
 } command;
@@ -33,7 +33,7 @@ typedef struct
 */
 
 // pin connetions for motor
-const byte m_pwm[] = {9, 10};
+const byte m_pwm[] = {10, 11};
 const byte l_pwr[] = {4, 6, 5};
 
 // arduino address on bus
@@ -92,9 +92,14 @@ void setup() {
 	Wire.onReceive(receiveEvent);
 	Wire.onRequest(requestEvent);
 		
-	drillMotor.attach(m_pwm[0]);
-	elevMotor.attach(m_pwm[1]);
-	
+	drillMotor.attach(10);
+	elevMotor.attach(11);
+        stopAll();
+
+        pinMode(5, OUTPUT);
+        pinMode(4, OUTPUT);
+        pinMode(6, OUTPUT);
+        	
 	// clear cmd struct
 	for(int i = 0; i < sizeof(command); i++)
 		cmd_ptr[i] = 0x00;
@@ -126,6 +131,7 @@ void loop()
 	for(int i = 0; i < 3; i++) {
 		setLaser(i, l_cmd[i]);
 	}
+        delay(50);
 }
 
 void receiveEvent(int count)
@@ -182,9 +188,7 @@ void processCommand()
 		break;
 		
 		case SET_SPEED:
-		//Serial.print(cmd.d1);
-		//Serial.print(" ");
-		//Serial.println(cmd.d2);
+               Serial.println("speeds");
 		if(cmd.d1 > 255 || cmd.d1 < -255)
 			break;
 		if(cmd.d2 > 255 || cmd.d2 < -255)
@@ -192,15 +196,22 @@ void processCommand()
 		m_cmd[0] = cmd.d1;
 		m_cmd[1] = cmd.d2;
 			timeout = millis();
+                Serial.print(cmd.d1);
+                Serial.print(",");
+                Serial.println(cmd.d2);
 		break;
 		
 		case SET_LASER:
+                Serial.println("laser");
 		if(cmd.d1 > 3 || cmd.d1 < 0)
 			break;
 		if(cmd.d2 > 1 || cmd.d1 < 0)
 			break;
 		l_cmd[cmd.d1 - 1] = cmd.d2;
 			timeout = millis();
+                Serial.print(cmd.d1);
+                Serial.print(",");
+                Serial.println(cmd.d2);
 		break;
 		
 	}
@@ -213,12 +224,12 @@ void requestEvent()
 
 void setMotor(byte index, short value)
 {
-		int pwm = map(value, -255, 255, 800, 2200);
-		//Serial.print(index);
-		//Serial.print(':');
-		//Serial.println(pwm);
-		if(index == 0) {
-		  if(value == 0) {
+		Serial.print("SetSpeeds: ");
+                
+                int pwm = map(value, -255, 255, 800, 2200);
+		Serial.println(pwm);
+                if(index == 0) {
+		  if(value == 0) {  
 			drillMotor.writeMicroseconds(1500);
 		  }
 		 else{
@@ -237,21 +248,16 @@ void setMotor(byte index, short value)
 
 void setLaser(byte index, short value)
 {
+  //Serial.print(l_pwr[index]);
+  //Serial.println(value);
   if(index == 2){
-    if(value) Serial.println("Pen Laser On");  
+    //if(value) Serial.println("P Laser On");
+    //else Serial.println("P Laser Off");  
    digitalWrite(l_pwr[index], !value);
   }
   else{
-    if(value){
-      //if(value && index == 0) Serial.println("A Laser On");
-      //if(value && index == 1) Serial.println("B Laser On");
-      pinMode(l_pwr[index], INPUT);
+    digitalWrite(l_pwr[index], value);
     }
-    else{
-      pinMode(l_pwr[index], OUTPUT);
-      digitalWrite(l_pwr[index], LOW);
-    }
-  }
 }
 
 void stopAll()

@@ -34,31 +34,27 @@ class ExperimentThread(threading.Thread):
 
 	def run(self):
 		while True:
-			drillChange = False
 			data = self.mailbox.get()
+			print data
 			if "drillspd" in data:
-				self.drillSpeed = int(data["drillspd"]) # 0 to 1
-				drillChange = True
+				self.drillSpeed = float(data["drillspd"]) # 0 to 1
+				print self.drillSpeed
 			if "elevspd" in data:
-				self.drillSpeed = int(data["elevspd"]) # 0 to 1
-				drillChange = True
+				self.elevSpeed = float(data["elevspd"]) # 0 to 1
 			if "drill" in data:
 				self.drillDir = int(data["drill"])
-				drillChange = True
 			if "elev" in data:
 				self.elevDir = int(data["elev"])
-				drillChange = True
 			if "laser" in data:
 				self.setLasers(data["laser"])
-
-			if drillChange:
-				self.setDrill()
+			self.setDrill()
 
 	def setDrill(self):
 		command = Command()
 		command.type = CommandType.setSpeed
 		command.d1 = int(self.drillSpeed * self.drillDir * 255)
 		command.d2 = int(self.elevSpeed * self.elevDir * 255)
+		print "drive", command.d1, command.d2
 		self.sendCommand(command)
 
 	def setLasers(self, laser):
@@ -66,8 +62,8 @@ class ExperimentThread(threading.Thread):
 			command = Command()
 			print "laser " + str(i) + str(i == laser)
 			command.type = CommandType.setLaser
-			command.d1 = i
-			command.d2 = (i == laser)
+			command.d1 = int(i)
+			command.d2 = int(i == laser)
 			self.sendCommand(command)
 
 	def sendCommand(self, command):

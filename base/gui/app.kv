@@ -6,8 +6,9 @@ AppRoot:
 <AppRoot@BoxLayout>:
 	orientation: "vertical"
 	TabBar:
+		id: tabBar
 		size_hint: (None, None)
-		size: (1024, 50)
+		size: (root.width, 50)
 	ScreenManager:
 		id: sm
 		SplashScreen:
@@ -63,7 +64,9 @@ AppRoot:
 					on_release: app.changeScreen("drive")
 			ActionGroup:
 				ActionButton:
-					width: 0
+					id: rssi
+					text: "rssi data"
+					width: 10
 
 # startup splash screen tab
 <SplashScreen@BoxLayout>:
