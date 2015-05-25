@@ -19,7 +19,7 @@ def StartStreamHQ():
 	subprocess.Popen(command, env=dict(os.environ, LD_LIBRARY_PATH="/home/pi/mjpg_streamer"), shell = True)
 	
 def StartStreamLQ():
-	command = '''LD_LIBRARY_PATH=/home/pi/mjpgStreamer && /home/pi/mjpgStreamer/./mjpg_streamer -o "output_http.so -w ./www" -i "input_uvc.so" &'''
+	command = '''LD_LIBRARY_PATH=/home/pi/mjpgStreamer && /home/pi/mjpgStreamer/./mjpg_streamer -o "output_http.so -w ./www" -i "input_uvc.so -d /dev/video1" &'''
 	print("Starting LQ stream")
 	subprocess.Popen(command, env=dict(os.environ, LD_LIBRARY_PATH="/home/pi/mjpg_streamer"), shell = True)
 	

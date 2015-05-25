@@ -275,7 +275,7 @@ class BaseApp(App):
 			Clock.schedule_once(lambda dt: self.centerSliderDelay(idTgt), 0.25)	
 			
 	def centerSliderDelay(self, idTgt):
-		idTgt.value = 50
+		idTgt.value = 0
 		
 	## Antenna Signal Strength
 	def getRssi(self, *args):

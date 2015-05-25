@@ -153,6 +153,8 @@
 			on_state: app.inputThread.mailbox.put({"armMode":(invKin.state!="normal", self.state!="normal")})
 
 <ArmSliders@Scatter>
+	size_hint: (None, None)
+	size: (475, 550)
 	FloatLayout:
 		size_hint: (None, None)
 		size: (475, 550)
@@ -173,47 +175,65 @@
 			size_hint: (None, None)
 			size: (20, 500)
 			pos: (25,25)
+			orientation: "vertical"
 			Slider:
 				orientation: "vertical"
 				id: armZ
+				size_hint: (1, .95)
 				padding: 10
-				value: 70
-				step: .05
-				on_value: app.inputThread.mailbox.put({"armZ":self.value_normalized})
+				range: (-800, 800)
+				value: 200
+				step: .1
+				on_value: app.inputThread.mailbox.put({"armZ":self.value})
 			Label:
-				text: str(int(armZ.value))
+				size_hint: (1, .05)
+				text: "Z: " + str(int(armZ.value))
 		BoxLayout:
 			size_hint: (None, None)
 			size: (400, 20)
 			pos: (45,500)
 			Slider:
 				id: armRad
+				size_hint: (.95, 1)
 				padding: 30
-				value: 80
-				step: .05
-				on_value: app.inputThread.mailbox.put({"armX":self.value_normalized})
+				range: (-800, 800)
+				value: 200
+				step: .1
+				on_value: app.inputThread.mailbox.put({"armX":self.value})
+			Label:
+				size_hint: (.05, 1)
+				text: "Rad: " + str(int(armRad.value))
 		BoxLayout:
 			size_hint: (None, None)
 			size: (400, 20)
 			pos: (45,45)		
 			Slider:
 				id: armBase
+				size_hint: (.95, 1)
 				padding: 30
-				value: 50
-				step: .05
-				on_value: app.inputThread.mailbox.put({"armY":self.value_normalized})
+				range: (-100, 100)
+				value: 0
+				step: .1
+				on_value: app.inputThread.mailbox.put({"armY":self.value})
 				on_touch_up: app.centerSliderHelper(self)
+			Label:
+				size_hint: (.05, 1)
+				text: "Base: " + str(int(armBase.value))
 		BoxLayout:
 			size_hint: (None, None)
 			size: (200, 20)
 			pos: (200, 350)	
 			Slider:
 				id: armPhi
+				size_hint: (.95, 1)
 				padding: 30
-				value: 48
-				step: .05
-				on_value: app.inputThread.mailbox.put({"armPhi":self.value_normalized})
-			
+				range: (-45, 45)
+				value: 0
+				step: .1
+				on_value: app.inputThread.mailbox.put({"armPhi":self.value})
+			Label:
+				size_hint: (.05, 1)
+				text: "Ang: " + str(int(armPhi.value))
 		BoxLayout:
 			size_hint: (None, None)
 			size: (150, 100)
