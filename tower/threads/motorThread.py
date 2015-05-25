@@ -47,15 +47,15 @@ class motorThread(threading.Thread):
 		gpio.output(Pins.sensorChipSelect, 0)
 		# clock in data
 		s = ""
-		for i in range(0, 10):
+		for i in range(0, 9):
 			gpio.output(Pins.sensorClock, 0)
 			gpio.output(Pins.sensorClock, 1)
 			if gpio.input(Pins.sensorOutput):
 				s += "1"
-				rotation += 2**i
+				rotation += 2**(10-(i+1))
 			else:
 				s += "0"
-		for i in range(10, 16):
+		for i in range(9, 15):
 			gpio.output(Pins.sensorClock, 0)
 			gpio.output(Pins.sensorClock, 1)
 		gpio.output(Pins.sensorChipSelect, 1)
