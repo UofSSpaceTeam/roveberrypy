@@ -69,6 +69,7 @@
             cap: 'round'
             width: 1
             close: False
+			
 
     GridLayout:
         cols: 4
@@ -92,6 +93,7 @@
 
             Label:
                 text: 'gx'
+				color: .4, .4, 1, 1
             Label:
                 text: str(root.data1)
             Label:
@@ -102,6 +104,7 @@
             
             Label:
                 text: 'gy'
+				color: 1, .4, .4, 1
             Label:
                 text: str(root.data2)
             Label:
@@ -112,6 +115,7 @@
 				
             Label:
                 text: 'gz'
+				color: 0, 1, 0, 1
             Label:
                 text: str(root.data3)
             Label:
@@ -133,6 +137,7 @@
 				
             Label:
                 text: 'ax'
+				color: .4, 1, .4, 1
             Label:
                 text: str(root.data4)
             Label:
@@ -142,6 +147,7 @@
             
             Label:
                 text: 'ay'
+				color: 1, 0, 0, 1
             Label:
                 text: str(root.data5)
             Label:
@@ -151,6 +157,7 @@
 
             Label:
                 text: 'az'
+				color: 0, 0, 1, 1
             Label:
                 text: str(root.data6)
             Label:
@@ -172,6 +179,7 @@
 				
             Label:
                 text: 'vout'
+				color: 1, 1, 0, 1
             Label:
                 text: str(root.data7)
             Label:
@@ -181,6 +189,7 @@
             
             Label:
                 text: 'isense'
+				color: 0, 1, 1, 1 
             Label:
                 text: str(root.data8)
             Label:
@@ -199,6 +208,16 @@
 				#size: 100, 44
 				text: 'Start'
 				on_state: root.animate(self.state == 'down')
+				
+	FloatLayout:
+		Label:
+			text: "300"
+			pos: (root.cx1 + 10, root.cy + 300)
+			
+
+			
+				
+				
 
 				
 <TelemetryScreen@BoxLayout>:

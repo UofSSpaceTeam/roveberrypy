@@ -1,12 +1,12 @@
 import kivy
 from kivy.app import App
 from kivy.uix.widget import Widget
-from kivy.properties import OptionProperty, NumericProperty, ListProperty, \
-        BooleanProperty
+from kivy.properties import OptionProperty, NumericProperty, ListProperty
 from kivy.uix.floatlayout import FloatLayout
 from kivy.lang import Builder
 from kivy.clock import Clock
 import time
+from kivy.graphics import *
 
 class TelemetryWidget(Widget):
 	
@@ -53,13 +53,20 @@ class TelemetryWidget(Widget):
 	avg_data7 = NumericProperty(0)
 	avg_data8 = NumericProperty(0)
 	
+	cx1 = NumericProperty(0)		
+	cx2 = NumericProperty(0)
+	cx3 = NumericProperty(0)
+	cy = NumericProperty(0)
+	
+	
+	
 	dataSum = [0,0,0,0,0,0,0,0,0]
 	
 	
 	def __init__(self, **kwargs):
         # make sure we aren't overriding any important functionality
 		super(TelemetryWidget, self).__init__(**kwargs)
-		baseApp = App.get_running_app()
+		
 		
 
 	
@@ -70,10 +77,9 @@ class TelemetryWidget(Widget):
 				Clock.unschedule(self.update_points_animation)
 
 	def update_points_animation(self, dt):
-		
-		cx1 = self.width * 0.05		
-		cx2 = self.width * 0.35
-		cx3 = self.width * 0.7
+		self.cx1 = self.width * 0.05		
+		self.cx2 = self.width * 0.35
+		self.cx3 = self.width * 0.7
 
 		w = self.width * 0.8
 		self.dt += dt
@@ -102,11 +108,11 @@ class TelemetryWidget(Widget):
 		
 	
 		self.drawPoints(self.points1, self.data1,
-			self.points2, self.data2, self.points3, self.data3, cx1)
+			self.points2, self.data2, self.points3, self.data3, self.cx1)
 		self.drawPoints(self.points4, self.data4,
-			self.points5, self.data5, self.points6, self.data6, cx2)
+			self.points5, self.data5, self.points6, self.data6, self.cx2)
 		self.drawPoints(self.points7, self.data7,
-			self.points8, self.data8, self.points9, self.data9, cx3)
+			self.points8, self.data8, self.points9, self.data9, self.cx3)
 		self.x_pos += 1
 		
 		self.updateMax()
@@ -119,27 +125,28 @@ class TelemetryWidget(Widget):
 		self.avg_data6 = self.getAvg(self.dataSum[5])
 		self.avg_data7 = self.getAvg(self.dataSum[6])
 		self.avg_data8 = self.getAvg(self.dataSum[7])
+		
+		self.updateAxis()
 	
 		
 	def drawPoints(self, points1, data1, points2, data2, points3, data3, cx):
 	
-		cy = self.height * 0.5
+		self.cy = self.height * 0.5
 		
 		if self.x_pos < self.width * 0.25 :
 			points1.append(cx + (self.x_pos) )
-			points1.append(cy + data1 )
+			points1.append(self.cy + data1 )
 			points2.append(cx + (self.x_pos) )
-			points2.append(cy + data2 )
+			points2.append(self.cy + data2 )
 			points3.append(cx + (self.x_pos) )
-			points3.append(cy + data3 )
+			points3.append(self.cy + data3 )
 			
 		else:
-			points1.pop(0)
-			points1.pop(0)
-			points2.pop(0)
-			points2.pop(0)
-			points3.pop(0)
-			points3.pop(0)
+		
+			for i in range(0, 2):
+				points1.pop(0)
+				points2.pop(0)
+				points3.pop(0)
 			
 			for i in range(0, min(len(points1), len(points2),
 				len(points3))):
@@ -149,11 +156,11 @@ class TelemetryWidget(Widget):
 					points3[i] = points3[i] - 1
 					
 			points1.append(cx + self.width * 0.25  )
-			points1.append(cy + data1 )
+			points1.append(self.cy + data1 )
 			points2.append(cx + self.width * 0.25  )
-			points2.append(cy + data2 )
+			points2.append(self.cy + data2 )
 			points3.append(cx + self.width * 0.25  )
-			points3.append(cy + data3 )
+			points3.append(self.cy + data3 )
 
 		
 	def getData(self):
@@ -175,13 +182,17 @@ class TelemetryWidget(Widget):
 		data["1"] = App.get_running_app().teleThread.gx
 		data["2"] = App.get_running_app().teleThread.gy
 		data["3"] = App.get_running_app().teleThread.gz
-		print(App.get_running_app().teleThread.gz)
-		#print(data["3"])
 		data["4"] = App.get_running_app().teleThread.ax
 		data["5"] = App.get_running_app().teleThread.ay
 		data["6"] = App.get_running_app().teleThread.az
 		data["7"] = App.get_running_app().teleThread.vout
 		data["8"] = App.get_running_app().teleThread.isense
+		
+		for key in data:
+			while data[key] > self.top - 50:
+				data[key] = data[key] - self.top - 50
+		
+		
 		return data
 				
 	def updateMax(self):
@@ -205,3 +216,15 @@ class TelemetryWidget(Widget):
 	def getAvg(self, dataSum):
 		if self.x_pos != 0:
 			return round(float(dataSum) / self.x_pos,2)
+			
+	def updateAxis(self):
+		with self.canvas:
+			Line(points=[self.cx1, self.top, self.cx1, self.cy,
+							self.cx2, self.cy])
+			Line(points=[self.cx2, self.top, self.cx2, self.cy,
+								self.cx3, self.cy])
+			Line(points=[self.cx3, self.top, self.cx3, self.cy,
+								self.width * 0.9, self.cy])
+		
+		
+		

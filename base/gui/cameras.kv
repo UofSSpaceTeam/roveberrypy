@@ -118,6 +118,7 @@
 				on_value: app.commThread.mailbox.put({"elevspd":self.value_normalized})
 		
 <ArmScreen@FloatLayout>:
+	
 	Image:
 		pos: (0, 0)
 		id: loadImg
@@ -179,6 +180,8 @@
 				value: 70
 				step: .05
 				on_value: app.inputThread.mailbox.put({"armZ":self.value_normalized})
+			Label:
+				text: str(int(armZ.value))
 		BoxLayout:
 			size_hint: (None, None)
 			size: (400, 20)

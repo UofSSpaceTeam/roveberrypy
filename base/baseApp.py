@@ -280,7 +280,7 @@ class BaseApp(App):
 	## Antenna Signal Strength
 	def getRssi(self, *args):
 		try:
-			f = urllib.urlopen("http://192.168.1.101/index.json")
+			f = urllib.urlopen("http://192.168.1.101/index.json", 0.5)
 			data = f.read()
 			f.close()
 			x = data.find('rssi')
