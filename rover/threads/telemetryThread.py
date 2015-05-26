@@ -35,7 +35,6 @@ class TelemetryThread(threading.Thread):
 				inData += inChar
 				inChar = self.port.read()
 			# parse message
-			print inData
 			inData = inData.split();
 			if len(inData) != self.messageElements:
 				return None
@@ -63,5 +62,5 @@ class TelemetryThread(threading.Thread):
 			return outData
 		except:
 			print("serial data error")
-			return none
+			return None
 

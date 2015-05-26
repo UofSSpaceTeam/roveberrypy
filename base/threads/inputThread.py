@@ -19,7 +19,7 @@ class InputThread(threading.Thread):
 			self.armController = pygame.joystick.Joystick(1)
 			self.armController.init()
 		self.armMode = "disabled" # absolute / relative / direct / disabled
-		self.armCoords = [200, 200, 0, 0, 0, 0]
+		self.armCoords = [400, 0, 400, 0, 0, 0]
 		self.armThrottle = 0.5
 		self.driveThrottle = 0.3
 	
@@ -29,11 +29,13 @@ class InputThread(threading.Thread):
 			armChanged = False
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
-				if "armX" in data and self.armMode == "absolute":
-					self.armCoords[0] = int(data["armX"])
+				print data
+				if "armRad" in data and self.armMode == "absolute":
+					self.armCoords[0] = int(data["armRad"])
 					armChanged = True
-				if "armY" in data and self.armMode == "absolute":
-					self.armCoords[1] = int(data["armY"])
+					print "got armrad"
+				if "armBase" in data and self.armMode == "absolute":
+					self.armCoords[1] = int(data["armBase"])
 					armChanged = True
 				if "armZ" in data and self.armMode == "absolute":
 					self.armCoords[2] = int(data["armZ"])

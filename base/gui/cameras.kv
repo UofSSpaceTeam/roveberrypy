@@ -199,7 +199,7 @@
 				range: (-800, 800)
 				value: 200
 				step: .1
-				on_value: app.inputThread.mailbox.put({"armX":self.value})
+				on_value: app.inputThread.mailbox.put({"armRad":self.value})
 			Label:
 				size_hint: (.05, 1)
 				text: "Rad: " + str(int(armRad.value))
@@ -214,7 +214,7 @@
 				range: (-100, 100)
 				value: 0
 				step: .1
-				on_value: app.inputThread.mailbox.put({"armY":self.value})
+				on_value: app.inputThread.mailbox.put({"armBase":self.value})
 				on_touch_up: app.centerSliderHelper(self)
 			Label:
 				size_hint: (.05, 1)

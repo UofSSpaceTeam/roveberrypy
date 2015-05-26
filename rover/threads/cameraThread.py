@@ -73,17 +73,12 @@ class CameraThread(threading.Thread):
 			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 
 	def startArmCam(self):
-		command = ("LD_LIBRARY_PATH=/root/mjpgStreamer && "
-			"/root/mjpgStreamer/./mjpg_streamer -o \"output_http.so "
-			"-p 40000 -w ./www\" -i \"input_uvc.so -d /dev/video1 "
-			"-y -r 320x240 -f 10 -q 15\"")
-		print command
+		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_uvc.so -d /dev/video1 -r 320x240" &''')
 		subprocess.Popen(command, env = dict(os.environ,
 			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 	
 	def startDriveCam(self):
-		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_uvc.so -d /dev/video0" &''')
-		print command
+		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_uvc.so -d /dev/video2 -r 320x240" &''')
 		subprocess.Popen(command, env = dict(os.environ,
 			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 
