@@ -148,6 +148,7 @@ void updateDrill()
 	if(desiredDrillSpeed == 0)
 	{
 		drillMotor.writeMicroseconds(1500);
+		drillSpeed = 0;
 		return;
 	}
 	else if(abs(desiredDrillSpeed - drillSpeed) < 5)
@@ -164,6 +165,7 @@ void updateElev()
 	if(desiredElevSpeed == 0)
 	{
 		elevMotor.writeMicroseconds(1500);
+		elevSpeed = 0;
 		return;
 	}
 	else if(abs(desiredElevSpeed - elevSpeed) < 5)
