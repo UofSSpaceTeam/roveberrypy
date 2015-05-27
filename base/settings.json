@@ -4,8 +4,8 @@
 	"towerIP": "192.168.1.104",
 	"port": 35001,
 	"throttle": 0.3,
-	"mapFile": "gui/resource/campuspic.jpg",
-	"mapBottomLeft": [52.129221, -106.638841],
-	"mapTopRight": [52.133586, -106.625878]
+	"mapFile": "gui/resource/terraintraversal.jpg",
+	"mapBottomLeft": [38.406220, -110.792135],
+	"mapTopRight": [38.410148, -110.782748]
 }
 
