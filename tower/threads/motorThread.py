@@ -107,7 +107,7 @@ class motorThread(threading.Thread):
 			gpio.output(Pins.motorB, 1)
 			time.sleep(0.01)
 			gpio.output(Pins.motorB, 0)
-			time.sleep(0.02)
+			time.sleep(0.04)
 			if time.time() - initialTime > 2:
 				break
 	
@@ -118,10 +118,9 @@ class motorThread(threading.Thread):
 			gpio.output(Pins.motorA, 1)
 			time.sleep(0.01)
 			gpio.output(Pins.motorA, 0)
-			time.sleep(0.02)
+			time.sleep(0.04)
 			if time.time() - initialTime > 2:
 				break
-		gpio.output(Pins.motorA, 1)
 	
 	def stopMotor(self):
 		gpio.output(Pins.motorA, 0)
