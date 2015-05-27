@@ -192,7 +192,6 @@ class TelemetryWidget(Widget):
 			while data[key] > self.top - 50:
 				data[key] = data[key] - self.top - 50
 		
-		
 		return data
 				
 	def updateMax(self):

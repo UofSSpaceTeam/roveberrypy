@@ -1,7 +1,7 @@
 # lists of the keys of messages each thread wants to RECEIVE from the network
 
 telemetryList = (["gyro", "accel", "mag"
-	"heading", "vout", "isense", "laser", "ph", "moist"])
+	"heading", "vout", "isense", "laser", "ph", "moist", "roverGPS"])
 
 navList = (["roverGPS", "towerGPS"])
 # roverGPS = (latitude, longitude, speed, direction)

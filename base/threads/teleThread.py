@@ -1,5 +1,7 @@
 import threading
 from Queue import Queue
+import math
+from time import strftime
 
 
 class TeleThread(threading.Thread):
@@ -11,25 +13,35 @@ class TeleThread(threading.Thread):
 		self.mailbox = Queue()
 		
 		self.gx = 0
-		self.gy = 0
-		self.gz = 0
+		self.gy = 10
+		self.gz = 100
 		
 		self.ax = 0
-		self.ay = 0
-		self.az = 0
+		self.ay = 10
+		self.az = 100
+		self.roll = 0
+		self.pitch = 0
 		
 		self.mx = 0
 		self.my = 0
 		self.mz = 0
-		
-		self.vout = 0
-		self.isense = 0
-		
 		self.heading = 0
 		
-		self.laser = 0
-		self.ph = 0
-		self.moist = 0
+		self.vout = 1000
+		self.isense = 2000
+		
+		self.gps_heading = 0
+		self.lat = 0
+		self.lon = 0
+		
+		self.laser = 1
+		self.ph = 1
+		self.moist = 1
+		
+		open("./gui/laser_log.txt", "w").close()
+		open("./gui/ph_log.txt", "w").close()
+		open("./gui/moist_log.txt", "w").close()
+		
 
 	def run(self):
 		while True:
@@ -47,12 +59,16 @@ class TeleThread(threading.Thread):
 					self.ax = data["accel"][0]
 					self.ay = data["accel"][1]
 					self.az = data["accel"][2]
+					self.pitch = getPitch(self.ax, self.ay, self.az)
+					self.roll = getRoll(self.ax, self.ay, self.az)
+
 				if "mag" in data:
 					self.mx = data["mag"][0]
 					self.my = data["mag"][1]
 					self.mz = data["mag"][2]
+					self.heading = getHeading(self.mx, self.my)
 				if "heading" in data:
-					self.heading = data["heading"]
+					self.gps_heading = data["heading"]
 				if "vout" in data:
 					self.vout = data["vout"]
 				if "isense" in data:
@@ -63,6 +79,27 @@ class TeleThread(threading.Thread):
 					self.ph = data["ph"]
 				if "moist" in data:
 					self.isense = data["moist"]
+				if "roverGPS" in data:
+					self.lat = data["roverGPS"][0]
+					self.lon = data["roverGPS"][1]
+	
+				with open("./gui/read_log.txt", "a") as rlog:
+					rlog.write(strftime("%Y-%m-%d %H:%M:%S\n"))
+					rlog.write("lat: %f lon: %f\n" %(self.lat, self.lon))
+					rlog.write("laser: %f moisture: %f ph: %f\n" %(self.laser, self.moist, self.ph))
+					rlog.write("\n")
+					
+				with open("./gui/laser_log.txt", "a") as llog:
+					llog.write(str(self.laser))
+					llog.write(" ")
+				
+				with open("./gui/moist_log.txt", "a") as mlog:
+					mlog.write(str(self.moist))
+					mlog.write(" ")
+					
+				with open("./gui/ph_log.txt", "a") as plog:
+					plog.write(str(self.ph))
+					plog.write(" ")
 					
 	def stop(self):
 		self._Thread__stop()
@@ -72,7 +109,7 @@ class TeleThread(threading.Thread):
 
 		if hy > 0 :
 			heading = 90 -  (atan(hx / hy) * (180 / PI));
-                elif  hy < 0:
+		elif hy < 0:
 			heading = 270 - (atan(hx / hy) * (180 / PI));
 		else: 
 			hy = 0
@@ -91,3 +128,16 @@ class TeleThread(threading.Thread):
 		
 		return heading
 		
+		
+	def getPitch(self, x, y, z):
+		pitch = math.atan2(x, math.sqrt(y * y) + (z * z))
+		pitch *= 180.0 / math.pi
+		return pitch
+
+	def getRoll(self, x, y, z):
+		roll = math.atan2(y, math.sqrt(x * x) + (z * z))
+		roll *= 180.0 / math.pi
+		return roll
+
+		
+

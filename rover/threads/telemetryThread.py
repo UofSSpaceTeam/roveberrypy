@@ -17,7 +17,7 @@ class TelemetryThread(threading.Thread):
 			if data is not None:
 				msg = {"roverGPS":(data["lat"], data["lon"], data["speed"],
 					data["heading"]), "gyro":(data["gx"], data["gy"], data["gz"]),
-					"acell":(data["ax"], data["ay"], data["az"]), "isense":data["isense"], 
+					"accel":(data["ax"], data["ay"], data["az"]), "isense":data["isense"], 
 					"vout":data["vout"], "laser":data["laser"], "moist":data["moist"],
 					"ph":data["ph"], "mag":(data["mx"], data["my"], data["mz"]), "heading":data["heading"] }
 				self.parent.commThread.mailbox.put(msg)
