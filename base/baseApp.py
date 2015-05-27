@@ -161,28 +161,28 @@ class BaseApp(App):
 	def startVideo(self, name):
 		# Begin the camera feed
 		self.commThread.mailbox.put({"vidsource":name})
-		screen = self.sm.get_screen(name)
-		video = Video()
-		video.id = "stream"
-		video.size = (0, 0)
-		video.allow_stretch = True
-		video.keep_ratio = True
+		#screen = self.sm.get_screen(name)
+		#video = Video()
+		#video.id = "stream"
+		#video.size = (0, 0)
+		#video.allow_stretch = True
+		#video.keep_ratio = True
 		# Need asynchronous loading so the pi can keep up
-		Clock.schedule_once(lambda dt: self.startStreamDelay(name), 1)
-		screen.video = video
+		#Clock.schedule_once(lambda dt: self.startStreamDelay(name), 1)
+		#screen.video = video
 		# add new video player
-		screen.add_widget(video)
+		#screen.add_widget(video)
 		# bring controls to front
-		controls = screen.ids.controls
-		screen.remove_widget(controls)
-		screen.add_widget(controls)	
+		#controls = screen.ids.controls
+		#screen.remove_widget(controls)
+		#screen.add_widget(controls)	
 	
 	# destroy video widget on named screen
 	def stopVideo(self, name):
 		screen = self.sm.get_screen(name)
-		screen.video.unload()
-		screen.remove_widget(screen.video)
-		screen.video = None
+		#screen.video.unload()
+		#screen.remove_widget(screen.video)
+		#screen.video = None
 		
 	def startStreamDelay(self, name):
 		screen = self.sm.get_screen(name)
