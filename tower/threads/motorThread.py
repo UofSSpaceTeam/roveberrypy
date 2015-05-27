@@ -34,8 +34,8 @@ class motorThread(threading.Thread):
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
 				print data
-				# if "towerAim" in data:
-					# self.rotate(data["towerAim"])
+				if "towerAim" in data:
+					self.rotate(data["towerAim"])
 				if "towerJog" in data:
 					self.jog(data["towerJog"])
 				elif "centerCameraButton" in data:
@@ -60,7 +60,8 @@ class motorThread(threading.Thread):
 			gpio.output(Pins.sensorClock, 1)
 		gpio.output(Pins.sensorChipSelect, 1)
 		time.sleep(0.001)
-		rotation = (rotation-336)*(360/1023.0)	
+#		rotation = (rotation-336)*(360/1023.0)
+		rotation = (rotation-218)*(45/210.0)
 		print rotation
 		print s
 		return rotation
@@ -75,7 +76,7 @@ class motorThread(threading.Thread):
 				time.sleep(0.01)
 		if self.getRotation() > rotation:
 			initialTime = time.time()
-			self.spinMotorRight()
+			self.spinMotorRight(rotation)
 			while self.getRotation() > rotation:
 				if time.time() - initialTime > 2:
 					break
@@ -106,7 +107,7 @@ class motorThread(threading.Thread):
 			gpio.output(Pins.motorB, 1)
 			time.sleep(0.01)
 			gpio.output(Pins.motorB, 0)
-			time.sleep(0.03)
+			time.sleep(0.02)
 			if time.time() - initialTime > 2:
 				break
 	
@@ -117,7 +118,7 @@ class motorThread(threading.Thread):
 			gpio.output(Pins.motorA, 1)
 			time.sleep(0.01)
 			gpio.output(Pins.motorA, 0)
-			time.sleep(0.03)
+			time.sleep(0.02)
 			if time.time() - initialTime > 2:
 				break
 		gpio.output(Pins.motorA, 1)

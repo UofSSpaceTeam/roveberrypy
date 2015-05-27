@@ -1,3 +1,6 @@
+
+
+def getRotation(self
 #File Name: rotation_sensor.py
 #Project: USST Rover 2015
 #Coder(s): Ghazi Sami
@@ -5,7 +8,6 @@
 #Description: This code is designed to obtain the output of the EMS22A Rotation Sensor
 #As a Base-10 number between 0 and 1023. The output is continually updated as the rotation changes.
 
-def rotation(self):
 	#Import necessary GPIO library
 	from Tkinter import *
 	import RPi.GPIO as GPIO
