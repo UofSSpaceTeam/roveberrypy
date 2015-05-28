@@ -4,8 +4,8 @@
 	"towerIP": "192.168.1.104",
 	"port": 35001,
 	"throttle": 0.3,
-	"mapFile": "gui/resource/hotel.jpg",
-	"mapBottomLeft": [38.370145, -110.705247],
-	"mapTopRight": [38.375459, -110.698541]
+	"mapFile": "gui/resource/terraintraversal.jpg",
+	"mapBottomLeft": [38.406241, -110.792593],
+	"mapTopRight": [38.408966, -110.789844]
 }
 
