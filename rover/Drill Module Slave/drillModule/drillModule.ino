@@ -3,10 +3,10 @@
 #include <Servo.h>
 #include <Wire.h>
 
-#define TIMEOUT 2500
-#define PULSE_TIME 30
-
-// definition of structures and enums
+#define TIMEOUT 750
+#define CMD_HEADER 0xF7
+#define CMD_TRAILER 0xF8
+#define I2C_ADDRESS 0x09
 
 enum command_type // instructions from the Pi
 {
@@ -37,9 +37,6 @@ const byte l_pwr[] = {4, 6, 5};
 byte drillPin = 10;
 byte elevPin = 11;
 
-// arduino address on bus
-const byte i2c_address = 0x09;
-
 // servo stuff for motors
 Servo drillMotor;
 short drillSpeed = 0;
@@ -49,18 +46,14 @@ short elevSpeed = 0;
 short desiredElevSpeed = 0;
 
 // control data
-volatile short m_cmd[] = {0, 0}; // commanded speeds
 volatile short l_cmd[] = {0, 0, 0}; // commanded lasers
 
 // state information
-const byte CMD_HEADER = 0xF7;
-const byte CMD_TRAILER = 0xF8;
 unsigned long timeout;
-unsigned long prevTime;
 volatile command cmd;
-byte* cmd_ptr = (byte*)(&cmd);
-volatile byte cmd_count = 0;
-volatile bool new_cmd = false;
+byte* cmdPointer = (byte*)(&cmd);
+volatile byte cmdCount = 0;
+volatile bool newCommand = false;
 
 
 void receiveEvent(int count);
@@ -78,7 +71,7 @@ void setLaser(byte index, short value);
 void setup()
 {
 	Serial.begin(9600);
-	Wire.begin(i2c_address);
+	Wire.begin(I2C_ADDRESS);
 	Wire.onReceive(receiveEvent);
 	
 	pinMode(drillPin, OUTPUT);
@@ -91,13 +84,15 @@ void setup()
 	stopAll();
 		
 	timeout = millis();
-	prevTime = timeout;
 }
 
 void loop()
 {
-	if(new_cmd)
+	if(newCommand)
+	{
 		processCommand();
+		newCommand = false;
+	}
 	
 	updateDrill();
 	updateElev();
@@ -140,7 +135,6 @@ void processCommand()
 		Serial.println(cmd.d2);
 		break;
 	}
-	new_cmd = false;
 }
 
 void updateDrill()
@@ -179,16 +173,10 @@ void updateElev()
 
 void setLaser(byte index, short value)
 {
-  //Serial.print(l_pwr[index]);
-  //Serial.println(value);
-  if(index == 2){
-	//if(value) Serial.println("P Laser On");
-	//else Serial.println("P Laser Off");  
-   digitalWrite(l_pwr[index], !value);
-  }
-  else{
-	digitalWrite(l_pwr[index], value);
-	}
+	if(index == 2)
+		digitalWrite(l_pwr[index], !value);
+	else
+		digitalWrite(l_pwr[index], value);
 }
 
 void stopAll()
@@ -204,44 +192,39 @@ void stopAll()
 
 void receiveEvent(int count)
 {
-	byte in;
-	
-	if(new_cmd == true)
+	if(newCommand)
 		return;
-	
 	while(Wire.available())
 	{
-		in = Wire.read();
-				//Serial.println(in);
-		// wait for header
-		if(!cmd_count)
+		byte in = Wire.read();
+		
+		if(cmdCount == 0) // wait for header
 		{
 			if(in == CMD_HEADER)
 			{
-				*cmd_ptr = in;
-				cmd_count++;
+				cmdPointer[cmdCount] = in;
+				cmdCount++;
 			}
 			continue;
 		}
 		
-		// add middle bytes
-		if(cmd_count < sizeof(command))
+		if(cmdCount < sizeof(command)) // add middle bytes
 		{
-			cmd_ptr[cmd_count] = in;
-			cmd_count++;
+			cmdPointer[cmdCount] = in;
+			cmdCount++;
 		}
 		
-		// check for complete
-		if(cmd_count == sizeof(command))
+		if(cmdCount == sizeof(command)) // check for complete
 		{
 			if(in == CMD_TRAILER)
 			{
 				byte csum = cmd.type + cmd.d1 + cmd.d2;
 				if(csum == cmd.csum)
-					new_cmd = true;
+					newCommand = true;
 			}
-			cmd_count = 0;
+			cmdCount = 0;
 		}
 	}
 }
+
 
