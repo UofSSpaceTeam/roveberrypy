@@ -8,7 +8,7 @@ class TelemetryThread(threading.Thread):
 		self.parent = parent
 		self.name = "Telemetry"
 		self.mailbox = Queue()
-		self.port = serial.Serial("/dev/ttyAMA0", 57600)
+		self.port = serial.Serial("/dev/ttyAMA0", 9600)
 		self.messageElements = 21
 
 	def run(self):
@@ -27,14 +27,16 @@ class TelemetryThread(threading.Thread):
 		inData = ""
 		outData = {}
 		# wait for message start
-		#while self.port.read() != "#":
-		#	pass
+		while self.port.read() != "#":
+			pass
+		
 		# wait for message end
 		try:
 			inChar = self.port.read()
 			while inChar != "$":
 				inData += inChar
 				inChar = self.port.read()
+
 			# parse message
 			inData = inData.split();
 			if len(inData) != self.messageElements:

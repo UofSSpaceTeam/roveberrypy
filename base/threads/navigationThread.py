@@ -52,6 +52,7 @@ class NavigationThread(threading.Thread):
 			data = self.mailbox.get()
 			# print data
 			if "roverGPS" in data:
+				print "rovergps"
 				# (lat, lon, speed, direction)
 				# speed in meters / minute
 				self.roverLocation = data["roverGPS"][0:2]
