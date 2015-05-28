@@ -66,11 +66,7 @@ class TelemetryWidget(Widget):
 	def __init__(self, **kwargs):
         # make sure we aren't overriding any important functionality
 		super(TelemetryWidget, self).__init__(**kwargs)
-		
-		#Clock.schedule_interval(self.update_points_animation, 0.1)
-		
-		
-
+			
 	
 	def animate(self, do_animation):
 		if do_animation:

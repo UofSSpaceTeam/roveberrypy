@@ -49,62 +49,65 @@ class TeleThread(threading.Thread):
 	def run(self):
 		while True:
 			while not self.mailbox.empty():
-				self.has_packet = True
 				data = self.mailbox.get()
-				if "pitch" in data:
-					self.pitch = data["pitch"]
-				if "roll" in data:
-					self.roll = data["roll"]
-				if "gyro" in data:
-					self.gx = data["gyro"][0]
-					self.gy = data["gyro"][1]
-					self.gz = data["gyro"][2]
-				if "accel" in data:
-					self.ax = data["accel"][0]
-					self.ay = data["accel"][1]
-					self.az = data["accel"][2]
-					self.pitch = self.getPitch(self.ax, self.ay, self.az)
-					self.roll = self.getRoll(self.ax, self.ay, self.az)
-
-				if "mag" in data:
-					self.mx = data["mag"][0]
-					self.my = data["mag"][1]
-					self.mz = data["mag"][2]
-					self.heading = getHeading(self.mx, self.my)
-				if "heading" in data:
-					self.gps_heading = data["heading"]
-				if "vout" in data:
-					self.vout = data["vout"]
-				if "isense" in data:
-					self.isense = data["isense"]
-				if "laser" in data:
-					self.laser = data["laser"]
-				if "ph" in data:
-					self.ph = data["ph"]
-				if "moist" in data:
-					self.isense = data["moist"]
-				if "teleGPS" in data:
-					self.lat = data["teleGPS"][0]
-					self.lon = data["teleGPS"][1]
-				
-				if self.log:
-					with open("./gui/read_log.txt", "a") as rlog:
-						rlog.write(strftime("%Y-%m-%d %H:%M:%S\n"))
-						rlog.write("lat: %f lon: %f\n" %(self.lat, self.lon))
-						rlog.write("laser: %f moisture: %f ph: %f\n" %(self.laser, self.moist, self.ph))
-						rlog.write("\n")
+				try:
+					if "pitch" in data:
+						self.pitch = data["pitch"]
+					if "roll" in data:
+						self.roll = data["roll"]
+					if "gyro" in data:
+						self.gx = data["gyro"][0]
+						self.gy = data["gyro"][1]
+						self.gz = data["gyro"][2]
+					if "accel" in data:
+						self.ax = data["accel"][0]
+						self.ay = data["accel"][1]
+						self.az = data["accel"][2]
+						self.pitch = self.getPitch(self.ax, self.ay, self.az)
+						self.roll = self.getRoll(self.ax, self.ay, self.az)
+					if "mag" in data:
+						self.mx = data["mag"][0]
+						self.my = data["mag"][1]
+						self.mz = data["mag"][2]
+						self.heading = getHeading(self.mx, self.my)
+					if "heading" in data:
+						self.gps_heading = data["heading"]
+					if "vout" in data:
+						self.vout = data["vout"]
+					if "isense" in data:
+						self.isense = data["isense"]
+					if "laser" in data:
+						self.laser = data["laser"]
+					if "ph" in data:
+						self.ph = data["ph"]
+					if "moist" in data:
+						self.moist = data["moist"]
+					if "teleGPS" in data:
+						self.lat = data["teleGPS"][0]
+						self.lon = data["teleGPS"][1]
 					
-					with open("./gui/laser_log.txt", "a") as llog:
-						llog.write(str(self.laser))
-						llog.write(" ")
-					
-					with open("./gui/moist_log.txt", "a") as mlog:
-						mlog.write(str(self.moist))
-						mlog.write(" ")
+					if self.log:
+						with open("./gui/read_log.txt", "a") as rlog:
+							rlog.write(strftime("%Y-%m-%d %H:%M:%S\n"))
+							rlog.write("lat: %f lon: %f\n" %(self.lat, self.lon))
+							rlog.write("laser: %f moisture: %f ph: %f\n" %(self.laser, self.moist, self.ph))
+							rlog.write("\n")
 						
-					with open("./gui/ph_log.txt", "a") as plog:
-						plog.write(str(self.ph))
-						plog.write(" ")
+						with open("./gui/laser_log.txt", "a") as llog:
+							llog.write(str(self.laser))
+							llog.write(" ")
+						
+						with open("./gui/moist_log.txt", "a") as mlog:
+							mlog.write(str(self.moist))
+							mlog.write(" ")
+							
+						with open("./gui/ph_log.txt", "a") as plog:
+							plog.write(str(self.ph))
+							plog.write(" ")
+				except: 
+					print ("mailbox error")
+					
+					
 					
 	def stop(self):
 		self._Thread__stop()
@@ -123,9 +126,9 @@ class TeleThread(threading.Thread):
 			heading = 0;
 
 		#declination for Saskatoon
-		heading = heading + 10.65;
+		#heading = heading + 10.65;
 		#declination for Hanksvill 
-		#heading = heading + 10.90
+		heading = heading + 10.90
 
 		if (heading >= 360): 
 			heading = heading - 360;   
