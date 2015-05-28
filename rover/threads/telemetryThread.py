@@ -50,7 +50,7 @@ class TelemetryThread(threading.Thread):
 			outData["mz"] = float(inData[8])
 			outData["lat"] = float(inData[9])
 			outData["lon"] = float(inData[10])
-			outData["speed"] = float(inData[11]) / 60
+			outData["speed"] = float(inData[11]) * 60
 			outData["alt"] = float(inData[12])
 			outData["heading"] = float(inData[13])
 			outData["date"] = inData[14]
