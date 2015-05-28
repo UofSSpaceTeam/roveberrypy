@@ -63,8 +63,8 @@ class TeleThread(threading.Thread):
 					self.ax = data["accel"][0]
 					self.ay = data["accel"][1]
 					self.az = data["accel"][2]
-					self.pitch = getPitch(self.ax, self.ay, self.az)
-					self.roll = getRoll(self.ax, self.ay, self.az)
+					self.pitch = self.getPitch(self.ax, self.ay, self.az)
+					self.roll = self.getRoll(self.ax, self.ay, self.az)
 
 				if "mag" in data:
 					self.mx = data["mag"][0]

@@ -110,8 +110,8 @@ class TelemetryWidget(Widget):
 	
 		self.drawPoints(self.points1, self.data1 * self.gTop/180 + self.gTop/2,
 			self.points2, self.data2 * self.gTop/180 + self.gTop/2, self.points3, self.data3, self.cx1)
-		self.drawPoints(self.points4, self.data4,
-			self.points5, self.data5, self.points6, self.data6, self.cx2)
+		self.drawPoints(self.points4, self.data4 * self.gTop/1500,
+			self.points5, self.data5 * self.gTop/2000, self.points6, self.data6 * self.gTop/4000, self.cx2)
 		self.drawPoints(self.points7, self.data7 * self.gTop/30 + self.gTop/2,
 			self.points8, self.data8, self.points9, self.data9, self.cx3)
 		self.x_pos += 1
@@ -183,15 +183,11 @@ class TelemetryWidget(Widget):
 		data["1"] = App.get_running_app().teleThread.pitch
 		data["2"] = App.get_running_app().teleThread.roll
 		#data["3"] = App.get_running_app().teleThread.gz
-		data["4"] = App.get_running_app().teleThread.ax
-		data["5"] = App.get_running_app().teleThread.ay
-		data["6"] = App.get_running_app().teleThread.az
+		data["4"] = App.get_running_app().teleThread.laser
+		data["5"] = App.get_running_app().teleThread.moist
+		data["6"] = App.get_running_app().teleThread.ph
 		data["7"] = App.get_running_app().teleThread.vout
 		#data["8"] = App.get_running_app().teleThread.isense
-		
-		for key in data:
-			while data[key] > self.top - 50:
-				data[key] = data[key] - self.top - 50
 		
 		return data
 				

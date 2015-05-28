@@ -19,7 +19,8 @@ class TelemetryThread(threading.Thread):
 					data["heading"]), "gyro":(data["gx"], data["gy"], data["gz"]),
 					"accel":(data["ax"], data["ay"], data["az"]), "isense":data["isense"], 
 					"vout":data["vout"], "laser":data["laser"], "moist":data["moist"],
-					"ph":data["ph"], "mag":(data["mx"], data["my"], data["mz"]), "heading":data["heading"] }
+					"ph":data["ph"], "mag":(data["mx"], data["my"], data["mz"]), "heading":data["heading"],
+					"teleGPS":data["lat"], data["lon"]}
 				self.parent.commThread.mailbox.put(msg)
 
 	def getSerialData(self):
