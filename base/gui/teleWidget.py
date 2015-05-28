@@ -101,10 +101,10 @@ class TelemetryWidget(Widget):
 		self.dataSum[5] += self.data6
 		self.data7 = data["7"]
 		self.dataSum[6] += self.data7
-		self.data8 = data["8"]
 		#extra lists
+		self.data8 = data["7"]
 		self.dataSum[6] += self.data8
-		self.data9 = data["8"]
+		self.data9 = data["7"]
 		self.dataSum[6] += self.data9
 		
 	
@@ -225,8 +225,7 @@ class TelemetryWidget(Widget):
 			Line(points=[self.cx2, self.top, self.cx2, self.cy,
 								self.cx3, self.cy])
 								
-			Line(points=[self.cx3, self.top, self.cx3, self.cy,
-								self.width * 0.9, self.cy])
-			Line(points=[self.cx3, self.cy + self.gTop/2, self.cx2, self.cy + self.gTop/2])
+			Line(points=[self.cx3, self.top, self.cx3, self.cy])
+			Line(points=[self.cx3, self.cy + self.gTop/2, self.width * 0.9, self.cy + self.gTop/2])
 		
 		
