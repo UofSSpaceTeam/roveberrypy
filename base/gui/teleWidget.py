@@ -58,14 +58,16 @@ class TelemetryWidget(Widget):
 	cx3 = NumericProperty(0)
 	cy = NumericProperty(0)
 	
-	
-	
 	dataSum = [0,0,0,0,0,0,0,0,0]
+	
+	gTop = 300
 	
 	
 	def __init__(self, **kwargs):
         # make sure we aren't overriding any important functionality
 		super(TelemetryWidget, self).__init__(**kwargs)
+		
+		#Clock.schedule_interval(self.update_points_animation, 0.1)
 		
 		
 
@@ -85,12 +87,11 @@ class TelemetryWidget(Widget):
 		self.dt += dt
 		data = {}
 		data.update(self.getData())
-		self.data1 = data["1"]
+		self.data1 = data["1"] 
 		self.dataSum[0] += self.data1 
 		self.data2 = data["2"]
 		self.dataSum[1] += self.data2
-		self.data3 = data["3"]
-		#print(self.data3)
+		self.data3 = data["2"]
 		self.dataSum[2] += self.data3
 		self.data4 = data["4"]
 		self.dataSum[3] += self.data4
@@ -101,17 +102,17 @@ class TelemetryWidget(Widget):
 		self.data7 = data["7"]
 		self.dataSum[6] += self.data7
 		self.data8 = data["8"]
-		self.dataSum[7] += self.data8
-		#extra list 
+		#extra lists
+		self.dataSum[6] += self.data8
 		self.data9 = data["8"]
-		self.dataSum[8] += self.data9
+		self.dataSum[6] += self.data9
 		
 	
-		self.drawPoints(self.points1, self.data1,
-			self.points2, self.data2, self.points3, self.data3, self.cx1)
+		self.drawPoints(self.points1, self.data1 * self.gTop/180 + self.gTop/2,
+			self.points2, self.data2 * self.gTop/180 + self.gTop/2, self.points3, self.data3, self.cx1)
 		self.drawPoints(self.points4, self.data4,
 			self.points5, self.data5, self.points6, self.data6, self.cx2)
-		self.drawPoints(self.points7, self.data7,
+		self.drawPoints(self.points7, self.data7 * self.gTop/30 + self.gTop/2,
 			self.points8, self.data8, self.points9, self.data9, self.cx3)
 		self.x_pos += 1
 		
@@ -179,14 +180,14 @@ class TelemetryWidget(Widget):
 		
 		
 		#actual data code
-		data["1"] = App.get_running_app().teleThread.gx
-		data["2"] = App.get_running_app().teleThread.gy
-		data["3"] = App.get_running_app().teleThread.gz
+		data["1"] = App.get_running_app().teleThread.pitch
+		data["2"] = App.get_running_app().teleThread.roll
+		#data["3"] = App.get_running_app().teleThread.gz
 		data["4"] = App.get_running_app().teleThread.ax
 		data["5"] = App.get_running_app().teleThread.ay
 		data["6"] = App.get_running_app().teleThread.az
 		data["7"] = App.get_running_app().teleThread.vout
-		data["8"] = App.get_running_app().teleThread.isense
+		#data["8"] = App.get_running_app().teleThread.isense
 		
 		for key in data:
 			while data[key] > self.top - 50:
@@ -218,12 +219,14 @@ class TelemetryWidget(Widget):
 			
 	def updateAxis(self):
 		with self.canvas:
-			Line(points=[self.cx1, self.top, self.cx1, self.cy,
-							self.cx2, self.cy])
+			Line(points=[self.cx1, self.top, self.cx1, self.cy])
+			Line(points=[self.cx1, self.cy + self.gTop/2, self.cx2, self.cy + self.gTop/2])
+			
 			Line(points=[self.cx2, self.top, self.cx2, self.cy,
 								self.cx3, self.cy])
+								
 			Line(points=[self.cx3, self.top, self.cx3, self.cy,
 								self.width * 0.9, self.cy])
-		
+			Line(points=[self.cx3, self.cy + self.gTop/2, self.cx2, self.cy + self.gTop/2])
 		
 		

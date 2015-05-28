@@ -74,6 +74,9 @@
 					group: "laser"
 					on_press: app.commThread.mailbox.put({"laser":3})
 					on_release:	app.commThread.mailbox.put({"laser":0})
+				ToggleButton:
+					text: "Log Data"
+					on_state: app.teleThread.log = (self.state == "down")
 		BoxLayout:
 			pos: (root.size[0] / 2 - 400, 5)
 			size_hint: (None, None)

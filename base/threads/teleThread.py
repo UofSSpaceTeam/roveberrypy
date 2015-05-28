@@ -13,12 +13,12 @@ class TeleThread(threading.Thread):
 		self.mailbox = Queue()
 		
 		self.gx = 0
-		self.gy = 10
-		self.gz = 100
+		self.gy = 0
+		self.gz = 0
 		
 		self.ax = 0
-		self.ay = 10
-		self.az = 100
+		self.ay = 0
+		self.az = 0
 		self.roll = 0
 		self.pitch = 0
 		
@@ -27,17 +27,20 @@ class TeleThread(threading.Thread):
 		self.mz = 0
 		self.heading = 0
 		
-		self.vout = 1000
-		self.isense = 2000
+		self.vout = 0
+		self.isense = 0
 		
 		self.gps_heading = 0
 		self.lat = 0
 		self.lon = 0
 		
-		self.laser = 1
-		self.ph = 1
-		self.moist = 1
+		self.laser = 0
+		self.ph = 0
+		self.moist = 0
 		
+		self.log = False 
+		
+		#make sure log files for experiment is empty
 		open("./gui/laser_log.txt", "w").close()
 		open("./gui/ph_log.txt", "w").close()
 		open("./gui/moist_log.txt", "w").close()
@@ -46,6 +49,7 @@ class TeleThread(threading.Thread):
 	def run(self):
 		while True:
 			while not self.mailbox.empty():
+				self.has_packet = True
 				data = self.mailbox.get()
 				if "pitch" in data:
 					self.pitch = data["pitch"]
@@ -79,32 +83,32 @@ class TeleThread(threading.Thread):
 					self.ph = data["ph"]
 				if "moist" in data:
 					self.isense = data["moist"]
-				if "roverGPS" in data:
-					self.lat = data["roverGPS"][0]
-					self.lon = data["roverGPS"][1]
-	
-				with open("./gui/read_log.txt", "a") as rlog:
-					rlog.write(strftime("%Y-%m-%d %H:%M:%S\n"))
-					rlog.write("lat: %f lon: %f\n" %(self.lat, self.lon))
-					rlog.write("laser: %f moisture: %f ph: %f\n" %(self.laser, self.moist, self.ph))
-					rlog.write("\n")
-					
-				with open("./gui/laser_log.txt", "a") as llog:
-					llog.write(str(self.laser))
-					llog.write(" ")
+				if "teleGPS" in data:
+					self.lat = data["teleGPS"][0]
+					self.lon = data["teleGPS"][1]
 				
-				with open("./gui/moist_log.txt", "a") as mlog:
-					mlog.write(str(self.moist))
-					mlog.write(" ")
+				if self.log:
+					with open("./gui/read_log.txt", "a") as rlog:
+						rlog.write(strftime("%Y-%m-%d %H:%M:%S\n"))
+						rlog.write("lat: %f lon: %f\n" %(self.lat, self.lon))
+						rlog.write("laser: %f moisture: %f ph: %f\n" %(self.laser, self.moist, self.ph))
+						rlog.write("\n")
 					
-				with open("./gui/ph_log.txt", "a") as plog:
-					plog.write(str(self.ph))
-					plog.write(" ")
+					with open("./gui/laser_log.txt", "a") as llog:
+						llog.write(str(self.laser))
+						llog.write(" ")
+					
+					with open("./gui/moist_log.txt", "a") as mlog:
+						mlog.write(str(self.moist))
+						mlog.write(" ")
+						
+					with open("./gui/ph_log.txt", "a") as plog:
+						plog.write(str(self.ph))
+						plog.write(" ")
 					
 	def stop(self):
 		self._Thread__stop()
-		
-		
+
 	def getHeading(self, hx, hy):
 
 		if hy > 0 :

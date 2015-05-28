@@ -21,14 +21,6 @@
             cap: 'round'
             width: 1
             close: False
-        Color:
-            rgba: 0, 1, 0, 1
-        Line:
-            points: self.points3
-            joint: 'miter'
-            cap: 'round'
-            width: 1
-            close: False
 		Color:
             rgba: .4, 1, .4, 1
         Line:
@@ -92,7 +84,7 @@
                 text: 'average'
 
             Label:
-                text: 'gx'
+                text: 'pitch'
 				color: .4, .4, 1, 1
             Label:
                 text: str(root.data1)
@@ -103,7 +95,7 @@
 				
             
             Label:
-                text: 'gy'
+                text: 'roll'
 				color: 1, .4, .4, 1
             Label:
                 text: str(root.data2)
@@ -112,16 +104,6 @@
 			Label:
                 text: str(root.avg_data2)
 
-				
-            Label:
-                text: 'gz'
-				color: 0, 1, 0, 1
-            Label:
-                text: str(root.data3)
-            Label:
-                text: str(root.max_data3)
-			Label:
-                text: str(root.avg_data3)
 				
 		GridLayout:
             cols: 4
@@ -210,9 +192,7 @@
 				on_state: root.animate(self.state == 'down')
 				
 	FloatLayout:
-		Label:
-			text: "300"
-			pos: (root.cx1 + 10, root.cy + 300)
+		
 			
 
 			
