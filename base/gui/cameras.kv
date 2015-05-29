@@ -185,7 +185,7 @@
 				id: armZ
 				size_hint: (1, .95)
 				padding: 10
-				range: (-800, 800)
+				range: (-250, 800)
 				value: 200
 				step: .1
 				on_value: app.inputThread.mailbox.put({"armZ":self.value})
@@ -200,7 +200,7 @@
 				id: armRad
 				size_hint: (.95, 1)
 				padding: 30
-				range: (-800, 800)
+				range: (0, 800)
 				value: 200
 				step: .1
 				on_value: app.inputThread.mailbox.put({"armRad":self.value})
@@ -215,7 +215,7 @@
 				id: armBase
 				size_hint: (.95, 1)
 				padding: 30
-				range: (-100, 100)
+				range: (-255, 255)
 				value: 0
 				step: .1
 				on_value: app.inputThread.mailbox.put({"armBase":self.value})
@@ -246,11 +246,19 @@
 			BoxLayout:
 				Button:
 					text: "open"
+					on_press: app.inputThread.mailbox.put({"armGrpOpen":1})
+					on_release: app.inputThread.mailbox.put({"armGrpOpen":0})
 				Button:
 					text: "close"
+					on_press: app.inputThread.mailbox.put({"armGrpOpen":-1})
+					on_release: app.inputThread.mailbox.put({"armGrpOpen":0})
 			BoxLayout:
 				Button:
-					text: "left"
+					text: "CW"
+					on_press: app.inputThread.mailbox.put({"armGrpRot":1})
+					on_release: app.inputThread.mailbox.put({"armGrpRot":0})
 				Button:
-					text: "right"
+					text: "CCW"
+					on_press: app.inputThread.mailbox.put({"armGrpRot":-1})
+					on_release: app.inputThread.mailbox.put({"armGrpRot":0})
 
