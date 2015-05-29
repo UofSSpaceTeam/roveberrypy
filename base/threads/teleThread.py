@@ -45,9 +45,9 @@ class TeleThread(threading.Thread):
 		self.log = False 
 		
 		#make sure log files for experiment is empty
-		open("./gui/laser_log.txt", "w").close()
-		open("./gui/ph_log.txt", "w").close()
-		open("./gui/moist_log.txt", "w").close()
+		open("./data/laser_log.txt", "w").close()
+		open("./data/ph_log.txt", "w").close()
+		open("./data/moist_log.txt", "w").close()
 		
 
 	def run(self):
@@ -98,21 +98,21 @@ class TeleThread(threading.Thread):
 						self.parent.updateTowerPos(self.towerRotation)
 					
 					if self.log and self.gotExpData:
-						with open("./gui/read_log.txt", "a") as rlog:
+						with open("./data/read_log.txt", "a") as rlog:
 							rlog.write(strftime("%Y-%m-%d %H:%M:%S\n"))
 							rlog.write("lat: %f lon: %f\n" %(self.lat, self.lon))
 							rlog.write("laser: %f moisture: %f ph: %f\n" %(self.laser, self.moist, self.ph))
 							rlog.write("\n")
 						
-						with open("./gui/laser_log.txt", "a") as llog:
+						with open("./data/laser_log.txt", "a") as llog:
 							llog.write(str(self.laser))
 							llog.write(" ")
 						
-						with open("./gui/moist_log.txt", "a") as mlog:
+						with open("./data/moist_log.txt", "a") as mlog:
 							mlog.write(str(self.moist))
 							mlog.write(" ")
 							
-						with open("./gui/ph_log.txt", "a") as plog:
+						with open("./data/ph_log.txt", "a") as plog:
 							plog.write(str(self.ph))
 							plog.write(" ")
 							
