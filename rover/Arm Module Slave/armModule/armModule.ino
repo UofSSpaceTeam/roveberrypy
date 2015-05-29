@@ -30,14 +30,14 @@
 #define HANDOPENA 22
 #define HANDOPENB 23
 
-#define L1MAX 870
+#define L1MAX 885
 #define L1MIN 591
 #define L1TOLERANCE 10
 #define L2MAX 862
 #define L2MIN 617
 #define L2TOLERANCE 10
-#define L3MAX 832
-#define L3MIN 412
+#define L3MAX 810
+#define L3MIN 260
 #define L3TOLERANCE 10
 #define BASETOLERANCE 100
 
