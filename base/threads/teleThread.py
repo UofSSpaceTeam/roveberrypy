@@ -38,6 +38,8 @@ class TeleThread(threading.Thread):
 		self.ph = 0
 		self.moist = 0
 		
+		self.towerRotation = 10
+		
 		self.log = False 
 		
 		#make sure log files for experiment is empty
@@ -85,6 +87,9 @@ class TeleThread(threading.Thread):
 					if "teleGPS" in data:
 						self.lat = data["teleGPS"][0]
 						self.lon = data["teleGPS"][1]
+					if "rotation" in data:
+						self.towerRotation = data["rotation"]
+						self.parent.updateTowerPos(self.towerRotation)
 					
 					if self.log:
 						with open("./gui/read_log.txt", "a") as rlog:
@@ -106,7 +111,8 @@ class TeleThread(threading.Thread):
 							plog.write(" ")
 				except: 
 					print ("mailbox error")
-					
+
+
 					
 					
 	def stop(self):

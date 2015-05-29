@@ -15,11 +15,12 @@
 					pos: self.pos
 					size: self.size
 			Label:
+				id: TowerPos
 				text: "Tower Position: " + "0" + "°"
 				font_size: 20
 			Button:
 				text: "Calibrate"
-				on_press: app.commThread.mailbox.put({"calibrate":1})
+				on_release: app.commThread.mailbox.put({"calibrate":1})
 		BoxLayout:
 			orientation: "vertical"
 			canvas:

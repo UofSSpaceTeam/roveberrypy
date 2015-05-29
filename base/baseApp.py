@@ -290,6 +290,10 @@ class BaseApp(App):
 			self.tabBar.ids.rssi.text = str(data[x + 6: x + 14])
 		except:
 			self.tabBar.ids.rssi.text = "No Data"
+			
+	def updateTowerPos(self, towerPos):
+		self.sm.get_screen("settings").ids.TowerPos.text = "Tower Position: " + str(towerPos)
+		
 
 class TelemetryScreen(Screen):
 	pass
@@ -338,7 +342,7 @@ class ImageScreen(Screen):
 
 class SettingsScreen(Screen):
 	pass
-
+		
 class SplashScreen(Screen):
 	pass
 
