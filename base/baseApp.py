@@ -66,6 +66,9 @@ class BaseApp(App):
 		self.commThread.mailbox.put({"towerAim":0})
 		Clock.schedule_interval(self.checkMail, 0.2)
 		Clock.schedule_interval(self.getRssi, 2)
+		
+		
+		
 		return self.root
 	
 	# read messages in the inbox

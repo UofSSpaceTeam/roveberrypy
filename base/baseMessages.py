@@ -12,3 +12,5 @@ guiList = ([])
 
 inputList = ([])
 
+towerList = (["rotation"])
+

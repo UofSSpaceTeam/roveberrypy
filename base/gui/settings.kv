@@ -15,16 +15,11 @@
 					pos: self.pos
 					size: self.size
 			Label:
-				text: "Tower Aim: " + str(int(antennaAim.value)) + "°"
+				text: "Tower Position: " + "0" + "°"
 				font_size: 20
-			Slider:
-				id: antennaAim
-				padding: 30
-				min: -45
-				max: 45
-				value: 0
-				step: 5
-				on_value: app.commThread.mailbox.put({"towerAim":int(self.value)})
+			Button:
+				text: "Calibrate"
+				on_press: app.commThread.mailbox.put({"calibrate":1})
 		BoxLayout:
 			orientation: "vertical"
 			canvas:
@@ -57,4 +52,4 @@
 			Button:
 				text: "Center Camera"
 				on_release: app.commThread.mailbox.put({"centerCameraButton":""})
-
+				
