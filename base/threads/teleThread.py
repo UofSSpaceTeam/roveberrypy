@@ -38,7 +38,9 @@ class TeleThread(threading.Thread):
 		self.ph = 0
 		self.moist = 0
 		
+		self.gotExpData = False
 		self.towerRotation = 10
+		
 		
 		self.log = False 
 		
@@ -80,10 +82,13 @@ class TeleThread(threading.Thread):
 					if "isense" in data:
 						self.isense = data["isense"]
 					if "laser" in data:
+						self.gotExpData = True
 						self.laser = data["laser"]
 					if "ph" in data:
+						self.gotExpData = True
 						self.ph = data["ph"]
 					if "moist" in data:
+						self.gotExpData = True
 						self.moist = data["moist"]
 					if "teleGPS" in data:
 						self.lat = data["teleGPS"][0]
@@ -92,7 +97,7 @@ class TeleThread(threading.Thread):
 						self.towerRotation = data["rotation"]
 						self.parent.updateTowerPos(self.towerRotation)
 					
-					if self.log:
+					if self.log and self.gotExpData:
 						with open("./gui/read_log.txt", "a") as rlog:
 							rlog.write(strftime("%Y-%m-%d %H:%M:%S\n"))
 							rlog.write("lat: %f lon: %f\n" %(self.lat, self.lon))
@@ -110,6 +115,8 @@ class TeleThread(threading.Thread):
 						with open("./gui/ph_log.txt", "a") as plog:
 							plog.write(str(self.ph))
 							plog.write(" ")
+							
+						self.gotExpData = False
 				except: 
 					print ("mailbox error")
 
