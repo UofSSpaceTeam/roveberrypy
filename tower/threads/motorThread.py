@@ -102,24 +102,30 @@ class motorThread(threading.Thread):
 	
 	def spinMotorLeft(self, rotation):
 		initialTime = time.time()
+		initialRotation = self.getRotation()
 		gpio.output(Pins.motorA, 0)
 		while self.getRotation() < rotation:
 			gpio.output(Pins.motorB, 1)
 			time.sleep(0.01)
 			gpio.output(Pins.motorB, 0)
 			time.sleep(0.04)
-			if time.time() - initialTime > 2:
+			if time.time() - initialTime > 1:
+				if self.getRotation() == initialRotation
+					print "Warning: No Movement"
 				break
 	
 	def spinMotorRight(self, rotation):
 		initialTime = time.time()
+		initialRotation = self.getRotation()
 		gpio.output(Pins.motorB, 0)
 		while self.getRotation() > rotation:
 			gpio.output(Pins.motorA, 1)
 			time.sleep(0.01)
 			gpio.output(Pins.motorA, 0)
 			time.sleep(0.04)
-			if time.time() - initialTime > 2:
+			if time.time() - initialTime > 1:
+				if self.getRotation() == initialRotation
+					print "Warning: No Movement"
 				break
 	
 	def stopMotor(self):
