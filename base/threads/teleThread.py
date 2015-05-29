@@ -41,7 +41,7 @@ class TeleThread(threading.Thread):
 		self.towerRotation = 10
 		
 		
-		self.log = False 
+		self.log = False
 		
 		#make sure log files for experiment is empty
 		open("./data/laser_log.txt", "w").close()
@@ -85,22 +85,22 @@ class TeleThread(threading.Thread):
 						self.laser = data["laser"]
 						if self.log:
 							with open("./data/laser_log.txt", "a") as llog:
-							llog.write(str(self.laser))
-							llog.write(" ")
+								llog.write(str(self.laser))
+								llog.write(" ")
 					if "ph" in data:
 						#self.gotExpData = True
 						self.ph = data["ph"]
 						if self.log:
 							with open("./data/ph_log.txt", "a") as plog:
-							plog.write(str(self.ph))
-							plog.write(" ")
+								plog.write(str(self.ph))
+								plog.write(" ")
 					if "moist" in data:
 						#self.gotExpData = True
 						self.moist = data["moist"]
 						if self.log:
 							with open("./data/moist_log.txt", "a") as mlog:
-							mlog.write(str(self.moist))
-							mlog.write(" ")
+								mlog.write(str(self.moist))
+								mlog.write(" ")
 					if "teleGPS" in data:
 						self.lat = data["teleGPS"][0]
 						self.lon = data["teleGPS"][1]
