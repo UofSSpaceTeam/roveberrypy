@@ -28,7 +28,7 @@ class motorThread(threading.Thread):
 		self.setupMotor()
 		self.setupServo()
 		self.setupSensor()
-		self.calibrate()
+		self.calibrate = 0
 		
 	def run(self):
 		while True:
@@ -38,7 +38,9 @@ class motorThread(threading.Thread):
 				if "towerAim" in data:
 					self.rotate(data["towerAim"])
 				if "calibrate" in data:
+					self.calibrate = 0.0 
 					self.calibrate = self.getRotation()
+					print self.calibrate
 				if "towerJog" in data:
 					self.jog(data["towerJog"])
 				elif "centerCameraButton" in data:
@@ -64,7 +66,7 @@ class motorThread(threading.Thread):
 		gpio.output(Pins.sensorChipSelect, 1)
 		time.sleep(0.001)
 #		rotation = (rotation-336)*(360/1023.0)
-		rotation = (rotation)*(45/210.0)-self.calibrate
+		rotation = (rotation)/8.5-self.calibrate
 		print rotation
 		print s
 		return rotation
@@ -113,7 +115,7 @@ class motorThread(threading.Thread):
 			gpio.output(Pins.motorB, 0)
 			time.sleep(0.04)
 			if time.time() - initialTime > 1:
-				if abs(self.getRotation() - initialRotation) < 1
+				if abs(self.getRotation() - initialRotation) < 1:
 					print "Warning: No Movement"
 				break
 	
@@ -127,7 +129,7 @@ class motorThread(threading.Thread):
 			gpio.output(Pins.motorA, 0)
 			time.sleep(0.04)
 			if time.time() - initialTime > 1:
-				if abs(self.getRotation() - initialRotation) < 1
+				if abs(self.getRotation() - initialRotation) < 1:
 					print "Warning: No Movement"
 				break
 	

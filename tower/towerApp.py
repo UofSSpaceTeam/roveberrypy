@@ -31,6 +31,7 @@ class towerApp():
 		self.startThreads()
 		try:
 			while True:
+				commThread.mailbox.put[("rotation":motorThread.getRotation)]
 				time.sleep(1)
 		except KeyboardInterrupt:
 			print("stopping")
