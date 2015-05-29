@@ -38,7 +38,6 @@ class TeleThread(threading.Thread):
 		self.ph = 0
 		self.moist = 0
 		
-		self.gotExpData = False
 		self.towerRotation = 10
 		
 		
@@ -82,14 +81,26 @@ class TeleThread(threading.Thread):
 					if "isense" in data:
 						self.isense = data["isense"]
 					if "laser" in data:
-						self.gotExpData = True
+						#self.gotExpData = True
 						self.laser = data["laser"]
+						if self.log:
+							with open("./data/laser_log.txt", "a") as llog:
+							llog.write(str(self.laser))
+							llog.write(" ")
 					if "ph" in data:
-						self.gotExpData = True
+						#self.gotExpData = True
 						self.ph = data["ph"]
+						if self.log:
+							with open("./data/ph_log.txt", "a") as plog:
+							plog.write(str(self.ph))
+							plog.write(" ")
 					if "moist" in data:
-						self.gotExpData = True
+						#self.gotExpData = True
 						self.moist = data["moist"]
+						if self.log:
+							with open("./data/moist_log.txt", "a") as mlog:
+							mlog.write(str(self.moist))
+							mlog.write(" ")
 					if "teleGPS" in data:
 						self.lat = data["teleGPS"][0]
 						self.lon = data["teleGPS"][1]
@@ -97,26 +108,13 @@ class TeleThread(threading.Thread):
 						self.towerRotation = data["rotation"]
 						self.parent.updateTowerPos(self.towerRotation)
 					
-					if self.log and self.gotExpData:
+					if self.log:
 						with open("./data/read_log.txt", "a") as rlog:
 							rlog.write(strftime("%Y-%m-%d %H:%M:%S\n"))
 							rlog.write("lat: %f lon: %f\n" %(self.lat, self.lon))
 							rlog.write("laser: %f moisture: %f ph: %f\n" %(self.laser, self.moist, self.ph))
 							rlog.write("\n")
-						
-						with open("./data/laser_log.txt", "a") as llog:
-							llog.write(str(self.laser))
-							llog.write(" ")
-						
-						with open("./data/moist_log.txt", "a") as mlog:
-							mlog.write(str(self.moist))
-							mlog.write(" ")
 							
-						with open("./data/ph_log.txt", "a") as plog:
-							plog.write(str(self.ph))
-							plog.write(" ")
-							
-						self.gotExpData = False
 				except: 
 					print ("mailbox error")
 
