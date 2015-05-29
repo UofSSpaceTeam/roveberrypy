@@ -27,7 +27,7 @@ class CommunicationThread(threading.Thread):
 				inData, address = self.socket.recvfrom(8192)
 				self.baseAddress = address
 			except socket.error: # no data
-				continue
+				pass
 			else:
 				inData = convert(json.loads(inData))
 				for key, value in inData.iteritems():
@@ -47,6 +47,7 @@ class CommunicationThread(threading.Thread):
 						if key == msg:
 							self.parent.experimentThread.mailbox.put({key:value})
 
+			if not self.mailbox.empty:
 				outDict = {}
 				while not self.mailbox.empty():
 					outDict.update(self.mailbox.get())

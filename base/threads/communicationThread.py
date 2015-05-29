@@ -24,7 +24,7 @@ class CommunicationThread(threading.Thread):
 		while True:
 			try:
 				inData, address = self.socket.recvfrom(self.port)
-				#print(inData)
+				print(inData)
 			except socket.error: # no incoming data
 				pass
 			else:

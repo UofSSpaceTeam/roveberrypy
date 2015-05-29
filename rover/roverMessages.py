@@ -2,9 +2,7 @@
 
 cameraList = (["vidsource", "takePicture", "cameraMovement"])
 
-telemetryList = (["pitch", "roll", "gx", "gy", "gz", "ax", "ay", "az",
-	"heading", "aroll", "apitch", "lat", "lon", "mps", "alt", "gps_heading",
-	"date", "time", "vout", "isense"])
+telemetryList = ([])
 
 driveList = (["motorSpeeds"])
 
