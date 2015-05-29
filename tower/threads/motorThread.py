@@ -37,6 +37,8 @@ class motorThread(threading.Thread):
 				print data
 				if "towerAim" in data:
 					self.rotate(data["towerAim"])
+				if "calibrate" in data:
+					self.calibrate = self.getRotation()
 				if "towerJog" in data:
 					self.jog(data["towerJog"])
 				elif "centerCameraButton" in data:
@@ -62,7 +64,7 @@ class motorThread(threading.Thread):
 		gpio.output(Pins.sensorChipSelect, 1)
 		time.sleep(0.001)
 #		rotation = (rotation-336)*(360/1023.0)
-		rotation = (rotation-218)*(45/210.0)
+		rotation = (rotation)*(45/210.0)-self.calibrate
 		print rotation
 		print s
 		return rotation
