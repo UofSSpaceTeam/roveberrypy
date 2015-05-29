@@ -52,6 +52,7 @@ class TeleThread(threading.Thread):
 		while True:
 			while not self.mailbox.empty():
 				data = self.mailbox.get()
+				print data
 				try:
 					if "pitch" in data:
 						self.pitch = data["pitch"]

@@ -63,7 +63,7 @@ class BaseApp(App):
 		self.drillUI = None
 		self.setupMap()
 		self.rssiData = ""
-		self.commThread.mailbox.put({"towerAim":0})
+		#self.commThread.mailbox.put({"towerAim":0})
 		Clock.schedule_interval(self.checkMail, 0.2)
 		Clock.schedule_interval(self.getRssi, 2)
 		
@@ -292,7 +292,7 @@ class BaseApp(App):
 			self.tabBar.ids.rssi.text = "No Data"
 			
 	def updateTowerPos(self, towerPos):
-		self.sm.get_screen("settings").ids.TowerPos.text = "Tower Position: " + str(towerPos)
+		self.sm.get_screen("settings").ids.TowerPos.text = "Tower Position: " + str(int(towerPos))
 		
 
 class TelemetryScreen(Screen):

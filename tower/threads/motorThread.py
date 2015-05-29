@@ -38,7 +38,7 @@ class motorThread(threading.Thread):
 				if "towerAim" in data:
 					self.rotate(data["towerAim"])
 				if "calibrate" in data:
-					self.calibrate = 0.0 
+					#self.calibrate = 0.0 
 					self.calibrate = self.getRotation()
 					print self.calibrate
 				if "towerJog" in data:
