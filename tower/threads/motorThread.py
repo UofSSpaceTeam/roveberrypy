@@ -66,7 +66,7 @@ class motorThread(threading.Thread):
 		gpio.output(Pins.sensorChipSelect, 1)
 		time.sleep(0.001)
 #		rotation = (rotation-336)*(360/1023.0)
-		rotation = (rotation)/8.5-self.calibrate
+		rotation = (rotation)/8.0-self.calibrate
 		print rotation
 		print s
 		return rotation
