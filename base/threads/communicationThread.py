@@ -29,7 +29,7 @@ class CommunicationThread(threading.Thread):
 				pass
 			else:
 				inData = convert(json.loads(inData))
-				print inData 
+				#print inData 
 				for key, value in inData.iteritems():
 					for msg in messages.inputList:
 						if key == msg:

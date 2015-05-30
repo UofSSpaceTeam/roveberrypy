@@ -134,17 +134,30 @@
 	BoxLayout:
 		id: controls
 		size_hint: (None, None)
-		size: (root.width / 2, 25)
-		pos: (root.width / 4, root.height - 30)
-		Label:
-			color: [0, 1, 0, 1]
-			text: "Power: " + str(int(throttle.value)) + "%"
-		Slider:
-			id: throttle
-			padding: 20
-			value: 50
-			step: 10
-			on_value: app.commThread.mailbox.put({"armThrottle":self.value_normalized})
+		size: (root.width / 2, 50)
+		pos: (root.width / 4, root.height - 50)
+		BoxLayout:
+			orientation: "vertical"
+			BoxLayout:
+				Label:
+					color: [0, 1, 0, 1]
+					text: "Power: " + str(int(throttle.value)) + "%"
+				Slider:
+					id: throttle
+					padding: 30
+					value: 50
+					step: 10
+					on_value: app.inputThread.mailbox.put({"armThrottle":self.value_normalized})
+			BoxLayout:
+				Label:
+					color: [1, 0, 0, 1]
+					text: "Gripper Power: " + str(int(grpthrottle.value)) + "%"
+				Slider:
+					id: grpthrottle
+					padding: 30
+					value: 50
+					step: 10
+					on_value: app.inputThread.mailbox.put({"grpThrottle":self.value_normalized})
 		ToggleButton:
 			id: invKin
 			group: "mode"

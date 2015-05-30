@@ -22,6 +22,7 @@ class InputThread(threading.Thread):
 		self.armCoords = [400, 0, 400, 0, 0, 0]
 		self.armThrottle = 0.5
 		self.driveThrottle = 0.3
+		self.grpThrottle = 0.5
 	
 	def run(self):
 		while True:
@@ -35,7 +36,7 @@ class InputThread(threading.Thread):
 					armChanged = True
 					print "got armrad"
 				if "armBase" in data and self.armMode == "absolute":
-					self.armCoords[1] = int(data["armBase"])
+					self.armCoords[1] = int(data["armBase"])*-1.0
 					armChanged = True
 				if "armZ" in data and self.armMode == "absolute":
 					self.armCoords[2] = int(data["armZ"])
@@ -43,10 +44,18 @@ class InputThread(threading.Thread):
 				if "armPhi" in data and self.armMode == "absolute":
 					self.armCoords[3] = int(data["armPhi"])
 					armChanged = True
+				if "armGrpOpen" in data:
+					a = data["armGrpOpen"]*-255*self.grpThrottle
+					print a
+					self.armCoords[5] = data["armGrpOpen"]*-255
+				if "armGrpRot" in data:
+					self.armCoords[4] = data["armGrpRot"]*255
 				if "driveThrottle" in data:
 					self.driveThrottle = data["driveThrottle"]
 				if "armThrottle" in data:
 					self.armThrottle = data["armThrottle"]
+				if "grpThrottle" in data:
+					self.grpThrottle = data["grpThrottle"]
 				if "armMode" in data:
 					kin = data["armMode"][0]
 					cont = data["armMode"][1]
@@ -72,12 +81,12 @@ class InputThread(threading.Thread):
 		if self.armMode == "absolute":
 			self.sendArmCoords()
 		elif self.armMode == "direct":
-			baseSpeed = self.filter(self.armController.get_axis(0))
-			ac1Speed = self.filter(self.armController.get_axis(1)) * -1.0
-			ac2Speed = self.filter(self.armController.get_axis(3)) * 1.0
-			wristSpeed = self.armController.get_hat(0)[1]
-			gripperRotate = self.armController.get_hat(0)[0]
-			gripperOpen = self.filter(self.armController.get_axis(4)) * -1.0
+			baseSpeed = self.filter(self.armController.get_axis(0)) * -1.0 * self.armThrottle
+			ac1Speed = self.filter(self.armController.get_axis(3)) * -1.0
+			ac2Speed = self.filter(self.armController.get_axis(1)) * -1.0
+			wristSpeed = self.filter(self.armController.get_hat(0)[1])
+			gripperRotate = (self.armController.get_hat(0)[0])
+			gripperOpen = self.filter(self.armController.get_axis(2)) * -1.0 *self.grpThrottle
 			msg = {"armDirect":(baseSpeed, ac1Speed, ac2Speed, wristSpeed, gripperRotate, gripperOpen)}
 			self.parent.commThread.mailbox.put(msg)
 	
