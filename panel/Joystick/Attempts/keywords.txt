@@ -1,0 +1,24 @@
+#######################################
+# Syntax Coloring Map For Joystick
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Joystick	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+setCenter	KEYWORD2
+up	KEYWORD2
+down	KEYWORD2
+right	KEYWORD2
+left	KEYWORD2
+upValue	KEYWORD2
+downValue	KEYWORD2
+rightValue	KEYWORD2
+leftValue	KEYWORD2
+
