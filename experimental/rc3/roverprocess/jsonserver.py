@@ -1,11 +1,14 @@
-from multiprocessing import Process, Queue
+import RoverProcess
+
+import time
 from threading import Thread
+from multiprocessing import BoundedSemaphore
 import json
 import socket
-import time
 
-class JsonServer(Process):
-	class ReceiverThread(Thread):
+class JsonServer(RoverProcess):
+
+	class ListenThread(Thread):
 		def __init__(self, listener, fromServer):
 			Thread.__init__(self)
 			self.listener = listener
@@ -35,40 +38,38 @@ class JsonServer(Process):
 			else:
 				return input
 	
-	def __init__(self, port,  toServer, fromServer, sendPeriod=0.1):
-		Process.__init__(self)
-		self.port = port
-		self.fromServer = fromServer
-		self.toServer = toServer
-		self.sendPeriod = sendPeriod
 	
-	def run(self):
+	def __init__(self, **kwargs):
+		RoverProcess.__init__(self, kwargs)
+		self.port = kwargs["port"]
+		self.sendPeriod = kwargs["sendPeriod"]
+	
+	def setup(self):
+		self.data = {}
+		self.dataSem = BoundedSemaphore()
 		self.listener = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.listener.bind(("", self.port))
 		self.sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.sendAddress = None
-		receiver = JsonServer.ReceiverThread(self.listener, self.fromServer)
+		receiver = JsonServer.ListenThread(self.listener, self.fromServer)
 		receiver.daemon = True
 		receiver.start()
-		while True:
-			try:
-				data = {}
-				while not self.toServer.empty():
-					data.update(self.toServer.get())
-				if not data:
-					continue
-				if "quit" in data:
-					return
-				if "baseAddress" in data:
-					self.sendAddress = data["baseAddress"]
-				if not self.sendAddress:
-					continue
-				jsonData = json.dumps(data)
+	
+	def loop(self):
+		if self.data:
+			with self.dataSem:
+				jsonData = json.dumps(self.data)
 				self.sender.sendto(jsonData, self.sendAddress)
-				time.sleep(self.sendPeriod)
-			except KeyboardInterrupt:
-				return
-			except Exception as e:
-				print("JsonServer: " + str(e.value))
+				self.data = {}
+		time.sleep(self.sendPeriod)
+	
+	def messageTrigger(self, message):
+		RoverProcess.messageTrigger(self, message)
+		with self.dataSem:
+			self.data.update(message)
+	
+	def cleanup(self):
+		RoverProcess.cleanup(self)
+		self.listener.close()
 
