@@ -1,4 +1,4 @@
-import RoverProcess
+from roverprocess import RoverProcess
 
 import time
 from threading import Thread
@@ -9,21 +9,21 @@ import socket
 class JsonServer(RoverProcess):
 
 	class ListenThread(Thread):
-		def __init__(self, listener, fromServer):
+		def __init__(self, listener, uplink):
 			Thread.__init__(self)
 			self.listener = listener
-			self.fromServer = fromServer
+			self.uplink = uplink
 			self.address = None
 		
 		def run(self):
 			while True:
-				try:
 					jsonData, address = self.listener.recvfrom(4096)
 					data = byteify(json.loads(jsonData))
 					assert isinstance(data, dict)
-					self.fromServer.put(data)
-				except Exception as e:
-					print("JsonServer: " + str(e.message))
+					if "baseAddress" in data:
+						with self.addressSem:
+							self.sendAddress = data["baseAddress"]
+					self.uplink.put(data)
 		
 		# Thanks, Mark Amery of stackoverflow!
 		def byteify(input):
@@ -39,12 +39,9 @@ class JsonServer(RoverProcess):
 				return input
 	
 	
-	def __init__(self, **kwargs):
-		RoverProcess.__init__(self, kwargs)
-		self.port = kwargs["port"]
-		self.sendPeriod = kwargs["sendPeriod"]
-	
-	def setup(self):
+	def setup(self, args):
+		self.port = args["port"]
+		self.sendPeriod = args["sendPeriod"]
 		self.data = {}
 		self.dataSem = BoundedSemaphore()
 		self.listener = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -52,7 +49,8 @@ class JsonServer(RoverProcess):
 		self.listener.bind(("", self.port))
 		self.sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.sendAddress = None
-		receiver = JsonServer.ListenThread(self.listener, self.fromServer)
+		self.addressSem = BoundedSemaphore()
+		receiver = JsonServer.ListenThread(self.listener, self.uplink)
 		receiver.daemon = True
 		receiver.start()
 	
@@ -60,7 +58,9 @@ class JsonServer(RoverProcess):
 		if self.data:
 			with self.dataSem:
 				jsonData = json.dumps(self.data)
-				self.sender.sendto(jsonData, self.sendAddress)
+				with self.addressSem:
+					if self.sendAddress:
+						self.sender.sendto(jsonData, self.sendAddress)
 				self.data = {}
 		time.sleep(self.sendPeriod)
 	

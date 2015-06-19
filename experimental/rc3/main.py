@@ -4,36 +4,42 @@ import time
 import multiprocessing
 
 from statemanager import StateManager
-from roverprocess import JsonServer
+from roverprocess.jsonserver import JsonServer
+from roverprocess.exampleprocess import ExampleProcess
 
 # system configuration
 jsonPort = 37654
-httpPort = 37680
 
-def makeProcess(processType, **kwargs):
-	assert type(processType) is RoverProcess
-	processes.append(processType(
-		system.getDownlinkQueue(), system.getUplinkQueue(), kwargs)
-
+# build and run the system
 if __name__ == "__main__":
-	# build and run the system
 	system = StateManager()
 	processes = []
+	print "\nBUILD\n"
 	
-	makeProcess(
+	# json server
+	process = JsonServer(downlink = system.getDownlink(),
+						uplink = system.getUplink(),
+						port = jsonPort,
+						sendPeriod = 0.1)
+	system.addObserver("time", process.downlink)
+	processes.append(process)
+	
+	# example process
+	process = ExampleProcess(downlink = system.getDownlink(),
+						uplink = system.getUplink())
+	processes.append(process)
 	
 	# start everything
-	for proc in processes:
-		proc.start()
+	print "\nSTART: " + str([type(p).__name__ for p in processes]) + "\n"
+	for process in processes:
+		process.start()
 
 	# wait until ctrl-C or error
 	try:
 		while True:
 			time.sleep(60)
 	except KeyboardInterrupt:
-		print(
-			"sending quit signal to " +
-			str([type(p).__name__ for p in processes]))
+		print("\nSTOP: " + str([type(p).__name__ for p in processes]) + "\n")
 	finally:
 		system.terminate()
 		os.remove("main.pyc")

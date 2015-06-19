@@ -3,77 +3,70 @@ from multiprocessing import Queue
 
 class StateManager:
 	class WorkerThread(Thread):
-		def __init__(self, inQueue, state, observerMap, sem):
+		def __init__(self, uplink, state, observerMap, sem):
 			Thread.__init__(self)
-			self.inQueue = inQueue
+			self.uplink = uplink
 			self.state = state
 			self.observerMap = observerMap
-			self.sem = sem
+			self.stateSem = sem
 		
 		def run(self):
 			while True:
-				data = self.inQueue.get()
+				data = self.uplink.get()
 				assert isinstance(data, dict)
-				with self.sem:
+				with self.stateSem:
 					self.state.update(data)
 					for key in data:
 						self.notifyObservers(key)
+					if "quit" in data:
+						self.terminate()
 		
 		def notifyObservers(self, key):
-			if key in observerMap:
-				for downlinkQueue in observerMap[key]:
-					downlinkQueue.put({key:state[key]})
+			if key in self.observerMap:
+				for downlink in self.observerMap[key]:
+					downlink.put({key:self.state[key]})
 
 	def __init__(self):
-		self.sem = BoundedSemaphore()
+		self.stateSem = BoundedSemaphore()
 		self.state = dict()
 		self.observerMap = dict()
-		self.downlinkQueues = []
+		self.downlinks = []
 	
 	def terminate(self):
-		for queue in self.downlinkQueues:
+		for queue in self.downlinks:
 			queue.put({"quit":"True"})
-		self.downlinkQueues = []
+		self.downlinks = []
 	
 	def dumpState(self):
 		out = ""
-		with self.sem:
+		with self.stateSem:
 			for key in self.state:
 				out += str(key) + ":" + str(self.state[key]) + "\n"
 		return out
 	
-	def getUplinkQueue(self):
-		uplinkQueue = Queue()
+	def getUplink(self):
+		uplink = Queue()
 		worker = StateManager.WorkerThread(
-			uplinkQueue, self.state, self.observerMap, self.sem)
+			uplink, self.state, self.observerMap, self.stateSem)
 		worker.daemon = True
 		worker.start()
-		return uplinkQueue
+		return uplink
 	
-	def getDownlinkQueue(self):
-		queue = Queue()
-		self.downlinkQueues.append(queue)
-		return queue
+	def getDownlink(self):
+		downlink = Queue()
+		self.downlinks.append(downlink)
+		return downlink
 	
-	def addObserver(self, key, downlinkQueue):
-		assert isinstance(downlinkQueue, Queue)
-		with self.sem:
-			if key not in observerMap:
-				observerMap[key] = list()
-			if downlinkQueue not in observerMap[key]:
-				observerMap[key].append(downlinkQueue)
-	
-	def removeObserver(self, key, downlinkQueue):
-		assert isinstance(downlinkQueue, Queue)
-		with self.sem:
-			if key in observerMap and downlinkQueue in observerMap[key]:
-				observerMap[key].remove(downlinkQueue)
-				if not observerMap[key]: # empty list
-					del observerMap[key]
+	def addObserver(self, key, downlink):
+		with self.stateSem:
+			if key not in self.observerMap:
+				self.observerMap[key] = list()
+			if downlink not in self.observerMap[key]:
+				self.observerMap[key].append(downlink)
 	
 	def dumpObservers(self):
 		out = ""
-		with self.sem:
+		with self.stateSem:
 			for key in self.observerMap:
 				out += str(key) + ":"
 				out += str(len(self.observerMap[key])) + "\n"

@@ -1,45 +1,47 @@
 from multiprocessing import Process, BoundedSemaphore
-import threading
+import threading, sys
 
 class RoverProcess(Process):
 	class ReceiverThread(threading.Thread):
 		def __init__(self, downlink, state, sem, parent):
 			threading.Thread.__init__(self)
 			self.downlink = downlink
-			self.state = state
-			self.sem = sem
-			self.parent = parent
+			self._state = state
+			self._stateSem = sem
+			self._parent = parent
 		
 		def run(self):
 			while True:
 				data = self.downlink.get()
 				assert isinstance(data, dict)
-				with self.sem:
-					self.state.update(data)
-				RoverProcess.messageTrigger(self.parent, data)
+				with self._stateSem:
+					self._state.update(data)
+				self._parent.messageTrigger(data)
 		
 	def __init__(self, **kwargs):
 		Process.__init__(self)
 		self.uplink = kwargs["uplink"]
 		self.downlink = kwargs["downlink"]
-		self.state = dict()
-		self.sem = BoundedSemaphore()
+		self._state = dict()
+		self._stateSem = BoundedSemaphore()
+		self._args = kwargs
 		
 	def run(self):
-		print self.__name__ + "started"
 		receiver = RoverProcess.ReceiverThread(
-			self.downlink, self.state, self.sem, self)
-		receiver.daemon = True
+			self.downlink, self._state, self._stateSem, self)
 		receiver.start()
 		try:
-			self.setup()
+			self.setup(self._args)
 			while True:
 				self.loop()
+		except KeyboardInterrupt:
+			self.cleanup()
+			sys.exit(0)
 		except:
 			self.cleanup()
 			raise
 	
-	def setup(self):
+	def setup(self, args):
 		pass
 	
 	def loop(self):
@@ -47,23 +49,24 @@ class RoverProcess(Process):
 	
 	def messageTrigger(self, message):
 		if "quit" in message:
-			raise KeyboardInterrupt
+			self.cleanup()
+			sys.exit(0)
 	
 	def get(self, key):
-		with self.sem:
-			if key in self.state:
-				return self.state[key]
+		with self._stateSem:
+			if key in self._state:
+				return self._state[key]
 			else:
 				return None
 	
 	def set(self, key, value):
-		with self.sem:
-			self.state.update({key:value})
+		with self._stateSem:
+			self._state.update({key:value})
 		self.uplink.put({key:value})
 	
 	def cleanup(self):
 		for thread in threading.enumerate():
-				if thread is not threading.main_thread():
+				if thread is not threading.current_thread():
 					thread._Thread__stop()
 					thread._Thread__delete()
 
