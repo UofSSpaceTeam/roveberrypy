@@ -1,7 +1,7 @@
 %% How to use:
-% "PCA_terrain.png" is paint or something similar. Using a tool which draws
-% pure black, draw the terrain you'd like to evaulate using pca (use the 
-% pencil tool in MS Paint).
+% Create a png file named "PCA_terrain.png" in MS Paint or something 
+% similar. The image should be something like 100x50. Using the pencil
+% tool, draw the terrain you want to find the best straight line through.
 
 % Tips:
 % - run first section of the code to see the PCA decomp
