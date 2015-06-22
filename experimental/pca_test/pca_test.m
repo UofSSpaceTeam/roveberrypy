@@ -1,7 +1,7 @@
 %% How to use:
-% Create a png file named "PCA_terrain.png" in MS Paint or something 
-% similar. The image should be something like 100x50. Using the pencil
-% tool, draw the terrain you want to find the best straight line through.
+% "PCA_terrain.png" is paint or something similar. Using a tool which draws
+% pure black, draw the terrain you'd like to evaulate using pca (use the 
+% pencil tool in MS Paint).
 
 % Tips:
 % - run first section of the code to see the PCA decomp
@@ -18,7 +18,7 @@
 %%
 clear all
 A = imread('PCA_terrain.png');
-A = 255 - A(:,:,1);
+A = 255 - A(:,:,2);
 close all
 
 
@@ -83,15 +83,26 @@ diff_max = find(diff == max(diff));
 x1 = find(s(:,1) == sorted_x(diff_max));
 x2 = find(s(:,1) == sorted_x(diff_max+1));
 
-subplot(3,1,1)
+
+p1 = [0,-1;1,0]*[x(x1);y(x1)];
+p2 = [0,-1;1,0]*[x(x2);y(x2)];
 
 best = [(x(x2) + x(x1))/2,(y(x2) + y(x1))/2 ];
 
-p1 = plot(x,y,'.')
+diff = best' - (p2+p1)/2;
+
+p2 = p2 + diff;
+p1 = p1 + diff;
+
+
+subplot(1,1,1)
+
+
+
+p1 = plot(x,y,'.',[p1(1,1),p2(1,1)],[p1(2,1),p2(2,1)],'m--x','Markersize',20)
 hold all
-p2 = plot(best(1),best(2),'mx','Markersize',25);
+p2 = plot(best(1),best(2),'rx','Markersize',15);
+
 axis equal
-
-
 
 
