@@ -52,14 +52,14 @@ class RoverProcess(Process):
 			self.cleanup()
 			sys.exit(0)
 	
-	def get(self, key):
+	def getShared(self, key):
 		with self._stateSem:
 			if key in self._state:
 				return self._state[key]
 			else:
 				return None
 	
-	def set(self, key, value):
+	def setShared(self, key, value):
 		with self._stateSem:
 			self._state.update({key:value})
 		self.uplink.put({key:value})

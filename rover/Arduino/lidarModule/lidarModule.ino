@@ -4,6 +4,8 @@
 #define    MeasureValue        0x04          // Value to initiate ranging.
 #define    RegisterHighLowB    0x8f          // Register to get both High and Low bytes in 1 call.
 
+int distanceTotal = 0;
+int count = 0;
 
 void setup(){
   Serial.begin(9600); //Opens serial connection at 9600bps.     
@@ -29,8 +31,14 @@ void loop(){
     delay(1); // Wait 1 ms to prevent overpolling
   }
   int distance = (distanceArray[0] << 8) + distanceArray[1];  // Shift high byte [0] 8 to the left and add low byte [1] to create 16-bit int
+  distanceTotal += distance;
+  count++;
   
-  // Print Distance
-  Serial.println(distance);
+  if(count == 1)
+  {
+    Serial.println(distanceTotal / count);
+    distanceTotal = 0;
+    count = 0;
+  }
 }
 

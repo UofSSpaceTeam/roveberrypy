@@ -14,7 +14,7 @@ class ExampleProcess(RoverProcess):
 	
 	def loop(self):
 		# your looping code here. for example:
-		self.set("exampleTime", time.time())
+		self.setShared("exampleTime", time.time())
 		time.sleep(1)
 	
 	def messageTrigger(self, message):
