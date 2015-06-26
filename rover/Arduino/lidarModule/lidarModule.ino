@@ -1,44 +1,169 @@
 #include <I2C.h>
-#define    LIDARLite_ADDRESS   0x62          // Default I2C Address of LIDAR-Lite.
-#define    RegisterMeasure     0x00          // Register to write to initiate ranging.
-#define    MeasureValue        0x04          // Value to initiate ranging.
-#define    RegisterHighLowB    0x8f          // Register to get both High and Low bytes in 1 call.
+#define SENSOR_ADDRESS 0x62
+#define TRIGGER_REG 0x00
+#define TRIGGER_VALUE 0x04
+#define RESULT_REG 0x8F
+#define SIGNAL_REG 0x0E
+#define MULT_ADDRESS 0x70
+#define NUM_SENSORS 2
+#define CW 1
+#define CCW -1
+#define EDGE_THRESH 7
 
-int distanceTotal = 0;
-int count = 0;
+int rotation = 0;
+int stepsPerRotation;
+int distance[NUM_SENSORS];
+int signal[NUM_SENSORS];
 
-void setup(){
-  Serial.begin(9600); //Opens serial connection at 9600bps.     
-  I2c.begin(); // Opens & joins the irc bus as master
-  delay(100); // Waits to make sure everything is powered up before sending or receiving data  
-  I2c.timeOut(50); // Sets a timeout to ensure no locking up of sketch if I2C communication fails
+void setup()
+{
+	Serial.begin(115200);
+	delay(1000);
+	I2c.begin();
+	I2c.timeOut(50);
+	calibrateStepper();
+	while(!Serial); // wait for usb connection
 }
 
-void loop(){
-  // Write 0x04 to register 0x00
-  uint8_t nackack = 100; // Setup variable to hold ACK/NACK resopnses     
-  while (nackack != 0){ // While NACK keep going (i.e. continue polling until sucess message (ACK) is received )
-    nackack = I2c.write(LIDARLite_ADDRESS,RegisterMeasure, MeasureValue); // Write 0x04 to 0x00
-    delay(1); // Wait 1 ms to prevent overpolling
-  }
+void loop()
+{
+	for(int i = 0; i < NUM_SENSORS; i++)
+	{
+		setChannel(i);
+		distance[i] = getDistance();
+		signal[i] = getSignalStrength();
+	}
+	sendJson();
+	rotate(CW, 1);
+}
 
-  byte distanceArray[2]; // array to store distance bytes from read function
-  
-  // Read 2byte distance from register 0x8f
-  nackack = 100; // Setup variable to hold ACK/NACK resopnses     
-  while (nackack != 0){ // While NACK keep going (i.e. continue polling until sucess message (ACK) is received )
-    nackack = I2c.read(LIDARLite_ADDRESS,RegisterHighLowB, 2, distanceArray); // Read 2 Bytes from LIDAR-Lite Address and store in array
-    delay(1); // Wait 1 ms to prevent overpolling
-  }
-  int distance = (distanceArray[0] << 8) + distanceArray[1];  // Shift high byte [0] 8 to the left and add low byte [1] to create 16-bit int
-  distanceTotal += distance;
-  count++;
-  
-  if(count == 1)
-  {
-    Serial.println(distanceTotal / count);
-    distanceTotal = 0;
-    count = 0;
-  }
+void calibrateStepper()
+{
+	int threshold = 7;
+	int count;
+	setChannel(0);
+	spinToEdge(CW, RISING);
+	stepsPerRotation = rotateUntracked(CW, 10);
+	stepsPerRotation += spinToEdge(CW, RISING);
+	count = rotateUntracked(CCW, 5);
+	count += spinToEdge(CCW, RISING);
+	rotateUntracked(CW, (count + stepsPerRotation) / 2);
+	rotation = 0;
+}
+
+int rotate(int direction, unsigned int steps)
+{
+	rotateUntracked(direction, steps);
+	rotation += steps;
+	if(rotation < 0)
+		rotation += stepsPerRotation;
+	else if(rotation > stepsPerRotation)
+		rotation -= stepsPerRotation;
+	return int(steps);
+}
+
+int rotateUntracked(int direction, unsigned int steps)
+{
+	if(direction == CW)
+	{
+		
+	}
+	else if(direction == CCW)
+	{
+		
+	}
+	for(int i = 0; i < abs(steps); i++)
+	{
+		delay(10);
+	}
+	return int(steps);
+}
+
+int spinToEdge(int direction, int type)
+{
+	int steps = 0;
+	if(type == RISING)
+	{
+		while(getDistance() > EDGE_THRESH)
+			rotateUntracked(direction, 1);
+		steps += rotateUntracked(direction, 2);
+		while(getDistance() < EDGE_THRESH)
+			steps += rotateUntracked(direction, 1);
+	}
+	else if(type == FALLING)
+	{
+		while(getDistance() < EDGE_THRESH)
+			rotateUntracked(direction, 1);
+		steps += rotateUntracked(direction, 2);
+		while(getDistance() > EDGE_THRESH)
+			steps += rotateUntracked(direction, 1);
+	}
+	return abs(steps);
+}
+
+void setChannel(byte channel)
+{
+	uint8_t reg = (0x04 | channel);
+	uint8_t result = 1;
+	while(result)
+	{
+		delay(1);
+		result = I2c.write((uint8_t)MULT_ADDRESS, reg);
+	}
+}
+
+int getDistance()
+{
+	writeSensorTrigger();
+	return readSensorDistance();
+}
+
+int getSignalStrength()
+{
+	byte buf;
+	uint8_t result = 1;
+	while(result)
+	{
+		delay(1);
+		result = I2c.read(SENSOR_ADDRESS, SIGNAL_REG, 1, &buf);
+	}
+	return int(buf);
+}
+
+void writeSensorTrigger()
+{
+	uint8_t result = 1;
+	while(result)
+	{
+		delay(1);
+		result = I2c.write(SENSOR_ADDRESS, TRIGGER_REG, TRIGGER_VALUE);
+	}
+}
+
+int readSensorDistance()
+{
+	byte buf[2];
+	uint8_t result = 1;
+	while(result)
+	{
+		delay(1);
+		result = I2c.read(SENSOR_ADDRESS, RESULT_REG, 2, buf);
+	}
+	return int(buf[0] << 8) + buf[1];
+}
+
+void sendJson()
+{
+	Serial.print("{\"rot\": \"");
+	Serial.print(rotation);
+	Serial.print("\", \"d1\": \"");
+	Serial.print(distance[0]);
+	Serial.print("\", \"s1\": \"");
+	Serial.print(signal[0]);
+	Serial.print("\", \"d2\": \"");
+	Serial.print(distance[1]);
+	Serial.print("\", \"s2\": \"");
+	Serial.print(signal[1]);
+	Serial.println("\"}");
 }
 
