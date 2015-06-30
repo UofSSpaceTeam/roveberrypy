@@ -4,6 +4,11 @@
         <name>SharpDX.DirectInput</name>
     </assembly>
     <members>
+        <member name="T:SharpDX.Win32Native">
+            <summary>
+            Internal class to interact with Native Message
+            </summary>
+        </member>
         <member name="T:SharpDX.DirectInput.AssemblyDoc">
             <summary>
             The <see cref="A:SharpDX.DirectInput"/> assembly provides managed DirectInput API.
@@ -3141,7 +3146,7 @@ First-person action game device. The following subtypes are defined.
             .	
             .	
             .	
-            </pre><p>The following callback function is called once for each effect in the file or until it returns DIENUM_STOP. Note that because the <see cref="F:SharpDX.DirectInput.EffectFileFlags.ModidyIfNeeded"/> flag was passed, the effect parameters may have been modified in lpdife-&gt;lpDiEffect. The callback creates the effect with these modified parameters.</p><pre> <see cref="T:SharpDX.Bool"/> CALLBACK EnumEffectsInFileProc(LPCDIFILEEFFECT lpdife,  LPVOID pvRef) { <see cref="T:SharpDX.Result"/>     hr; static int  i; hr = g_lpdid-&gt;CreateEffect(lpdife-&gt;GuidEffect,  lpdife-&gt;lpDiEffect, &amp;pEff[i],  <c>null</c>); if (FAILED(hr)) { // Error handling } if (++i &gt; 2) return DIENUM_STOP; else return DIENUM_CONTINUE;	
+            </pre><p>The following callback function is called once for each effect in the file or until it returns DIENUM_STOP. Note that because the <see cref="F:SharpDX.DirectInput.EffectFileFlags.ModidyIfNeeded"/> flag was passed, the effect parameters may have been modified in lpdife-&gt;lpDiEffect. The callback creates the effect with these modified parameters.</p><pre> <see cref="T:SharpDX.Mathematics.Interop.RawBool"/> CALLBACK EnumEffectsInFileProc(LPCDIFILEEFFECT lpdife,  LPVOID pvRef) { <see cref="T:SharpDX.Result"/>     hr; static int  i; hr = g_lpdid-&gt;CreateEffect(lpdife-&gt;GuidEffect,  lpdife-&gt;lpDiEffect, &amp;pEff[i],  <c>null</c>); if (FAILED(hr)) { // Error handling } if (++i &gt; 2) return DIENUM_STOP; else return DIENUM_CONTINUE;	
             }	
             </pre>	
             </summary>	
@@ -6125,10 +6130,6 @@ First-person action game device. The following subtypes are defined.
             <summary>Constant Pause.</summary>
             <unmanaged>DIBUTTON_BASEBALLB_PAUSE</unmanaged>
         </member>
-        <member name="F:SharpDX.DirectInput.BaseballBattingControls.BackLink">
-            <summary>Constant BackLink.</summary>
-            <unmanaged>DIBUTTON_BASEBALLB_BACK_LINK</unmanaged>
-        </member>
         <member name="F:SharpDX.DirectInput.BaseballBattingControls.Burst">
             <summary>Constant Burst.</summary>
             <unmanaged>DIBUTTON_BASEBALLB_BURST</unmanaged>
@@ -6140,6 +6141,10 @@ First-person action game device. The following subtypes are defined.
         <member name="F:SharpDX.DirectInput.BaseballBattingControls.Contact">
             <summary>Constant Contact.</summary>
             <unmanaged>DIBUTTON_BASEBALLB_CONTACT</unmanaged>
+        </member>
+        <member name="F:SharpDX.DirectInput.BaseballBattingControls.BackLink">
+            <summary>Constant BackLink.</summary>
+            <unmanaged>DIBUTTON_BASEBALLB_BACK_LINK</unmanaged>
         </member>
         <member name="F:SharpDX.DirectInput.BaseballBattingControls.Menu">
             <summary>Constant Menu.</summary>
@@ -8127,10 +8132,6 @@ First-person action game device. The following subtypes are defined.
             <summary>Constant Reverse.</summary>
             <unmanaged>DIBUTTON_MECHA_REVERSE</unmanaged>
         </member>
-        <member name="F:SharpDX.DirectInput.MechanicalFightingControls.Menu">
-            <summary>Constant Menu.</summary>
-            <unmanaged>DIBUTTON_MECHA_MENU</unmanaged>
-        </member>
         <member name="F:SharpDX.DirectInput.MechanicalFightingControls.Pause">
             <summary>Constant Pause.</summary>
             <unmanaged>DIBUTTON_MECHA_PAUSE</unmanaged>
@@ -8154,6 +8155,10 @@ First-person action game device. The following subtypes are defined.
         <member name="F:SharpDX.DirectInput.MechanicalFightingControls.SlowerLink">
             <summary>Constant SlowerLink.</summary>
             <unmanaged>DIBUTTON_MECHA_SLOWER_LINK</unmanaged>
+        </member>
+        <member name="F:SharpDX.DirectInput.MechanicalFightingControls.Menu">
+            <summary>Constant Menu.</summary>
+            <unmanaged>DIBUTTON_MECHA_MENU</unmanaged>
         </member>
         <member name="F:SharpDX.DirectInput.MechanicalFightingControls.Target">
             <summary>Constant Target.</summary>
@@ -8811,13 +8816,13 @@ First-person action game device. The following subtypes are defined.
             <summary>Constant Scancode.</summary>
             <unmanaged>DIPROP_SCANCODE</unmanaged>
         </member>
-        <member name="F:SharpDX.DirectInput.PropertyGuids.Joystickid">
-            <summary>Constant Joystickid.</summary>
-            <unmanaged>DIPROP_JOYSTICKID</unmanaged>
-        </member>
         <member name="F:SharpDX.DirectInput.PropertyGuids.Granularity">
             <summary>Constant Granularity.</summary>
             <unmanaged>DIPROP_GRANULARITY</unmanaged>
+        </member>
+        <member name="F:SharpDX.DirectInput.PropertyGuids.Joystickid">
+            <summary>Constant Joystickid.</summary>
+            <unmanaged>DIPROP_JOYSTICKID</unmanaged>
         </member>
         <member name="F:SharpDX.DirectInput.PropertyGuids.InstanceName">
             <summary>Constant InstanceName.</summary>
@@ -10123,6 +10128,10 @@ First-person action game device. The following subtypes are defined.
             <summary>Constant SteerRightLink.</summary>
             <unmanaged>DIBUTTON_DRIVINGT_STEER_RIGHT_LINK</unmanaged>
         </member>
+        <member name="F:SharpDX.DirectInput.TankDrivingControls.Fire">
+            <summary>Constant Fire.</summary>
+            <unmanaged>DIBUTTON_DRIVINGT_FIRE</unmanaged>
+        </member>
         <member name="F:SharpDX.DirectInput.TankDrivingControls.GlanceLeftLink">
             <summary>Constant GlanceLeftLink.</summary>
             <unmanaged>DIBUTTON_DRIVINGT_GLANCE_LEFT_LINK</unmanaged>
@@ -10130,10 +10139,6 @@ First-person action game device. The following subtypes are defined.
         <member name="F:SharpDX.DirectInput.TankDrivingControls.RotateLeftLink">
             <summary>Constant RotateLeftLink.</summary>
             <unmanaged>DIBUTTON_DRIVINGT_ROTATE_LEFT_LINK</unmanaged>
-        </member>
-        <member name="F:SharpDX.DirectInput.TankDrivingControls.Fire">
-            <summary>Constant Fire.</summary>
-            <unmanaged>DIBUTTON_DRIVINGT_FIRE</unmanaged>
         </member>
         <member name="F:SharpDX.DirectInput.TankDrivingControls.Pause">
             <summary>Constant Pause.</summary>
