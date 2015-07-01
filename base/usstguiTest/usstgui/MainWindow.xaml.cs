@@ -45,8 +45,8 @@ namespace usstgui
                 while(running)
                 {
                     xbox = controller.GetState().Gamepad;
-                    y = (-2 + (xbox.LeftThumbY - (-32768)) * (2 + 2) / (32767 + 32768))*scale*yinversion;
-                    x = (-2 + (xbox.LeftThumbX - (-32768)) * (2 + 2) / (32767 + 32768))*scale*xinversion;
+                    y = (-1 + (xbox.LeftThumbY - (-32768)) * (1 + 1) / (32767 + 32768))*scale*yinversion;
+                    x = (-1 + (xbox.LeftThumbX - (-32768)) * (1 + 1) / (32767 + 32768))*scale*xinversion;
                     Console.WriteLine("Y = " + y);
                     Console.WriteLine("X = " +x);
                     Thread.Sleep(1000);
