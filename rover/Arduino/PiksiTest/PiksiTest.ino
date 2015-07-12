@@ -3,6 +3,7 @@
 
 #define FIFO_SIZE 512 //UART FIFO size
 //Fifo stack to hold Uart bytes before parsing.
+//This is uses in the piksi integratin tutorial, not sure how usefull it really is to us.
 class FIFO {
  private:
   int head;
@@ -13,7 +14,7 @@ class FIFO {
    bool empty();
    bool full();
    bool push(byte b);
-   bool pop(byte *out);
+   u32 pop(u8 *buff, u32 n, void *context); //must conform to this definition to be passed to sbp_process()
 } uart_fifo;
   
 
@@ -42,7 +43,9 @@ void sbp_gps_time_callback(u16 sender_id, u8 len, u8 msg[], void *context);
 
 
 void setup() {
-  /*initialize sbp parser
+  Serial.begin(9600);
+  /* This Stuff doesn't compile (linking error)
+   * initialize sbp parser
   sbp_state_init(&sbp_state);
   
   //register nodes and callbacks with specific message ID's
@@ -56,7 +59,11 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  s8 ret = sbp_process(&sbp_state, &uart_fifo.pop);
+  Serial.print(pos_llh.lat);
+  Serial.print(", ");
+  Serial.print(pos_llh.lon);
+  Serial.println();
 
 }
 
@@ -112,11 +119,11 @@ bool FIFO::push(byte b) {
   return true;
 }
 
-bool FIFO::pop(byte *out) {
+u32 FIFOpop(u8 *buff, u32 n, void *context) {
   if(empty())
-    return false;
+    return 0;
   *out = data[head];
   head = (head+1) % FIFO_SIZE;
-  return true;
+  return 1;
   
 }
