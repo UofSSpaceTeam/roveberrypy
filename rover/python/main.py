@@ -1,5 +1,6 @@
-import sys, os
+import sys
 sys.dont_write_bytecode = True
+import os
 import time
 import multiprocessing
 
@@ -8,7 +9,8 @@ from roverprocess.jsonserver import JsonServer
 from roverprocess.exampleprocess import ExampleProcess
 
 # system configuration
-jsonPort = 37654
+localPort = 34567
+remotePort = 34568
 
 # build and run the system
 if __name__ == "__main__":
@@ -17,16 +19,16 @@ if __name__ == "__main__":
 	print "\nBUILD\n"
 	
 	# json server
-	process = JsonServer(downlink = system.getDownlink(),
-						uplink = system.getUplink(),
-						port = jsonPort,
-						sendPeriod = 0.1)
-	system.addObserver("time", process.downlink)
+	process = JsonServer(
+		downlink = system.getDownlink(), uplink = system.getUplink(),
+		local = localPort, remote = remotePort, sendPeriod = 0.1)
+	system.addObserver("exampleTime", process.downlink)
 	processes.append(process)
 	
 	# example process
-	process = ExampleProcess(downlink = system.getDownlink(),
-						uplink = system.getUplink())
+	process = ExampleProcess(
+		downlink = system.getDownlink(), uplink = system.getUplink())
+	system.addObserver("exampleKey", process.downlink)
 	processes.append(process)
 	
 	# start everything

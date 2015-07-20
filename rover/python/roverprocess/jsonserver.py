@@ -9,30 +9,30 @@ import socket
 class JsonServer(RoverProcess):
 
 	class ListenThread(Thread):
-		def __init__(self, listener, uplink):
+		def __init__(self, listener, uplink, parent):
 			Thread.__init__(self)
 			self.listener = listener
 			self.uplink = uplink
-			self.address = None
+			self.parent = parent
 		
 		def run(self):
 			while True:
-					jsonData, address = self.listener.recvfrom(4096)
-					data = byteify(json.loads(jsonData))
-					assert isinstance(data, dict)
-					if "baseAddress" in data:
-						with self.addressSem:
-							self.sendAddress = data["baseAddress"]
-					self.uplink.put(data)
+				jsonData, address = self.listener.recvfrom(4096)
+				print jsonData
+				data = self.byteify(json.loads(jsonData))
+				assert isinstance(data, dict)
+				self.uplink.put(data)
+				with self.parent.addressSem:
+					self.parent.address = address[0]
 		
 		# Thanks, Mark Amery of stackoverflow!
-		def byteify(input):
+		def byteify(self, input):
 			if isinstance(input, dict):
 				return(
-						{byteify(key): byteify(value)
+						{self.byteify(key): self.byteify(value)
 						for key, value in input.iteritems()})
 			elif isinstance(input, list):
-				return [byteify(element) for element in input]
+				return [self.byteify(element) for element in input]
 			elif isinstance(input, unicode):
 				return input.encode('utf-8')
 			else:
@@ -40,17 +40,18 @@ class JsonServer(RoverProcess):
 	
 	
 	def setup(self, args):
-		self.port = args["port"]
+		self.localPort = args["local"]
+		self.remotePort = args["remote"]
 		self.sendPeriod = args["sendPeriod"]
+		self.address = None
+		self.addressSem = BoundedSemaphore()
 		self.data = {}
 		self.dataSem = BoundedSemaphore()
 		self.listener = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.listener.bind(("", self.port))
+		self.listener.bind(("", self.localPort))
 		self.sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		self.sendAddress = None
-		self.addressSem = BoundedSemaphore()
-		receiver = JsonServer.ListenThread(self.listener, self.uplink)
+		receiver = JsonServer.ListenThread(self.listener, self.uplink, self)
 		receiver.daemon = True
 		receiver.start()
 	
@@ -58,10 +59,12 @@ class JsonServer(RoverProcess):
 		if self.data:
 			with self.dataSem:
 				jsonData = json.dumps(self.data)
-				with self.addressSem:
-					if self.sendAddress:
-						self.sender.sendto(jsonData, self.sendAddress)
 				self.data = {}
+			with self.addressSem:
+				if self.address:
+					self.sender.sendto(
+						jsonData, (self.address, self.remotePort))
+					#print "sent " + str(jsonData)
 		time.sleep(self.sendPeriod)
 	
 	def messageTrigger(self, message):

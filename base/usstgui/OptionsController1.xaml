@@ -59,14 +59,14 @@
 		<Slider x:Name="RightYDeadband" HorizontalAlignment="Center" VerticalAlignment="Center" Minimum="0" Maximum="1" Grid.Row="5" Height="20" Grid.Column="3" Width="78" Value="0.2"/>
 		<Slider x:Name="LeftTriggerDeadband" HorizontalAlignment="Center" VerticalAlignment="Center" Minimum="0" Maximum="1" Grid.Row="6" Height="20" Grid.Column="3" Width="78" Value="0.2"/>
 		<Slider x:Name="RightTriggerDeadband" HorizontalAlignment="Center" VerticalAlignment="Center" Minimum="0" Maximum="1" Grid.Row="7" Height="20" Grid.Column="3" Width="78" Value="0.2"/>
-		<ProgressBar x:Name="LeftXResult" Grid.Column="5" HorizontalAlignment="Center" Height="15" Grid.Row="2" VerticalAlignment="Center" Width="70" Maximum="1" Value="0.5" Minimum="-1"/>
+		<ProgressBar x:Name="LeftXResult" Grid.Column="5" HorizontalAlignment="Center" Height="15" Grid.Row="2" VerticalAlignment="Center" Width="70" Maximum="1" Minimum="-1"/>
 		<ProgressBar x:Name="LeftYInput" Grid.Column="4" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Top" RenderTransformOrigin="-2.5,1.05" Height="16" Width="70" Maximum="1" Margin="15,7,15,0" Minimum="-1"/>
 		<ProgressBar x:Name="RightXInput" Grid.Column="4" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" RenderTransformOrigin="-2.5,1.05" Height="16" Width="70" Maximum="1" Minimum="-1"/>
-		<ProgressBar x:Name="RightYInput" Grid.Column="4" HorizontalAlignment="Center" Grid.Row="5" VerticalAlignment="Center" RenderTransformOrigin="-2.5,1.05" Height="16" Width="70" Value="0.5" Maximum="1" Minimum="-1"/>
+		<ProgressBar x:Name="RightYInput" Grid.Column="4" HorizontalAlignment="Center" Grid.Row="5" VerticalAlignment="Center" RenderTransformOrigin="-2.5,1.05" Height="16" Width="70" Maximum="1" Minimum="-1"/>
 		<ProgressBar x:Name="LeftTriggerInput" Grid.Column="4" HorizontalAlignment="Center" Grid.Row="6" VerticalAlignment="Center" RenderTransformOrigin="-2.5,1.05" Height="16" Width="70" Maximum="1"/>
 		<ProgressBar x:Name="RightTriggerInput" Grid.Column="4" HorizontalAlignment="Center" Grid.Row="7" VerticalAlignment="Center" RenderTransformOrigin="-2.5,1.05" Height="16" Width="70" Maximum="1"/>
-		<ProgressBar x:Name="LeftYResult" Grid.Column="5" HorizontalAlignment="Center" Height="15" Grid.Row="3" VerticalAlignment="Center" Width="70" Maximum="1" Value="0.5" Minimum="-1"/>
-		<ProgressBar x:Name="RightXResult" Grid.Column="5" HorizontalAlignment="Center" Height="15" Grid.Row="4" VerticalAlignment="Center" Width="70" Maximum="1" Value="0.5" Minimum="-1"/>
+		<ProgressBar x:Name="LeftYResult" Grid.Column="5" HorizontalAlignment="Center" Height="15" Grid.Row="3" VerticalAlignment="Center" Width="70" Maximum="1" Minimum="-1"/>
+		<ProgressBar x:Name="RightXResult" Grid.Column="5" HorizontalAlignment="Center" Height="15" Grid.Row="4" VerticalAlignment="Center" Width="70" Maximum="1" Minimum="-1"/>
 		<ProgressBar x:Name="RightYResult" Grid.Column="5" HorizontalAlignment="Center" Height="15" Grid.Row="5" VerticalAlignment="Center" Width="70" Maximum="1" Minimum="-1"/>
 		<ProgressBar x:Name="LeftTriggerResult" Grid.Column="5" HorizontalAlignment="Center" Height="15" Grid.Row="6" VerticalAlignment="Center" Width="70" Maximum="1"/>
 		<ProgressBar x:Name="LeftXInput" Grid.Column="4" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Bottom" RenderTransformOrigin="-2.5,1.05" Height="16" Width="70" Maximum="1" Margin="15,0,15,7" Minimum="-1"/>

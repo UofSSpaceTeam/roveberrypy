@@ -11,14 +11,13 @@ namespace usstgui
         public Gamepad input;
         Controller controller;
         private bool running = true;
+
 		public OptionsController1()
         {
             controller = new SharpDX.XInput.Controller(SharpDX.XInput.UserIndex.One);
             InitializeComponent();
             Thread t = new Thread(new ThreadStart(XboxController));
             t.Start();
-
-            //this.OnClosing += Cleanup;
         }
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {

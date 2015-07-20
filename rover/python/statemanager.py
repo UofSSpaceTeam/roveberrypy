@@ -55,7 +55,7 @@ class StateManager:
 	def getDownlink(self):
 		downlink = Queue()
 		self.downlinks.append(downlink)
-		return downlink
+		return Queue()
 	
 	def addObserver(self, key, downlink):
 		with self.stateSem:
