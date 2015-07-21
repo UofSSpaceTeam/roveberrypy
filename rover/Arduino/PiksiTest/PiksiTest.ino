@@ -14,7 +14,7 @@ class FIFO {
    bool empty();
    bool full();
    bool push(byte b);
-   u32 pop(u8 *buff, u32 n, void *context); //must conform to this definition to be passed to sbp_process()
+   bool pop(char *out); 
 } uart_fifo;
   
 
@@ -40,12 +40,13 @@ void sbp_vel_ned_callback(u16 sender_id, u8 len, u8 msg[], void *context);
 void sbp_dops_callback(u16 sender_id, u8 len, u8 msg[], void *context);
 void sbp_gps_time_callback(u16 sender_id, u8 len, u8 msg[], void *context);
 
+u32 getData(u8 *buff, u32 n, void *content); //must conform to this definition to be passed to sbp_process()
 
 
 void setup() {
   Serial.begin(9600);
   /* This Stuff doesn't compile (linking error)
-   * initialize sbp parser
+   * initialize sbp parser*/
   sbp_state_init(&sbp_state);
   
   //register nodes and callbacks with specific message ID's
@@ -54,12 +55,12 @@ void setup() {
   sbp_register_callback(&sbp_state, SBP_MSG_BASELINE_NED, &sbp_baseline_ned_callback, NULL, &baseline_ned_node);
   sbp_register_callback(&sbp_state, SBP_MSG_VEL_NED, &sbp_vel_ned_callback, NULL, &vel_ned_node);
   sbp_register_callback(&sbp_state, SBP_MSG_DOPS, &sbp_dops_callback, NULL, &dops_node);
-  */
+  //*/
 
 }
 
 void loop() {
-  s8 ret = sbp_process(&sbp_state, &uart_fifo.pop);
+  //s8 ret = sbp_process(&sbp_state, &getData);
   Serial.print(pos_llh.lat);
   Serial.print(", ");
   Serial.print(pos_llh.lon);
@@ -93,6 +94,15 @@ void sbp_gps_time_callback(u16 sender_id, u8 len, u8 msg[], void *context) {
 }
 
 
+
+u32 getData(u8 *buff, u32 n, void *content) {
+  int i;
+  for (i=0; i<n; i++)
+    if (!uart_fifo.pop((char *)(buff + i)))
+      break;
+  return i;
+}
+
 /****************
 **FIFO Methods**
 ****************/
@@ -119,7 +129,7 @@ bool FIFO::push(byte b) {
   return true;
 }
 
-u32 FIFOpop(u8 *buff, u32 n, void *context) {
+bool FIFO::pop(char *out) {
   if(empty())
     return 0;
   *out = data[head];
