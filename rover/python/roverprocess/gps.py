@@ -1,9 +1,7 @@
 from roverprocess import RoverProcess
 from sbp.client.drivers.pyserial_driver import PySerialDriver
 from sbp.client.handler import Handler
-from sbp.navigation import SBP_MSG_BASELINE_NED, MsgBaselineNED
-
-# your imports go here. For example:
+from sbp.navigation import SBP_MSG_POS_LLH, MsgPosLLH
 import time
 
 class GPS(RoverProcess):
@@ -21,7 +19,7 @@ class GPS(RoverProcess):
           # Open a connection to Piksi using the default baud rate (1Mbaud)
           driver = PySerialDriver(args.port[0], baud=1000000)
           handler = Handler(driver.read, driver,write, verbose=True)
-          handler.add_callback(baseline_callback, msg_type=SBP_MSG_BASELINE_NED)
+          handler.add_callback(posLLH_callback, msg_type=SBP_MSG_POS_LLH)
 
 	def loop(self):
 		time.sleep(1)
@@ -37,19 +35,13 @@ class GPS(RoverProcess):
 
 
 	# additional functions go here
-        def baseline_callback(msg):
-          # This function is called every time we receive a BASELINE_NED message
 
-          # First decode the SBP message in "msg" into a python object, the sbp library
-          # has functions that do this for all the message types defined in the
-          # specification.
-          b = MsgBaselineNED(msg)
+        def posLLH_callback(msg):
+            # This is called every time we receive a POS_LLH message
+            p = MsgPosLLH(msg)
 
-          # b now contains the decoded baseline information and
-          # has fields with the same names as in the SBP docs
-
-          # Print out the N, E, D coordinates of the baseline
-          print "%.4f,%.4f,%.4f" % \
-            (b.n * 1e-3, b.e * 1e-3, b.d * 1e-3)
+            # Print out the latitude, longtitude, and height
+            print "%.4f,%.4f,%.4f" % \
+                    (p.lat, p.lon, p.height)
 
 

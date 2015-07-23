@@ -7,7 +7,7 @@ import multiprocessing
 from statemanager import StateManager
 from roverprocess.jsonserver import JsonServer
 from roverprocess.exampleprocess import ExampleProcess
-#from roverprocess.gps import GPS
+from roverprocess.gps import GPS
 
 # system configuration
 localPort = 34567
@@ -32,10 +32,10 @@ if __name__ == "__main__":
 	system.addObserver("exampleKey", process.downlink)
 	processes.append(process)
 	
-	'''process = GPS(
+	process = GPS(
 		downlink = system.getDownlink(), uplink = system.getUplink())
 	system.addObserver("gpsMsg", process.downlink)
-	processes.append(process)'''
+	processes.append(process)
 	# start everything
 	print "\nSTART: " + str([type(p).__name__ for p in processes]) + "\n"
 	for process in processes:
