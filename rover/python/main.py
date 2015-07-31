@@ -34,7 +34,8 @@ if __name__ == "__main__":
 	
 	process = GPS(
 		downlink = system.getDownlink(), uplink = system.getUplink())
-	system.addObserver("gpsMsg", process.downlink)
+	system.addObserver("gps_PosReq", process.downlink)
+	system.addObserver("gps_BaselineReq", process.downlink)
 	processes.append(process)
 	# start everything
 	print "\nSTART: " + str([type(p).__name__ for p in processes]) + "\n"
