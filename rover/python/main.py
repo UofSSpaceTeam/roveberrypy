@@ -17,8 +17,9 @@ remotePort = 34568
 if __name__ == "__main__":
 	system = StateManager()
 	processes = []
+	i2cSem = multiprocessing.semaphore
 	print "\nBUILD\n"
-	
+
 	# json server
 	process = JsonServer(
 		downlink = system.getDownlink(), uplink = system.getUplink(),
@@ -32,11 +33,21 @@ if __name__ == "__main__":
 	system.addObserver("exampleKey", process.downlink)
 	processes.append(process)
 	
+	# Piksi GPS process
 	process = GPS(
 		downlink = system.getDownlink(), uplink = system.getUplink())
 	system.addObserver("gps_PosReq", process.downlink)
 	system.addObserver("gps_BaselineReq", process.downlink)
 	processes.append(process)
+	
+	# drive process
+	process = DriveProcess(
+		downlink = system.getDownlink(), uplink = system.getUplink(),
+		sem = i2cSem)
+	#system.addObserver("", process.downlink)
+	#system.addObserver("", process.downlink)
+	processes.append(process)
+	
 	# start everything
 	print "\nSTART: " + str([type(p).__name__ for p in processes]) + "\n"
 	for process in processes:

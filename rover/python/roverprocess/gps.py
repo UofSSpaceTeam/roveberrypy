@@ -1,9 +1,9 @@
 from roverprocess import RoverProcess
-from sbp.client.drivers.pyserial_driver import PySerialDriver
-from sbp.client.handler import Handler
-from sbp.navigation import SBP_MSG_POS_LLH, MsgPosLLH
-from sbp.navigation import SBP_MSG_BASELINE_NED, MsgBaselineNED
-from sbp.settings import SBP_MSG_SETTINGS_WRITE, MsgSettingsWrite
+from libs.sbp.pyserial_driver import PySerialDriver
+from libs.sbp.handler import Handler
+from libs.sbp.navigation import SBP_MSG_POS_LLH, MsgPosLLH
+from libs.sbp.navigation import SBP_MSG_BASELINE_NED, MsgBaselineNED
+from libs.sbp.settings import SBP_MSG_SETTINGS_WRITE, MsgSettingsWrite
 import time
 
 class GPS(RoverProcess):
