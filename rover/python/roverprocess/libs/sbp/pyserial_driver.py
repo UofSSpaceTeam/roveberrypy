@@ -8,9 +8,11 @@
 # EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 
-import BaseDriver
+from base_driver import BaseDriver
 import serial
-import serial.tools.list_ports
+
+#import serial.tools.list_ports
+# The above is not working and not useful on the rover at this time
 
 
 class PySerialDriver(BaseDriver):
@@ -45,7 +47,9 @@ class PySerialDriver(BaseDriver):
     except (OSError, serial.SerialException):
       print
       print "Serial device '%s' not found" % port
-      print "The following serial devices were detected:"
+	  
+	  #The following does not work on pi
+      '''print "The following serial devices were detected:"
       print
       for (name, desc, _) in serial.tools.list_ports.comports():
         if desc[0:4] == "ttyS":
@@ -54,7 +58,8 @@ class PySerialDriver(BaseDriver):
           print "\t%s" % name
         else:
           print "\t%s (%s)" % (name, desc)
-      print
+      print'''
+
       raise SystemExit
 
   def read(self, size):

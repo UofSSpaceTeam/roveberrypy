@@ -8,6 +8,7 @@ from statemanager import StateManager
 from roverprocess.jsonserver import JsonServer
 from roverprocess.exampleprocess import ExampleProcess
 from roverprocess.gps import GPS
+from roverprocess.driveprocess import DriveProcess
 
 # system configuration
 localPort = 34567
@@ -17,7 +18,7 @@ remotePort = 34568
 if __name__ == "__main__":
 	system = StateManager()
 	processes = []
-	i2cSem = multiprocessing.semaphore
+	i2cSem = multiprocessing.Semaphore
 	print "\nBUILD\n"
 
 	# json server
