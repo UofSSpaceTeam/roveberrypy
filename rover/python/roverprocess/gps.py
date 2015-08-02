@@ -70,8 +70,9 @@ class GPS(RoverProcess):
             '''
             p = MsgPosLLH(self.handler.wait(msg_type=SBP_MSG_POS_LLH, timeout=timeout))
             if not p == None:
-                print "%.6f,%.6f,%.6f,%i" % (p.lat, p.lon, p.height, p.flags)
+                # print "%.6f,%.6f,%.6f,%i" % (p.lat, p.lon, p.height, p.flags)
                 self.setShared("gps_Location", p)
+                return p
 
         def getBaseline(self, timeout=5.0):
             ''' Get relative baseline position in NED coordinates
@@ -83,9 +84,15 @@ class GPS(RoverProcess):
             if not b == None:
                 # print "%.4f, %.4f, %.4f, %i" % (b.n, b.e, b.d, b.flags)
                 self.setShared("gps_Baseline", b)
+                return b
 
         def setBaseLocation(self, p):
-            self.handler.send_msg(MsgSettingsWrite(setting="[surveyed position, surveyed alt, 485]"))
+            ''' Set the location of a surveyed base location
+            p is an SBP_MSG_POS_LLH message containing the gps location of the base station
+            '''
+            self.handler.send_msg(MsgSettingsWrite(setting="[surveyed position, surveyed alt, {}]".format(p.height)))
+            self.handler.send_msg(MsgSettingsWrite(setting="[surveyed position, surveyed lat, {}]".format(p.lat)))
+            self.handler.send_msg(MsgSettingsWrite(setting="[surveyed position, surveyed lon, {}]".format(p.lon)))
 
         # def pos_callback(self, msg):
         #     p = MsgPosLLH(msg)
