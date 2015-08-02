@@ -1,90 +1,89 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using SharpDX.XInput;
 using System;
 using System.Threading;
+using System.Diagnostics;
 
 namespace usstgui
 {
     public partial class OptionsController1 : Window
     {
-        public Gamepad input;
-        Controller controller;
-        private bool running = true;
+        private bool windowOpen = true;
 
 		public OptionsController1()
         {
-            controller = new SharpDX.XInput.Controller(SharpDX.XInput.UserIndex.One);
             InitializeComponent();
             Thread t = new Thread(new ThreadStart(XboxController));
             t.Start();
         }
+
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            Cleanup();
+			windowOpen = false;
             base.OnClosing(e);
-        }
-
-        protected void Cleanup()
-        {
-            running = false;
         }
 
         private void XboxController()
         {
             try
             {
-                while(running)
-                {
-					if (controller.IsConnected)
-						input = controller.GetState().Gamepad;
-					else
-					{
-						input.LeftThumbX = input.LeftThumbY = input.RightThumbX = input.RightThumbY = 0;
-						input.LeftTrigger = input.RightTrigger = 0;
-						input.Buttons = 0;
-						this.Dispatcher.Invoke((Action)(() => this.Close()));
-					}
+				this.Dispatcher.Invoke((Action)(() =>
+				{
+					displayJoystickAxis("inputOneLeftX", LeftXInvert, LeftXScale, LeftXDeadband, LeftXResult);
+					displayJoystickAxis("inputOneLeftY", LeftYInvert, LeftYScale, LeftYDeadband, LeftYResult);
+					displayJoystickAxis("inputOneRightX", RightXInvert, RightXScale, RightXDeadband, RightXResult);
+					displayJoystickAxis("inputOneRightY", RightYInvert, RightYScale, RightYDeadband, RightYResult);
+				}));
+				while (windowOpen)
+				{
 					this.Dispatcher.Invoke((Action)(() =>
 					{
-						processJoystickAxis(input.LeftThumbX, LeftXInvert, LeftXScale, LeftXDeadband, LeftXInput, LeftXResult);
-						processJoystickAxis(input.LeftThumbY, LeftYInvert, LeftYScale, LeftYDeadband, LeftYInput, LeftYResult);
-						processJoystickAxis(input.RightThumbX, RightXInvert, RightXScale, RightXDeadband, RightXInput, RightXResult);
-						processJoystickAxis(input.RightThumbY, RightYInvert, RightYScale, RightYDeadband, RightYInput, RightYResult);
-						processTriggerAxis(input.LeftTrigger, LeftTriggerInvert, LeftTriggerScale, LeftTriggerDeadband,
-											LeftTriggerInput, LeftTriggerResult);
-						processTriggerAxis(input.RightTrigger, RightTriggerInvert, RightTriggerScale, RightTriggerDeadband,
-											RightTriggerInput, RightTriggerResult);
+						updateResultBar("inputOneLeftX", LeftXResult);
+						updateResultBar("inputOneLeftY", LeftYResult);
+						updateResultBar("inputOneRightX", RightXResult);
+						updateResultBar("inputOneRightY", RightYResult);
+						updateResultBar("inputOneLeftTrigger", LeftTriggerResult);
+						updateResultBar("inputOneRightTrigger", RightTriggerResult);
 					}));
-                    Thread.Sleep(100);
-                }
+					Thread.Sleep(100);
+				}
+				Debug.WriteLine("done");
             }
             catch (Exception ex)
             {
-                Console.Write(ex);
-            }
+			}
         }
 
-		private void processJoystickAxis(short inputValue, CheckBox invert, Slider scale, Slider deadband,
-										ProgressBar inputBar, ProgressBar resultBar)
+		private void displayJoystickAxis(string name, CheckBox invert, Slider scale,
+			Slider deadband, ProgressBar resultBar)
 		{
-			processAxis(inputValue / 32767.0, invert, scale, deadband, inputBar, resultBar);
+			displayTriggerAxis(name, scale, deadband, resultBar);
+			invert.IsChecked = StateManager.getShared(name + "Invert");
 		}
 
-		private void processTriggerAxis(short inputValue, CheckBox invert, Slider scale, Slider deadband,
-										ProgressBar inputBar, ProgressBar resultBar)
+		private void displayTriggerAxis(string name, Slider scale,
+			Slider deadband, ProgressBar resultBar)
 		{
-			processAxis(inputValue / 255.0, invert, scale, deadband, inputBar, resultBar);
+			scale.Value = StateManager.getShared(name + "Scale");
+			deadband.Value = StateManager.getShared(name + "Deadband");
+			resultBar.Value = StateManager.getShared(name);
 		}
 
-		private void processAxis(double inputValue, CheckBox invert, Slider scale, Slider deadband,
-								ProgressBar inputBar, ProgressBar resultBar)
+		private void updateResultBar(string name, ProgressBar resultBar)
 		{
-			inputBar.Value = inputValue;
-			if (Math.Abs(inputValue) > deadband.Value)
-				resultBar.Value = inputValue * scale.Value * ((bool)invert.IsChecked ? -1 : 1);
-			else
-				resultBar.Value = 0;
+			resultBar.Value = StateManager.getShared(name);
+		}
+
+		private void checkboxChanged(object sender, RoutedEventArgs e)
+		{
+			CheckBox box = (CheckBox)sender;
+			StateManager.setShared("inputOne" + box.Name, box.IsChecked);
+		}
+
+		private void sliderChanged(object sender, RoutedEventArgs e)
+		{
+			Slider slider = (Slider)sender;
+			StateManager.setShared("inputOne" + slider.Name, slider.Value);
 		}
     }
 }

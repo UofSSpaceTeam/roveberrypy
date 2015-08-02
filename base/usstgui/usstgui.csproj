@@ -71,6 +71,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Tasks\ControllerTask.cs" />
     <Compile Include="Tasks\JsonClientTask.cs" />
     <Compile Include="Tasks\ExampleTask.cs" />
     <Compile Include="BaseTask.cs" />

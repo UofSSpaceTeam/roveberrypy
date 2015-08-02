@@ -39,7 +39,6 @@ namespace usstgui
 			remoteEndPoint = new IPEndPoint(IPAddress.Parse(roverIP), remotePort);
 
 			sender = new UdpClient();
-
 			receiver = new UdpClient();
 			receiver.Client.SetSocketOption(
 				SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);

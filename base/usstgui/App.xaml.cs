@@ -14,8 +14,10 @@ namespace usstgui
 		public App()
 		{
 			StateQueue downlink;
-			JsonClientTask jsonTask;
+			
 			ExampleTask exampleTask;
+			JsonClientTask jsonTask;
+			ControllerTask controllerTask;
 
 			Debug.WriteLine("System Build");
 
@@ -28,11 +30,14 @@ namespace usstgui
 				downlink, 34568, 34567, "127.0.0.1", 1000);
 			StateManager.addObserver("exampleKey", downlink);
 
+			downlink = new StateQueue();
+			controllerTask = new ControllerTask(downlink);
 
 			Debug.WriteLine("System Start");
 
 			exampleTask.start();
 			jsonTask.start();
+			controllerTask.start();
 		}
 	}
 }
