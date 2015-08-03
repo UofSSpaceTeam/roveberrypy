@@ -45,8 +45,8 @@ if __name__ == "__main__":
 	process = DriveProcess(
 		downlink = system.getDownlink(), uplink = system.getUplink(),
 		sem = i2cSem)
-	#system.addObserver("", process.downlink)
-	#system.addObserver("", process.downlink)
+	system.addObserver("inputOneLeftY", process.downlink)
+	system.addObserver("inputOneRightY", process.downlink)
 	processes.append(process)
 	
 	# start everything
