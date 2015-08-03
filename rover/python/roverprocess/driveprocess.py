@@ -23,6 +23,7 @@ class DriveProcess(RoverProcess):
 		self.i2cAddress = 0x07
 		self.i2cSem = args["sem"]    
 		self.joyAxes = [0.0, 0.0]
+		self.update = False
 	
 	def loop(self):
 		self.setMotors(self.joyAxes)
@@ -33,21 +34,26 @@ class DriveProcess(RoverProcess):
 		if "j1y1" in message:
 			print "got: " + str(message["j1y1"])
 			self.joyAxes[0] = float(message["j1y1"])
+			self.update = True
 		if "j1y2" in message:
 			print "got: " + str(message["j1y2"])
 			self.joyAxes[1] = float(message["j1y1"])
+			self.update = True
+		
 			
 	def setMotors(self, speeds):
 		command = Command()
 		command.type = CommandType.setMotors
 		command.d1 = int(speeds[0] * 255) # left
 		command.d2 = int(speeds[1] * 255) # right
-		self.sendCommand(command)
+		if self.update:
+			self.sendCommand(command)
+			self.update = False
 		
 	def sendCommand(self, command):
 		command.csum = (command.type + command.d1 + command.d2) % 256
 		try:
-			#self.i2cSem.acquire(block=True, timeout=None)
+			self.i2cSem.acquire(block=True, timeout=None)
 			self.i2c.write_byte(self.i2cAddress, command.header)
 			self.i2c.write_byte(self.i2cAddress, command.type)
 			self.i2c.write_byte(self.i2cAddress, command.d1 & 0xFF)
@@ -58,7 +64,7 @@ class DriveProcess(RoverProcess):
 			self.i2c.write_byte(self.i2cAddress, command.trailer)
 		except IOError:
 			print("Drive thread got IOError")
-		#self.i2cSem.release()
+		self.i2cSem.release()
 			
 	
 	def cleanup(self):

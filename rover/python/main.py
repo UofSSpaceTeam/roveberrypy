@@ -18,7 +18,7 @@ remotePort = 34568
 if __name__ == "__main__":
 	system = StateManager()
 	processes = []
-	i2cSem = multiprocessing.Semaphore
+	i2cSem = multiprocessing.Semaphore(1)
 	print "\nBUILD\n"
 
 	# json server
