@@ -431,17 +431,20 @@ implemented). Defaults to 0.
                             sbp.payload, sbp.crc)
       self.from_binary(sbp.payload)
     else:
-      super( MsgPosLLH, self).__init__()
-      self.msg_type = SBP_MSG_POS_LLH
-      self.sender = kwargs.pop('sender', SENDER_ID)
-      self.tow = kwargs.pop('tow')
-      self.lat = kwargs.pop('lat')
-      self.lon = kwargs.pop('lon')
-      self.height = kwargs.pop('height')
-      self.h_accuracy = kwargs.pop('h_accuracy')
-      self.v_accuracy = kwargs.pop('v_accuracy')
-      self.n_sats = kwargs.pop('n_sats')
-      self.flags = kwargs.pop('flags')
+        try:
+          super( MsgPosLLH, self).__init__()
+          self.msg_type = SBP_MSG_POS_LLH
+          self.sender = kwargs.pop('sender', SENDER_ID)
+          self.tow = kwargs.pop('tow')
+          self.lat = kwargs.pop('lat')
+          self.lon = kwargs.pop('lon')
+          self.height = kwargs.pop('height')
+          self.h_accuracy = kwargs.pop('h_accuracy')
+          self.v_accuracy = kwargs.pop('v_accuracy')
+          self.n_sats = kwargs.pop('n_sats')
+          self.flags = kwargs.pop('flags')
+        except:
+            pass
 
   def __repr__(self):
     return fmt_repr(self)

@@ -63,8 +63,7 @@ class GPS(RoverProcess):
 	# additional functions go here
         def getPos(self, timeout=5.0):
             ''' Get current gps location
-            Unfortunately this crashes if no message is recieved,
-            so timeout must be long enough to prevent this.
+            timeout is in seconds
 
             SBP_MSG_POS_LLH object is sent under the key "gps_Location"
             '''
@@ -76,7 +75,7 @@ class GPS(RoverProcess):
 
         def getBaseline(self, timeout=5.0):
             ''' Get relative baseline position in NED coordinates
-            Same timeout issues as getPos.
+            timeout is in seconds
 
             SBP_MSG_BASELINE_NED object is sent under the key "gps_Baseline"
             '''
