@@ -27,13 +27,14 @@ namespace usstgui
 
 			downlink = new StateQueue();
 			jsonTask = new JsonClientTask(
-				downlink, 34568, 34567, "10.64.226.10", 4096);
-			StateManager.addObserver("exampleKey", downlink);
-
-			downlink = new StateQueue();
-			controllerTask = new ControllerTask(downlink);
+				downlink, 34568, 34567, "192.168.1.103", 150);
+			//StateManager.addObserver("exampleKey", downlink);
             StateManager.addObserver("inputOneLeftY", downlink);
             StateManager.addObserver("inputOneRightY", downlink);
+
+            downlink = new StateQueue();
+			controllerTask = new ControllerTask(downlink);
+            
 
 
             Debug.WriteLine("System Start");

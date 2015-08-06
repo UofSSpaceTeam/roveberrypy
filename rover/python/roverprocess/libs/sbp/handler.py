@@ -18,8 +18,8 @@ import struct
 import threading
 
 from msg import crc16, SBP, SBP_PREAMBLE
-from sbp.client.drivers.base_driver import BaseDriver
-from sbp.piksi import MsgReset
+from base_driver import BaseDriver
+from piksi import MsgReset
 
 class Framer(object):
   """

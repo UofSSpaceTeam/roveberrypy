@@ -82,6 +82,9 @@
       <DependentUpon>Images.resx</DependentUpon>
     </Compile>
     <Compile Include="StateQueue.cs" />
+    <Compile Include="MainScreen.xaml.cs">
+      <DependentUpon>MainScreen.xaml</DependentUpon>
+    </Compile>
     <Page Include="Main.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -101,6 +104,10 @@
       <DependentUpon>OptionsController1.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MainScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

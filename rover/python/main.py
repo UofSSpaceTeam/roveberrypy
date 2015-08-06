@@ -8,7 +8,7 @@ from statemanager import StateManager
 from roverprocess.jsonserver import JsonServer
 from roverprocess.exampleprocess import ExampleProcess
 from roverprocess.gps import GPS
-# from roverprocess.driveprocess import DriveProcess
+from roverprocess.driveprocess import DriveProcess
 # frim roverprocess.armprocess import ArmProcess
 
 # system configuration
@@ -43,12 +43,12 @@ if __name__ == "__main__":
 	processes.append(process)
 	
 	# drive process
-	# process = DriveProcess(
-	# 	downlink = system.getDownlink(), uplink = system.getUplink(),
-	# 	sem = i2cSem)
-	# system.addObserver("inputOneLeftY", process.downlink)
-	# system.addObserver("inputOneRightY", process.downlink)
-	# processes.append(process)
+	process = DriveProcess(
+		downlink = system.getDownlink(), uplink = system.getUplink(),
+		sem = i2cSem)
+	system.addObserver("inputOneLeftY", process.downlink)
+	system.addObserver("inputOneRightY", process.downlink)
+	processes.append(process)
 	
 
 	# arm process

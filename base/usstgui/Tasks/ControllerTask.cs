@@ -26,7 +26,7 @@ namespace usstgui
 		{
 			while (true)
 			{
-				Thread.Sleep(200);
+				Thread.Sleep(10);
 				if (controller1.IsConnected)
 				{
 					input = controller1.GetState().Gamepad;

@@ -99,7 +99,9 @@ namespace usstgui
 					{
 						dgram = Encoding.ASCII.GetBytes(
 							JsonConvert.SerializeObject(outData));
-						outData.Clear();
+                        Debug.Write("TX Packet: ");
+                        Debug.WriteLine(Encoding.Default.GetString(dgram));
+                        outData.Clear();
 					}
 				}
 				if (dgram != null)
