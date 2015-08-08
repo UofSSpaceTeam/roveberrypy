@@ -40,9 +40,27 @@ namespace usstgui
 					processButton("inputOneBButton", GamepadButtonFlags.B);
 					processButton("inputOneXButton", GamepadButtonFlags.X);
 					processButton("inputOneYButton", GamepadButtonFlags.Y);
-				}
-				else
-					setDefaultValues("inputOne");
+
+                }
+                else
+                    setDefaultValues("inputOne");
+
+                if (controller2.IsConnected)
+                {
+                    input = controller2.GetState().Gamepad;
+                    processJoystickAxis("inputTwoLeftX", input.LeftThumbX);
+                    processJoystickAxis("inputTwoLeftY", input.LeftThumbY);
+                    processJoystickAxis("inputTwoRightX", input.RightThumbX);
+                    processJoystickAxis("inputTwoRightY", input.RightThumbY);
+                    processTriggerAxis("inputTwoLeftTrigger", input.LeftTrigger);
+                    processTriggerAxis("inputTwoRightTrigger", input.RightTrigger);
+                    processButton("inputTwoAButton", GamepadButtonFlags.A);
+                    processButton("inputTwoBButton", GamepadButtonFlags.B);
+                    processButton("inputTwoXButton", GamepadButtonFlags.X);
+                    processButton("inputTwoYButton", GamepadButtonFlags.Y);
+                }
+                else
+                    setDefaultValues("inputTwo");
 			}
 		}
 

@@ -31,6 +31,8 @@ namespace usstgui
 			//StateManager.addObserver("exampleKey", downlink);
             StateManager.addObserver("inputOneLeftY", downlink);
             StateManager.addObserver("inputOneRightY", downlink);
+            StateManager.addObserver("inputTwoLeftY", downlink);
+            StateManager.addObserver("inputTwoRightY", downlink);
 
             downlink = new StateQueue();
 			controllerTask = new ControllerTask(downlink);

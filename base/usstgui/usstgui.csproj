@@ -71,6 +71,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ArmConfig.xaml.cs">
+      <DependentUpon>ArmConfig.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tasks\ControllerTask.cs" />
     <Compile Include="Tasks\JsonClientTask.cs" />
     <Compile Include="Tasks\ExampleTask.cs" />
@@ -85,6 +88,10 @@
     <Compile Include="MainScreen.xaml.cs">
       <DependentUpon>MainScreen.xaml</DependentUpon>
     </Compile>
+    <Page Include="ArmConfig.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Main.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

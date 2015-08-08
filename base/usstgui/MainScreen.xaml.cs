@@ -10,6 +10,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace usstgui
@@ -22,6 +23,29 @@ namespace usstgui
         public Window1()
         {
             InitializeComponent();
+            OptionsController1.Tag = new OptionsController1();
+
+        }
+
+        private void OpenConfigWindow(object sender, RoutedEventArgs e)
+        {
+            // Can this be simplified? I couldn't see anything to fix it
+            Button pressedConfigButton = (Button)sender;
+            string target = pressedConfigButton.Name;
+
+            if(target == "OptionsController1")
+            {
+                Window newWindow = new OptionsController1();
+                newWindow.Show();
+            }
+
+            if(target == "ArmConfig")
+            {
+                Window newWindow = new ArmConfig();
+                newWindow.Show();
+            }
+            
+
         }
     }
 }

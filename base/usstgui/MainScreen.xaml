@@ -5,6 +5,41 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:usstgui"
         mc:Ignorable="d"
-        Title="Window1" Height="300" Width="300">
-    <Grid/>
-</Window>
+        Title="Window1" Height="310" Width="185">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="125"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button x:Name="RoverConfigLink" Content="Rover" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="0" VerticalAlignment="Center" Width="120"/>
+        <Button x:Name="BaseConfigLink" Content="Base" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="1" VerticalAlignment="Center" Width="120"/>
+        <Button x:Name="OptionsController1" Content="Controller" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="2" VerticalAlignment="Center" Width="120" Click="OpenConfigWindow"/>
+        <Button x:Name="ArmConfig" Content="Arm" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="3" VerticalAlignment="Center" Width="120"/>
+        <Button x:Name="DrillConfigLink" Content="Drill" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="4" VerticalAlignment="Center" Width="120"/>
+        <Button x:Name="GPSConfigLink" Content="GPS and Sensors" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="5" VerticalAlignment="Center" Width="120"/>
+        <Button x:Name="MapsConfigLink" Content="Maps" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="6" VerticalAlignment="Center" Width="120"/>
+        <Button x:Name="VideoConfigLink" Content="Video" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="7" VerticalAlignment="Center" Width="120"/>
+        <Label x:Name="CommsStatus" Content="Comms Status: " Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="8" VerticalAlignment="Center" Width="120"/>
+        <Label x:Name="RoverStatus" Content="OK" Grid.Column="1" HorizontalAlignment="Center" Height="25" Grid.Row="0" VerticalAlignment="Center"/>
+        <Label x:Name="BaseStatus" Content="OK" Grid.Column="1" HorizontalAlignment="Center" Height="25" Grid.Row="1" VerticalAlignment="Center"/>
+        <Label x:Name="ControllerStatus" Content="OK" Grid.Column="1" HorizontalAlignment="Center" Height="25" Grid.Row="2" VerticalAlignment="Center"/>
+        <Label x:Name="ArmStatus" Content="OK" Grid.Column="1" HorizontalAlignment="Center" Height="25" Grid.Row="3" VerticalAlignment="Center"/>
+        <Label x:Name="DrillStatus" Content="OK" Grid.Column="1" HorizontalAlignment="Center" Height="25" Grid.Row="4" VerticalAlignment="Center"/>
+        <Label x:Name="GPSStatus" Content="OK" Grid.Column="1" HorizontalAlignment="Center" Height="25" Grid.Row="5" VerticalAlignment="Center"/>
+        <Label x:Name="MapsStatus" Content="OK" Grid.Column="1" HorizontalAlignment="Center" Height="25" Grid.Row="6" VerticalAlignment="Center"/>
+        <Label x:Name="VideoStatus" Content="OK" Grid.Column="1" HorizontalAlignment="Center" Height="25" Grid.Row="7" VerticalAlignment="Center"/>
+
+    </Grid>
+</Window> 

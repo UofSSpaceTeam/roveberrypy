@@ -74,16 +74,19 @@ namespace usstgui
 			resultBar.Value = StateManager.getShared(name);
 		}
 
+        // Currently hacked so that inputs have same config so we can test the arm
 		private void checkboxChanged(object sender, RoutedEventArgs e)
 		{
 			CheckBox box = (CheckBox)sender;
 			StateManager.setShared("inputOne" + box.Name, box.IsChecked);
-		}
+            StateManager.setShared("inputTwo" + box.Name, box.IsChecked);
+        }
 
 		private void sliderChanged(object sender, RoutedEventArgs e)
 		{
 			Slider slider = (Slider)sender;
 			StateManager.setShared("inputOne" + slider.Name, slider.Value);
-		}
+            StateManager.setShared("inputTwo" + slider.Name, slider.Value);
+        }
     }
 }
