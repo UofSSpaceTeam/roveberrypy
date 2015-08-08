@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,9 +19,9 @@ namespace usstgui
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
-    public partial class Window1 : Window
+    public partial class MainScreen : Window
     {
-        public Window1()
+        public MainScreen()
         {
             InitializeComponent();
             OptionsController1.Tag = new OptionsController1();
@@ -33,19 +34,23 @@ namespace usstgui
             Button pressedConfigButton = (Button)sender;
             string target = pressedConfigButton.Name;
 
-            if(target == "OptionsController1")
+            if (target == "OptionsController1")
             {
                 Window newWindow = new OptionsController1();
                 newWindow.Show();
             }
 
-            if(target == "ArmConfig")
+            else if (target == "ArmConfig")
             {
                 Window newWindow = new ArmConfig();
                 newWindow.Show();
             }
-            
-
+            else
+                Debug.WriteLine("Window not implimented!");
+        }
+        private void KillAll(object sender, RoutedEventArgs e)
+        {
+            Environment.Exit(0);
         }
     }
 }
