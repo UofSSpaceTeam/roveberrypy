@@ -5,9 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:usstgui"
         mc:Ignorable="d"
-        Title="ArmConfig" Height="300" Width="300">
+        Title="ArmConfig" Height="500" Width="500">
     <Grid>
-        <Label x:Name="label" Content="Stuff goes here" HorizontalAlignment="Left" Margin="119,130,0,0" VerticalAlignment="Top"/>
-
+        <Image x:Name="armHelper_png" Margin="30,30,30,80" Source="armHelper.png" Stretch="Uniform"/>
+        <Label x:Name="label" Content="Stuff goes here" HorizontalAlignment="Left" Margin="88,114,0,0" VerticalAlignment="Top" Width="120"/>
+        <Slider x:Name="slider" HorizontalAlignment="Left" Margin="68,413,0,0" VerticalAlignment="Top" Height="22" Width="356"/>
+        <Slider x:Name="slider1" Orientation="Vertical" Margin="30,60,430,60">
+            <Slider.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-0.402"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Slider.RenderTransform>
+        </Slider>
     </Grid>
 </Window>
