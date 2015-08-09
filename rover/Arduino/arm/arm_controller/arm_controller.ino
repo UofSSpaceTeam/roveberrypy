@@ -178,31 +178,31 @@ void setLA(int, int);
 void inverseKinematics(double r, double z, double phi){
   
 	// constants
-  double a0r = 30.34;
-  double a0z = 95.25;
-  double a1 = 335.95;
-  double a2 = 397;
-  
-  double a1s = a1*a1;
-  double a2s = a2*a2;
-  double ar2 = (a0r+r)*(a0r+r);
-  double az2 = (a0z-z)*(a0z-z);
-  
+	double a0r = 30.34;
+	double a0z = 95.25;
+	double a1 = 335.95;
+	double a2 = 397;
+	 
+	double a1s = a1*a1;
+	double a2s = a2*a2;
+	double ar2 = (a0r+r)*(a0r+r);
+	double az2 = (a0z-z)*(a0z-z);
+	  
 
-  // intermediate calcs
-  // L1
-  double temp1  = atan2(a2*sqrt(1.0-(a1s+a2s-ar2-az2)*(a1s+a2s-ar2-az2)/(4.0*a1s*a2s)),(a1s-a2s+ar2+az2)/(2.0*a1));
-  double temp2  = cos(2.24868+temp1-atan2(a0r+r,z-a0z));
-  lengthLA[0]   = 259.948072*sqrt(1.9330354 - temp2) - 292.35;
+	// intermediate calcs
+	// L1
+	double temp1  = atan2(a2*sqrt(1.0-(a1s+a2s-ar2-az2)*(a1s+a2s-ar2-az2)/(4.0*a1s*a2s)),(a1s-a2s+ar2+az2)/(2.0*a1));
+	double temp2  = cos(2.24868+temp1-atan2(a0r+r,z-a0z));
+	lengthLA[0]   = 259.948072*sqrt(1.9330354 - temp2) - 292.35;
 
-  //L2
-  lengthLA[1]   = 199.919984*sqrt(3.17794235 +(-a1s-a2s+ar2+az2)/(a1*a2)) - 292.35;
+	//L2
+	lengthLA[1]   = 199.919984*sqrt(3.17794235 +(-a1s-a2s+ar2+az2)/(a1*a2)) - 292.35;
 
-  //L3
-  temp1 = acos((-a1s-a2s+ar2+az2)/(2*a1*a2));
-  temp2 = atan2(a2*sqrt(1.0-(a1s+a2s-ar2-az2)*(a1s+a2s-ar2-az2)/(4*a1s*a2s)),(a1s-a2s+ar2+az2)/(2*a1));
-  lengthLA[2] = 156.780100778*sqrt(2.2274206672 + cos(phi*0.01745329251+temp1-temp2+atan2(a0r+r,z-a0z))) - 170.5;
-  
+	//L3
+	temp1 = acos((-a1s-a2s+ar2+az2)/(2*a1*a2));
+	temp2 = atan2(a2*sqrt(1.0-(a1s+a2s-ar2-az2)*(a1s+a2s-ar2-az2)/(4*a1s*a2s)),(a1s-a2s+ar2+az2)/(2*a1));
+	lengthLA[2] = 156.780100778*sqrt(2.2274206672 + cos(phi*0.01745329251+temp1-temp2+atan2(a0r+r,z-a0z))) - 170.5;
+	  
 }
 void setLAPosition(){
   // get distances
