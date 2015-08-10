@@ -89,6 +89,7 @@ class VNH5019 {
     void	turn(int ON_OFF, int dir, int dutyCycle);
     void	turn(int ON_OFF, int dir);
     void	turn(int ON_OFF);
+    void  setPWM(int dutyCycle);
 
     int 	readPosition();
     void	initalizePins();
@@ -212,33 +213,48 @@ void VNH5019::turn(int ON_OFF) { // turn la off
     if (pinPWM != -1) analogWrite(pinPWM, 0);
   }
 }
-
+#define apx_term2 4
+#define apx_terms 13
 int VNH5019::readPosition() {		// get digital position of the la
   if (pinWIPER != -1) {
-    int apx_terms = 13;
-    double    wiperReading[apx_terms];
-    int       readingIndex[apx_terms];
-    double    wiperValue = -1;
+    int reading[apx_term2];
+    int ocCount[apx_term2];
+    for (int take = 0; take < apx_term2; take++) {
+      int       wiperReading[apx_terms];
+      int       readingIndex[apx_terms];
+      double    wiperValue = -1;
 
-    for (int jdx = 0; jdx < apx_terms; jdx++) {
-      readingIndex[jdx] = 0;
-      wiperReading[jdx] = analogRead(pinWIPER);
-      for (int kdx = 0; kdx < jdx; kdx++) {
-        if (wiperReading[kdx] == wiperReading[jdx])
-          wiperValue = wiperReading[jdx];
-        if (wiperReading[kdx] > wiperReading[jdx])
-          readingIndex[kdx]++;
-        if (wiperReading[kdx] < wiperReading[jdx])
-          readingIndex[jdx]++;
-      }
-    }
-    if (wiperValue != -1) { // otherwise take the median
       for (int jdx = 0; jdx < apx_terms; jdx++) {
-        if (readingIndex[jdx] == int(apx_terms / 2))
-          wiperValue = wiperReading[jdx];
+        readingIndex[jdx] = 0;
+        wiperReading[jdx] = analogRead(pinWIPER);
+        for (int kdx = 0; kdx < jdx; kdx++) {
+          if (wiperReading[kdx] == wiperReading[jdx])
+            wiperValue = wiperReading[jdx];
+          if (wiperReading[kdx] > wiperReading[jdx])
+            readingIndex[kdx]++;
+          if (wiperReading[kdx] < wiperReading[jdx])
+            readingIndex[jdx]++;
+        }
       }
+      if (wiperValue != -1) { // otherwise take the median
+        for (int jdx = 0; jdx < apx_terms; jdx++) {
+          if (readingIndex[jdx] == int(apx_terms / 2))
+            wiperValue = wiperReading[jdx];
+        }
+      }
+      reading[take] = wiperValue;
     }
-    return wiperValue;
+    int mostCommon = reading[0];
+    int count = 1;
+    // get mode
+    for(int idx = 0; idx < apx_term2; idx++){
+      int currCount = 1;
+      for(int jdx = 0; jdx < apx_term2; jdx++){
+        if(idx != jdx) if(reading[idx] == reading[jdx]) currCount++;
+      }
+      if(currCount > count) mostCommon = reading[idx];      
+    }
+    return mostCommon;
   }
   return 0;
 }
@@ -272,19 +288,23 @@ void VNH5019::setDirection(int dir) { // set the direction
 }
 
 int VNH5019::convertPhysDR(double phys) { // get the digital read for a position in mm
-  return calibration_coeff[2] * phys * phys + calibration_coeff[1] * phys + calibration_coeff[0];
+  return calibration_coeff[2] * phys * phys + calibration_coeff[1] * phys + calibration_coeff[0] + 0.5;
 }
 
 int VNH5019::getDirection() {
   return DIRECTION;
 }
 
-double VNH5019::convertDRPhys(int dr){
-  if(calibration_coeff[2] == 0){
-    return (dr-calibration_coeff[0])/calibration_coeff[1];
+double VNH5019::convertDRPhys(int dr) {
+  if (calibration_coeff[2] == 0) {
+    return (dr - calibration_coeff[0]) / calibration_coeff[1];
   } else {
-    return (-calibration_coeff[1]+sqrt(calibration_coeff[1]*calibration_coeff[1]-4*calibration_coeff[2]*(calibration_coeff[0]-dr)))/(2*calibration_coeff[2]);
+    return (-calibration_coeff[1] + sqrt(calibration_coeff[1] * calibration_coeff[1] - 4 * calibration_coeff[2] * (calibration_coeff[0] - dr))) / (2 * calibration_coeff[2]);
   }
+}
+
+void VNH5019::setPWM(int dutyCycle){
+  if(pinPWM != -1) analogWrite(pinPWM,dutyCycle);
 }
 
 // ------------------------ END OF VNH5019 CLASS ------------------------------
@@ -340,7 +360,7 @@ void invKinCommand(double r, double z, double phi) {
   Serial.println(lengthLA[1]);
   Serial.print("Setting L3 to ");
   Serial.println(lengthLA[2]);
-  
+
   // turn on the LA's
   for (int idx = 0; idx < 3; idx++) {
     drLength[idx] = la[idx]->convertPhysDR(lengthLA[idx]); // get dr of final position
@@ -358,23 +378,42 @@ void invKinCommand(double r, double z, double phi) {
       la[idx]->setDirection(0);
       numberAtDestination++;
       Serial.print("L");
-      Serial.print(idx+1);
+      Serial.print(idx + 1);
       Serial.print(" has reached it destination and stopped at ");
       Serial.println(la[idx]->convertDRPhys(la[idx]->readPosition()));
     }
   }
 
   Serial.println("Waiting for actuators to get to their final position");
+  
+  int prevReading[3];
+  prevReading[0] = 0;
+  prevReading[1] = 0;
+  prevReading[2] = 0;
+  int n = 0;
   while (numberAtDestination < 3 && !newCommand()) {
     for (int idx = 0; idx < 3; idx++) {
-
+      
       la[idx]->isSafe(); // make sure that position is okay
 
       int dr = la[idx]->readPosition();
       int dir = la[idx]->getDirection();
-      
+
       bool complete = dir == 0;
       if (!complete) {
+        
+        if(abs(dr-drLength[idx]) < 7) la[idx]->setPWM(127);
+        if(abs(dr-drLength[idx]) < 5) la[idx]->setPWM(100);
+        if(abs(dr-drLength[idx]) < 3) la[idx]->setPWM(50);
+        if(abs(dr-drLength[idx]) < 1) la[idx]->setPWM(20);
+        
+        // check that the linac has actually moved (once every 50 loops)
+        if(n%100 == 0 && abs(prevReading[idx] - dr) < 1 && !complete){
+          la[idx]->setPWM(255);
+          prevReading[idx] = dr;
+        }
+        n++;
+        
         switch (dir) {
           case EXTEND:
             if (dr > drLength[idx]) {
@@ -382,7 +421,7 @@ void invKinCommand(double r, double z, double phi) {
               la[idx]->turn(OFF);
               numberAtDestination++;
               Serial.print("L");
-              Serial.print(idx+1);
+              Serial.print(idx + 1);
               Serial.print(" has reached it destination and stopped at ");
               Serial.println(la[idx]->convertDRPhys(la[idx]->readPosition()));
             }
@@ -393,7 +432,7 @@ void invKinCommand(double r, double z, double phi) {
               la[idx]->turn(OFF);
               numberAtDestination++;
               Serial.print("L");
-              Serial.print(idx+1);
+              Serial.print(idx + 1);
               Serial.print(" has reached it destination and stopped at ");
               Serial.println(la[idx]->convertDRPhys(la[idx]->readPosition()));
             }
@@ -432,8 +471,8 @@ void setup() {
   la[2]->setMIN_DR(L3_MIN);
 
   // set calibration coeffs
-  la[0]->setCalibration(0, 2.391, 624.2);
-  la[1]->setCalibration(0, 2.404, 626);
+  la[0]->setCalibration(0, 2.44, 621);
+  la[1]->setCalibration(0, 2.419, 627);
   la[2]->setCalibration(-0.0303, 16.35, -16.79);
 
   // initalize pins
@@ -441,10 +480,29 @@ void setup() {
   la[1]->initalizePins();
   la[2]->initalizePins();
 
-  invKinCommand(450,450,);
+  invKinCommand(500, 300, 0);
 }
-
+int i = 1;
 void loop() {
+  int input = Serial.parseInt();
+  if (input == 1) {
+    la[i]->turn(ON, EXTEND);
+    delay(1000);
+    la[i]->turn(OFF);
+  } else if (input == -1) {
+    la[i]->turn(ON, RETRACT);
+    delay(1000);
+    la[i]->turn(OFF);
+  } else if (input == 2) {
+    la[i]->turn(ON, EXTEND, 127);
+    delay(1000);
+    la[i]->turn(OFF);
+  } else if (input == -2) {
+    la[i]->turn(ON, RETRACT, 127);
+    delay(1000);
+    la[i]->turn(OFF);
+  }
+  Serial.println(la[i]->readPosition());
 }
 
 
