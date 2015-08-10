@@ -6,11 +6,11 @@ using System.Diagnostics;
 
 namespace usstgui
 {
-    public partial class OptionsController1 : Window
+    public partial class OptionsController2 : Window
     {
         private bool windowOpen = true;
 
-		public OptionsController1()
+		public OptionsController2()
         {
             InitializeComponent();
             Thread t = new Thread(new ThreadStart(XboxController));
@@ -29,21 +29,21 @@ namespace usstgui
             {
 				this.Dispatcher.Invoke((Action)(() =>
 				{
-					displayJoystickAxis("inputOneLeftX", LeftXInvert, LeftXScale, LeftXDeadband, LeftXResult);
-					displayJoystickAxis("inputOneLeftY", LeftYInvert, LeftYScale, LeftYDeadband, LeftYResult);
-					displayJoystickAxis("inputOneRightX", RightXInvert, RightXScale, RightXDeadband, RightXResult);
-					displayJoystickAxis("inputOneRightY", RightYInvert, RightYScale, RightYDeadband, RightYResult);
+					displayJoystickAxis("inputTwoLeftX", LeftXInvert, LeftXScale, LeftXDeadband, LeftXResult);
+					displayJoystickAxis("inputTwoLeftY", LeftYInvert, LeftYScale, LeftYDeadband, LeftYResult);
+					displayJoystickAxis("inputTwoRightX", RightXInvert, RightXScale, RightXDeadband, RightXResult);
+					displayJoystickAxis("inputTwoRightY", RightYInvert, RightYScale, RightYDeadband, RightYResult);
 				}));
 				while (windowOpen)
 				{
 					this.Dispatcher.Invoke((Action)(() =>
 					{
-						updateResultBar("inputOneLeftX", LeftXResult);
-						updateResultBar("inputOneLeftY", LeftYResult);
-						updateResultBar("inputOneRightX", RightXResult);
-						updateResultBar("inputOneRightY", RightYResult);
-						updateResultBar("inputOneLeftTrigger", LeftTriggerResult);
-						updateResultBar("inputOneRightTrigger", RightTriggerResult);
+						updateResultBar("inputTwoLeftX", LeftXResult);
+						updateResultBar("inputTwoLeftY", LeftYResult);
+						updateResultBar("inputTwoRightX", RightXResult);
+						updateResultBar("inputTwoRightY", RightYResult);
+						updateResultBar("inputTwoLeftTrigger", LeftTriggerResult);
+						updateResultBar("inputTwoRightTrigger", RightTriggerResult);
 					}));
 					Thread.Sleep(100);
 				}
@@ -74,19 +74,21 @@ namespace usstgui
 			resultBar.Value = StateManager.getShared(name);
 		}
 
-        // Currently hacked so that inputs have same config so we can test the arm
 		private void checkboxChanged(object sender, RoutedEventArgs e)
 		{
 			CheckBox box = (CheckBox)sender;
-			StateManager.setShared("inputOne" + box.Name, box.IsChecked);
-            StateManager.setShared("inputTwo" + box.Name, box.IsChecked);
+			StateManager.setShared("inputTwo" + box.Name, box.IsChecked);
         }
 
 		private void sliderChanged(object sender, RoutedEventArgs e)
 		{
 			Slider slider = (Slider)sender;
-			StateManager.setShared("inputOne" + slider.Name, slider.Value);
-            StateManager.setShared("inputTwo" + slider.Name, slider.Value);
+			StateManager.setShared("inputTwo" + slider.Name, slider.Value);
         }
+
+		private void Close(object sender, RoutedEventArgs e)
+		{
+			this.Close();
+		}
     }
 }

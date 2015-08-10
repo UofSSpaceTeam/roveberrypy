@@ -14,8 +14,6 @@ namespace usstgui
 		{
 			controller1 = new SharpDX.XInput.Controller(SharpDX.XInput.UserIndex.One);
 			controller2 = new SharpDX.XInput.Controller(SharpDX.XInput.UserIndex.Two);
-			setInitialValues("inputOne");
-			setDefaultValues("inputTwo");
 		}
 
 		protected override void messageTrigger(string key, dynamic value)
@@ -40,7 +38,6 @@ namespace usstgui
 					processButton("inputOneBButton", GamepadButtonFlags.B);
 					processButton("inputOneXButton", GamepadButtonFlags.X);
 					processButton("inputOneYButton", GamepadButtonFlags.Y);
-
                 }
                 else
                     setDefaultValues("inputOne");
@@ -98,7 +95,6 @@ namespace usstgui
 			StateManager.setShared(name, input.Buttons.HasFlag(button));
 		}
 
-
 		private void setDefaultValues(string prefix)
 		{
 			StateManager.setShared(prefix + "LeftX", 0.0);
@@ -111,28 +107,6 @@ namespace usstgui
 			StateManager.setShared(prefix + "BButton", false);
 			StateManager.setShared(prefix + "XButton", false);
 			StateManager.setShared(prefix + "YButton", false);
-		}
-
-
-		private void setInitialValues(string prefix)
-		{
-			setDefaultValues(prefix);
-			StateManager.setShared(prefix + "LeftXInvert", false);
-			StateManager.setShared(prefix + "LeftXScale", 0.8);
-			StateManager.setShared(prefix + "LeftXDeadband", 0.2);
-			StateManager.setShared(prefix + "LeftYInvert", false);
-			StateManager.setShared(prefix + "LeftYScale", 0.8);
-			StateManager.setShared(prefix + "LeftYDeadband", 0.2);
-			StateManager.setShared(prefix + "RightXInvert", false);
-			StateManager.setShared(prefix + "RightXScale", 0.8);
-			StateManager.setShared(prefix + "RightXDeadband", 0.2);
-			StateManager.setShared(prefix + "RightYInvert", false);
-			StateManager.setShared(prefix + "RightYScale", 0.8);
-			StateManager.setShared(prefix + "RightYDeadband", 0.2);
-			StateManager.setShared(prefix + "LeftTriggerScale", 0.8);
-			StateManager.setShared(prefix + "LeftTriggerDeadband", 0.1);
-			StateManager.setShared(prefix + "RightTriggerScale", 0.8);
-			StateManager.setShared(prefix + "RightTriggerDeadband", 0.1);
 		}
 	}
 }

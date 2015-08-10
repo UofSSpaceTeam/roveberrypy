@@ -24,30 +24,26 @@ namespace usstgui
         public MainScreen()
         {
             InitializeComponent();
-            OptionsController1.Tag = new OptionsController1();
-
         }
 
-        private void OpenConfigWindow(object sender, RoutedEventArgs e)
-        {
-            // Can this be simplified? I couldn't see anything to fix it
-            Button pressedConfigButton = (Button)sender;
-            string target = pressedConfigButton.Name;
+		protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+		{
+			e.Cancel = true;
+			OpenWindow(KillConfirmation, null);
+		}
 
-            if (target == "OptionsController1")
-            {
-                Window newWindow = new OptionsController1();
-                newWindow.Show();
-            }
+		private void OpenWindow(object sender, RoutedEventArgs e)
+		{
+			try
+			{
+				((Window)Activator.CreateInstance(null, "usstgui." + ((Button)sender).Name).Unwrap()).Show();
+			}
+			catch(Exception ex)
+			{
+				Debug.WriteLine("Couldn't open window: " + ex.Message);
+			}
+		}
 
-            else if (target == "ArmConfig")
-            {
-                Window newWindow = new ArmConfig();
-                newWindow.Show();
-            }
-            else
-                Debug.WriteLine("Window not implimented!");
-        }
         private void KillAll(object sender, RoutedEventArgs e)
         {
             Environment.Exit(0);

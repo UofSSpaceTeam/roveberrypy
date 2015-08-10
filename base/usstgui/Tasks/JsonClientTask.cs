@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.IO;
 using System.Threading;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -45,6 +46,13 @@ namespace usstgui
 			receiver.Client.Bind(localEndPoint);
 		}
 
+		public void receiveFromFile(string filename)
+		{
+			StreamReader reader = new StreamReader(filename, ASCIIEncoding.ASCII);
+			receiveJson(reader.ReadToEnd());
+			reader.Close();
+		}
+
 		public override void start()
 		{
 			base.start();
@@ -59,22 +67,26 @@ namespace usstgui
 
 		private void netListenerFunction()
 		{
-			string rawData;
 			IPEndPoint remote = null;
 			while (true)
 			{
-				rawData = Encoding.ASCII.GetString(receiver.Receive(ref remote));
-				try
-				{
-					inData = JsonConvert.DeserializeObject<StateDict>(rawData);
-				}
-				catch
-				{
-					Debug.WriteLine("Got bad JSON: " + rawData);
-				}
-				foreach (StateElement e in inData)
-					StateManager.setShared(e.Key, e.Value);
+				receiveJson(Encoding.ASCII.GetString(receiver.Receive(ref remote)));
 			}
+		}
+
+		private void receiveJson(string rawData)
+		{
+			inData = new StateDict();
+			try
+			{
+				inData = JsonConvert.DeserializeObject<StateDict>(rawData);
+			}
+			catch
+			{
+				Debug.WriteLine("Got bad JSON: " + rawData);
+			}
+			foreach (StateElement e in inData)
+				StateManager.setShared(e.Key, e.Value);
 		}
 
 		protected override void messageTrigger(string key, dynamic value)
@@ -99,8 +111,8 @@ namespace usstgui
 					{
 						dgram = Encoding.ASCII.GetBytes(
 							JsonConvert.SerializeObject(outData));
-                        Debug.Write("TX Packet: ");
-                        Debug.WriteLine(Encoding.Default.GetString(dgram));
+                        //Debug.Write("TX Packet: ");
+                        //Debug.WriteLine(Encoding.Default.GetString(dgram));
                         outData.Clear();
 					}
 				}

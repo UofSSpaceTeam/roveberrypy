@@ -137,32 +137,37 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ArmConfig.xaml.cs">
+    <Compile Include="Windows\ArmConfig.xaml.cs">
       <DependentUpon>ArmConfig.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\KillConfirmation.xaml.cs">
+      <DependentUpon>KillConfirmation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\OptionsController2.xaml.cs">
+      <DependentUpon>OptionsController2.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tasks\ControllerTask.cs" />
     <Compile Include="Tasks\JsonClientTask.cs" />
     <Compile Include="Tasks\ExampleTask.cs" />
-    <Compile Include="BaseTask.cs" />
-    <Compile Include="StateManager.cs" />
-    <Compile Include="Images.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Images.resx</DependentUpon>
-    </Compile>
-    <Compile Include="StateQueue.cs" />
-    <Compile Include="MainScreen.xaml.cs">
+    <Compile Include="System\BaseTask.cs" />
+    <Compile Include="System\StateManager.cs" />
+    <Compile Include="System\StateQueue.cs" />
+    <Compile Include="Windows\MainScreen.xaml.cs">
       <DependentUpon>MainScreen.xaml</DependentUpon>
     </Compile>
-    <Page Include="ArmConfig.xaml">
+    <Page Include="Windows\ArmConfig.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Main.xaml">
+    <Page Include="Windows\KillConfirmation.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="OptionsController1.xaml">
+    <Page Include="Windows\OptionsController2.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\OptionsController1.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -170,14 +175,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Main.xaml.cs">
-      <DependentUpon>Main.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="OptionsController1.xaml.cs">
+    <Compile Include="Windows\OptionsController1.xaml.cs">
       <DependentUpon>OptionsController1.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="MainScreen.xaml">
+    <Page Include="Windows\MainScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -200,10 +202,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Images.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Images.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -225,7 +223,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="armHelper.png" />
+    <Resource Include="Resources\armHelper.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="initial.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
