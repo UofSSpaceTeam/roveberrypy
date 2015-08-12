@@ -8,8 +8,12 @@
         mc:Ignorable="d"
         Title="NavWindow" Height="600" Width="800">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="31*"/>
+            <ColumnDefinition Width="57*"/>
+        </Grid.ColumnDefinitions>
 
-        <WindowsPresentation:GMapControl x:Name="MapScreen" Margin="10" CanDragMap="True" MaxZoom="1" MinZoom="17" Zoom="10" ShowTileGridLines="True"/>
+        <WindowsPresentation:GMapControl x:Name="MainMap" Margin="10" CanDragMap="True" MaxZoom="1" MinZoom="17" Grid.ColumnSpan="2" Zoom="10" MouseWheelZoomType="MousePositionWithoutCenter"/>
 
     </Grid>
 </Window>
