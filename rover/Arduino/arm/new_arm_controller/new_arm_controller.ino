@@ -1,6 +1,8 @@
 #include <Wire.h>
 #include <math.h>
 
+
+
 // linear actuator control pins
 #define null_pin 	0;
 
@@ -60,6 +62,120 @@
 #define POSITION  10
 #define DIRECT    11
 #define NUDGE     12
+
+// -------------------------- I2C communication -------------------------------------
+#define TIMEOUT 750
+#define CMD_HEADER 0xF7
+#define CMD_TRAILER 0xF8
+#define I2C_ADDRESS 0x08
+
+unsigned long timer;
+volatile command cmd;
+byte* cmdPointer = (byte*)(&cmd);
+volatile byte cmdCount = 0;
+volatile bool newCommand = false;
+
+enum command_type
+{
+	SET_SPEEDS,
+	SET_POSITION
+};
+
+typedef struct
+{
+	byte header;
+	byte type;
+	short d1;
+	short d2;
+	short d3;
+	short d4;
+	short d5;
+	short d6;
+	short d7;
+	byte csum;
+	byte trailer;
+} command;
+
+void processCommand()
+{
+	switch(cmd.type)
+	{
+		case SET_SPEEDS:
+		speed[3] = cmd.d1; // base
+		speed[0] = cmd.d2; // LA1
+		speed[1] = cmd.d3; // LA2
+		speed[2] = cmd.d4; // LA3
+		gspin = constrain(cmd.d5, -191, 191);
+		gopen = constrain(cmd.d6, -255, 255);
+		throttle = constrain(cmd.d7, 0, 255);
+		//printCommand();
+		setSpeeds();
+		setGripper();
+		timer = millis();
+		break;
+
+		case SET_POSITION:
+		/*position[0] = map(cmd.d1, -1000, 1000, MIN_X, MAX_X);
+		position[1] = map(cmd.d2, -1000, 1000, MIN_Y, MAX_Y);
+		position[2] = map(cmd.d3, -1000, 1000, MIN_Z, MAX_Z);
+		position[3] = map(cmd.d4, -1000, 1000, MIN_PHI, MAX_PHI);*/
+		position[0] = cmd.d1;
+		position[1] = cmd.d2;
+		position[2] = cmd.d3;
+		position[3] = cmd.d4;
+		gspin = constrain(cmd.d5, -191, 191);//9 volts maximum
+		gopen = constrain(cmd.d6, -255, 255);
+		throttle = constrain(cmd.d7, 0, 255);
+        //printCommand();
+		doInverseKinematics();
+		setPosition();
+		setGripper();
+		timer = millis();
+		break;
+	}
+	newCommand = false;
+}
+
+void receiveEvent(int count)
+{
+	if(newCommand)
+		return;
+	while(Wire.available())
+	{
+		byte in = Wire.read();
+                
+		
+		if(cmdCount == 0) // wait for header
+		{
+			if(in == CMD_HEADER)
+			{
+				cmdPointer[cmdCount] = in;
+				cmdCount++;
+			}
+			continue;
+		}
+		if(cmdCount < sizeof(command)) // add middle bytes
+		{
+			cmdPointer[cmdCount] = in;
+			cmdCount++;
+		}
+		if(cmdCount == sizeof(command)) // check for complete
+		{
+			if(in == CMD_TRAILER)
+			{
+				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4
+					+ cmd.d5 + cmd.d6 + cmd.d7;
+				if(csum == cmd.csum) {
+                                        //Serial.println("csum");
+					newCommand = true;
+                                } 
+			}
+			cmdCount = 0;
+		}
+	}
+}
+
+// -------------------------------- End I2C communication -------------------------------
 
 
 // ---------------------------- VNH5019 MOTOR DRIVER CLASS ------------------------------
@@ -320,7 +436,7 @@ VNH5019* gr[3] = {&G1, &G2};
 
 bool newCommand() {
   // return true if new command has been given
-  return false;
+  return newCommad;
 }
 
 void invKinCommand(double r, double z, double phi) {
@@ -459,6 +575,8 @@ void executeNewCommand(int type) {
 
 void setup() {
   Serial.begin(9600);
+  Wire.begin(I2C_ADDRESS);
+  Wire.onReceive(receiveEvent);
   delay(1000);
   // set max's
   la[0]->setMAX_DR(L1_MAX);
