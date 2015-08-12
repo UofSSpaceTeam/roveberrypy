@@ -7,18 +7,36 @@
         mc:Ignorable="d"
         Title="ArmConfig" Height="500" Width="500">
     <Grid>
-        <Image x:Name="armHelper_png" Margin="30,30,30,80" Source="Resources/armHelper.png" Stretch="Uniform"/>
-        <Label x:Name="label" Content="Stuff goes here" HorizontalAlignment="Left" Margin="88,114,0,0" VerticalAlignment="Top" Width="120"/>
-        <Slider x:Name="slider" HorizontalAlignment="Left" Margin="68,413,0,0" VerticalAlignment="Top" Height="22" Width="356"/>
-        <Slider x:Name="slider1" Orientation="Vertical" Margin="30,60,430,60">
-            <Slider.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform Angle="-0.402"/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Slider.RenderTransform>
+        <TextBox x:Name="ArmXVal" HorizontalAlignment="Left" Height="23" Margin="63,38,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="ArmYVal" HorizontalAlignment="Left" Height="23" Margin="69,107,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="ArmWristVal" HorizontalAlignment="Left" Height="23" Margin="82,169,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="ArmXLbl" Content="X Pos:" HorizontalAlignment="Left" Margin="10,34,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="ArmYLbl" Content="Y Pos:" HorizontalAlignment="Left" Margin="10,107,0,0" VerticalAlignment="Top" />
+        <Label x:Name="ArmWristLbl" Content="Wrist Pos:" HorizontalAlignment="Left" Margin="10,165,0,0" VerticalAlignment="Top"/>
+        <Slider x:Name="ArmBaseCtl" ValueChanged="slider_ValueChanged" Margin="91,197,306,247" Value="5">
+            <Slider.Triggers>
+                <EventTrigger SourceName="ArmBaseCtl" RoutedEvent="Thumb.DragCompleted">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="ArmBaseCtl" Storyboard.TargetProperty="Value" From="{Binding Value, ElementName=ArmBaseCtl}" To="5" Duration="0:0:0.25"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Slider.Triggers>
         </Slider>
+        <Label x:Name="ArmBaseLbl" Content="Base Speed:" HorizontalAlignment="Left" Margin="19,196,0,0" VerticalAlignment="Top"/>
+        <Image x:Name="ArmHelperImg" HorizontalAlignment="Left" Height="225" Margin="232,10,0,0" VerticalAlignment="Top" Width="250" Source="../Resources/ArmHelper.png"/>
+        <Button x:Name="GrpOpenBtn" Content="Open" HorizontalAlignment="Left" Margin="111,272,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="GrpCloseBtn" Content="Close" HorizontalAlignment="Left" Margin="111,297,0,0" VerticalAlignment="Top" Width="75"/>
+        <Label x:Name="GripperLbl" Content="Gripper" HorizontalAlignment="Left" Margin="42,279,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="WristCwLbl" Content="Clockwise" HorizontalAlignment="Left" Margin="317,297,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="WristCcwLbl" Content="Counter-CW" HorizontalAlignment="Left" Margin="317,267,0,0" VerticalAlignment="Top" Width="75"/>
+        <Label x:Name="label" Content="Wrist" HorizontalAlignment="Left" Margin="259,279,0,0" VerticalAlignment="Top"/>
+        <ProgressBar x:Name="ArmXStat" HorizontalAlignment="Left" Height="10" Margin="91,66,0,0" VerticalAlignment="Top" Width="100"/>
+        <ProgressBar x:Name="ArmYStat" HorizontalAlignment="Left" Height="10" Margin="91,135,0,0" VerticalAlignment="Top" Width="100"/>
+        <Label x:Name="ArmXMaxLbl" Content="??/??" HorizontalAlignment="Left" Margin="42,65,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="ArmYMaxLbl" Content="??/??" HorizontalAlignment="Left" Margin="42,133,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="Warning" Content="THIS FORM IS A MESS PLEASE CLEAN :)" HorizontalAlignment="Left" Margin="91,413,0,0" VerticalAlignment="Top" Height="30" Width="281" FontWeight="Bold" FontSize="14.667"/>
+
     </Grid>
 </Window>

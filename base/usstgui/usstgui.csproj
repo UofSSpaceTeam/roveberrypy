@@ -76,11 +76,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="GMap.NET.Core, Version=1.7.0.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
-      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.1\lib\net40\GMap.NET.Core.dll</HintPath>
+      <HintPath>..\packages\GMap.NET.Presentation.1.7.1\lib\net40\GMap.NET.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GMap.NET.WindowsForms, Version=1.7.0.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
-      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.1\lib\net40\GMap.NET.WindowsForms.dll</HintPath>
+    <Reference Include="GMap.NET.WindowsPresentation, Version=1.7.0.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
+      <HintPath>..\packages\GMap.NET.Presentation.1.7.1\lib\net40\GMap.NET.WindowsPresentation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MjpegProcessor, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MJPEG-Decoder.1.2\lib\net35\MjpegProcessor.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
@@ -112,22 +116,6 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="Vlc.DotNet.Core, Version=2.1.62.0, Culture=neutral, PublicKeyToken=84529da31f4eb963, processorArchitecture=x86">
-      <HintPath>..\packages\Vlc.DotNet.Core.2.1.62\lib\net45\x86\Vlc.DotNet.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Vlc.DotNet.Core.Interops, Version=2.1.62.0, Culture=neutral, PublicKeyToken=84529da31f4eb963, processorArchitecture=x86">
-      <HintPath>..\packages\Vlc.DotNet.Core.Interops.2.1.62\lib\net45\x86\Vlc.DotNet.Core.Interops.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Vlc.DotNet.Forms, Version=2.1.62.0, Culture=neutral, PublicKeyToken=84529da31f4eb963, processorArchitecture=x86">
-      <HintPath>..\packages\Vlc.DotNet.Forms.2.1.62\lib\net45\x86\Vlc.DotNet.Forms.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Vlc.DotNet.Wpf, Version=2.1.62.0, Culture=neutral, PublicKeyToken=84529da31f4eb963, processorArchitecture=x86">
-      <HintPath>..\packages\Vlc.DotNet.Wpf.2.1.62\lib\net45\x86\Vlc.DotNet.Wpf.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -137,6 +125,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Windows\NavWindow.xaml.cs">
+      <DependentUpon>NavWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\DrillConfig.xaml.cs">
+      <DependentUpon>DrillConfig.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\VideoConfig.xaml.cs">
+      <DependentUpon>VideoConfig.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ArmConfig.xaml.cs">
       <DependentUpon>ArmConfig.xaml</DependentUpon>
     </Compile>
@@ -155,6 +152,18 @@
     <Compile Include="Windows\MainScreen.xaml.cs">
       <DependentUpon>MainScreen.xaml</DependentUpon>
     </Compile>
+    <Page Include="Windows\NavWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\DrillConfig.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\VideoConfig.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\ArmConfig.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

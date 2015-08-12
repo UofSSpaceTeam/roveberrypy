@@ -67,7 +67,7 @@
 		<ProgressBar x:Name="RightYResult" Grid.Column="4" HorizontalAlignment="Center" Height="15" Grid.Row="5" VerticalAlignment="Center" Width="70" Maximum="1" Minimum="-1"/>
 		<ProgressBar x:Name="LeftTriggerResult" Grid.Column="4" HorizontalAlignment="Center" Height="15" Grid.Row="6" VerticalAlignment="Center" Width="70" Maximum="1"/>
 		<ProgressBar x:Name="RightTriggerResult" Grid.Column="4" HorizontalAlignment="Center" Height="15" Grid.Row="7" VerticalAlignment="Center" Width="70" Maximum="1"/>
-		<Image x:Name="ControllerIcon" HorizontalAlignment="Left" Height="30" VerticalAlignment="Center" Width="30" Grid.Column="4" Source="Resources/controller1.png"/>
+		<Image x:Name="ControllerIcon" HorizontalAlignment="Left" Height="30" VerticalAlignment="Center" Width="30" Grid.Column="4" Source="../Resources/controller1.png"/>
 		<Button x:Name="Done" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="5" Width="75" Height="25" Content="Done" Click="Close"/>
 	</Grid>
 </Window>

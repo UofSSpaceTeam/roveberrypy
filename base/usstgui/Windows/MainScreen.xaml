@@ -30,10 +30,10 @@
         <Button x:Name="OptionsController1" Content="Controller 1" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="2" VerticalAlignment="Center" Width="120" Click="OpenWindow"/>
 		<Button x:Name="OptionsController2" Content="Controller 2" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="3" VerticalAlignment="Center" Width="120" Click="OpenWindow"/>
 		<Button x:Name="ArmConfig" Content="Arm" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="4" VerticalAlignment="Center" Width="120" Click="OpenWindow"/>
-        <Button x:Name="DrillConfigLink" Content="Drill" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="5" VerticalAlignment="Center" Width="120" Click="OpenWindow"/>
+        <Button x:Name="DrillConfig" Content="Drill" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="5" VerticalAlignment="Center" Width="120" Click="OpenWindow"/>
         <Button x:Name="GPSConfigLink" Content="GPS and Sensors" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="6" VerticalAlignment="Center" Width="120" Click="OpenWindow"/>
-        <Button x:Name="MapsConfigLink" Content="Maps" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="7" VerticalAlignment="Center" Width="120" Click="OpenWindow"/>
-        <Button x:Name="VideoConfigLink" Content="Video" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="8" VerticalAlignment="Center" Width="120" Click="OpenWindow"/>
+        <Button x:Name="NavWindow" Content="Maps" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="7" VerticalAlignment="Center" Width="120" Click="OpenWindow"/>
+        <Button x:Name="VideoConfig" Content="Video" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="8" VerticalAlignment="Center" Width="120" Click="OpenWindow"/>
 		<Button x:Name="KillConfirmation" Content="Exit Application" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Height="25" Grid.Row="10" VerticalAlignment="Center" Width="120" Click="OpenWindow"/>
         <Label x:Name="RoverStatus" Content="OK" Grid.Column="1" HorizontalAlignment="Center" Height="25" Grid.Row="0" VerticalAlignment="Center"/>
         <Label x:Name="BaseStatus" Content="OK" Grid.Column="1" HorizontalAlignment="Center" Height="25" Grid.Row="1" VerticalAlignment="Center"/>
