@@ -42,16 +42,9 @@ class GPS(RoverProcess):
 		RoverProcess.messageTrigger(self, message)
                 #TODO: more descriptive error handling
 		if "gps_PosReq" in message:
-                    try:
-                        self.getPos()
-                    except:
-                        print "Error getting position"
+                    self.getPos()
                 elif "gps_BaselineReq" in message:
-                    try:
-                        # self.getBaseline()
-                        pass
-                    except:
-                        print "Error getting baseline"
+                    self.getBaseline()
 
 	def cleanup(self):
                 try:
@@ -67,11 +60,14 @@ class GPS(RoverProcess):
 
             SBP_MSG_POS_LLH object is sent under the key "gps_Location"
             '''
-            p = MsgPosLLH(self.handler.wait(msg_type=SBP_MSG_POS_LLH, timeout=timeout))
-            if not p == None:
-                # print "%.6f,%.6f,%.6f,%i" % (p.lat, p.lon, p.height, p.flags)
-                self.setShared("gps_Location", p)
-                return p
+            try:
+                p = MsgPosLLH(self.handler.wait(msg_type=SBP_MSG_POS_LLH, timeout=timeout))
+                if not p == None:
+                    print "%.6f,%.6f,%.6f,%i" % (p.lat, p.lon, p.height, p.flags)
+                    self.setShared("gps_Location", p)
+                    return p
+            except Exception:
+                print("Could not get gps position")
 
         def getBaseline(self, timeout=5.0):
             ''' Get relative baseline position in NED coordinates
@@ -79,11 +75,15 @@ class GPS(RoverProcess):
 
             SBP_MSG_BASELINE_NED object is sent under the key "gps_Baseline"
             '''
-            b = MsgBaselineNED(self.handler.wait(msg_type=SBP_MSG_BASELINE_NED, timeout=timeout))
-            if not b == None:
-                # print "%.4f, %.4f, %.4f, %i" % (b.n, b.e, b.d, b.flags)
-                self.setShared("gps_Baseline", b)
-                return b
+
+            try:
+                b = MsgBaselineNED(self.handler.wait(msg_type=SBP_MSG_BASELINE_NED, timeout=timeout))
+                if not b == None:
+                    # print "%.4f, %.4f, %.4f, %i" % (b.n, b.e, b.d, b.flags)
+                    self.setShared("gps_Baseline", b)
+                    return b
+            except Exception:
+                print("Could not get baseline position")
 
         def setBaseLocation(self, p):
             ''' Set the location of a surveyed base location
