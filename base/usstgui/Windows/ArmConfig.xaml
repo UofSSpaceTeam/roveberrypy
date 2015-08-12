@@ -7,13 +7,13 @@
         mc:Ignorable="d"
         Title="ArmConfig" Height="500" Width="500">
     <Grid>
-        <TextBox x:Name="ArmXVal" HorizontalAlignment="Left" Height="23" Margin="63,38,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="ArmYVal" HorizontalAlignment="Left" Height="23" Margin="69,107,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="ArmWristVal" HorizontalAlignment="Left" Height="23" Margin="82,169,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="IK_XVal" HorizontalAlignment="Left" Height="23" Margin="63,38,0,0" TextWrapping="Wrap" Text="300" VerticalAlignment="Top" Width="120" TextChanged="textBoxChanged" MouseWheel="textBoxWheel" KeyDown="textBoxKeyDown"/>
+        <TextBox x:Name="IK_YVal" HorizontalAlignment="Left" Height="23" Margin="69,107,0,0" TextWrapping="Wrap" Text="300" VerticalAlignment="Top" Width="120" TextChanged="textBoxChanged" MouseWheel="textBoxWheel" KeyDown="textBoxKeyDown"/>
+        <TextBox x:Name="IK_WristVal" HorizontalAlignment="Left" Height="23" Margin="91,168,0,0" TextWrapping="Wrap" Text="50" VerticalAlignment="Top" Width="120" TextChanged="textBoxChanged" MouseWheel="textBoxWheel" KeyDown="textBoxKeyDown"/>
         <Label x:Name="ArmXLbl" Content="X Pos:" HorizontalAlignment="Left" Margin="10,34,0,0" VerticalAlignment="Top"/>
         <Label x:Name="ArmYLbl" Content="Y Pos:" HorizontalAlignment="Left" Margin="10,107,0,0" VerticalAlignment="Top" />
         <Label x:Name="ArmWristLbl" Content="Wrist Pos:" HorizontalAlignment="Left" Margin="10,165,0,0" VerticalAlignment="Top"/>
-        <Slider x:Name="ArmBaseCtl" ValueChanged="slider_ValueChanged" Margin="91,197,306,247" Value="5">
+        <Slider x:Name="ArmBaseCtl" ValueChanged="sliderChanged" Margin="91,197,306,247" Value="5">
             <Slider.Triggers>
                 <EventTrigger SourceName="ArmBaseCtl" RoutedEvent="Thumb.DragCompleted">
                     <BeginStoryboard>
@@ -26,17 +26,17 @@
         </Slider>
         <Label x:Name="ArmBaseLbl" Content="Base Speed:" HorizontalAlignment="Left" Margin="19,196,0,0" VerticalAlignment="Top"/>
         <Image x:Name="ArmHelperImg" HorizontalAlignment="Left" Height="225" Margin="232,10,0,0" VerticalAlignment="Top" Width="250" Source="../Resources/ArmHelper.png"/>
-        <Button x:Name="GrpOpenBtn" Content="Open" HorizontalAlignment="Left" Margin="111,272,0,0" VerticalAlignment="Top" Width="75"/>
-        <Button x:Name="GrpCloseBtn" Content="Close" HorizontalAlignment="Left" Margin="111,297,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="GrpOpen" Content="Open" HorizontalAlignment="Left" Margin="111,272,0,0" VerticalAlignment="Top" Width="75" MouseLeftButtonDown="buttonTouch" MouseLeftButtonUp="buttonTouch" ClickMode="Hover"/>
+        <Button x:Name="GrpClose" Content="Close" HorizontalAlignment="Left" Margin="111,297,0,0" VerticalAlignment="Top" Width="75" MouseLeftButtonDown="buttonTouch" MouseLeftButtonUp="buttonTouch" ClickMode="Hover"/>
         <Label x:Name="GripperLbl" Content="Gripper" HorizontalAlignment="Left" Margin="42,279,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="WristCwLbl" Content="Clockwise" HorizontalAlignment="Left" Margin="317,297,0,0" VerticalAlignment="Top" Width="75"/>
-        <Button x:Name="WristCcwLbl" Content="Counter-CW" HorizontalAlignment="Left" Margin="317,267,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="WristCw" Content="Clockwise" HorizontalAlignment="Left" Margin="317,297,0,0" VerticalAlignment="Top" Width="75" MouseLeftButtonDown="buttonTouch" MouseLeftButtonUp="buttonTouch" ClickMode="Hover"/>
+        <Button x:Name="WristCcw" Content="Counter-CW" HorizontalAlignment="Left" Margin="317,267,0,0" VerticalAlignment="Top" Width="75" MouseLeftButtonDown="buttonTouch" MouseLeftButtonUp="buttonTouch" ClickMode="Hover"/>
         <Label x:Name="label" Content="Wrist" HorizontalAlignment="Left" Margin="259,279,0,0" VerticalAlignment="Top"/>
-        <ProgressBar x:Name="ArmXStat" HorizontalAlignment="Left" Height="10" Margin="91,66,0,0" VerticalAlignment="Top" Width="100"/>
-        <ProgressBar x:Name="ArmYStat" HorizontalAlignment="Left" Height="10" Margin="91,135,0,0" VerticalAlignment="Top" Width="100"/>
-        <Label x:Name="ArmXMaxLbl" Content="??/??" HorizontalAlignment="Left" Margin="42,65,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="ArmYMaxLbl" Content="??/??" HorizontalAlignment="Left" Margin="42,133,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="Warning" Content="THIS FORM IS A MESS PLEASE CLEAN :)" HorizontalAlignment="Left" Margin="91,413,0,0" VerticalAlignment="Top" Height="30" Width="281" FontWeight="Bold" FontSize="14.667"/>
+        <ProgressBar x:Name="ArmXStat" HorizontalAlignment="Left" Height="10" Margin="91,82,0,0" VerticalAlignment="Top" Width="100" LargeChange="0.1" Maximum="1"/>
+        <ProgressBar x:Name="ArmYStat" HorizontalAlignment="Left" Height="10" Margin="91,149,0,0" VerticalAlignment="Top" Width="100" LargeChange="0.1" Maximum="1"/>
+        <Label x:Name="ArmXMaxLbl" Content="??/??" HorizontalAlignment="Left" Margin="19,66,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.25,0.654"/>
+        <Label x:Name="ArmYMaxLbl" Content="??/??" HorizontalAlignment="Left" Margin="19,133,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="Warning" Content="THIS FORM IS A MESS PLEASE ORGANIZE :)" HorizontalAlignment="Left" Margin="91,413,0,0" VerticalAlignment="Top" Height="30" Width="327" FontWeight="Bold" FontSize="14.667"/>
 
     </Grid>
 </Window>

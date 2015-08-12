@@ -51,6 +51,7 @@ namespace usstgui
             }
             catch (Exception ex)
             {
+                Debug.WriteLine(ex);
 			}
         }
 

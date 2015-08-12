@@ -30,11 +30,12 @@ namespace usstgui
             if (!PingNetwork("pingtest.com"))
             {
                 MainMap.Manager.Mode = AccessMode.CacheOnly;
-                MessageBox.Show("No internet connection available, going to CacheOnly mode.", "GMap.NET - Demo.WindowsPresentation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("No internet connection available, going to CacheOnly mode.");
             }
 
             MainMap.MapProvider = GMapProviders.OpenStreetMap;
-            MainMap.Position = new PointLatLng(52.13225, -106.62914);
+            MainMap.Position = new PointLatLng(50.797517, 20.459734);
+
         }
 
         //Kinda dumb helper to check if connected.. could be better?

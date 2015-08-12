@@ -23,12 +23,28 @@ namespace usstgui
 			StateManager.addObserver("exampleTime", downlink);
 
 			downlink = new StateQueue();
-			jsonTask = new JsonClientTask(
-				downlink, 34568, 34567, "192.168.1.103", 150);
+			jsonTask = new JsonClientTask(downlink, 34568, 34567, "192.168.1.103", 150);
+            // Joystick 1 (Drive) Messages
             StateManager.addObserver("inputOneLeftY", downlink);
             StateManager.addObserver("inputOneRightY", downlink);
+
+            // Joytstick 2 (Arm) Messages
             StateManager.addObserver("inputTwoLeftY", downlink);
             StateManager.addObserver("inputTwoRightY", downlink);
+
+            // Arm Inverse-Kinematics Controls
+            StateManager.addObserver("armBaseSlider", downlink);
+            StateManager.addObserver("IK_XVal", downlink);
+            StateManager.addObserver("IK_YVal", downlink);
+            StateManager.addObserver("IK_WristVal", downlink);
+            StateManager.addObserver("armWristCw",downlink);
+            StateManager.addObserver("armWristCcw", downlink);
+            StateManager.addObserver("armGrpClose", downlink);
+            StateManager.addObserver("armGrpOpen", downlink);
+
+            // Drill Controls
+
+
 
             downlink = new StateQueue();
 			controllerTask = new ControllerTask(downlink);
