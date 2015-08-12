@@ -23,5 +23,29 @@ namespace usstgui
         {
             InitializeComponent();
         }
+
+        private void drillCw(object sender, RoutedEventArgs e)
+        {
+            StateManager.setShared("drillCw", true.ToString());
+            StateManager.setShared("drillCcw", false.ToString());
+        }
+
+        private void drillCcw(object sender, RoutedEventArgs e)
+        {
+            StateManager.setShared("drillCw", false.ToString());
+            StateManager.setShared("drillCcw", true.ToString());
+        }
+
+        private void buttonTouch(object sender, MouseButtonEventArgs e)
+        {
+            Button pressed = (Button)sender;
+            StateManager.setShared(pressed.Name, (e.ButtonState == MouseButtonState.Pressed).ToString());
+        }
+
+        private void sliderChanged(object sender,RoutedPropertyChangedEventArgs<double> e)
+        {
+            Slider slider = (Slider)sender;
+            StateManager.setShared(slider.Name, slider.Value);
+        }
     }
 }

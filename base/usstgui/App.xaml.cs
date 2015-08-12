@@ -43,6 +43,12 @@ namespace usstgui
             StateManager.addObserver("armGrpOpen", downlink);
 
             // Drill Controls
+            StateManager.addObserver("DrillFeed", downlink);
+            StateManager.addObserver("DrillSpeed", downlink);
+            StateManager.addObserver("DrillUp", downlink);
+            StateManager.addObserver("DrillDn", downlink);
+            StateManager.addObserver("DrillCw", downlink);
+            StateManager.addObserver("DrillCcw", downlink);
 
 
 

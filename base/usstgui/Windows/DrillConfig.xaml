@@ -7,12 +7,12 @@
         mc:Ignorable="d"
         Title="DrillConfig" Height="300" Width="300">
     <Grid>
-        <Button x:Name="DrillUpBtn" Content="Drill Up" HorizontalAlignment="Left" Margin="29,38,0,0" VerticalAlignment="Top" Width="75"/>
-        <Button x:Name="DrillDnBtn" Content="Drill Down" HorizontalAlignment="Left" Margin="29,73,0,0" VerticalAlignment="Top" Width="75"/>
-        <RadioButton x:Name="DrilCwBtn" Style="{StaticResource {x:Type ToggleButton}}" Content="Clockwise" HorizontalAlignment="Left" Margin="189,38,0,0" VerticalAlignment="Top" Width="75" GroupName="Feed"/>
-        <RadioButton x:Name="DrillCcwBtn" Style="{StaticResource {x:Type ToggleButton}}" Content="Counter-CW" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="189,73,0,0" GroupName="Feed"/>
-        <Slider x:Name="DrillFeed" HorizontalAlignment="Left" Margin="56,110,0,0" VerticalAlignment="Top" Width="27" Orientation="Vertical" Height="119"/>
-        <Slider x:Name="DrillSpeed" HorizontalAlignment="Left" Margin="209,110,0,0" VerticalAlignment="Top" Width="27" Orientation="Vertical" Height="119"/>
+        <Button x:Name="DrillUp" Content="Drill Up" HorizontalAlignment="Left" Margin="29,38,0,0" VerticalAlignment="Top" Width="75" MouseLeftButtonDown="buttonTouch" MouseLeftButtonUp="buttonTouch" ClickMode="Hover"/>
+        <Button x:Name="DrillDn" Content="Drill Down" HorizontalAlignment="Left" Margin="29,73,0,0" VerticalAlignment="Top" Width="75" MouseLeftButtonDown="buttonTouch" MouseLeftButtonUp="buttonTouch" ClickMode="Hover"/>
+        <RadioButton x:Name="DrilCw" Style="{StaticResource {x:Type ToggleButton}}" Content="Clockwise" HorizontalAlignment="Left" Margin="189,38,0,0" VerticalAlignment="Top" Width="75" GroupName="Feed" Click="drillCw"/>
+        <RadioButton x:Name="DrillCcw" Style="{StaticResource {x:Type ToggleButton}}" Content="Counter-CW" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="189,73,0,0" GroupName="Feed" Click="drillCcw"/>
+        <Slider x:Name="DrillFeed" HorizontalAlignment="Left" Margin="56,110,0,0" VerticalAlignment="Top" Width="27" Orientation="Vertical" Height="119" ValueChanged="sliderChanged"/>
+        <Slider x:Name="DrillSpeed" HorizontalAlignment="Left" Margin="209,110,0,0" VerticalAlignment="Top" Width="27" Orientation="Vertical" Height="119" ValueChanged="sliderChanged"/>
         <Label x:Name="DrillFeedLbl" Content="Drill Feed" HorizontalAlignment="Left" Margin="29,234,0,0" VerticalAlignment="Top"/>
         <Label x:Name="DrillSpeedLbk" Content="Drill Speed" HorizontalAlignment="Left" Margin="189,234,0,0" VerticalAlignment="Top"/>
 
