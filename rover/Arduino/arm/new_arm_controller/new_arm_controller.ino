@@ -69,27 +69,13 @@
 #define CMD_TRAILER 0xF8
 #define I2C_ADDRESS 0x08
 
-unsigned long timer;
-volatile command cmd;
-byte* cmdPointer = (byte*)(&cmd);
-volatile byte cmdCount = 0;
-volatile bool newCommand = false;
-
-
 float prev_radius;
 float prev_alt;
 
 
-enum command_type
-{
-	SET_SPEEDS,
-	SET_POSITION
-};
-
 typedef struct
 {
 	byte header;
-	byte type;
 	short d1;
 	short d2;
 	short d3;
@@ -97,13 +83,28 @@ typedef struct
 	short d5;
 	short d6;
 	short d7;
-  short d8;
-  short d9;
+        short d8;
+        short d9;
 	byte csum;
 	byte trailer;
 } command;
 
+unsigned long timer;
+volatile command cmd;
+byte* cmdPointer = (byte*)(&cmd);
+volatile int cmdCount = 0;
+volatile bool newCommand = false;
+
+void printCommand()
+{
+	char buf[32];
+	sprintf(buf, "(%i, %i, %i, %i, %i, %i, %i, %i, %i)", \
+		cmd.d1, cmd.d2, cmd.d3, cmd.d4, cmd.d5, cmd.d6, cmd.d7, cmd.d8, cmd.d9);
+	Serial.println(buf);
+}
+
 void processCommand(){
+  printCommand();
   int   L1_speed, L2_speed, L3_speed, G1_speed, G2_speed, BASE_speed;
   float arm_radius, arm_alt, arm_phi;
   L1_speed    = cmd.d1;
@@ -143,13 +144,15 @@ void receiveEvent(int count)
 		{
 			if(in == CMD_HEADER)
 			{
+                                //Serial.println("got header");
 				cmdPointer[cmdCount] = in;
 				cmdCount++;
 			}
-			continue;
+			//continue;
 		}
 		if(cmdCount < sizeof(command)) // add middle bytes
 		{
+                        //Serial.println(cmdCount);
 			cmdPointer[cmdCount] = in;
 			cmdCount++;
 		}
@@ -157,10 +160,12 @@ void receiveEvent(int count)
 		{
 			if(in == CMD_TRAILER)
 			{
-				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4
-					+ cmd.d5 + cmd.d6 + cmd.d7 + cmd.d8 + cmd.d9;
+                                //Serial.println("trailer receive");
+				byte csum = (cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4
+					+ cmd.d5 + cmd.d6 + cmd.d7 + cmd.d8 + cmd.d9) % 256;
+                                //Serial.println(csum);
 				if(csum == cmd.csum) {
-                                        //Serial.println("csum");
+
 					newCommand = true;
                                 } 
 			}
@@ -424,7 +429,7 @@ VNH5019 L2(L2_A, L2_B, L2_PWM, L2_WIPER);
 VNH5019 L3(L3_A, L3_B, L3_PWM, L3_WIPER);
 VNH5019 G1(G1_A, G1_B, G1_PWM);
 VNH5019 G2(G1_A, G1_B);
-VNH5019 BASE(BAS_A, BASE_B);
+VNH5019 BASE(BASE_A, BASE_B);
 
 VNH5019* la[3] = {&L1, &L2, &L3};
 VNH5019* gr[3] = {&G1, &G2};
@@ -627,7 +632,7 @@ void directControl(int L1, int L2, int L3, int G1, int G2, int BASE_){
   // check for safe positions
   la[0]->isSafe();
   la[1]->isSafe();
-  la[2]->isSage();
+  la[2]->isSafe();
 }
 
 
@@ -645,7 +650,7 @@ void executeNewCommand(int type) {
 }
 
 void setup() {
-  Serial.begin(57600);
+  Serial.begin(9600);
   
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(receiveEvent);
