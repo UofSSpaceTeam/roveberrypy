@@ -1,4 +1,13 @@
 ﻿{
+	"commsHeartbeat": false,
+	"driveHeartbeat": false,
+	"armHeartbeat": false,
+	"drillHeartbeat": false,
+	"gpsHeartbeat": false,
+	"lidarHeartbeat": false,
+	"controller1Heartbeat": false,
+	"controller2Heartbeat": false,
+	
 	"inputOneLeftX": 0.0,
 	"inputOneRightX": 0.0,
 	"inputOneLeftY": 0.0,

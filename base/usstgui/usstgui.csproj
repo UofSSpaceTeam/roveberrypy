@@ -222,14 +222,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\controller1.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Resource Include="Resources\controller1.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\controller2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Resource Include="Resources\controller2.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\armHelper.png" />

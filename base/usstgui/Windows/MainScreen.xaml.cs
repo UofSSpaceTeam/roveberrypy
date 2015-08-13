@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -16,20 +16,18 @@ using System.Windows.Shapes;
 
 namespace usstgui
 {
-    /// <summary>
-    /// Interaction logic for Window1.xaml
-    /// </summary>
     public partial class MainScreen : Window
     {
         public MainScreen()
         {
             InitializeComponent();
+			new Thread(new ThreadStart(HeartbeatMonitor)).Start();
         }
 
 		protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
 		{
 			e.Cancel = true;
-			OpenWindow(KillConfirmation, null);
+			new KillConfirmation().Show();
 		}
 
 		private void OpenWindow(object sender, RoutedEventArgs e)
@@ -44,9 +42,31 @@ namespace usstgui
 			}
 		}
 
-        private void KillAll(object sender, RoutedEventArgs e)
-        {
-            Environment.Exit(0);
-        }
+		private void HeartbeatMonitor()
+		{
+			Color alive = Colors.AliceBlue;
+			Color dead = Colors.Coral;
+			while(true)
+			{
+				processHeartbeat("commsHeartbeat", CommsStatus, alive, dead);
+				processHeartbeat("driveHeartbeat", DriveStatus, alive, dead);
+				processHeartbeat("armHeartbeat", ArmStatus, alive, dead);
+				processHeartbeat("drillHeartbeat", DrillStatus, alive, dead);
+				processHeartbeat("gpsHeartbeat", GpsStatus, alive, dead);
+				processHeartbeat("lidarHeartbeat", LidarStatus, alive, dead);
+				processHeartbeat("controller1Heartbeat", Controller1Status, alive, dead);
+				processHeartbeat("controller2Heartbeat", Controller2Status, alive, dead);
+				Thread.Sleep(2000);
+			}
+		}
+
+		private void processHeartbeat(string key, Button button, Color alive, Color dead)
+		{
+			if(StateManager.getShared(key) == true)
+				this.Dispatcher.Invoke((Action)(() => { button.Background = new SolidColorBrush(alive); }));
+			else
+				this.Dispatcher.Invoke((Action)(() => { button.Background = new SolidColorBrush(dead); }));
+			StateManager.setShared(key, false);
+		}
     }
 }

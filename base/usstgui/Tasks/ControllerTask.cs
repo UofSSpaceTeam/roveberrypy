@@ -24,7 +24,7 @@ namespace usstgui
 		{
 			while (true)
 			{
-				Thread.Sleep(10);
+				Thread.Sleep(50);
 				if (controller1.IsConnected)
 				{
 					input = controller1.GetState().Gamepad;
@@ -38,6 +38,7 @@ namespace usstgui
 					processButton("inputOneBButton", GamepadButtonFlags.B);
 					processButton("inputOneXButton", GamepadButtonFlags.X);
 					processButton("inputOneYButton", GamepadButtonFlags.Y);
+					StateManager.setShared("controller1Heartbeat", true);
                 }
                 else
                     setDefaultValues("inputOne");
@@ -55,6 +56,7 @@ namespace usstgui
                     processButton("inputTwoBButton", GamepadButtonFlags.B);
                     processButton("inputTwoXButton", GamepadButtonFlags.X);
                     processButton("inputTwoYButton", GamepadButtonFlags.Y);
+					StateManager.setShared("controller2Heartbeat", true);
                 }
                 else
                     setDefaultValues("inputTwo");

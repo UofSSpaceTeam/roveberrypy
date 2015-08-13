@@ -33,7 +33,11 @@ namespace usstgui
 
         private void KillApplication(object sender, RoutedEventArgs e)
         {
-            Environment.Exit(0);
+			try
+			{
+				Environment.Exit(0);
+			}
+			catch(Exception ex){}
         }
     }
 }
