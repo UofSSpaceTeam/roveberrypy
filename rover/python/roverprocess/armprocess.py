@@ -26,57 +26,60 @@ class ArmProcess(RoverProcess):
 		self.i2cSem = args["sem"]
 		self.joyAxes = [0.0, 0.0]
 		self.update = False
-                self.position = None
-                self.throttle = 0.5
-                self.command = Command()
+		self.position = None
+		self.throttle = 0.5
+		self.command = Command()
 
 	def loop(self):
-                if self.update:
-                    self.sendCommand(self.command)
-                    self.update = False
+		if self.update:
+			print "armcommand"
+			self.sendCommand(self.command)
+			self.update = False
 		time.sleep(0.01)
+		#print "armloop"
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
-                if "inputTwoLeftY" in message:
-                        self.command.d2 = message["inputTwoLeftY"]
-                        self.update = True
+		if "inputTwoLeftY" in message:
+			print "arm got message"
+			self.command.d2 = int(message["inputTwoLeftY"]*255)
+			self.update = True
 
-                if "inputTwoRightY" in message:
-                        self.command.d1 = message["inputTwoRightY"]
-                        self.update = True
+		if "inputTwoRightY" in message:
+			self.command.d1 = int(message["inputTwoRightY"]*255)
+			self.update = True
 
-                if "inputTwoLeftX" in message:
-                        self.command.d6 = message["inputTwoLeftX"]
-                        self.update = True
+		if "inputTwoLeftX" in message:
+			self.command.d6 = int(message["inputTwoLeftX"]*255)
+			self.update = True
 
 		if "armBaseSlider" in message:
-                        self.command.d6 = message["armBaseSlider"]
-                        self.update = True
+			self.command.d6 = int(message["armBaseSlider"]*255)
+			self.update = True
 
 		if "IK_XVal" in message:
-                        self.command.d7 = message["IK_XVal"]
-                        self.update = True
+			self.command.d7 = int(message["IK_XVal"]*10)
+			self.update = True
 
-                if "IK_YVal" in message:
-                        self.command.d8 = message["IK_YVal"]
-                        self.update = True
+		if "IK_YVal" in message:
+			self.command.d8 = int(message["IK_YVal"]*10)
+			self.update = True
 
-                if "IK_WristVal" in message:
-                        self.command.d9 = message["IK_WristVal"]
-                        self.update = True
+		if "IK_WristVal" in message:
+			self.command.d9 = int(message["IK_WristVal"]*10)
+			self.update = True
 
-                if "armWristCw" in message:
-                        self.update = True
+		if "armWristCw" in message:
+			self.update = True
 
-                if "armWristCcw" in message:
-                        self.update = True
+		if "armWristCcw" in message:
+			self.update = True
 
-                if "armGrpClose" in message:
-                        self.update = True
+		if "armGrpClose" in message:
+			self.update = True
 
-                if "armGrpOpen" in message:
-                        self.update = True
+		if "armGrpOpen" in message:
+			self.update = True
 
 
 
@@ -90,6 +93,8 @@ class ArmProcess(RoverProcess):
 	def sendCommand(self, command):
 		command.csum = ((command.d1 + command.d2 + command.d3 +
 			command.d4 + command.d5 + command.d6 + command.d7 + command.d8 + command.d9) % 256)
+			
+		print "arm", command.d1, command.d2, command.d7
 		try:
 			self.i2cSem.acquire(block=True, timeout=None)
 			self.i2c.write_byte(self.i2cAddress, command.header)

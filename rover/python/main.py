@@ -9,7 +9,7 @@ from roverprocess.jsonserver import JsonServer
 from roverprocess.exampleprocess import ExampleProcess
 from roverprocess.gps import GPS
 from roverprocess.driveprocess import DriveProcess
-# from roverprocess.armprocess import ArmProcess
+from roverprocess.armprocess import ArmProcess
 # from roverprocess.compass import Compass
 from roverprocess.drillprocess import  DrillProcess
 
@@ -54,13 +54,24 @@ if __name__ == "__main__":
 	
 
 	# arm process
-	# process = ArmProcess(
-	# 	downlink = system.getDownlink(), uplink = system.getUplink(),
-	# 	sem = i2cSem)
-	# system.addObserver("armAbsolute", process.downlink)
-	# system.addObserver("armDirect", process.downlink)
-	# system.addObserver("armThrottle", process.downlink)
-	# processes.append(process)
+	process = ArmProcess(
+		downlink = system.getDownlink(), uplink = system.getUplink(),
+		sem = i2cSem)
+	system.addObserver("inputTwoLeftY", process.downlink);
+	system.addObserver("inputTwoLeftX", process.downlink);
+	system.addObserver("inputTwoRightY", process.downlink);
+	system.addObserver("inputTwoRightX", process.downlink);
+	system.addObserver("armBaseSlider", process.downlink)
+	system.addObserver("IK_XVal", process.downlink);
+	system.addObserver("IK_YVal",  process.downlink);
+	system.addObserver("IK_WristVal",  process.downlink);
+	system.addObserver("armWristCw", process.downlink);
+	system.addObserver("armWristCcw",  process.downlink);
+	system.addObserver("armGrpClose",  process.downlink);
+	system.addObserver("armGrpOpen",  process.downlink);
+
+	
+	processes.append(process)
 
 	# compass
 	# process = Compass(
