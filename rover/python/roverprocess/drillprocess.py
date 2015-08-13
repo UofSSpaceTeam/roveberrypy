@@ -22,52 +22,49 @@ class DrillProcess(RoverProcess):
 		self.i2c = smbus.SMBus(1)
 		self.i2cAddress = 0x09
 		self.i2cSem = args["sem"]
-                self.drillSpeed = 0.3
-                self.elevSpeed = 0.3
-                self.drillDir = 0
-                self.elevDir = 0
+		self.drillSpeed = 0.3
+		self.elevSpeed = 0.3
+		self.drillDir = 0
+		self.elevDir = 0
+		self.drillCw = False
+		self.drillCcw = False
+		self.drillDirChange = False
 
 	def loop(self):
-                self.setDrill()
-		time.sleep(0.01)
+		self.setDrill()
+		time.sleep(0.05)
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
-		if "drillspd" in message:
-                        self.drillSpeed = float(message["drillspd"])
-		if "elevspd" in message:
-                        self.elevSpeed = float(message["elevspd"])
-                if "drill" in message:
-                        self.drillDir = int(data["drill"])
-                if "elev" in message:
-                        self.elevDir = int(data["elev"])
-
-
-
-
-	def cleanup(self):
-		RoverProcess.cleanup(self)
-		# your cleanup code here. e.g. stopAllMotors()
+		if "DrillSpeed" in message:
+			self.drillSpeed = float(message["DrillSpeed"])
+		if "DrillFeed" in message:
+			self.elevSpeed = float(message["DrillFeed"])
+		if "DrillUp" in message:
+			self.elevDir = int(message["DrillUp"] == "True")
+		if "DrillDn" in message:
+			self.elevDir = -1*int(message["DrillDn"] == "True")
+		if "DrillCw" in message:
+			self.drillCw = (message["DrillCw"] == "True")
+		if "DrillCcw" in message:
+			self.drillCcw = (message["DrillCcw"] == "True")
 
 	# additional functions go here
-        def setDrill(self):
-            command = Command()
-            command.type = CommandType.setSpeed
-            command.d1 = int(self.drillSpeed * self.drillDir * 255)
-            command.d2 = int(self.elevSpeed * self.elevDir * 255)
-            print "drive", command.d1, command.d2
-            self.sendCommand(command)
-
-	def setSpeed(self, speeds):
+	def setDrill(self):
 		command = Command()
-		command.type = CommandType.setSpeed
-		command.d1 = int(speeds[0]*255) # base rotation
-		command.d2 = int(speeds[1]*255) # actuator 1
-		command.d3 = int(speeds[2]*255) # actuator 2
-		command.d4 = int(speeds[3]*50) # actuator 3
-		command.d5 = int(speeds[4]*255) # hand open
-		command.d6 = int(speeds[5]*190) # hand rotate
-		command.d7 = int(self.throttle * 255)
+		command.type = CommandType.SetSpeed
+		
+		if(self.drillCw and not self.drillCcw):
+			self.drillDir = -1
+		elif(self.drillCcw and not self.drillCw):
+			self.drillDir = 1
+		else:
+			self.drillDir = 0
+				
+		
+		command.d1 = int(self.drillSpeed * self.drillDir * 255)
+		command.d2 = int(self.elevSpeed * self.elevDir * 255)
+		print "drill", command.d1, command.d2
 		self.sendCommand(command)
 
 	def sendCommand(self, command):
@@ -86,3 +83,7 @@ class DrillProcess(RoverProcess):
 			print("Arm thread got IOError")
 		self.i2cSem.release()
 
+
+	def cleanup(self):
+		RoverProcess.cleanup(self)
+		# your cleanup code here. e.g. stopAllMotors()

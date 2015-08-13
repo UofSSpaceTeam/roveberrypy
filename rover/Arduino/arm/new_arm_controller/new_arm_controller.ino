@@ -69,22 +69,13 @@
 #define CMD_TRAILER 0xF8
 #define I2C_ADDRESS 0x08
 
-unsigned long timer;
-volatile command cmd;
-byte* cmdPointer = (byte*)(&cmd);
-volatile byte cmdCount = 0;
-volatile bool newCommand = false;
+float prev_radius;
+float prev_alt;
 
-enum command_type
-{
-	SET_SPEEDS,
-	SET_POSITION
-};
 
 typedef struct
 {
 	byte header;
-	byte type;
 	short d1;
 	short d2;
 	short d3;
@@ -92,48 +83,52 @@ typedef struct
 	short d5;
 	short d6;
 	short d7;
+        short d8;
+        short d9;
 	byte csum;
 	byte trailer;
 } command;
 
-void processCommand()
-{
-	switch(cmd.type)
-	{
-		case SET_SPEEDS:
-		speed[3] = cmd.d1; // base
-		speed[0] = cmd.d2; // LA1
-		speed[1] = cmd.d3; // LA2
-		speed[2] = cmd.d4; // LA3
-		gspin = constrain(cmd.d5, -191, 191);
-		gopen = constrain(cmd.d6, -255, 255);
-		throttle = constrain(cmd.d7, 0, 255);
-		//printCommand();
-		setSpeeds();
-		setGripper();
-		timer = millis();
-		break;
+unsigned long timer;
+volatile command cmd;
+byte* cmdPointer = (byte*)(&cmd);
+volatile int cmdCount = 0;
+volatile bool newCommand = false;
 
-		case SET_POSITION:
-		/*position[0] = map(cmd.d1, -1000, 1000, MIN_X, MAX_X);
-		position[1] = map(cmd.d2, -1000, 1000, MIN_Y, MAX_Y);
-		position[2] = map(cmd.d3, -1000, 1000, MIN_Z, MAX_Z);
-		position[3] = map(cmd.d4, -1000, 1000, MIN_PHI, MAX_PHI);*/
-		position[0] = cmd.d1;
-		position[1] = cmd.d2;
-		position[2] = cmd.d3;
-		position[3] = cmd.d4;
-		gspin = constrain(cmd.d5, -191, 191);//9 volts maximum
-		gopen = constrain(cmd.d6, -255, 255);
-		throttle = constrain(cmd.d7, 0, 255);
-        //printCommand();
-		doInverseKinematics();
-		setPosition();
-		setGripper();
-		timer = millis();
-		break;
-	}
-	newCommand = false;
+void printCommand()
+{
+	char buf[32];
+	sprintf(buf, "(%i, %i, %i, %i, %i, %i, %i, %i, %i)", \
+		cmd.d1, cmd.d2, cmd.d3, cmd.d4, cmd.d5, cmd.d6, cmd.d7, cmd.d8, cmd.d9);
+	Serial.println(buf);
+}
+
+void processCommand(){
+  printCommand();
+  int   L1_speed, L2_speed, L3_speed, G1_speed, G2_speed, BASE_speed;
+  float arm_radius, arm_alt, arm_phi;
+  L1_speed    = cmd.d1;
+  L2_speed    = cmd.d2;
+  L3_speed    = cmd.d3;
+  G1_speed    = cmd.d4;
+  G2_speed    = cmd.d5;
+  BASE_speed  = cmd.d6;
+  arm_radius  = float(cmd.d7)/10.0;
+  arm_alt     = float(cmd.d8)/10.0;
+  arm_phi     = float(cmd.d9)/10.0;
+  
+  if( abs(arm_radius - prev_radius) > 0.05 || abs(arm_alt - prev_alt) > 0.05 ){
+    newCommand = false;
+    prev_radius = arm_radius;
+    prev_alt = arm_alt;
+    
+    invKinCommand(arm_radius, arm_alt, arm_phi);
+    
+  } else {
+    directControl(L1_speed, L2_speed, L3_speed, G1_speed, G2_speed, BASE_speed);
+    newCommand = false;    
+  }
+  timer = millis();
 }
 
 void receiveEvent(int count)
@@ -149,13 +144,15 @@ void receiveEvent(int count)
 		{
 			if(in == CMD_HEADER)
 			{
+                                //Serial.println("got header");
 				cmdPointer[cmdCount] = in;
 				cmdCount++;
 			}
-			continue;
+			//continue;
 		}
 		if(cmdCount < sizeof(command)) // add middle bytes
 		{
+                        //Serial.println(cmdCount);
 			cmdPointer[cmdCount] = in;
 			cmdCount++;
 		}
@@ -163,10 +160,12 @@ void receiveEvent(int count)
 		{
 			if(in == CMD_TRAILER)
 			{
-				byte csum = cmd.type + cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4
-					+ cmd.d5 + cmd.d6 + cmd.d7;
+                                //Serial.println("trailer receive");
+				byte csum = (cmd.d1 + cmd.d2 + cmd.d3 + cmd.d4
+					+ cmd.d5 + cmd.d6 + cmd.d7 + cmd.d8 + cmd.d9) % 256;
+                                //Serial.println(csum);
 				if(csum == cmd.csum) {
-                                        //Serial.println("csum");
+
 					newCommand = true;
                                 } 
 			}
@@ -430,14 +429,11 @@ VNH5019 L2(L2_A, L2_B, L2_PWM, L2_WIPER);
 VNH5019 L3(L3_A, L3_B, L3_PWM, L3_WIPER);
 VNH5019 G1(G1_A, G1_B, G1_PWM);
 VNH5019 G2(G1_A, G1_B);
+VNH5019 BASE(BASE_A, BASE_B);
 
 VNH5019* la[3] = {&L1, &L2, &L3};
 VNH5019* gr[3] = {&G1, &G2};
 
-bool newCommand() {
-  // return true if new command has been given
-  return newCommad;
-}
 
 void invKinCommand(double r, double z, double phi) {
 
@@ -507,7 +503,7 @@ void invKinCommand(double r, double z, double phi) {
   prevReading[1] = 0;
   prevReading[2] = 0;
   int n = 0;
-  while (numberAtDestination < 3 && !newCommand()) {
+  while (numberAtDestination < 3 && !newCommand) {
     for (int idx = 0; idx < 3; idx++) {
       
       la[idx]->isSafe(); // make sure that position is okay
@@ -559,7 +555,87 @@ void invKinCommand(double r, double z, double phi) {
 
     }
   }
+  // make sure all LA's are turned off
+  la[0]->turn(OFF);
+  la[1]->turn(OFF);
+  la[2]->turn(OFF);
 }
+
+
+void directControl(int L1, int L2, int L3, int G1, int G2, int BASE_){
+  // L1
+  if(L1 != 0){
+    if(L1 > 0){
+      la[0]->turn(ON,EXTEND,L1);
+    } else {
+      la[0]->turn(ON,RETRACT,L1);
+    }
+  } else {
+    la[0]->turn(OFF);
+  }
+
+  // L2
+  if(L2 != 0){
+    if(L2 > 0){
+      la[1]->turn(ON,EXTEND,L2);
+    } else {
+      la[1]->turn(ON,RETRACT,L2);
+    }
+  } else {
+    la[1]->turn(OFF);
+  }
+
+  // L3
+  if(L3 != 0){
+    if(L3 > 0){
+      la[2]->turn(ON,EXTEND,L3);
+    } else {
+      la[2]->turn(ON,RETRACT,L3);
+    }
+  } else {
+    la[2]->turn(OFF);
+  }
+
+  // G1
+  if(G1 != 0){
+    if(G1 > 0){
+      gr[0]->turn(ON,EXTEND,G1);
+    } else {
+      gr[0]->turn(ON,RETRACT,G1);
+    }
+  } else {
+    gr[0]->turn(OFF);
+  }
+
+  // G2
+  if(G2 != 0){
+    if(G2 > 0){
+      gr[1]->turn(ON,EXTEND,G2);
+    } else {
+      gr[1]->turn(ON,RETRACT,G2);
+    }
+  } else {
+    gr[1]->turn(OFF);
+  }
+
+  // BASE
+  if(BASE_ != 0){
+    if(BASE_ > 0){
+      BASE.turn(ON,EXTEND,BASE_);
+    } else {
+      BASE.turn(ON,RETRACT,BASE_);
+    }
+  } else {
+    BASE.turn(OFF);
+  }
+
+  // check for safe positions
+  la[0]->isSafe();
+  la[1]->isSafe();
+  la[2]->isSafe();
+}
+
+
 
 void executeNewCommand(int type) {
   switch (type) {
@@ -575,8 +651,11 @@ void executeNewCommand(int type) {
 
 void setup() {
   Serial.begin(9600);
+  
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(receiveEvent);
+  timer = millis();
+  
   delay(1000);
   // set max's
   la[0]->setMAX_DR(L1_MAX);
@@ -600,27 +679,16 @@ void setup() {
 
   invKinCommand(500, 300, 0);
 }
-int i = 1;
+
+
 void loop() {
-  int input = Serial.parseInt();
-  if (input == 1) {
-    la[i]->turn(ON, EXTEND);
-    delay(1000);
-    la[i]->turn(OFF);
-  } else if (input == -1) {
-    la[i]->turn(ON, RETRACT);
-    delay(1000);
-    la[i]->turn(OFF);
-  } else if (input == 2) {
-    la[i]->turn(ON, EXTEND, 127);
-    delay(1000);
-    la[i]->turn(OFF);
-  } else if (input == -2) {
-    la[i]->turn(ON, RETRACT, 127);
-    delay(1000);
-    la[i]->turn(OFF);
+  if(newCommand){
+    processCommand();
+  } else if(millis() - timer > TIMEOUT){
+    directControl(0,0,0,0,0,0);
+    Serial.println("TO");
+    timer = millis();
   }
-  Serial.println(la[i]->readPosition());
 }
 
 

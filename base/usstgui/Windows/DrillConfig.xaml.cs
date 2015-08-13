@@ -17,8 +17,12 @@ namespace usstgui
     /// <summary>
     /// Interaction logic for DrillConfig.xaml
     /// </summary>
+    /// 
+
     public partial class DrillConfig : Window
     {
+        RadioButton lastPressed = new RadioButton();
+
         public DrillConfig()
         {
             InitializeComponent();
@@ -26,14 +30,38 @@ namespace usstgui
 
         private void drillCw(object sender, RoutedEventArgs e)
         {
-            StateManager.setShared("drillCw", true.ToString());
-            StateManager.setShared("drillCcw", false.ToString());
+            if(lastPressed == (RadioButton)sender || lastPressed != null)
+            {
+                RadioButton disable = (RadioButton)sender;
+                disable.IsChecked = false;
+                StateManager.setShared("DrillCw", false.ToString());
+                StateManager.setShared("DrillCcw", false.ToString());
+                lastPressed = null;
+            }
+            else
+            {
+                StateManager.setShared("DrillCw", true.ToString());
+                StateManager.setShared("DrillCcw", false.ToString());
+                lastPressed = (RadioButton)sender;
+            }
         }
 
         private void drillCcw(object sender, RoutedEventArgs e)
         {
-            StateManager.setShared("drillCw", false.ToString());
-            StateManager.setShared("drillCcw", true.ToString());
+            if (lastPressed == (RadioButton)sender || lastPressed != null)
+            {
+                RadioButton disable = (RadioButton)sender;
+                disable.IsChecked = false;
+                StateManager.setShared("DrillCcw", false.ToString());
+                StateManager.setShared("DrillCw", false.ToString());
+                lastPressed = null;
+            }
+            else
+            {
+                StateManager.setShared("DrillCw", false.ToString());
+                StateManager.setShared("DrillCcw", true.ToString());
+                lastPressed = (RadioButton)sender;
+            }
         }
 
         private void buttonTouch(object sender, MouseButtonEventArgs e)
