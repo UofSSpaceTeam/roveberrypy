@@ -49,8 +49,13 @@ namespace usstgui
             StateManager.addObserver("DrillDn", downlink);
             StateManager.addObserver("DrillCw", downlink);
             StateManager.addObserver("DrillCcw", downlink);
-
-
+            StateManager.addObserver("ArmVideo", downlink);
+            
+            // Video Controls
+            StateManager.addObserver("ArmVideo", downlink);
+            StateManager.addObserver("DriveVideo", downlink);
+            StateManager.addObserver("MastVideo", downlink);
+            StateManager.addObserver("StopVideo", downlink);
 
             downlink = new StateQueue();
 			controllerTask = new ControllerTask(downlink);

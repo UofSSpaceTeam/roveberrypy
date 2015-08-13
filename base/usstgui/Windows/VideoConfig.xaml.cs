@@ -20,24 +20,36 @@ namespace usstgui
     /// </summary>
     public partial class VideoConfig : Window
     {
-        readonly MjpegDecoder _mjpeg;
+        readonly MjpegDecoder VideoFb;
 
         public VideoConfig()
         {
             InitializeComponent();
-            _mjpeg = new MjpegDecoder();
-            _mjpeg.FrameReady += mjpeg_FrameReady;
-            _mjpeg.Error += _mjpeg_Error;
+            VideoFb = new MjpegDecoder();
+            VideoFb.FrameReady += mjpeg_FrameReady;
+            VideoFb.Error += _mjpeg_Error;
         }
 
-        private void Start_Click(object sender, RoutedEventArgs e)
+        private void startStream(object sender, RoutedEventArgs e)
         {
-            _mjpeg.ParseStream(new Uri("http://webcam.sonoma.edu/mjpg/video.mjpg"));
+            Button pressed = (Button)sender;
+            StateManager.setShared(pressed.Name, "start");
+            VideoFb.ParseStream(new Uri("http://192.168.1.103:40000/?action=stream"));
+            
+        }
+
+        private void stopStream(object sender, RoutedEventArgs e)
+        {
+            VideoFb.StopStream();
+            Button pressed = (Button)sender;
+            StateManager.setShared("StopVideo", "all");
+            BitmapImage image = new BitmapImage(new Uri("../Resources/noStream.jpg", UriKind.Relative));
+            VideoCanvas.Source = image;
         }
 
         private void mjpeg_FrameReady(object sender, FrameReadyEventArgs e)
         {
-            image.Source = e.BitmapImage;
+            VideoCanvas.Source = e.BitmapImage;
         }
 
         void _mjpeg_Error(object sender, ErrorEventArgs e)

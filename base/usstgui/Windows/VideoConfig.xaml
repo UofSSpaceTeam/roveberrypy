@@ -5,9 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:usstgui"
         mc:Ignorable="d"
-        Title="VideoConfig" Height="580" Width="640">
-    <StackPanel>
-        <Image x:Name="image" Width="640" Height="480" />
-        <Button x:Name="Start" Content="Start" Click="Start_Click"/>
-    </StackPanel>
+        Title="VideoConfig" Height="400" Width="640">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="90"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="90"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="90"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="90"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button x:Name="ArmVideo" Content="Arm" Grid.Row="0" Grid.Column="1" Margin="2" Click="startStream"/>
+        <Button x:Name="DriveVideo" Content="Drive" Grid.Row="0" Grid.Column="3" Margin="2" Click="startStream"/>
+        <Button x:Name="MastVideo" Content="Mast" Grid.Row="0" Grid.Column="5" Margin="2" Click="startStream"/>
+        <Button x:Name="StopVideo" Content="Stop All" Grid.Row="0" Grid.Column="7" Margin="2" Click="stopStream"/>
+        <Image x:Name="VideoCanvas" Grid.ColumnSpan="8" Grid.Column="1" Margin="0,0,20,20" Grid.Row="1" Source="../Resources/noStream.jpg"/>
+
+    </Grid>
 </Window>
