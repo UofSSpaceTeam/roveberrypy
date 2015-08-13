@@ -30,7 +30,9 @@ namespace usstgui
 
             // Joytstick 2 (Arm) Messages
             StateManager.addObserver("inputTwoLeftY", downlink);
+            StateManager.addObserver("inputTwoLeftX", downlink);
             StateManager.addObserver("inputTwoRightY", downlink);
+            StateManager.addObserver("inputTwoRightX", downlink);
 
             // Arm Inverse-Kinematics Controls
             StateManager.addObserver("armBaseSlider", downlink);
