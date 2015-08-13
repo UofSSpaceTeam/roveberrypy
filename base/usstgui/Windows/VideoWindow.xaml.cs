@@ -1,48 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using MjpegProcessor;
 
 namespace usstgui
 {
-    /// <summary>
-    /// Interaction logic for VideoConfig.xaml
-    /// </summary>
-    public partial class VideoConfig : Window
+    public partial class VideoWindow : Window
     {
-        readonly MjpegDecoder VideoFb;
+        readonly MjpegDecoder VideoFb = new MjpegDecoder();
 
-        public VideoConfig()
+        public VideoWindow()
         {
             InitializeComponent();
-            VideoFb = new MjpegDecoder();
             VideoFb.FrameReady += mjpeg_FrameReady;
             VideoFb.Error += _mjpeg_Error;
+			stopStream(null, null);
         }
+
+		private Uri getCameraUri()
+		{
+			return new Uri("http://" + SharedState.get("roverIP") + ":" +
+				SharedState.get("cameraPort").ToString() + "/?action=stream");
+		}
 
         private void startStream(object sender, RoutedEventArgs e)
         {
-            Button pressed = (Button)sender;
-            StateManager.setShared(pressed.Name, "start");
-            VideoFb.ParseStream(new Uri("http://192.168.1.103:40000/?action=stream"));
-            
+			SharedState.set("videoState", "start" + ((Button)sender).Name);
+			VideoFb.ParseStream(getCameraUri());
         }
 
         private void stopStream(object sender, RoutedEventArgs e)
         {
             VideoFb.StopStream();
-            Button pressed = (Button)sender;
-            StateManager.setShared("StopVideo", "all");
+            SharedState.set("videoState", "stop");
             BitmapImage image = new BitmapImage(new Uri("../Resources/noStream.jpg", UriKind.Relative));
             VideoCanvas.Source = image;
         }
@@ -54,7 +45,10 @@ namespace usstgui
 
         void _mjpeg_Error(object sender, ErrorEventArgs e)
         {
-            MessageBox.Show(e.Message);
+			if(this.IsActive)
+			{
+				MessageBox.Show(this, e.Message, "Video Error");
+			}
         }
     }
 }

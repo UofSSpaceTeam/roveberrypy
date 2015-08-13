@@ -10,7 +10,7 @@ using StateDict = System.Collections.Generic.Dictionary<string, dynamic>;
 
 namespace usstgui
 {
-	public class StateQueue
+	public class StateQueue : Object
 	{
 		private Queue<StateElement> queue;
 		private SemaphoreSlim signal;

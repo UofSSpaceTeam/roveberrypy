@@ -1,4 +1,4 @@
-﻿<Window x:Class="usstgui.MainScreen"
+﻿<Window x:Class="usstgui.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -29,7 +29,7 @@
 			<RowDefinition Height="30"/>
 		</Grid.RowDefinitions>
 		<Label Content="Interfaces" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
-		<Button x:Name="VideoMenu" Content="Cameras"  Grid.Row="1" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Button x:Name="VideoWindow" Content="Video"  Grid.Row="1" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
 		<Button x:Name="NavWindow" Content="Navigation" Grid.Row="2" HorizontalAlignment="Center" Height="25"  VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
 
 		<Label Content="Subsystems" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>

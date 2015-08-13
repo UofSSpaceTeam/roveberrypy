@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:usstgui"
         mc:Ignorable="d"
-        Title="Exit?"
+        Title="Quit"
 		Height="130"
 		Width="220"
 		ResizeMode="NoResize">
@@ -21,6 +21,6 @@
 		</Grid.RowDefinitions>
 		<Button x:Name="Exit" Content="Yes" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="1" VerticalAlignment="Center" Width="80" Click="KillApplication"/>
 		<Button x:Name="Close" Content="No" Grid.Column="2" HorizontalAlignment="Center" Height="25" Grid.Row="1" VerticalAlignment="Center" Width="80" Click="CloseWindow"/>
-		<TextBox Grid.ColumnSpan="3" BorderThickness="0" HorizontalAlignment="Center" FontSize="16" Height="23" TextWrapping="Wrap" Text="Exit Whole Application?" VerticalAlignment="Center"/>
+		<TextBox Grid.ColumnSpan="3" BorderThickness="0" HorizontalAlignment="Center" FontSize="16" Height="23" TextWrapping="Wrap" Text="Exit entire application?" VerticalAlignment="Center"/>
 	</Grid>
 </Window> 

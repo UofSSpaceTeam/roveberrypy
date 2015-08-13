@@ -7,41 +7,49 @@ namespace usstgui
 {
 	public class BaseTask
 	{
-		private Thread task;
-		private Thread listener;
-		private StateQueue downlink;
+		private StateQueue downlink = new StateQueue();
 
-		public BaseTask(StateQueue downlink)
+		public void subscribe(string[] keys)
 		{
-			task = new Thread(new ThreadStart(taskFunction));
-			listener = new Thread(new ThreadStart(listenerFunction));
-			this.downlink = downlink;
+			foreach(string key in keys)
+			{
+				subscribe(key);
+			}
+		}
+
+		public void subscribe(string key)
+		{
+			SharedState.addObserver(key, downlink);
+		}
+
+		protected dynamic getShared(string key)
+		{
+			return SharedState.get(key);
+		}
+
+		protected void setShared(string key, dynamic value)
+		{
+			SharedState.set(key, value, downlink);
 		}
 
 		public virtual void start()
 		{
-			task.Start();
-			listener.Start();
-		}
-
-		public virtual void stop()
-		{
-			task.Abort();
-			listener.Abort();
+			new Thread(new ThreadStart(taskFunction)).Start();
+			new Thread(new ThreadStart(listenerFunction)).Start();
 		}
 
 		private void listenerFunction()
 		{
 			StateElement data;
-			while (true)
+			while(true)
 			{
 				data = downlink.get();
 				messageTrigger(data.Key, data.Value);
 			}
 		}
 
-		protected virtual void messageTrigger(string key, dynamic value) { }
+		protected virtual void messageTrigger(string key, dynamic value) {}
 
-		protected virtual void taskFunction() { }
+		protected virtual void taskFunction() {}
 	}
 }

@@ -1,24 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
+using System.Diagnostics;
+using System.Threading;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace usstgui
 {
-    public partial class MainScreen : Window
+    public partial class MainWindow : Window
     {
-        public MainScreen()
+        public MainWindow()
         {
             InitializeComponent();
 			new Thread(new ThreadStart(HeartbeatMonitor)).Start();
@@ -62,11 +53,11 @@ namespace usstgui
 
 		private void processHeartbeat(string key, Button button, Color alive, Color dead)
 		{
-			if(StateManager.getShared(key) == true)
+			if(SharedState.get(key) == true)
 				this.Dispatcher.Invoke((Action)(() => { button.Background = new SolidColorBrush(alive); }));
 			else
 				this.Dispatcher.Invoke((Action)(() => { button.Background = new SolidColorBrush(dead); }));
-			StateManager.setShared(key, false);
+			SharedState.set(key, false);
 		}
     }
 }
