@@ -120,6 +120,10 @@ void processCommand()
 		desiredDrillSpeed = constrain(cmd.d1, -255, 255);
 		desiredElevSpeed = constrain(cmd.d2, -255, 255);
 		timeout = millis();
+		Serial.print("Drill: ");
+		Serial.print(cmd.d1);
+		Serial.print(',');
+		Serial.println(cmd.d2);
 		break;
 		
 		case SET_LASER:

@@ -8,9 +8,10 @@ from statemanager import StateManager
 from roverprocess.jsonserver import JsonServer
 from roverprocess.exampleprocess import ExampleProcess
 from roverprocess.gps import GPS
-#from roverprocess.driveprocess import DriveProcess
-# frim roverprocess.armprocess import ArmProcess
+from roverprocess.driveprocess import DriveProcess
+# from roverprocess.armprocess import ArmProcess
 # from roverprocess.compass import Compass
+from roverprocess.drillprocess import  DrillProcess
 
 # system configuration
 localPort = 34567
@@ -44,12 +45,12 @@ if __name__ == "__main__":
 	processes.append(process)
 	
 	# # drive process
-	# process = DriveProcess(
-	# 	downlink = system.getDownlink(), uplink = system.getUplink(),
-	# 	sem = i2cSem)
-	# system.addObserver("inputOneLeftY", process.downlink)
-	# system.addObserver("inputOneRightY", process.downlink)
-	# processes.append(process)
+	process = DriveProcess(
+	 	downlink = system.getDownlink(), uplink = system.getUplink(),
+	 	sem = i2cSem)
+	system.addObserver("inputOneLeftY", process.downlink)
+	system.addObserver("inputOneRightY", process.downlink)
+	processes.append(process)
 	
 
 	# arm process
@@ -61,12 +62,23 @@ if __name__ == "__main__":
 	# system.addObserver("armThrottle", process.downlink)
 	# processes.append(process)
 
-        # compass
-        # process = Compass(
-        #         downlink = system.getDownlink(), uplink = system.getUplink())
-        # system.addObserver("getCompass", process.downlink)
-        # processes.append(process)
-
+	# compass
+	# process = Compass(
+	#         downlink = system.getDownlink(), uplink = system.getUplink())
+	# system.addObserver("getCompass", process.downlink)
+	# processes.append(process)
+	
+	# drill process
+	process = DrillProcess(
+		downlink = system.getDownlink(), uplink = system.getUplink(),
+		sem = i2cSem)
+	system.addObserver("DrillSpeed", process.downlink)
+	system.addObserver("DrillFeed", process.downlink)
+	system.addObserver("DrillUp", process.downlink)
+	system.addObserver("DrillDn", process.downlink)
+	system.addObserver("DrillCw", process.downlink)
+	system.addObserver("DrillCcw", process.downlink)
+	processes.append(process)
 
 	# start everything
 	print "\nSTART: " + str([type(p).__name__ for p in processes]) + "\n"
