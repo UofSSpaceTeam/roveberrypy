@@ -69,8 +69,10 @@ class ArmProcess(RoverProcess):
 			self.command.d9 = int(message["IK_WristVal"]*10)
 			self.update = True
 
+		# Gripper Controls
+			
 		if "armWristCw" in message:
-			self.update = True
+			self.update = True	
 
 		if "armWristCcw" in message:
 			self.update = True
@@ -81,7 +83,23 @@ class ArmProcess(RoverProcess):
 		if "armGrpOpen" in message:
 			self.update = True
 
-
+		if "inputTwoBButton" in message:
+			self.command.d4 = 255*int(message["inputTwoBButton"]== "True")
+			self.update = True
+			
+		if "inputTwoXButton" in message:
+			self.update = True
+			self.command.d4 = -255*int(message["inputTwoXButton"] == "True")
+		
+		if "inputTwoAButton" in message:
+			self.update = True
+			self.command.d5 = 255*int(message["inputTwoAButton"] == "True")
+			
+		if "inputTwoYButton" in message:
+			self.update = True
+			self.command.d5 = -255*int(message["inputTwoYButton"] == "True")
+			print "got:", self.command.d5
+			
 
 
 	def cleanup(self):

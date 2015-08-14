@@ -32,11 +32,9 @@ class DriveProcess(RoverProcess):
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
 		if "inputOneLeftY" in message:
-			print "got: " + str(message["inputOneLeftY"])
 			self.joyAxes[0] = float(message["inputOneLeftY"])
 			self.update = True
 		if "inputOneRightY" in message:
-			print "got: " + str(message["inputOneRightY"])
 			self.joyAxes[1] = float(message["inputOneRightY"])
 			self.update = True
 		

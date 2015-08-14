@@ -64,7 +64,6 @@ class DrillProcess(RoverProcess):
 		
 		command.d1 = int(self.drillSpeed * self.drillDir * 255)
 		command.d2 = int(self.elevSpeed * self.elevDir * 255)
-		print "drill", command.d1, command.d2
 		self.sendCommand(command)
 
 	def sendCommand(self, command):

@@ -33,6 +33,11 @@ namespace usstgui
             StateManager.addObserver("inputTwoLeftX", downlink);
             StateManager.addObserver("inputTwoRightY", downlink);
             StateManager.addObserver("inputTwoRightX", downlink);
+            StateManager.addObserver("inputTwoAButton", downlink);
+            StateManager.addObserver("inputTwoBButton", downlink);
+            StateManager.addObserver("inputTwoXButton", downlink);
+            StateManager.addObserver("inputTwoYButton", downlink);
+
 
             // Arm Inverse-Kinematics Controls
             StateManager.addObserver("armBaseSlider", downlink);

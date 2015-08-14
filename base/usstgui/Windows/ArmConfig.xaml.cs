@@ -61,6 +61,7 @@ namespace usstgui
             StateManager.setShared("ArmBaseSpeed", baseSlider.Value * 2 - 10);
         }
 
+        // Probably doesn't work like we expected, do not use
         private void textBoxChanged(object sender, TextChangedEventArgs e)
         {
             TextBox InvKinVal = (TextBox)sender;
@@ -92,6 +93,20 @@ namespace usstgui
         {
             if (e.Key == Key.Return)
             {
+
+                TextBox InvKinVal = (TextBox)sender;
+                if (InvKinVal.Text != "")
+                {
+                    StateManager.setShared(InvKinVal.Name, InvKinVal.Text);
+                    try
+                    {
+                        updateArmLimits();
+                    }
+                    catch
+                    {
+                    }
+                }
+
                 TraversalRequest request = new TraversalRequest(FocusNavigationDirection.Next);
                 ((TextBox)sender).MoveFocus(request);
             }

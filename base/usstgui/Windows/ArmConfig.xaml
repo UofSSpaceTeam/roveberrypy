@@ -7,9 +7,9 @@
         mc:Ignorable="d"
         Title="ArmConfig" Height="500" Width="500">
     <Grid>
-        <TextBox x:Name="IK_XVal" HorizontalAlignment="Left" Height="23" Margin="63,38,0,0" TextWrapping="Wrap" Text="300" VerticalAlignment="Top" Width="120" TextChanged="textBoxChanged" MouseWheel="textBoxWheel" KeyDown="textBoxKeyDown"/>
-        <TextBox x:Name="IK_YVal" HorizontalAlignment="Left" Height="23" Margin="69,107,0,0" TextWrapping="Wrap" Text="300" VerticalAlignment="Top" Width="120" TextChanged="textBoxChanged" MouseWheel="textBoxWheel" KeyDown="textBoxKeyDown"/>
-        <TextBox x:Name="IK_WristVal" HorizontalAlignment="Left" Height="23" Margin="91,168,0,0" TextWrapping="Wrap" Text="50" VerticalAlignment="Top" Width="120" TextChanged="textBoxChanged" MouseWheel="textBoxWheel" KeyDown="textBoxKeyDown"/>
+        <TextBox x:Name="IK_XVal" HorizontalAlignment="Left" Height="23" Margin="63,38,0,0" TextWrapping="Wrap" Text="300" VerticalAlignment="Top" Width="120" MouseWheel="textBoxWheel" KeyDown="textBoxKeyDown"/>
+        <TextBox x:Name="IK_YVal" HorizontalAlignment="Left" Height="23" Margin="69,107,0,0" TextWrapping="Wrap" Text="300" VerticalAlignment="Top" Width="120" MouseWheel="textBoxWheel" KeyDown="textBoxKeyDown"/>
+        <TextBox x:Name="IK_WristVal" HorizontalAlignment="Left" Height="23" Margin="91,168,0,0" TextWrapping="Wrap" Text="50" VerticalAlignment="Top" Width="120" MouseWheel="textBoxWheel" KeyDown="textBoxKeyDown"/>
         <Label x:Name="ArmXLbl" Content="X Pos:" HorizontalAlignment="Left" Margin="10,34,0,0" VerticalAlignment="Top"/>
         <Label x:Name="ArmYLbl" Content="Y Pos:" HorizontalAlignment="Left" Margin="10,107,0,0" VerticalAlignment="Top" />
         <Label x:Name="ArmWristLbl" Content="Wrist Pos:" HorizontalAlignment="Left" Margin="10,165,0,0" VerticalAlignment="Top"/>

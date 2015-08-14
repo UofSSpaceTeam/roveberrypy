@@ -61,6 +61,11 @@ if __name__ == "__main__":
 	system.addObserver("inputTwoLeftX", process.downlink);
 	system.addObserver("inputTwoRightY", process.downlink);
 	system.addObserver("inputTwoRightX", process.downlink);
+	system.addObserver("inputTwoAButton", process.downlink);
+	system.addObserver("inputTwoBButton", process.downlink);
+	system.addObserver("inputTwoXButton", process.downlink);
+	system.addObserver("inputTwoYButton", process.downlink);
+	
 	system.addObserver("armBaseSlider", process.downlink)
 	system.addObserver("IK_XVal", process.downlink);
 	system.addObserver("IK_YVal",  process.downlink);
@@ -69,6 +74,7 @@ if __name__ == "__main__":
 	system.addObserver("armWristCcw",  process.downlink);
 	system.addObserver("armGrpClose",  process.downlink);
 	system.addObserver("armGrpOpen",  process.downlink);
+	
 
 	
 	processes.append(process)
