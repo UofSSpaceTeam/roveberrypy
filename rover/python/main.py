@@ -40,8 +40,14 @@ if __name__ == "__main__":
 	# Piksi GPS process
 	process = GPS(
 		downlink = system.getDownlink(), uplink = system.getUplink())
-	system.addObserver("gps_PosReq", process.downlink)
-	system.addObserver("gps_BaselineReq", process.downlink)
+	system.addObserver("gps_pos_lat", process.downlink)
+	system.addObserver("gps_pos_lon", process.downlink)
+	system.addObserver("gps_pos_height", process.downlink)
+	system.addObserver("gps_pos_flags", process.downlink)
+	system.addObserver("gps_baseline_n", process.downlink)
+	system.addObserver("gps_baseline_e", process.downlink)
+	system.addObserver("gps_baseline_d", process.downlink)
+	system.addObserver("gps_baseline_flags", process.downlink)
 	processes.append(process)
 	
 	# # drive process
