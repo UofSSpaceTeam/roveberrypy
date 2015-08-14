@@ -5,16 +5,32 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:usstgui"
         mc:Ignorable="d"
-        Title="Drill Status" Height="300" Width="300">
-    <Grid>
-		<RadioButton x:Name="Up" Content="Up" HorizontalAlignment="Left" Margin="29,38,0,0" VerticalAlignment="Top" Width="75" Click="feedUp"/>
-		<RadioButton x:Name="Down" Content="Down" HorizontalAlignment="Left" Margin="29,73,0,0" VerticalAlignment="Top" Width="75" Click="feedDown"/>
-        <RadioButton x:Name="Forward" Content="Forward" HorizontalAlignment="Left" Margin="189,38,0,0" VerticalAlignment="Top" Width="75" GroupName="Feed" Click="drillForward"/>
-        <RadioButton x:Name="Reverse" Content="Reverse" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="189,73,0,0" GroupName="Feed" Click="drillReverse"/>
-        <Slider x:Name="DrillFeed" HorizontalAlignment="Left" Margin="56,110,0,0" VerticalAlignment="Top" Width="27" Orientation="Vertical" Height="119" ValueChanged="drillSet" LargeChange="0.1" Maximum="1"/>
-        <Slider x:Name="DrillSpeed" HorizontalAlignment="Left" Margin="209,110,0,0" VerticalAlignment="Top" Width="27" Orientation="Vertical" Height="119" ValueChanged="feedSet" Maximum="1" LargeChange="0.1" MouseLeftButtonUp="feedStop"/>
-        <Label x:Name="DrillFeedLbl" Content="Drill Feed" HorizontalAlignment="Left" Margin="29,234,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="DrillSpeedLbk" Content="Drill Speed" HorizontalAlignment="Left" Margin="189,234,0,0" VerticalAlignment="Top"/>
+        Title="Drill Status"
+		Height="180"
+		Width="200"
+		ResizeMode="NoResize">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="25"/>
+			<RowDefinition Height="110"/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition/>
+			<ColumnDefinition Width="40"/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		<Label Content="Up" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+		<Label Content="Down" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+		<Label Content="Stop" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+		<Slider x:Name="DrillFeed" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Width="30" Orientation="Vertical" Height="100" ValueChanged="feedSet" LargeChange="0.1" Maximum="1" Minimum="-1" LostMouseCapture="feedStop"/>
+		<Label Content="Translation" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top"/>
 
-    </Grid>
+		<Button Content="Stop" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" Width="40" VerticalAlignment="Bottom" Click="drillStop"/>
+		<Label Content="Fast" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+		<RadioButton x:Name="Cw" Content="CW" IsChecked="True" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" GroupName="Feed" Margin="-5,0,0,20"/>
+		<RadioButton x:Name="Ccw" Content="CCW" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" GroupName="Feed" Grid.ColumnSpan="2" Margin="-5,20,0,0"/>
+		<Slider x:Name="DrillSpeed" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Width="25" Orientation="Vertical" Height="100" ValueChanged="drillSet" Maximum="1" LargeChange="0.1"/>
+		<Label Content="Rotation" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+	</Grid>
 </Window>

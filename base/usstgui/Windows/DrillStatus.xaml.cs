@@ -12,40 +12,31 @@ namespace usstgui
             InitializeComponent();
         }
 
-        private void drillForward(object sender, RoutedEventArgs e)
-        {
-			SharedState.set("drillRotation", "forward");
-        }
-
-		private void drillReverse(object sender, RoutedEventArgs e)
-		{
-			SharedState.set("drillRotation", "reverse");
-		}
-
-		private void feedUp(object sender, RoutedEventArgs e)
-		{
-			SharedState.set("drillTranslation", "forward");
-		}
-
-		private void feedDown(object sender, RoutedEventArgs e)
-		{
-			SharedState.set("drillTranslation", "reverse");
-		}
-
         private void feedSet(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            SharedState.set("DrillFeedPower", ((Slider)sender).Value);
+            SharedState.set("drillTranslation", DrillFeed.Value);
         }
+
+		private void feedStop(object sender, MouseEventArgs e)
+		{
+			SharedState.set("drillTranslation", 0.0);
+			this.Dispatcher.Invoke((Action)(() => { DrillFeed.Value = 0.0; }));
+		}
 
 		private void drillSet(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
-			SharedState.set("DrillPower", ((Slider)sender).Value);
+			if((bool)Cw.IsChecked)
+				SharedState.set("drillRotation", DrillSpeed.Value);
+			else if ((bool)Ccw.IsChecked)
+				SharedState.set("drillRotation", -DrillSpeed.Value);
+			else
+				drillStop(null, null);
 		}
 
-		private void feedStop(object sender, MouseButtonEventArgs e)
+		private void drillStop(object sender, RoutedEventArgs e)
 		{
-			SharedState.set("DrillFeedPower", 0.0);
-		}
-
+			SharedState.set("drillRotation", 0.0);
+			this.Dispatcher.Invoke((Action)(() => { DrillSpeed.Value = 0.0; }));
+		}		
 	}
 }

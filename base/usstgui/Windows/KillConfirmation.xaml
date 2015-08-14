@@ -19,8 +19,8 @@
 			<RowDefinition/>
 			<RowDefinition/>
 		</Grid.RowDefinitions>
-		<Button x:Name="Exit" Content="Yes" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="1" VerticalAlignment="Center" Width="80" Click="KillApplication"/>
-		<Button x:Name="Close" Content="No" Grid.Column="2" HorizontalAlignment="Center" Height="25" Grid.Row="1" VerticalAlignment="Center" Width="80" Click="CloseWindow"/>
+		<Button Content="Yes" Grid.Column="0" HorizontalAlignment="Center" Height="25" Grid.Row="1" VerticalAlignment="Center" Width="80" Click="KillApplication"/>
+		<Button Content="No" Grid.Column="2" HorizontalAlignment="Center" Height="25" Grid.Row="1" VerticalAlignment="Center" Width="80" Click="CloseWindow"/>
 		<TextBox Grid.ColumnSpan="3" BorderThickness="0" HorizontalAlignment="Center" FontSize="16" Height="23" TextWrapping="Wrap" Text="Exit entire application?" VerticalAlignment="Center"/>
 	</Grid>
 </Window> 
