@@ -17,22 +17,36 @@ namespace usstgui
 
         private void updateArmLimits()
         {
-            // Needs code here to set up the label and progress bar
             int xCur, yCur;
-            float xMin, xMax, yMin, yMax;
+            int xMin, xMax, yMin, yMax;
             float xNorm, yNorm;
             string xLbl, yLbl;
 
             xCur = Convert.ToInt32(IK_XVal.Text);
             yCur = Convert.ToInt32(IK_YVal.Text);
 
-            xMin = 200;
-            xMax = 1000;
-            yMin = 200;
-            yMax = 1000;
+            yMin = -232;
+            yMax = 655;
+            
+            double z = yCur;
 
-            xNorm = (xCur - xMin) / (xMax - xMin);
-            yNorm = (yCur - yMin) / (yMax - yMin);
+            double max_radius = 1718.0 * Math.Sin(0.004439 * z + 0.4935) + 1817.0 * Math.Sin(0.006403 * z + 3.064) + 728.2 * Math.Sin(0.007664 * z - 0.4486);
+            double min_radius;
+            if (z > 204)
+            {
+                min_radius = 415.4 * Math.Sin(0.002591 * z + 0.4629);
+            }
+            else
+            {
+                min_radius = 364.8 * Math.Sin(0.003055 * z + 1.303);
+            }
+
+            xMax = Convert.ToInt32(max_radius);
+            xMin = Convert.ToInt32(min_radius);
+
+
+            xNorm = (float)(xCur - xMin) / (xMax - xMin);
+            yNorm = (float)(yCur - yMin) / (yMax - yMin);
 
             xLbl = xMax.ToString() + "/" + xMin.ToString();
             yLbl = yMax.ToString() + "/" + yMin.ToString();
@@ -94,7 +108,8 @@ namespace usstgui
                 TextBox InvKinVal = (TextBox)sender;
                 if (InvKinVal.Text != "")
                 {
-                    StateManager.setShared(InvKinVal.Name, InvKinVal.Text);
+                    int val = Convert.ToInt32(InvKinVal.Text);
+                    SharedState.set(InvKinVal.Name, val.ToString());
                     try
                     {
                         updateArmLimits();

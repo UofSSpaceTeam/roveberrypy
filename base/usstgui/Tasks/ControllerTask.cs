@@ -93,7 +93,7 @@ namespace usstgui
 		private void processButton(string name, GamepadButtonFlags button)
 		{
 
-			setShared(name, input.Buttons.HasFlag(button));
+			setShared(name, input.Buttons.HasFlag(button).ToString());
 		}
 
 		private void setDefaultValues(string prefix)

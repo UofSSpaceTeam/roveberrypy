@@ -26,9 +26,20 @@ class ArmProcess(RoverProcess):
 		self.i2cSem = args["sem"]
 		self.joyAxes = [0.0, 0.0]
 		self.update = False
+		self.IKupdate = False
 		self.position = None
 		self.throttle = 0.5
 		self.command = Command()
+		
+		# Smart state detection
+		self.lastd1 = 0
+		self.lastd2 = 0
+		self.lastd3 = 0
+		self.xbutton = 0
+		self.bbutton = 0
+		self.abutton = 0
+		self.ybutton = 0
+		self.lastd6 = 0
 
 	def loop(self):
 		if self.update:
@@ -40,37 +51,21 @@ class ArmProcess(RoverProcess):
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
-		if "inputTwoLeftY" in message:
-			print "arm got message"
-			self.command.d2 = int(message["inputTwoLeftY"]*255)
-			self.update = True
-
-		if "inputTwoRightY" in message:
-			self.command.d1 = int(message["inputTwoRightY"]*255)
-			self.update = True
-
-		if "inputTwoLeftX" in message:
-			self.command.d6 = int(message["inputTwoLeftX"]*255)
-			self.update = True
-
-		if "armBaseSlider" in message:
-			self.command.d6 = int(message["armBaseSlider"]*255)
-			self.update = True
-
+		
+		# Inverse Kin packets diable controller
 		if "IK_XVal" in message:
-			self.command.d7 = int(message["IK_XVal"]*10)
+			self.command.d7 = int(message["IK_XVal"])
 			self.update = True
 
 		if "IK_YVal" in message:
-			self.command.d8 = int(message["IK_YVal"]*10)
+			self.command.d8 = int(message["IK_YVal"])
 			self.update = True
 
 		if "IK_WristVal" in message:
-			self.command.d9 = int(message["IK_WristVal"]*10)
+			self.command.d9 = int(message["IK_WristVal"])
 			self.update = True
-
-		# Gripper Controls
-			
+		
+		# Inverse Kin Gripper Controls
 		if "armWristCw" in message:
 			self.update = True	
 
@@ -83,22 +78,89 @@ class ArmProcess(RoverProcess):
 		if "armGrpOpen" in message:
 			self.update = True
 
+
+		# Manual Arm Controls
+			
+		if "inputTwoLeftY" in message:
+			msg = int(message["inputTwoLeftY"]*255)
+			if(self.lastd2 == 0 and msg == self.lastd2):
+				pass
+			else:
+				self.command.d2 = msg
+				self.lastd2 = msg
+				self.update = True
+
+		if "inputTwoRightY" in message:
+			msg = int(message["inputTwoRightY"]*255)
+			if(self.lastd1 == 0 and msg == self.lastd1):
+				pass
+			else:
+				self.command.d1 = msg
+				self.lastd1 = msg
+				self.update = True
+
+		if "inputTwoLeftX" in message:
+			msg = int(message["inputTwoLeftX"]*255)
+			if(self.lastd6 == 0 and msg == self.lastd6):
+				pass
+			else:
+				self.command.d6 = msg
+				self.lastd6 = msg
+				self.update = True
+
+		if "armBaseSlider" in message:
+			msg = int(message["armBaseSlider"]*255)
+			if(self.lastd6 == 0 and msg == self.lastd6):
+				pass
+			else:
+				self.command.d6 = msg
+				self.lastd6 = msg
+				self.update = True
+			
+		# Gripper Controls
+			
+		
 		if "inputTwoBButton" in message:
-			self.command.d4 = 255*int(message["inputTwoBButton"]== "True")
-			self.update = True
+			msg = 255*int(message["inputTwoBButton"]== "True")
+			if(self.bbutton == 0 and msg == self.bbutton):
+				pass
+			else:
+				self.command.d4 = msg
+				self.bbutton = msg
+				self.update = True
 			
 		if "inputTwoXButton" in message:
-			self.update = True
-			self.command.d4 = -255*int(message["inputTwoXButton"] == "True")
+			msg = -255*int(message["inputTwoXButton"]== "True")
+			if(self.xbutton == 0 and msg == self.xbutton):
+				pass
+			else:
+				self.command.d4 = msg
+				self.xbutton = msg
+				self.update = True
 		
 		if "inputTwoAButton" in message:
-			self.update = True
-			self.command.d5 = 255*int(message["inputTwoAButton"] == "True")
+			msg = 255*int(message["inputTwoAButton"]== "True")
+			if(self.abutton == 0 and msg == self.abutton):
+				pass
+			else:
+				self.command.d5 = msg
+				self.abutton = msg
+				self.update = True
 			
 		if "inputTwoYButton" in message:
-			self.update = True
-			self.command.d5 = -255*int(message["inputTwoYButton"] == "True")
-			print "got:", self.command.d5
+			msg = -255*int(message["inputTwoYButton"]== "True")
+			if(self.ybutton == 0 and msg == self.ybutton):
+				pass
+			else:
+				self.command.d5 = msg
+				self.ybutton = msg
+				self.update = True
+				
+		# if self.xbutton==0 and self.bbutton==0:
+			# self.command.d4 = 0
+			
+		# if self.abutton==0 and self.ybutton==0:
+			# self.command.d5 = 0
 			
 
 
@@ -112,7 +174,7 @@ class ArmProcess(RoverProcess):
 		command.csum = ((command.d1 + command.d2 + command.d3 +
 			command.d4 + command.d5 + command.d6 + command.d7 + command.d8 + command.d9) % 256)
 			
-		print "arm", command.d1, command.d2, command.d7
+		print "arm", command.d4, command.d5, command.d6
 		try:
 			self.i2cSem.acquire(block=True, timeout=None)
 			self.i2c.write_byte(self.i2cAddress, command.header)
