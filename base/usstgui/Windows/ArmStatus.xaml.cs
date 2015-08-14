@@ -7,13 +7,10 @@ using System.Diagnostics;
 
 namespace usstgui
 {
-    /// <summary>
-    /// Interaction logic for ArmConfig.xaml
-    /// </summary>
-    public partial class ArmConfig : Window
+    public partial class ArmStatus : Window
     {
 
-        public ArmConfig()
+        public ArmStatus()
         {
             InitializeComponent();
         }
@@ -58,7 +55,7 @@ namespace usstgui
         {
             Slider baseSlider = (Slider)sender;
             //Debug.WriteLine(test.Value);
-            StateManager.setShared("ArmBaseSpeed", baseSlider.Value * 2 - 10);
+            SharedState.set("ArmBaseSpeed", baseSlider.Value * 2 - 10);
         }
 
         // Probably doesn't work like we expected, do not use
@@ -67,7 +64,7 @@ namespace usstgui
             TextBox InvKinVal = (TextBox)sender;
             if (InvKinVal.Text != "")
             {
-                StateManager.setShared(InvKinVal.Name, InvKinVal.Text);
+                SharedState.set(InvKinVal.Name, InvKinVal.Text);
                 try
                 {
                     updateArmLimits();
@@ -115,7 +112,7 @@ namespace usstgui
         private void buttonTouch(object sender, MouseButtonEventArgs e)
         {
             Button pressed = (Button)sender;
-            StateManager.setShared(pressed.Name, (e.ButtonState==MouseButtonState.Pressed).ToString());
+            SharedState.set(pressed.Name, (e.ButtonState==MouseButtonState.Pressed).ToString());
         }
     }
 }

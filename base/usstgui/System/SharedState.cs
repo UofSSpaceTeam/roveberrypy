@@ -8,12 +8,12 @@ using StateDict = System.Collections.Generic.Dictionary<string, dynamic>;
 
 namespace usstgui
 {
-	public static class StateManager
+	public static class SharedState
 	{
 		private static StateDict state = new StateDict();
 		private static Dictionary<string, List<StateQueue>> observerMap;
 
-		static StateManager()
+		static SharedState()
 		{
 			state = new StateDict();
 			observerMap = new Dictionary<string, List<StateQueue>>();
@@ -29,46 +29,54 @@ namespace usstgui
 			}
 		}
 
-		public static dynamic getShared(string key)
+		public static dynamic get(string key)
 		{
 			dynamic result = null;
-			lock (state)
+			lock(state)
 			{
-				if (state.ContainsKey(key))
+				if(state.ContainsKey(key))
 					result = state[key];
 			}
 			return result;
 		}
 
-		public static void setShared(string key, dynamic value)
+		public static void set(string key, dynamic value)
 		{
-			lock (state)
+			set(key, value, null);
+		}
+
+		public static void set(string key, dynamic value, StateQueue ignoredDownlink)
+		{
+			lock(state)
 			{
 				if (state.ContainsKey(key))
 					state[key] = value;
 				else
 					state.Add(key, value);
 			}
-			notifyObservers(key);
+			notifyObservers(key, ignoredDownlink);
 		}
 
-		private static void notifyObservers(string key)
+		private static void notifyObservers(string key, StateQueue ignoredDownlink)
 		{
 			StateElement element;
 
-			lock (observerMap)
+			lock(observerMap)
 				if (observerMap.ContainsKey(key))
 				{
-					lock (state)
+					lock(state)
 						element = new StateElement(key, state[key]);
-					foreach (StateQueue q in observerMap[key])
-						q.put(element);
+					foreach(StateQueue q in observerMap[key])
+					{
+						if(!StateQueue.ReferenceEquals(q, ignoredDownlink))
+							q.put(element);
+					}
 				}
 		}
 
 		public static new string ToString()
 		{
-			string result = "State:\n";
+			string result = "Shared State:\n";
 			lock (state)
 			{
 				foreach (StateElement e in state)

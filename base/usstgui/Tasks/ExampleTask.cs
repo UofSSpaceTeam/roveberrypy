@@ -8,8 +8,7 @@ namespace usstgui
 	{
 		int exampleArg;
 
-		public ExampleTask(StateQueue downlink, int exampleArg)
-			: base(downlink)
+		public ExampleTask(int exampleArg)
 		{
 			this.exampleArg = exampleArg;
 		}
@@ -28,9 +27,9 @@ namespace usstgui
 			Debug.WriteLine("arg is " + exampleArg.ToString());
 			while (true)
 			{
-				StateManager.setShared("exampleKey", DateTime.Now.ToLongTimeString());
+				setShared("exampleKey", DateTime.Now.ToLongTimeString());
 				Thread.Sleep(2000);
-				Debug.WriteLine(StateManager.ToString());
+				Debug.WriteLine(SharedState.ToString());
 			}
 		}
 	}

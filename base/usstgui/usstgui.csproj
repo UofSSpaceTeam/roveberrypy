@@ -128,43 +128,43 @@
     <Compile Include="Windows\NavWindow.xaml.cs">
       <DependentUpon>NavWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\DrillConfig.xaml.cs">
-      <DependentUpon>DrillConfig.xaml</DependentUpon>
+    <Compile Include="Windows\DrillStatus.xaml.cs">
+      <DependentUpon>DrillStatus.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\VideoConfig.xaml.cs">
-      <DependentUpon>VideoConfig.xaml</DependentUpon>
+    <Compile Include="Windows\VideoWindow.xaml.cs">
+      <DependentUpon>VideoWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\ArmConfig.xaml.cs">
-      <DependentUpon>ArmConfig.xaml</DependentUpon>
+    <Compile Include="Windows\ArmStatus.xaml.cs">
+      <DependentUpon>ArmStatus.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\KillConfirmation.xaml.cs">
       <DependentUpon>KillConfirmation.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\OptionsController2.xaml.cs">
-      <DependentUpon>OptionsController2.xaml</DependentUpon>
+    <Compile Include="Windows\Controller2Status.xaml.cs">
+      <DependentUpon>Controller2Status.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tasks\ControllerTask.cs" />
     <Compile Include="Tasks\JsonClientTask.cs" />
     <Compile Include="Tasks\ExampleTask.cs" />
     <Compile Include="System\BaseTask.cs" />
-    <Compile Include="System\StateManager.cs" />
+    <Compile Include="System\SharedState.cs" />
     <Compile Include="System\StateQueue.cs" />
-    <Compile Include="Windows\MainScreen.xaml.cs">
-      <DependentUpon>MainScreen.xaml</DependentUpon>
+    <Compile Include="Windows\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Windows\NavWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\DrillConfig.xaml">
+    <Page Include="Windows\DrillStatus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\VideoConfig.xaml">
+    <Page Include="Windows\VideoWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\ArmConfig.xaml">
+    <Page Include="Windows\ArmStatus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -172,11 +172,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Windows\OptionsController2.xaml">
+    <Page Include="Windows\Controller2Status.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Windows\OptionsController1.xaml">
+    <Page Include="Windows\Controller1Status.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -184,11 +184,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Windows\OptionsController1.xaml.cs">
-      <DependentUpon>OptionsController1.xaml</DependentUpon>
+    <Compile Include="Windows\Controller1Status.xaml.cs">
+      <DependentUpon>Controller1Status.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Windows\MainScreen.xaml">
+    <Page Include="Windows\MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -222,14 +222,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\controller1.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Resource Include="Resources\controller1.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\controller2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Resource Include="Resources\controller2.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\armHelper.png" />

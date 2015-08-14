@@ -1,14 +1,13 @@
-﻿<Window x:Class="usstgui.OptionsController1"
+﻿<Window x:Class="usstgui.Controller2Status"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:usstgui"
     mc:Ignorable="d"
-    Title="Controller 1"
-	Height="310"
+    Title="Controller 2 Status"
+	Height="295"
 	Width="410"
-	ScrollViewer.VerticalScrollBarVisibility="Disabled"
 	ResizeMode="NoResize">
 
 	<Grid>
@@ -18,7 +17,7 @@
 			<ColumnDefinition Width="90"/>
 			<ColumnDefinition Width="90"/>
 			<ColumnDefinition Width="100"/>
-			<ColumnDefinition Width="*"/>
+			<ColumnDefinition/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="30"/>
@@ -29,9 +28,9 @@
 			<RowDefinition Height="30"/>
 			<RowDefinition Height="30"/>
 			<RowDefinition Height="30"/>
-			<RowDefinition Height="*"/>
+			<RowDefinition/>
 		</Grid.RowDefinitions>
-		<Label Content="Controller 1 Setup" FontSize="16" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalAlignment="Top" Grid.ColumnSpan="5" HorizontalAlignment="Center" Margin="0,0,23,0"/>
+		<Label Content="Controller 2 Setup" FontSize="16" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalAlignment="Top" Grid.ColumnSpan="5" HorizontalAlignment="Center" Margin="0,0,23,0"/>
 		<Label Content="Axis" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
 		<Label Content="Invert" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
 		<Label Content="Scale" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" FontWeight="Bold" FontSize="14"/>
@@ -67,7 +66,6 @@
 		<ProgressBar x:Name="RightYResult" Grid.Column="4" HorizontalAlignment="Center" Height="15" Grid.Row="5" VerticalAlignment="Center" Width="70" Maximum="1" Minimum="-1"/>
 		<ProgressBar x:Name="LeftTriggerResult" Grid.Column="4" HorizontalAlignment="Center" Height="15" Grid.Row="6" VerticalAlignment="Center" Width="70" Maximum="1"/>
 		<ProgressBar x:Name="RightTriggerResult" Grid.Column="4" HorizontalAlignment="Center" Height="15" Grid.Row="7" VerticalAlignment="Center" Width="70" Maximum="1"/>
-		<Image x:Name="ControllerIcon" HorizontalAlignment="Left" Height="30" VerticalAlignment="Center" Width="30" Grid.Column="4" Source="../Resources/controller1.png"/>
-		<Button x:Name="Done" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="5" Width="75" Height="25" Content="Done" Click="Close"/>
+		<Image x:Name="ControllerIcon" HorizontalAlignment="Left" Height="30" VerticalAlignment="Center" Width="30" Grid.Column="4" Source="../Resources/controller2.png"/>
 	</Grid>
 </Window>

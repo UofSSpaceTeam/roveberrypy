@@ -5,27 +5,25 @@ using SharpDX.XInput;
 
 namespace usstgui
 {
-	public class ControllerTask : BaseTask
+	public class ControllersTask : BaseTask
 	{
 		Gamepad input;
         Controller controller1, controller2;
 
-		public ControllerTask(StateQueue downlink) : base(downlink)
+		public ControllersTask()
 		{
 			controller1 = new SharpDX.XInput.Controller(SharpDX.XInput.UserIndex.One);
 			controller2 = new SharpDX.XInput.Controller(SharpDX.XInput.UserIndex.Two);
 		}
 
-		protected override void messageTrigger(string key, dynamic value)
-		{
-		}
+		protected override void messageTrigger(string key, dynamic value) {}
 
 		protected override void taskFunction()
 		{
-			while (true)
+			while(true)
 			{
-				Thread.Sleep(10);
-				if (controller1.IsConnected)
+				Thread.Sleep(50);
+				if(controller1.IsConnected)
 				{
 					input = controller1.GetState().Gamepad;
 					processJoystickAxis("inputOneLeftX", input.LeftThumbX);
@@ -38,6 +36,7 @@ namespace usstgui
 					processButton("inputOneBButton", GamepadButtonFlags.B);
 					processButton("inputOneXButton", GamepadButtonFlags.X);
 					processButton("inputOneYButton", GamepadButtonFlags.Y);
+					setShared("controller1Heartbeat", true);
                 }
                 else
                     setDefaultValues("inputOne");
@@ -55,6 +54,7 @@ namespace usstgui
                     processButton("inputTwoBButton", GamepadButtonFlags.B);
                     processButton("inputTwoXButton", GamepadButtonFlags.X);
                     processButton("inputTwoYButton", GamepadButtonFlags.Y);
+					setShared("controller2Heartbeat", true);
                 }
                 else
                     setDefaultValues("inputTwo");
@@ -69,16 +69,16 @@ namespace usstgui
 				value = 0.0;
 			if (invert)
 				value = -value;
-			StateManager.setShared(name, Math.Round(value * scale, 2));
+			setShared(name, Math.Round(value * scale, 2));
 		}
 
 		private void processJoystickAxis(string name, short inputValue)
 		{
 			processAxis(name,
 						(double)inputValue / 32767.0,
-						(bool)StateManager.getShared(name + "Invert"),
-						(float)StateManager.getShared(name + "Scale"),
-						(float)StateManager.getShared(name + "Deadband"));
+						(bool)getShared(name + "Invert"),
+						(float)getShared(name + "Scale"),
+						(float)getShared(name + "Deadband"));
 		}
 
 		private void processTriggerAxis(string name, short inputValue)
@@ -86,27 +86,28 @@ namespace usstgui
 			processAxis(name,
 						(double)inputValue / 255.0,
 						(bool)false,
-						(float)StateManager.getShared(name + "Scale"),
-						(float)StateManager.getShared(name + "Deadband"));
+						(float)getShared(name + "Scale"),
+						(float)getShared(name + "Deadband"));
 		}
 
 		private void processButton(string name, GamepadButtonFlags button)
 		{
-			StateManager.setShared(name, input.Buttons.HasFlag(button).ToString());
+
+			setShared(name, input.Buttons.HasFlag(button));
 		}
 
 		private void setDefaultValues(string prefix)
 		{
-			StateManager.setShared(prefix + "LeftX", 0.0);
-			StateManager.setShared(prefix + "LeftY", 0.0);
-			StateManager.setShared(prefix + "RightX", 0.0);
-			StateManager.setShared(prefix + "RightY", 0.0);
-			StateManager.setShared(prefix + "LeftTrigger", 0.0);
-			StateManager.setShared(prefix + "RightTrigger", 0.0);
-			StateManager.setShared(prefix + "AButton", false);
-			StateManager.setShared(prefix + "BButton", false);
-			StateManager.setShared(prefix + "XButton", false);
-			StateManager.setShared(prefix + "YButton", false);
+			setShared(prefix + "LeftX", 0.0);
+			setShared(prefix + "LeftY", 0.0);
+			setShared(prefix + "RightX", 0.0);
+			setShared(prefix + "RightY", 0.0);
+			setShared(prefix + "LeftTrigger", 0.0);
+			setShared(prefix + "RightTrigger", 0.0);
+			setShared(prefix + "AButton", false);
+			setShared(prefix + "BButton", false);
+			setShared(prefix + "XButton", false);
+			setShared(prefix + "YButton", false);
 		}
 	}
 }

@@ -15,68 +15,31 @@ namespace usstgui
 {
 	public class JsonClientTask : BaseTask
 	{
-		StateDict outData;
-		StateDict inData;
-		Thread netListener;
-		UdpClient sender;
-		UdpClient receiver;
-		IPEndPoint localEndPoint;
-		IPEndPoint remoteEndPoint;
+		StateDict outData = new StateDict();
+		UdpClient sender = new UdpClient();
+		UdpClient receiver = new UdpClient();
 		int period;
 
-		public JsonClientTask(
-			StateQueue downlink,
-			int localPort,
-			int remotePort,
-			string roverIP,
-			int period)
-			: base(downlink)
+		public JsonClientTask(int period)
 		{
 			this.period = period;
-			outData = new StateDict();
-			netListener = new Thread(new ThreadStart(netListenerFunction));
-
-			localEndPoint = new IPEndPoint(IPAddress.Any, localPort);
-			remoteEndPoint = new IPEndPoint(IPAddress.Parse(roverIP), remotePort);
-
-			sender = new UdpClient();
-			receiver = new UdpClient();
 			receiver.Client.SetSocketOption(
 				SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-			receiver.Client.Bind(localEndPoint);
+			receiver.Client.Bind(new IPEndPoint(IPAddress.Any, (int)getShared("jsonPort")));
 		}
 
-		public void receiveFromFile(string filename)
+		public static void receiveFromFile(string filename)
 		{
 			StreamReader reader = new StreamReader(filename, ASCIIEncoding.ASCII);
-			receiveJson(reader.ReadToEnd());
+			StateDict inData = parseJson(reader.ReadToEnd());
+			foreach (StateElement e in inData)
+				SharedState.set(e.Key, e.Value);
 			reader.Close();
 		}
 
-		public override void start()
+		private static StateDict parseJson(string rawData)
 		{
-			base.start();
-			netListener.Start();
-		}
-
-		public override void stop()
-		{
-			base.stop();
-			netListener.Abort();
-		}
-
-		private void netListenerFunction()
-		{
-			IPEndPoint remote = null;
-			while (true)
-			{
-				receiveJson(Encoding.ASCII.GetString(receiver.Receive(ref remote)));
-			}
-		}
-
-		private void receiveJson(string rawData)
-		{
-			inData = new StateDict();
+			StateDict inData = new StateDict();
 			try
 			{
 				inData = JsonConvert.DeserializeObject<StateDict>(rawData);
@@ -85,40 +48,62 @@ namespace usstgui
 			{
 				Debug.WriteLine("Got bad JSON: " + rawData);
 			}
-			foreach (StateElement e in inData)
-				StateManager.setShared(e.Key, e.Value);
+			return inData;
+		}
+
+		public override void start()
+		{
+			base.start();
+			new Thread(new ThreadStart(netListenerFunction)).Start();
+		}
+
+		private void netListenerFunction()
+		{
+			IPEndPoint remote = null;
+			while(receiver.Available > 0)
+			{
+				StateDict inData = parseJson(Encoding.ASCII.GetString(receiver.Receive(ref remote)));
+				foreach (StateElement e in inData)
+					setShared(e.Key, e.Value);
+			}
 		}
 
 		protected override void messageTrigger(string key, dynamic value)
 		{
-			lock (outData)
+			if(key.Equals("jsonPort"))
 			{
-				if (outData.ContainsKey(key))
-					outData[key] = value;
-				else
-					outData.Add(key, value);
+				receiver.Client.Bind(new IPEndPoint(IPAddress.Any, getShared("jsonPort")));
+			}
+			else
+			{
+				lock(outData)
+				{
+					if(outData.ContainsKey(key))
+						outData[key] = value;
+					else
+						outData.Add(key, value);
+				}
 			}
 		}
 
 		protected override void taskFunction()
 		{
 			byte[] dgram = null;
-			while (true)
+			while(true)
 			{
-				lock (outData)
+				lock(outData)
 				{
 					if (outData.Count > 0)
 					{
 						dgram = Encoding.ASCII.GetBytes(
 							JsonConvert.SerializeObject(outData));
-                        //Debug.Write("TX Packet: ");
-                        //Debug.WriteLine(Encoding.Default.GetString(dgram));
                         outData.Clear();
 					}
 				}
 				if (dgram != null)
 				{
-					sender.Send(dgram, dgram.GetLength(0), remoteEndPoint);
+					sender.Send(dgram, dgram.GetLength(0), new IPEndPoint(
+						IPAddress.Parse(getShared("roverIP")), (int)getShared("jsonPort")));
 					dgram = null;
 				}
 				Thread.Sleep(period);

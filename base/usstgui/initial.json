@@ -1,4 +1,17 @@
 ﻿{
+	"roverIP": "192.168.1.103",
+	"jsonPort": 34567,
+	"cameraPort": 40000,
+
+	"commsHeartbeat": false,
+	"driveHeartbeat": false,
+	"armHeartbeat": false,
+	"drillHeartbeat": false,
+	"gpsHeartbeat": false,
+	"lidarHeartbeat": false,
+	"controller1Heartbeat": false,
+	"controller2Heartbeat": false,
+	
 	"inputOneLeftX": 0.0,
 	"inputOneRightX": 0.0,
 	"inputOneLeftY": 0.0,
