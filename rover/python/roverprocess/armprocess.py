@@ -107,6 +107,15 @@ class ArmProcess(RoverProcess):
 				self.command.d6 = msg
 				self.lastd6 = msg
 				self.update = True
+				
+		if "inputTwoRightX" in message:
+			msg = int(message["inputTwoRightX"]*255)
+			if(self.lastd3 == 0 and msg == self.lastd3):
+				pass
+			else:
+				self.command.d3 = msg
+				self.lastd3 = msg
+				self.update = True
 
 		if "armBaseSlider" in message:
 			msg = int(message["armBaseSlider"]*255)
@@ -121,20 +130,20 @@ class ArmProcess(RoverProcess):
 			
 		
 		if "inputTwoBButton" in message:
-			msg = 255*int(message["inputTwoBButton"]== "True")
+			msg = -255*int(message["inputTwoBButton"]== "True")
 			if(self.bbutton == 0 and msg == self.bbutton):
 				pass
 			else:
-				self.command.d4 = msg
+				self.command.d5 = msg
 				self.bbutton = msg
 				self.update = True
 			
 		if "inputTwoXButton" in message:
-			msg = -255*int(message["inputTwoXButton"]== "True")
+			msg = 255*int(message["inputTwoXButton"]== "True")
 			if(self.xbutton == 0 and msg == self.xbutton):
 				pass
 			else:
-				self.command.d4 = msg
+				self.command.d5 = msg
 				self.xbutton = msg
 				self.update = True
 		
@@ -143,7 +152,7 @@ class ArmProcess(RoverProcess):
 			if(self.abutton == 0 and msg == self.abutton):
 				pass
 			else:
-				self.command.d5 = msg
+				self.command.d4 = msg
 				self.abutton = msg
 				self.update = True
 			
@@ -152,16 +161,9 @@ class ArmProcess(RoverProcess):
 			if(self.ybutton == 0 and msg == self.ybutton):
 				pass
 			else:
-				self.command.d5 = msg
+				self.command.d4 = msg
 				self.ybutton = msg
 				self.update = True
-				
-		# if self.xbutton==0 and self.bbutton==0:
-			# self.command.d4 = 0
-			
-		# if self.abutton==0 and self.ybutton==0:
-			# self.command.d5 = 0
-			
 
 
 	def cleanup(self):

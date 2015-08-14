@@ -21,21 +21,28 @@ class CameraProcess(RoverProcess):
 			print "CameraThread: ServoDriver not available"
 	
 	def loop(self):
-		# your looping code here. for example:
-		self.setShared("exampleTime", time.time())
-		time.sleep(1)
+		self.cameraPitch = min(max(self.cameraPitch, -180), 180)
+		self.cameraYaw = min(max(self.cameraYaw, -180), 180)
+		self.turnCamera(self.cameraPitch, self.cameraYaw)
+		time.sleep(0.1)
 	
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
-		if "vidsource" in message:
-				self.setVideoSource(data["vidsource"])
-		if "cameraMovement" in message:
-			change = data["cameraMovement"]
-			self.cameraPitch += int(change[0]) * -5
-			self.cameraYaw += int(change[1]) * 10
-			self.cameraPitch = min(max(self.cameraPitch, -180), 180)
-			self.cameraYaw = min(max(self.cameraYaw, -180), 180)
-			self.turnCamera(self.cameraPitch, self.cameraYaw)
+		if "videoState" in message:
+				self.setVideoSource(data["videoState"])
+				
+		if "CamUp" in message:
+			self.cameraPitch += 5
+			print "camup"
+		if "CamDown" in message:
+			self.cameraPitch -= 5
+		if "CamLeft" in message:
+			self.cameraYaw += 10
+		if "CamRight" in message:
+			self.cameraYaw -= 10
+			
+			
+			
 	
 	def cleanup(self):
 		RoverProcess.cleanup(self)
@@ -58,12 +65,15 @@ class CameraProcess(RoverProcess):
 	
 	def setVideoSource(self, camera):
 		self.stopStreams()
-		if camera == "turret":
+		time.sleep(2)
+		if camera == "startMastVideo":
 			self.startTurretCam()
-		elif camera == "arm":
+		elif camera == "startArmVideo":
 			self.startArmCam()
-		elif camera == "drive":
+		elif camera == "startDriveVideo":
 			self.startDriveCam()
+		elif camera == "stop":
+			self.stopStreams()
 
 	def startTurretCam(self):
 		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_raspicam.so -x %d -y %d -fps %d -ex night" &''') %(self.fps, self.resX, self.resY)

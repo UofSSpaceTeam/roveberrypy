@@ -45,7 +45,11 @@ namespace usstgui
 											"DrillTranslation",
 											"DrillRotation",
 											"DrillPower",
-											"VideoState"}); // Video
+											"VideoState", // Video
+                                            "CamUp",
+                                            "CamDown",
+                                            "CamLeft",
+                                            "CamRight"}); 
 			
 			// start all the tasks
 			jsonClient.start();
