@@ -35,7 +35,7 @@ namespace usstgui
 
 		private void HeartbeatMonitor()
 		{
-			Color alive = Colors.AliceBlue;
+			Color alive = Colors.LightGreen;
 			Color dead = Colors.Coral;
 			while(true)
 			{
