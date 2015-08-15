@@ -10,7 +10,7 @@ from roverprocess.exampleprocess import ExampleProcess
 from roverprocess.gps import GPS
 from roverprocess.driveprocess import DriveProcess
 from roverprocess.armprocess import ArmProcess
-# from roverprocess.compass import Compass
+from roverprocess.compass import Compass
 from roverprocess.drillprocess import  DrillProcess
 from roverprocess.cameraprocess import CameraProcess
 
@@ -87,10 +87,10 @@ if __name__ == "__main__":
 	processes.append(process)
 
 	# compass
-	# process = Compass(
-	#         downlink = system.getDownlink(), uplink = system.getUplink())
-	# system.addObserver("getCompass", process.downlink)
-	# processes.append(process)
+	process = Compass(
+	        downlink = system.getDownlink(), uplink = system.getUplink())
+	system.addObserver("getCompass", process.downlink)
+	processes.append(process)
 	
 	# drill process
 	process = DrillProcess(
