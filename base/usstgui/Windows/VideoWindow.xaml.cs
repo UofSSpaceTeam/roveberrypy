@@ -31,7 +31,7 @@ namespace usstgui
             SharedState.set("resX", resX.Text);
             SharedState.set("resY", resY.Text);
             SharedState.set("videoState", "start" + ((Button)sender).Name);
-            Thread.Sleep(2000);
+            Thread.Sleep(10000);
             VideoFb.ParseStream(getCameraUri());
         }
 

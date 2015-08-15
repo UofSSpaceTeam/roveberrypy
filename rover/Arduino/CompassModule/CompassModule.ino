@@ -7,11 +7,11 @@ LSM303 compass;
 
 void setup() {
   Serial1.begin(9600);
-  Serial.begin(9600);
-  Serial.print("Starting");
+  delay(1000);
   Wire.begin();
   compass.init();
   compass.enableDefault();
+  pinMode(13, OUTPUT);
   
   /*
   Calibration values; the default values of +/-32767 for each axis
@@ -23,13 +23,13 @@ void setup() {
 }
 
 void loop() {
-    Serial.print("reading data");
+    digitalWrite(13, HIGH);
     compass.read();
     float heading = compass.heading();
-    Serial.print('$');
-    Serial.println(heading);
     Serial1.print('$');
     Serial1.println(heading);
+    digitalWrite(13, LOW);
+    delay(100);
 
   
 }

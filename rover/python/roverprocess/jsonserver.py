@@ -18,7 +18,7 @@ class JsonServer(RoverProcess):
 		def run(self):
 			while True:
 				jsonData, address = self.listener.recvfrom(4096)
-				#print jsonData
+				# print jsonData
 				data = self.byteify(json.loads(jsonData))
 				assert isinstance(data, dict)
 				self.uplink.put(data)

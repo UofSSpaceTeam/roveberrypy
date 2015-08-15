@@ -45,7 +45,7 @@ namespace usstgui
 											"DrillTranslation",
 											"DrillRotation",
 											"DrillPower",
-											"VideoState", // Video
+                                            "videoState", // Video
                                             "CamUp",
                                             "CamDown",
                                             "CamLeft",
