@@ -27,7 +27,7 @@ namespace usstgui
 		{
 			if((bool)Cw.IsChecked)
 				SharedState.set("drillRotation", DrillSpeed.Value);
-			else if ((bool)Ccw.IsChecked)
+			else if((bool)Ccw.IsChecked)
 				SharedState.set("drillRotation", -DrillSpeed.Value);
 			else
 				drillStop(null, null);
@@ -37,6 +37,11 @@ namespace usstgui
 		{
 			SharedState.set("drillRotation", 0.0);
 			this.Dispatcher.Invoke((Action)(() => { DrillSpeed.Value = 0.0; }));
+		}
+
+		private void radioButtonClick(object sender, RoutedEventArgs e)
+		{
+			drillSet(null, null);
 		}		
 	}
 }
