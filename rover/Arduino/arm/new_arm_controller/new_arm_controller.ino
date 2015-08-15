@@ -31,7 +31,7 @@
 #define L3_C0 		-16.79
 
 #define BASE_A		11
-#define BASE_B		8
+#define BASE_B		8 
 #define BASE_PWM	5
 
 #define G1_A		7
@@ -113,16 +113,16 @@ void processCommand(){
   G1_speed    = cmd.d4;
   G2_speed    = cmd.d5;
   BASE_speed  = cmd.d6;
-  arm_radius  = float(cmd.d7)/10.0;
-  arm_alt     = float(cmd.d8)/10.0;
-  arm_phi     = float(cmd.d9)/10.0;
+  arm_radius  = cmd.d7;
+  arm_alt     = cmd.d8;
+  arm_phi     = cmd.d9;
   
   if( abs(arm_radius - prev_radius) > 0.05 || abs(arm_alt - prev_alt) > 0.05 ){
     newCommand = false;
     prev_radius = arm_radius;
     prev_alt = arm_alt;
     
-    invKinCommand(arm_radius, arm_alt, arm_phi);
+    invKinCommand(arm_radius, arm_alt);
     
   } else {
     directControl(L1_speed, L2_speed, L3_speed, G1_speed, G2_speed, BASE_speed);
@@ -427,15 +427,15 @@ void VNH5019::setPWM(int dutyCycle){
 VNH5019 L1(L1_A, L1_B, L1_PWM, L1_WIPER);
 VNH5019 L2(L2_A, L2_B, L2_PWM, L2_WIPER);
 VNH5019 L3(L3_A, L3_B, L3_PWM, L3_WIPER);
-VNH5019 G1(G1_A, G1_B, G1_PWM);
-VNH5019 G2(G1_A, G1_B);
-VNH5019 BASE(BASE_A, BASE_B);
+VNH5019 Gripper1(G1_A, G1_B, G1_PWM);
+VNH5019 Gripper2(G2_A, G2_B);
+VNH5019 BaseController(BASE_A, BASE_B);
 
 VNH5019* la[3] = {&L1, &L2, &L3};
-VNH5019* gr[3] = {&G1, &G2};
 
 
-void invKinCommand(double r, double z, double phi) {
+
+void invKinCommand(double r, double z) {
 
   // constants
   double a0r = 30.34;
@@ -448,7 +448,7 @@ void invKinCommand(double r, double z, double phi) {
   double ar2 = (a0r + r) * (a0r + r);
   double az2 = (a0z - z) * (a0z - z);
 
-  double lengthLA[3];
+  double lengthLA[2];
 
   // intermediate calcs
   // L1
@@ -459,22 +459,16 @@ void invKinCommand(double r, double z, double phi) {
   //L2
   lengthLA[1]   = 199.919984 * sqrt(3.17794235 + (-a1s - a2s + ar2 + az2) / (a1 * a2)) - 292.35;
 
-  //L3
-  temp1 = acos((-a1s - a2s + ar2 + az2) / (2 * a1 * a2));
-  temp2 = atan2(a2 * sqrt(1.0 - (a1s + a2s - ar2 - az2) * (a1s + a2s - ar2 - az2) / (4 * a1s * a2s)), (a1s - a2s + ar2 + az2) / (2 * a1));
-  lengthLA[2] = 156.780100778 * sqrt(2.2274206672 + cos(phi * 0.01745329251 + temp1 - temp2 + atan2(a0r + r, z - a0z))) - 170.5;
-  int drLength[3];
+  int drLength[2];
   int numberAtDestination = 0;
 
   Serial.print("Setting L1 to ");
   Serial.println(lengthLA[0]);
   Serial.print("Setting L2 to ");
   Serial.println(lengthLA[1]);
-  Serial.print("Setting L3 to ");
-  Serial.println(lengthLA[2]);
 
   // turn on the LA's
-  for (int idx = 0; idx < 3; idx++) {
+  for (int idx = 0; idx < 2; idx++) {
     drLength[idx] = la[idx]->convertPhysDR(lengthLA[idx]); // get dr of final position
     int dr = la[idx]->readPosition(); // read position
     // set direction
@@ -498,13 +492,12 @@ void invKinCommand(double r, double z, double phi) {
 
   Serial.println("Waiting for actuators to get to their final position");
   
-  int prevReading[3];
+  int prevReading[2];
   prevReading[0] = 0;
   prevReading[1] = 0;
-  prevReading[2] = 0;
   int n = 0;
-  while (numberAtDestination < 3 && !newCommand) {
-    for (int idx = 0; idx < 3; idx++) {
+  while (numberAtDestination < 2 && !newCommand) {
+    for (int idx = 0; idx < 2; idx++) {
       
       la[idx]->isSafe(); // make sure that position is okay
 
@@ -568,7 +561,7 @@ void directControl(int L1, int L2, int L3, int G1, int G2, int BASE_){
     if(L1 > 0){
       la[0]->turn(ON,EXTEND,L1);
     } else {
-      la[0]->turn(ON,RETRACT,L1);
+      la[0]->turn(ON,RETRACT,-L1);
     }
   } else {
     la[0]->turn(OFF);
@@ -579,7 +572,7 @@ void directControl(int L1, int L2, int L3, int G1, int G2, int BASE_){
     if(L2 > 0){
       la[1]->turn(ON,EXTEND,L2);
     } else {
-      la[1]->turn(ON,RETRACT,L2);
+      la[1]->turn(ON,RETRACT,-L2);
     }
   } else {
     la[1]->turn(OFF);
@@ -590,7 +583,7 @@ void directControl(int L1, int L2, int L3, int G1, int G2, int BASE_){
     if(L3 > 0){
       la[2]->turn(ON,EXTEND,L3);
     } else {
-      la[2]->turn(ON,RETRACT,L3);
+      la[2]->turn(ON,RETRACT,-L3);
     }
   } else {
     la[2]->turn(OFF);
@@ -598,55 +591,50 @@ void directControl(int L1, int L2, int L3, int G1, int G2, int BASE_){
 
   // G1
   if(G1 != 0){
+    
     if(G1 > 0){
-      gr[0]->turn(ON,EXTEND,G1);
+      Gripper1.turn(ON,EXTEND, G1);
     } else {
-      gr[0]->turn(ON,RETRACT,G1);
+      Gripper1.turn(ON,RETRACT, -G1);
     }
   } else {
-    gr[0]->turn(OFF);
+    Gripper1.turn(OFF);
   }
 
   // G2
   if(G2 != 0){
     if(G2 > 0){
-      gr[1]->turn(ON,EXTEND,G2);
+      Gripper2.turn(ON,EXTEND);
     } else {
-      gr[1]->turn(ON,RETRACT,G2);
+      Gripper2.turn(ON,RETRACT);
     }
   } else {
-    gr[1]->turn(OFF);
+    Gripper2.turn(OFF);
   }
 
   // BASE
   if(BASE_ != 0){
     if(BASE_ > 0){
-      BASE.turn(ON,EXTEND,BASE_);
+      //BaseController.turn(ON,EXTEND,BASE_);
+      digitalWrite(BASE_A,HIGH);
+      digitalWrite(BASE_B,LOW);
+      analogWrite(BASE_PWM,BASE_);
+      Serial.println("BASE:FWD");
     } else {
-      BASE.turn(ON,RETRACT,BASE_);
+     //BaseController.turn(ON,RETRACT,-BASE_);
+     digitalWrite(BASE_A,LOW);
+      digitalWrite(BASE_B,HIGH);
+      analogWrite(BASE_PWM,-BASE_);
+      Serial.println("BASE:BACK");
     }
   } else {
-    BASE.turn(OFF);
+    BaseController.turn(OFF);
   }
 
   // check for safe positions
   la[0]->isSafe();
   la[1]->isSafe();
   la[2]->isSafe();
-}
-
-
-
-void executeNewCommand(int type) {
-  switch (type) {
-    case POSITION:
-      break;
-    case DIRECT:
-      break;
-    case NUDGE:
-      break;
-
-  }
 }
 
 void setup() {
@@ -677,7 +665,15 @@ void setup() {
   la[1]->initalizePins();
   la[2]->initalizePins();
 
-  invKinCommand(500, 300, 0);
+  Gripper1.initalizePins();
+  Gripper2.initalizePins();
+  BaseController.initalizePins();
+
+  pinMode(BASE_A, OUTPUT);
+  pinMode(BASE_B, OUTPUT);
+  pinMode(BASE_PWM, OUTPUT);
+
+  invKinCommand(500, 300);
 }
 
 
