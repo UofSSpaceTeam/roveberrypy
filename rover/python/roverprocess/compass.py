@@ -9,6 +9,7 @@ class Compass(RoverProcess):
 	def setup(self, args):
 		self.serial = serial.Serial(port="/dev/ttyAMA0", baudrate=9600, timeout=1)
 		self.update = False
+<<<<<<< HEAD
 
 
 	def loop(self):
@@ -24,6 +25,15 @@ class Compass(RoverProcess):
 		time.sleep(0.01)
 		
 
+=======
+            self.serial = open('/dev/ttyACM1', 'r+')
+
+
+	def loop(self):
+            self.serial.write('r')
+            print(self.serial.read())
+		time.sleep(0.250)
+>>>>>>> origin/master
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
