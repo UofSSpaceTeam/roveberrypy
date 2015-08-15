@@ -6,7 +6,9 @@
 LSM303 compass;
 
 void setup() {
+  Serial1.begin(9600);
   Serial.begin(9600);
+  Serial.print("Starting");
   Wire.begin();
   compass.init();
   compass.enableDefault();
@@ -21,11 +23,13 @@ void setup() {
 }
 
 void loop() {
-  char inbyte = Serial.read();
-  if(inbyte == 'r') {
+    Serial.print("reading data");
     compass.read();
     float heading = compass.heading();
-    Serial.print(heading);
-  }
+    Serial.print('$');
+    Serial.println(heading);
+    Serial1.print('$');
+    Serial1.println(heading);
+
   
 }
