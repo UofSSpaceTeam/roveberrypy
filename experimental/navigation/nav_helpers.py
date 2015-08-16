@@ -49,25 +49,23 @@ class Coordinate:
             bearing = bearing - 2*pi
         return bearing * 180/pi
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+#               C O O R D I N A T E S   T E S T   C A S E                      #
+#                                                                              #
+#   Test case:  distance and bearing from (43.990967, 78.48321) to             #
+#               (43.991, 78.4833).                                             #
+#   Result:     should be 8 meters at an absolute bearing of 63[deg]           #
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+
+#x = Coordinate(43.990967, 78.48321)
+#y = Coordinate(43.991, 78.4833)
+#print("Distance from x to y is: ", x.distanceTo(y))
+#print("Bearing from x to y is: ", x.bearingTo(y))
+
 #******************************************************************************#
 #               E N D   O F   C O O R D I N A T E   C L A S S                  #
 #******************************************************************************#
 
 
 
-#-------------------------------------------------------------------------------
 
-
-
-#******************************************************************************#
-#               C O O R D I N A T E S   T E S T   C A S E                      #
-#******************************************************************************#
-
-
-# test case from (43.990967, 78.48321) to (43.991, 78.4833)
-# the result should be that y is 8 meters to at a bearing of 63[deg]
-
-#x = Coordinate(43.990967, 78.48321)
-#y = Coordinate(43.991, 78.4833)
-#print("Distance from x to y is: ", x.distanceTo(y))
-#print("Bearing from x to y is: ", x.bearingTo(y))
