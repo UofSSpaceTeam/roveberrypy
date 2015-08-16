@@ -13,6 +13,7 @@ from roverprocess.armprocess import ArmProcess
 from roverprocess.compass import Compass
 from roverprocess.drillprocess import  DrillProcess
 from roverprocess.cameraprocess import CameraProcess
+from roverprocess.lidarprocess import LidarProcess
 
 # system configuration
 localPort = 34567
@@ -32,12 +33,6 @@ if __name__ == "__main__":
 	system.addObserver("exampleTime", process.downlink)
 	processes.append(process)
 	
-	# example process
-	process = ExampleProcess(
-		downlink = system.getDownlink(), uplink = system.getUplink())
-	system.addObserver("exampleKey", process.downlink)
-	processes.append(process)
-	
 	# Piksi GPS process
 	process = GPS(
 		downlink = system.getDownlink(), uplink = system.getUplink())
@@ -51,7 +46,7 @@ if __name__ == "__main__":
 	system.addObserver("gps_baseline_flags", process.downlink)
 	processes.append(process)
 	
-	# # drive process
+	# drive process
 	process = DriveProcess(
 	 	downlink = system.getDownlink(), uplink = system.getUplink(),
 	 	sem = i2cSem)
@@ -59,6 +54,11 @@ if __name__ == "__main__":
 	system.addObserver("inputOneRightY", process.downlink)
 	processes.append(process)
 	
+	# sensor process
+	process = SensorProcess(
+	 	downlink = system.getDownlink(), uplink = system.getUplink())
+	system.addObserver("scanRate", process.downlink)
+	processes.append(process)
 
 	# arm process
 	# process = ArmProcess(
