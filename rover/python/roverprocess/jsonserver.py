@@ -20,10 +20,12 @@ class JsonServer(RoverProcess):
 				jsonData, address = self.listener.recvfrom(4096)
 				# print jsonData
 				data = self.byteify(json.loads(jsonData))
-				assert isinstance(data, dict)
-				self.uplink.put(data)
-				with self.parent.addressSem:
-					self.parent.address = address[0]
+				if isinstance(data, dict):
+					self.uplink.put(data)
+					if "commsHeartbeat" in data:
+						self.messageTrigger({"commsHeartbeat": True})
+					with self.parent.addressSem:
+						self.parent.address = address[0]
 		
 		# Thanks, Mark Amery of stackoverflow!
 		def byteify(self, input):
