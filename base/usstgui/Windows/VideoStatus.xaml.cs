@@ -7,11 +7,11 @@ using System.Threading;
 
 namespace usstgui
 {
-    public partial class VideoWindow : Window
+    public partial class VideoStatus : Window
     {
         readonly MjpegDecoder VideoFb = new MjpegDecoder();
 
-        public VideoWindow()
+        public VideoStatus()
         {
             InitializeComponent();
             VideoFb.FrameReady += mjpeg_FrameReady;

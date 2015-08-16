@@ -40,10 +40,11 @@ namespace usstgui
 			while(true)
 			{
 				processHeartbeat("commsHeartbeat", CommsStatus, alive, dead);
+				processHeartbeat("cameraHeartbeat", VideoStatus, alive, dead);
 				processHeartbeat("driveHeartbeat", DriveStatus, alive, dead);
 				processHeartbeat("armHeartbeat", ArmStatus, alive, dead);
 				processHeartbeat("drillHeartbeat", DrillStatus, alive, dead);
-				processHeartbeat("gpsHeartbeat", GpsStatus, alive, dead);
+				processHeartbeat("navHeartbeat", NavStatus, alive, dead);
 				processHeartbeat("lidarHeartbeat", LidarStatus, alive, dead);
 				processHeartbeat("controller1Heartbeat", Controller1Status, alive, dead);
 				processHeartbeat("controller2Heartbeat", Controller2Status, alive, dead);

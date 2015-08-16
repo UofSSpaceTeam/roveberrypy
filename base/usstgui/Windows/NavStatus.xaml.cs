@@ -9,9 +9,9 @@ using System.Net.NetworkInformation;
 
 namespace usstgui
 {
-    public partial class NavWindow : Window
+    public partial class NavStatus : Window
     {
-        public NavWindow()
+        public NavStatus()
         {
             InitializeComponent();
 

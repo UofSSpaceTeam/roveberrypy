@@ -48,6 +48,11 @@ namespace usstgui
 			redraw();
 		}
 
+		private void editItem(object sender, RoutedEventArgs e)
+		{
+			new EditorWindow().Show();
+		}
+
 		public void removeItem(object sender, RoutedEventArgs e)
 		{
 			foreach(watchedItem item in itemList)

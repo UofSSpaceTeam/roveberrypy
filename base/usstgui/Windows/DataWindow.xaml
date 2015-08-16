@@ -10,7 +10,7 @@
 		Width="400"
 		ResizeMode="CanResizeWithGrip"
 		ScrollViewer.VerticalScrollBarVisibility="Visible">
-	<Grid Name="windowGrid">
+	<Grid Name="windowGrid" Margin="0">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="25"/>
 			<RowDefinition Height="30"/>
@@ -21,7 +21,7 @@
 			<ColumnDefinition Width="30"/>
 		</Grid.ColumnDefinitions>
 		<TextBox x:Name="inputBox"  Background="Beige" VerticalContentAlignment="Center" Height="22" Text="exampleKey"  Grid.Column="0" Grid.Row="0"/>
-		<Button Content="Add" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Width="50" Height="22" VerticalAlignment="Center" Click="addItem"/>
+		<Button Content="Watch" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Width="50" Height="22" VerticalAlignment="Center" Click="addItem"/>
 		<Label Content="Key" FontWeight="Bold"  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 		<Label Content="Value" FontWeight="Bold" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 	</Grid>

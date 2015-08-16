@@ -4,10 +4,11 @@
 	"cameraPort": 40000,
 
 	"commsHeartbeat": false,
+	"cameraHeartbeat": false,
 	"driveHeartbeat": false,
 	"armHeartbeat": false,
 	"drillHeartbeat": false,
-	"gpsHeartbeat": false,
+	"navHeartbeat": false,
 	"lidarHeartbeat": false,
 	"controller1Heartbeat": false,
 	"controller2Heartbeat": false,

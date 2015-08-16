@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:usstgui"
         mc:Ignorable="d"
         Title="RoverApp"
-		Height="440"
+		Height="445"
 		Width="150"
 		ResizeMode="NoResize">
     <Grid>
@@ -27,21 +27,19 @@
 			<RowDefinition Height="30"/>
 			<RowDefinition Height="30"/>
 			<RowDefinition Height="30"/>
-			<RowDefinition Height="30"/>
 		</Grid.RowDefinitions>
-		<Label Content="Interfaces" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
-		<Button x:Name="VideoWindow" Content="Video"  Grid.Row="1" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
-		<Button x:Name="NavWindow" Content="Navigation" Grid.Row="2" HorizontalAlignment="Center" Height="25"  VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
-		<Button x:Name="DataWindow" Content="Data Viewer" Grid.Row="3" HorizontalAlignment="Center" Height="25"  VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
-
-		<Label Content="Subsystems" Grid.Row="4" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
-		<Button x:Name="CommsStatus" Content="Comms" Grid.Row="5" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
-		<Button x:Name="DriveStatus" Content="Drive" Grid.Row="6" Background="Coral" HorizontalAlignment="Center" Height="25"  VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
-		<Button x:Name="ArmStatus" Content="Arm" Grid.Row="7" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
-		<Button x:Name="DrillStatus" Content="Drill" Grid.Row="8" Background="Coral"  HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
-		<Button x:Name="GpsStatus" Content="GPS" Grid.Row="9" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
-		<Button x:Name="LidarStatus" Content="LIDAR" Grid.Row="10" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
-		<Button x:Name="Controller1Status" Content="Controller 1" Grid.Row="11" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
-		<Button x:Name="Controller2Status" Content="Controller 2" Grid.Row="12" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Label Content="Systems" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+		<Button x:Name="CommsStatus" Content="Comms" Grid.Row="1" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Button x:Name="VideoStatus" Content="Video"  Grid.Row="2" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Button x:Name="NavStatus" Content="Navigation" Grid.Row="3" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Button x:Name="DriveStatus" Content="Drive" Grid.Row="4" Background="Coral" HorizontalAlignment="Center" Height="25"  VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Button x:Name="ArmStatus" Content="Arm" Grid.Row="5" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Button x:Name="DrillStatus" Content="Drill" Grid.Row="6" Background="Coral"  HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Button x:Name="LidarStatus" Content="LIDAR" Grid.Row="7" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Button x:Name="Controller1Status" Content="Controller 1" Grid.Row="8" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Button x:Name="Controller2Status" Content="Controller 2" Grid.Row="9" Background="Coral" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Label Content="Debug" Grid.Row="10" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+		<Button x:Name="DataWindow" Content="Data Viewer" Grid.Row="11" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
+		<Button x:Name="EditorWindow" Content="Data Editor" Grid.Row="12" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="100" Click="OpenWindow"/>
 	</Grid>
 </Window> 

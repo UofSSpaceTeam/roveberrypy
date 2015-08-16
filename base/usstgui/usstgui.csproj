@@ -128,14 +128,26 @@
     <Compile Include="Windows\DataWindow.xaml.cs">
       <DependentUpon>DataWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\NavWindow.xaml.cs">
-      <DependentUpon>NavWindow.xaml</DependentUpon>
+    <Compile Include="Windows\EditorWindow.xaml.cs">
+      <DependentUpon>EditorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\DriveStatus.xaml.cs">
+      <DependentUpon>DriveStatus.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\CommsStatus.xaml.cs">
+      <DependentUpon>CommsStatus.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\LidarStatus.xaml.cs">
+      <DependentUpon>LidarStatus.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\NavStatus.xaml.cs">
+      <DependentUpon>NavStatus.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\DrillStatus.xaml.cs">
       <DependentUpon>DrillStatus.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\VideoWindow.xaml.cs">
-      <DependentUpon>VideoWindow.xaml</DependentUpon>
+    <Compile Include="Windows\VideoStatus.xaml.cs">
+      <DependentUpon>VideoStatus.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\ArmStatus.xaml.cs">
       <DependentUpon>ArmStatus.xaml</DependentUpon>
@@ -159,7 +171,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Windows\NavWindow.xaml">
+    <Page Include="Windows\EditorWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\DriveStatus.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\CommsStatus.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\LidarStatus.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\NavStatus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -167,7 +195,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\VideoWindow.xaml">
+    <Page Include="Windows\VideoStatus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
