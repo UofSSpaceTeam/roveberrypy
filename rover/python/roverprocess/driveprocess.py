@@ -31,6 +31,8 @@ class DriveProcess(RoverProcess):
 	
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
+		if "driveHeartbeat" in message:
+			self.setShared("driveHeartbeat", True)
 		if "inputOneLeftY" in message:
 			self.joyAxes[0] = float(message["inputOneLeftY"])
 			self.update = True

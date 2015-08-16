@@ -28,6 +28,8 @@ class CameraProcess(RoverProcess):
 	
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
+		if "cameraHeartbeat" in message:
+			self.setShared("cameraHeartbeat", True)
 		if "videoState" in message:
 			print "got state"
 			self.setVideoSource(message["videoState"])

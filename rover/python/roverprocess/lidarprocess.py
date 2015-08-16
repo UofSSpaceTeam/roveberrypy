@@ -34,6 +34,8 @@ class LidarProcess(RoverProcess):
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
+		if "lidarHeartbeat" in message:
+			self.setShared("lidarHeartbeat", True)
 		if "scanRate" in message:
 			self.sendCommand("scanRate", int(message["scanRate"] * 10))
 	

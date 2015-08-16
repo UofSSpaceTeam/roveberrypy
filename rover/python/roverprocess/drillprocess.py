@@ -36,6 +36,8 @@ class DrillProcess(RoverProcess):
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
+		if "drillHeartbeat" in message:
+			self.setShared("drillHeartbeat", True)
 		if "DrillSpeed" in message:
 			self.drillSpeed = float(message["DrillSpeed"])
 		if "DrillFeed" in message:

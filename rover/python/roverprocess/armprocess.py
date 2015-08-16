@@ -51,6 +51,8 @@ class ArmProcess(RoverProcess):
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
+		if "armHeartbeat" in message:
+			self.setShared("armHeartbeat", True)
 		
 		# Inverse Kin packets diable controller
 		if "IK_XVal" in message:
