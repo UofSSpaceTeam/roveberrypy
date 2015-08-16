@@ -7,10 +7,9 @@ import multiprocessing
 from statemanager import StateManager
 from roverprocess.jsonserver import JsonServer
 from roverprocess.exampleprocess import ExampleProcess
-from roverprocess.gps import GPS
+from roverprocess.navigation import Navigation
 from roverprocess.driveprocess import DriveProcess
 from roverprocess.armprocess import ArmProcess
-from roverprocess.compass import Compass
 from roverprocess.drillprocess import  DrillProcess
 from roverprocess.cameraprocess import CameraProcess
 from roverprocess.lidarprocess import LidarProcess
@@ -32,9 +31,9 @@ if __name__ == "__main__":
 		local = localPort, remote = remotePort, sendPeriod = 0.1)
 	system.addObserver("exampleTime", process.downlink)
 	processes.append(process)
-	
+
 	# Piksi GPS process
-	process = GPS(
+	process = Navigation(
 		downlink = system.getDownlink(), uplink = system.getUplink())
 	system.addObserver("gps_pos_lat", process.downlink)
 	system.addObserver("gps_pos_lon", process.downlink)
@@ -44,8 +43,9 @@ if __name__ == "__main__":
 	system.addObserver("gps_baseline_e", process.downlink)
 	system.addObserver("gps_baseline_d", process.downlink)
 	system.addObserver("gps_baseline_flags", process.downlink)
+	system.addObserver("compass_heading", process.downlink)
 	processes.append(process)
-	
+
 	# drive process
 	process = DriveProcess(
 	 	downlink = system.getDownlink(), uplink = system.getUplink(),
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 	system.addObserver("inputOneLeftY", process.downlink)
 	system.addObserver("inputOneRightY", process.downlink)
 	processes.append(process)
-	
+
 	# sensor process
 	process = SensorProcess(
 	 	downlink = system.getDownlink(), uplink = system.getUplink())
@@ -72,7 +72,7 @@ if __name__ == "__main__":
 	# system.addObserver("inputTwoBButton", process.downlink);
 	# system.addObserver("inputTwoXButton", process.downlink);
 	# system.addObserver("inputTwoYButton", process.downlink);
-	
+
 	# system.addObserver("armBaseSlider", process.downlink)
 	# system.addObserver("IK_XVal", process.downlink);
 	# system.addObserver("IK_YVal",  process.downlink);
@@ -83,12 +83,6 @@ if __name__ == "__main__":
 	# system.addObserver("armGrpOpen",  process.downlink);
 	# processes.append(process)
 
-	# compass
-	process = Compass(
-	        downlink = system.getDownlink(), uplink = system.getUplink())
-	system.addObserver("getCompass", process.downlink)
-	processes.append(process)
-	
 	# drill process
 	# process = DrillProcess(
 		# downlink = system.getDownlink(), uplink = system.getUplink(),
@@ -100,7 +94,7 @@ if __name__ == "__main__":
 	# system.addObserver("DrillCw", process.downlink)
 	# system.addObserver("DrillCcw", process.downlink)
 	# processes.append(process)
-	
+
 	# camera process
 	process = CameraProcess(
 		downlink = system.getDownlink(), uplink = system.getUplink(),
