@@ -43,8 +43,8 @@ class Navigation(RoverProcess):
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
 				#TODO: more descriptive error handling
-		if "gpsHeartbeat" in message:
-			self.setShared("gpsHeartbeat", True)
+		if "navHeartbeat" in message:
+			self.setShared("navHeartbeat", True)
 		if "gps_pos_lat" in message:
 			self.setShared("latitude", self.getPos().lat)
 		if "gps_pos_lon" in message:

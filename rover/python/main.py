@@ -35,6 +35,7 @@ if __name__ == "__main__":
 	# Piksi GPS process
 	process = Navigation(
 		downlink = system.getDownlink(), uplink = system.getUplink())
+	system.addObserver("navHeartbeat", process.downlink)
 	system.addObserver("gps_pos_lat", process.downlink)
 	system.addObserver("gps_pos_lon", process.downlink)
 	system.addObserver("gps_pos_height", process.downlink)
@@ -50,13 +51,15 @@ if __name__ == "__main__":
 	process = DriveProcess(
 	 	downlink = system.getDownlink(), uplink = system.getUplink(),
 	 	sem = i2cSem)
+	system.addObserver("driveHeartbeat", process.downlink)
 	system.addObserver("inputOneLeftY", process.downlink)
 	system.addObserver("inputOneRightY", process.downlink)
 	processes.append(process)
 
 	# sensor process
-	process = SensorProcess(
+	process = LidarProcess(
 	 	downlink = system.getDownlink(), uplink = system.getUplink())
+	system.addObserver("lidarHeartbeat", process.downlink)
 	system.addObserver("scanRate", process.downlink)
 	processes.append(process)
 
@@ -64,6 +67,7 @@ if __name__ == "__main__":
 	# process = ArmProcess(
 		# downlink = system.getDownlink(), uplink = system.getUplink(),
 		# sem = i2cSem)
+	# system.addObserver("armHeartbeat", process.downlink)
 	# system.addObserver("inputTwoLeftY", process.downlink);
 	# system.addObserver("inputTwoLeftX", process.downlink);
 	# system.addObserver("inputTwoRightY", process.downlink);
@@ -87,18 +91,16 @@ if __name__ == "__main__":
 	# process = DrillProcess(
 		# downlink = system.getDownlink(), uplink = system.getUplink(),
 		# sem = i2cSem)
-	# system.addObserver("DrillSpeed", process.downlink)
-	# system.addObserver("DrillFeed", process.downlink)
-	# system.addObserver("DrillUp", process.downlink)
-	# system.addObserver("DrillDn", process.downlink)
-	# system.addObserver("DrillCw", process.downlink)
-	# system.addObserver("DrillCcw", process.downlink)
+	# system.addObserver("drillHeartbeat", process.downlink)
+	# system.addObserver("drillRotation", process.downlink)
+	# system.addObserver("drillTranslation", process.downlink)
 	# processes.append(process)
 
 	# camera process
 	process = CameraProcess(
 		downlink = system.getDownlink(), uplink = system.getUplink(),
 		sem = i2cSem)
+	system.addObserver("cameraHeartbeat", process.downlink)
 	system.addObserver("videoState", process.downlink)
 	system.addObserver("CamUp", process.downlink)
 	system.addObserver("CamDown", process.downlink)
