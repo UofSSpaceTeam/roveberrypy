@@ -1,10 +1,7 @@
-from math import pi, asin, sqrt, sin, cos, atan2
-
-
 
 # --------------------    S I M P L E   H E L P E R S    ----------------------
 
-
+from math import pi, asin, sqrt, sin, cos, atan2
 
 #haversin formula
 def haversin(theta):
@@ -88,15 +85,15 @@ class Coordinate:
 from abc import ABCMeta, abstractmethod
 
 #******************************************************************************#
-# 		C O M M A N D   B A S E   C L A S S 			       #
+# 		C O M M A N D   B A S E   C L A S S 			      				   #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
-#	Navigation command virtual base class.  			       #
-#									       #	
-#	Attributes:	(as of right now just some ideas for some nothing      #
-#			fancy and feel free to add any others which might be   #
-#			helpful)					       #
-#		- All of the attributes should be pretty self-explanatory.     #
-#									       #
+#	Navigation command virtual base class.  			     				   #
+#									      									   #	
+#	Attributes:	(as of right now just some ideas for some nothing     		   #
+#			fancy and feel free to add any others which might be  			   #
+#			helpful)					       								   #
+#		- All of the attributes should be pretty self-explanatory.    		   #
+#									    								       #
 #******************************************************************************#
 
 
@@ -113,16 +110,16 @@ class NavCommand(object):
 		pass
 
 #*****************************************************************************#
-#			E X A M P L E   C O M M A N D                         #
+#			E X A M P L E   C O M M A N D                         			  #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-#	Prints "I'm suprised someone is actually reading this" 		      #
-#									      #
-#	execute			:: 	prints "I'm suprised someone is       #
-#					actually reading this"		      #
-#	update(newString) 	::	when execute is called newString will #
-#					be printed			      #
-#	cancel			::	make printString empty		      #
-# 									      #
+#	Prints "I'm suprised someone is actually reading this" 		      		  #
+#									      									  #
+#	execute			:: 	prints "I'm suprised someone is       				  #
+#					actually reading this"		     						  #
+#	update(newString) 	::	when execute is called newString will			  #
+#					be printed			      								  #
+#	cancel			::	make printString empty		      					  #
+# 									      									  #
 #*****************************************************************************#
 
 class ExampleNavCommand(NavCommand):
@@ -142,11 +139,11 @@ class ExampleNavCommand(NavCommand):
 		self.isCancelled = True
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-#		E X A M P L E   C O M M A N D   T E S T 		      #
-#	 								      #
-#	Test case:	test that example command is working properly         #
-#									      #
-#	Result:		self explanatory				      #
+#		E X A M P L E   C O M M A N D   T E S T 		      			      #
+#	 								      									  #
+#	Test case:	test that example command is working properly        		  #
+#									   									      #
+#	Result:		self explanatory				     						  #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
 #example1 = ExampleNavCommand()
@@ -164,7 +161,7 @@ class ExampleNavCommand(NavCommand):
 #example4.execute() 
 
 #*****************************************************************************#
-#		 E N D   O F   E X A M P L E   C O M M A N D		      #
+#		 E N D   O F   E X A M P L E   C O M M A N D		      			  #
 #*****************************************************************************#
 
 
