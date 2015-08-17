@@ -1,0 +1,56 @@
+*******************************************************************************
+			N A V I G A T I O N   I D E A S   D I S C U S S I O N			      	
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+ 	Add your own too!							
+
+	LIAM, 8/16/2015:							
+
+	Command Idea:								
+	First major command we should have is driving to a given coordinate	
+	(if we were able to even get here by the time we go to Poland that	
+	would be awesome but if we dont then oh well.				
+
+	We should have two basic commands: 					
+		- rotate the rover						
+		- drive a given distance					
+
+	These two basic commands should be our main focus until we get them	
+	working reliably.							
+
+	The other big thing is that we need some rover process to be written	
+	which contains a queue of nav commands. We then also need some simple	
+	functions to be written to emulate joystick commands for actually	
+ 	driving the rover(eg it would be nice to be able to set the speed 	
+	to each side of wheels.							
+
+	Heading Idea:								
+	The other major concern we have right now is that we are having 	
+ 	trouble determining the direction that the rover is looking in.	I think
+ 	that we should try to use accelerometers instead of the magnetometer.	
+
+	Since we can caluate our heading while moving we could us this to 	
+	pseudo calibrate a dynamic scaling function which could be updated 	
+	everytime the rover rotates. The process would sort of go like this	
+
+	1. Get the heading before the rover stopped.				
+	2. Begin rotating							
+	3. Integrate the rot. acc. detected by the accelerometers		
+	4. Once our guess at our heading reaches the desired bearing then stop 	
+	   stop rotating							
+	5. Begin driving forward						
+	6. Detemine new heading and then use this to recalibrate/update the 	
+	   scaling function							
+
+
+	The other idea I had for the driving was just to never actually stop
+	driving. I know it sounds ridiculous and I thought it was too at first	
+	but I think that it actually would be possible				
+
+	Ideas for object avoidance:						
+	We dont actually need to "detect objects" I think that we should just	
+ 	have it so that if we see something with the LiDar we change our 	
+	heading so that our course if tangent to the objects edge. The edge we 	
+	could simply see by looking at the difference in distance between Lidar	
+	readings.								
+
+	continue...								

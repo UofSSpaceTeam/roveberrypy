@@ -1,5 +1,11 @@
 from math import pi, asin, sqrt, sin, cos, atan2
 
+
+
+# --------------------    S I M P L E   H E L P E R S    ----------------------
+
+
+
 #haversin formula
 def haversin(theta):
     return sin(theta/2)*sin(theta/2)
@@ -67,7 +73,19 @@ class Coordinate:
 #******************************************************************************#
 
 
-from abc import ABCMeta
+
+
+
+
+
+
+# ---------------    N A V I G A T I O N   C O M M A N D S    ----------------
+
+
+
+
+
+from abc import ABCMeta, abstractmethod
 
 #******************************************************************************#
 # 		C O M M A N D   B A S E   C L A S S 			       #
@@ -117,7 +135,7 @@ class ExampleNavCommand(NavCommand):
 		hasExecuted = True
 	def execute(self):
 		if self.isCancelled is False:
-			print(printString)
+			print(self.printString)
 	def update(self, newString):
 		self.printString = newString
 	def cancel(self):
@@ -131,21 +149,85 @@ class ExampleNavCommand(NavCommand):
 #	Result:		self explanatory				      #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
-example1 = ExampleNavCommand()
-example1.execute()
+#example1 = ExampleNavCommand()
+#example1.execute()
 
-example2 = ExampleNavCommand("Hi there")
-example2.execute()
+#example2 = ExampleNavCommand("Hi there")
+#example2.execute()
 
-example3 = ExampleNavCommand()
-example3.update("Print this instead")
-example3.execute()
+#example3 = ExampleNavCommand()
+#example3.update("Print this instead")
+#example3.execute()
 
-example4 = ExampleNavCommand()
-example4.cancel()
-example4.execute()
+#example4 = ExampleNavCommand()
+#example4.cancel()
+#example4.execute() 
+
+#*****************************************************************************#
+#		 E N D   O F   E X A M P L E   C O M M A N D		      #
+#*****************************************************************************#
 
 
-	
+
+#*******************************************************************************#
+#			I D E A S   D I S C U S S I O N			      	#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+# 	Add your own too!							#
+#										#
+#	LIAM, 8/16/2015:							#
+#										#
+#	Command Idea:								#
+#	First major command we should have is driving to a given coordinate	#
+#	(if we were able to even get here by the time we go to Poland that	#
+#	would be awesome but if we dont then oh well.				#
+#										#
+#	We should have two basic commands: 					#
+#		- rotate the rover						#
+#		- drive a given distance					#
+#										#
+#	These two basic commands should be our main focus until we get them	#
+#	working reliably.							#
+#										#
+#										#
+#	The other big thing is that we need some rover process to be written	#
+#	which contains a queue of nav commands. We then also need some simple	#
+#	functions to be written to emulate joystick commands for actually	#
+# 	driving the rover(eg it would be nice to be able to set the speed 	#
+#	to each side of wheels.							#
+#										#
+#	Heading Idea:								#
+#	The other major concern we have right now is that we are having 	#
+# 	trouble determining the direction that the rover is looking in.	I think	#
+# 	that we should try to use accelerometers instead of the magnetometer.	#
+#										#
+#	Since we can caluate our heading while moving we could us this to 	#
+#	pseudo calibrate a dynamic scaling function which could be updated 	#
+#	everytime the rover rotates. The process would sort of go like this	#
+#										#
+#	1. Get the heading before the rover stopped.				#
+#	2. Begin rotating							#
+#	3. Integrate the rot. acc. detected by the accelerometers		#
+#	4. Once our guess at our heading reaches the desired bearing then stop 	#
+#	   stop rotating							#
+#	5. Begin driving forward						#
+#	6. Detemine new heading and then use this to recalibrate/update the 	#
+#	   scaling function							#
+#										#
+#										#
+#	The other idea I had for the driving was just to never actually stop	#
+#	driving. I know it sounds ridiculous and I thought it was too at first	#
+#	but I think that it actually would be possible				#
+#										#
+#	Ideas for object avoidance:						#
+#	We dont actually need to "detect objects" I think that we should just	#
+# 	have it so that if we see something with the LiDar we change our 	#
+#	heading so that our course if tangent to the objects edge. The edge we 	#
+#	could simply see by looking at the difference in distance between Lidar	#
+#	readings.								#
+
+
+
+#
+
 
 
