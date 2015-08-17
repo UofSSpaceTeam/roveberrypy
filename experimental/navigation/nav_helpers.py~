@@ -1,11 +1,5 @@
 from math import pi, asin, sqrt, sin, cos, atan2
 
-
-
-# --------------------    S I M P L E   H E L P E R S    ----------------------
-
-
-
 #haversin formula
 def haversin(theta):
     return sin(theta/2)*sin(theta/2)
@@ -73,19 +67,7 @@ class Coordinate:
 #******************************************************************************#
 
 
-
-
-
-
-
-
-# ---------------    N A V I G A T I O N   C O M M A N D S    ----------------
-
-
-
-
-
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 
 #******************************************************************************#
 # 		C O M M A N D   B A S E   C L A S S 			       #
@@ -135,7 +117,7 @@ class ExampleNavCommand(NavCommand):
 		hasExecuted = True
 	def execute(self):
 		if self.isCancelled is False:
-			print(self.printString)
+			print(printString)
 	def update(self, newString):
 		self.printString = newString
 	def cancel(self):
@@ -149,23 +131,19 @@ class ExampleNavCommand(NavCommand):
 #	Result:		self explanatory				      #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
-#example1 = ExampleNavCommand()
-#example1.execute()
+example1 = ExampleNavCommand()
+example1.execute()
 
-#example2 = ExampleNavCommand("Hi there")
-#example2.execute()
+example2 = ExampleNavCommand("Hi there")
+example2.execute()
 
-#example3 = ExampleNavCommand()
-#example3.update("Print this instead")
-#example3.execute()
+example3 = ExampleNavCommand()
+example3.update("Print this instead")
+example3.execute()
 
-#example4 = ExampleNavCommand()
-#example4.cancel()
-#example4.execute()
-
-#*****************************************************************************#
-#		 E N D   O F   E X A M P L E   C O M M A N D		      #
-#*****************************************************************************#
+example4 = ExampleNavCommand()
+example4.cancel()
+example4.execute()
 
 
 	
