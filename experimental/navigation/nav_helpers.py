@@ -161,7 +161,7 @@ class ExampleNavCommand(NavCommand):
 
 #example4 = ExampleNavCommand()
 #example4.cancel()
-#example4.execute()
+#example4.execute() 
 
 #*****************************************************************************#
 #		 E N D   O F   E X A M P L E   C O M M A N D		      #
