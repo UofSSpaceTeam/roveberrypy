@@ -17,6 +17,9 @@ namespace usstgui
 			// Task to read the xbox controllers
 			ControllersTask controllers = new ControllersTask();
 
+			LidarTask lidar = new LidarTask();
+			lidar.subscribe(new string[] {"lidarState", "lidarDataTop", "lidarDataBottom"});
+
 			// Communications task
 			JsonClientTask jsonClient = new JsonClientTask(150);
 			jsonClient.subscribe(new string[] {"commsHeartbeat", // Rover task heartbeat messages

@@ -6,12 +6,13 @@
 #define SIGNAL_REG 0x0E
 #define MULT_ADDRESS 0x70
 #define DISTANCE_THRESH 5
-#define DIR_PIN 99
-#define STEP_PIN 99
+#define DIR_PIN 10
+#define STEP_PIN 16
 #define MS1_PIN 99
 #define MS2_PIN 99
 
 int stepsPerReading = 100;
+int direction = 0;
 
 void setup()
 {
@@ -33,10 +34,14 @@ void setup()
 void loop()
 {
 	readCommand();
+	delay(200);
 	digitalWrite(DIR_PIN, LOW);
+	direction = 0;
 	scan();
 	readCommand();
+	delay(200);
 	digitalWrite(DIR_PIN, HIGH);
+	direction = 1;
 	scan();
 }
 
@@ -45,10 +50,6 @@ void goHome()
 	digitalWrite(DIR_PIN, LOW);
 	while(readTopSensor() > DISTANCE_THRESH)
 		for(int i = 0; i < 20; i++)
-			step();
-	digitalWrite(DIR_PIN, HIGH);
-	while(readTopSensor() < DISTANCE_THRESH)
-		for(int i = 0; i < 5; i++)
 			step();
 }
 
@@ -63,20 +64,28 @@ void step()
 void scan()
 {
 	int topDistance = 0;
+	int bottomDistance = 0;
 	int count = 0;
+	while(readTopSensor() < DISTANCE_THRESH)
+		for(int i = 0; i < 5; i++)
+			step();
 	while(topDistance > DISTANCE_THRESH || count < 5)
 	{
 		topDistance = readTopSensor();
-		Serial.print("<lidarDataTop:");
+		bottomDistance = readBottomSensor();
+		Serial.print("<");
 		Serial.print(topDistance);
-		Serial.print("><lidarDataBottom:");
-		Serial.print(readBottomSensor());
+		Serial.print(",");
+		Serial.print(bottomDistance);
+		Serial.print(",");
+		Serial.print(count);
+		Serial.print(",");
+		Serial.print(direction);
 		Serial.println(">");
 		count++;
 		for(int i = 0; i < stepsPerReading; i++)
 			step();
 	}
-	Serial.print("count = ");
 	Serial.println(count);
 }
 

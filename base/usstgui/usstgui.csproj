@@ -125,6 +125,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Tasks\LidarTask.cs" />
     <Compile Include="Windows\DataWindow.xaml.cs">
       <DependentUpon>DataWindow.xaml</DependentUpon>
     </Compile>
@@ -158,7 +159,7 @@
     <Compile Include="Windows\Controller2Status.xaml.cs">
       <DependentUpon>Controller2Status.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Tasks\ControllerTask.cs" />
+    <Compile Include="Tasks\ControllersTask.cs" />
     <Compile Include="Tasks\JsonClientTask.cs" />
     <Compile Include="Tasks\ExampleTask.cs" />
     <Compile Include="System\BaseTask.cs" />

@@ -4,6 +4,9 @@ import serial
 
 class LidarProcess(RoverProcess):
 	def setup(self, args):
+		self.topData = []
+		self.bottomData = []
+		self.count = 
 		self.serial = serial.Serial(serial.Serial(port=args["serialPort"],
 			baudrate=57600)
 
@@ -11,21 +14,25 @@ class LidarProcess(RoverProcess):
 		self.receiveData()
 
 	def receiveData(self)
-		# reads arbitrary (integer) sensor data into shared state
-		# format is <key:value>
+		# format is <top bottom count direction>
 		try:
 			inData = self.serial.readline(eol=">")
 			openTag = inData.find("<")
 			if openTag == -1:
 				return
-			inData = inData[openTag:]
-			print inData
-			colon = inData.find(":")
-			if colon == -1:
-				return
-			key = inData[1:colon]
-			value = inData[(colon + 1):-1]
-			self.setShared(key, int(value))
+			inData = inData[openTag:-1]
+			inData = inData.split()
+			self.direction = int(inData[3])
+			if int(inData[2]) == 0:
+				if self.direction:
+					self.topData.reverse()
+					self.bottomData.reverse()
+				self.setShared("lidarTop", str(self.topData))
+				self.setShared("lidarBottom", str(self.bottomData))
+				self.setShared("lidarCount", int(self.count))
+			self.count = int(inData[2])
+			self.topData.insert(self.count, inData[0])
+			self.bottomData.insert(self.count, inData[1])
 		except:
 			pass
 
