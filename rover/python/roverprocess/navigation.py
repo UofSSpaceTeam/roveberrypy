@@ -6,6 +6,7 @@ from libs.sbp.navigation import SBP_MSG_BASELINE_NED, MsgBaselineNED
 from libs.sbp.settings import SBP_MSG_SETTINGS_WRITE, MsgSettingsWrite
 import time
 import serial
+import math
 
 class Navigation(RoverProcess):
 	'''GPS rover process
@@ -59,10 +60,12 @@ class Navigation(RoverProcess):
 			self.setShared("baseline_east", self.getBaseline().e)
 		if "gps_baseline_d" in message:
 			self.setShared("baseline_down", self.getBaseline().d)
-		elif "gps_baseline_flags" in message:
+		if "gps_baseline_flags" in message:
 			self.setShared("baseline_flags", self.getBaseline().flags)
 		if "compass_heading" in message:
 			self.setShared("heading", self.getHeading())
+		if "gps_heading" in message:
+			self.setShared("heading", self.getGPSHeading())
 
 	def cleanup(self):
 		try:
@@ -72,44 +75,63 @@ class Navigation(RoverProcess):
 		RoverProcess.cleanup(self)
 
 	# additional functions go here
-		def getPos(self, timeout=5.0):
-			''' Get current gps location
-			timeout is in seconds
-			'''
-			try:
-				p = MsgPosLLH(self.handler.wait(msg_type=SBP_MSG_POS_LLH, timeout=timeout))
-				if not p == None:
-					print "%.6f,%.6f,%.6f,%i" % (p.lat, p.lon, p.height, p.flags)
-					return p
-			except Exception:
-				print("Could not get gps position")
+	def getPos(self, timeout=5.0):
+		''' Get current gps location
+		timeout is in seconds
+		'''
+		try:
+			p = MsgPosLLH(self.handler.wait(msg_type=SBP_MSG_POS_LLH, timeout=timeout))
+			if not p == None:
+				print "%.6f,%.6f,%.6f,%i" % (p.lat, p.lon, p.height, p.flags)
+				return p
+		except Exception:
+			print("Could not get gps position")
 
-		def getBaseline(self, timeout=5.0):
-			''' Get relative baseline position in NED coordinates
-			timeout is in seconds
-			'''
+	def getBaseline(self, timeout=5.0):
+		''' Get relative baseline position in NED coordinates
+		timeout is in seconds
+		'''
 
-			try:
-				b = MsgBaselineNED(self.handler.wait(msg_type=SBP_MSG_BASELINE_NED, timeout=timeout))
-				if not b == None:
-					# print "%.4f, %.4f, %.4f, %i" % (b.n, b.e, b.d, b.flags)
-					return b
-			except Exception:
-				print("Could not get baseline position")
+		try:
+			b = MsgBaselineNED(self.handler.wait(msg_type=SBP_MSG_BASELINE_NED, timeout=timeout))
+			if not b == None:
+				# print "%.4f, %.4f, %.4f, %i" % (b.n, b.e, b.d, b.flags)
+				return b
+		except Exception:
+			print("Could not get baseline position")
 
-		def setBaseLocation(self, p):
-			''' Set the location of a surveyed base location
-			p is an SBP_MSG_POS_LLH message containing the gps location of the base station
-			'''
-			self.handler.send_msg(MsgSettingsWrite(setting="[surveyed position, surveyed alt, {}]".format(p.height)))
-			self.handler.send_msg(MsgSettingsWrite(setting="[surveyed position, surveyed lat, {}]".format(p.lat)))
-			self.handler.send_msg(MsgSettingsWrite(setting="[surveyed position, surveyed lon, {}]".format(p.lon)))
+	def setBaseLocation(self, p):
+		''' Set the location of a surveyed base location
+		p is an SBP_MSG_POS_LLH message containing the gps location of the base station
+		'''
+		self.handler.send_msg(MsgSettingsWrite(setting="[surveyed position, surveyed alt, {}]".format(p.height)))
+		self.handler.send_msg(MsgSettingsWrite(setting="[surveyed position, surveyed lat, {}]".format(p.lat)))
+		self.handler.send_msg(MsgSettingsWrite(setting="[surveyed position, surveyed lon, {}]".format(p.lon)))
 
-		def getHeading(self):
-			inchar = self.serial.read(1)
-			if(inchar == "$"):
-				#print "read complete", data
-				return self.serial.readline()
-			else:
-				#print "no data, got: ", inchar
-				return None
+	def getHeading(self):
+		inchar = self.serial.read(1)
+		if(inchar == "$"):
+			#print "read complete", data
+			return self.serial.readline()
+		else:
+			#print "no data, got: ", inchar
+			return None
+
+	def getGPSHeading(self):
+		p1 = self.getBaseline()
+		p2 = self.getBaseline()
+		north = p2.n - p1.n
+		east = p2.e - p1.e
+		while math.hypot(east, north) < 200: #must move two centimeters (may need adjusting)
+			p2 = self.getBaseline()
+			north = p2.n - p1.n
+			east = p2.e - p1.e
+			time.sleep(0.5)
+		heading = math.degrees(math.atan2(-1*east, north))
+		if heading > 0:
+			heading = 360 - heading
+		else:
+			heading = -1*heading
+		return heading
+
+
