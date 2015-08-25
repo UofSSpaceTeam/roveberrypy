@@ -6,14 +6,36 @@
         xmlns:local="clr-namespace:usstgui"
         xmlns:WindowsPresentation="clr-namespace:GMap.NET.WindowsPresentation;assembly=GMap.NET.WindowsPresentation" x:Class="usstgui.NavStatus"
         mc:Ignorable="d"
-        Title="Navigation" Height="600" Width="800">
+        Title="Navigation" Height="600" Width="896.61">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="31*"/>
-            <ColumnDefinition Width="57*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="100"/>
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="100" />
+        </Grid.RowDefinitions>
 
-        <WindowsPresentation:GMapControl x:Name="MainMap" Margin="10" CanDragMap="True" MaxZoom="1" MinZoom="17" Grid.ColumnSpan="2" Zoom="10" MouseWheelZoomType="MousePositionWithoutCenter"/>
+        <WindowsPresentation:GMapControl x:Name="MainMap" Margin="10,10,10,10" Grid.Column="0" Grid.Row="0" CanDragMap="True" MaxZoom="1" MinZoom="17" Zoom="10" MouseWheelZoomType="MousePositionWithoutCenter"/>
+        <Slider x:Name="ZoomSlider" Grid.Column="1" Margin="10,30,70,30" Orientation="Vertical" Minimum="-1" SmallChange="1"/>
+        <Label x:Name="DMSLabel" Content="DMS" HorizontalAlignment="Right" Margin="20,20" VerticalAlignment="Bottom"/>
+        <Label x:Name="DMDLabel" Content="DMD" HorizontalAlignment="Right" Margin="20,50" VerticalAlignment="Bottom"/>
+        <Label x:Name="DDLabel" Content="DD" HorizontalAlignment="Right" Margin="20,80" VerticalAlignment="Bottom"/>
+        <ListBox x:Name="PointsList" Grid.Row="1" Margin="10,5,0,5" HorizontalAlignment="Left" Width="250"/>
+        <Button x:Name="AddPt" Content="Add Waypoint" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="100" Grid.Row="1" Height="23"/>
+        <Button x:Name="CenterMap" Content="Center Map" HorizontalAlignment="Right" Margin="0,0,10,38" VerticalAlignment="Bottom" Width="100" Grid.Row="1" Height="23"/>
+        <Button x:Name="ImportLidar" Content="Import Lidar" HorizontalAlignment="Right" Margin="0,0,10,66" VerticalAlignment="Bottom" Width="100" Grid.Row="1" Height="23"/>
+        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="23" Margin="330,40,0,0" Grid.Row="1" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="textBox1" HorizontalAlignment="Left" Height="23" Margin="330,70,0,0" Grid.Row="1" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="textBox2" HorizontalAlignment="Left" Height="23" Margin="330,10,0,0" Grid.Row="1" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <RadioButton x:Name="SelectDMS" Content="DMS" HorizontalAlignment="Left" Margin="460,75,0,0" Grid.Row="1" VerticalAlignment="Top" GroupName="DegreeMode" IsChecked="True"/>
+        <RadioButton x:Name="SelectDMD" Content="DMD" HorizontalAlignment="Left" Margin="460,45,0,0" Grid.Row="1" VerticalAlignment="Top" GroupName="DegreeMode"/>
+        <RadioButton x:Name="SelectDD" Content="DD" HorizontalAlignment="Left" Margin="460,15,0,0" Grid.Row="1" VerticalAlignment="Top" GroupName="DegreeMode"/>
+        <Label x:Name="LatLbl" Content="Lat:" HorizontalAlignment="Left" Margin="280,40,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <Label x:Name="LonLbl" Content="Lon:" HorizontalAlignment="Left" Margin="280,70,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <Label x:Name="NameLbl" Content="Name:" HorizontalAlignment="Left" Margin="280,10,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+
 
     </Grid>
 </Window>

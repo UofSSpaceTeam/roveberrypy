@@ -22,7 +22,7 @@ namespace usstgui
             }
 
             MainMap.MapProvider = GMapProviders.OpenStreetMap;
-            MainMap.Position = new PointLatLng(50.797517, 20.459734);
+            MainMap.Position = new PointLatLng(52.132452, -106.628350);
 
         }
 
