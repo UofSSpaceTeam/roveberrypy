@@ -29,6 +29,7 @@ class Coordinate:
     def __init__(self, latitude = -1, longitude = -1, heading = -1):
         self.lat = latitude
         self.lon = longitude
+		self.heading = heading
     # get the distance to another coordinate
     def distanceTo(self, coord):
         lat1 = self.lat * pi / 180
@@ -109,6 +110,7 @@ class NavCommand(object):
 	def cancel(self):
 		pass
 
+		
 #*****************************************************************************#
 #			E X A M P L E   C O M M A N D                         			  #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
@@ -135,6 +137,66 @@ class ExampleNavCommand(NavCommand):
 			print(self.printString)
 	def update(self, newString):
 		self.printString = newString
+	def cancel(self):
+		self.isCancelled = True
+		
+		
+#*****************************************************************************#
+#			F O W A R D   C O M M A N D                         			  #
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+#	tells the rover to move forward						 		      		  #
+#									      									  #
+#	execute			:: 	sends a move forward message to the drive       	  #
+#						process if not at the target location				  #
+#	update(newString) 	::	updates the current coordinate of the rover		  #
+#										      								  #
+#	cancel			::	stops the command			      					  #
+# 									      									  #
+#*****************************************************************************#
+class ForwardCommand(NavCommand):
+	isCancelled = False 
+	hasExecuted = False
+	def __init__(self, current, target):
+		#current and target would be the current coordinate
+		self.current = current
+		self.target = target
+		hasExecuted = True
+	def execute(self):
+		if self.isCancelled is False:
+			#move forward
+	def update(self, newCoordinate):
+		self.current = newCoordinate
+		if self.current.distanceTo(target) == 0: # or within a certain distance too
+			self.cancel()
+	def cancel(self):
+		self.isCancelled = True
+
+#*****************************************************************************#
+#				T U R N   C O M M A N D                         			  #
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+#	tells the rover to turn						 		      		          #
+#									      									  #
+#	execute			:: 	sends a move message to the drive process for      	  #
+#						one side of the rover if not at the target heading	  #
+#	update(newString) 	::	updates the current coordinate of the rover		  #
+#										      								  #
+#	cancel			::	stops the command			      					  #
+# 									      									  #
+#*****************************************************************************#
+class TurnCommand(NavCommand):
+	isCancelled = False 
+	hasExecuted = False
+	def __init__(self, current, target):
+		self.current = current
+		self.target = target
+		hasExecuted = True
+	def execute(self):
+		if self.isCancelled is False:
+			#turn 
+	def update(self, newCoordinate):
+		self.current = newCoordinate
+		if self.current.heading == self.current.bearingTo(target):
+			self.cancel
 	def cancel(self):
 		self.isCancelled = True
 

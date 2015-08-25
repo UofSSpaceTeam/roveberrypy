@@ -53,4 +53,24 @@
 	could simply see by looking at the difference in distance between Lidar	
 	readings.								
 
-	continue...								
+	continue...		
+	
+	Kyle 08/24/2015 
+	
+	Sorry about not sending anything quicker, I messed up when using Github and it
+	did not commit. However I think what I have is similar to what you have so far
+	so it would be easy to combine.
+	
+	I agree what you have said about driving to a coordinate is the most importing
+	thing to get done. I was thinking of using an priority queue to store the commands 
+	to store the two basic commands that you mentioned and have some basic logic to move on 
+	to the next command in the queue. 
+	
+	One way the commands could work is that the command is continually updated with the
+	the current location. When the current location is within a certain parameter of the preset 
+	target location the command should stop.
+
+	text or email me if you have any questions 
+	
+
+
