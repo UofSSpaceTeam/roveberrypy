@@ -1,136 +1,79 @@
-// Written by Jordan Kubica for CME 495 project, 2014-2015
-// Code for the arduino which operates the rover unit
 #include <Servo.h>
 
-// pin connections
-#define TABLE_A 8
-#define TABLE_B 9
-#define TABLE_PWM 5
-#define PAN_SERVO_PIN 14
-#define TILT_SERVO_PIN 10
-
-// configuration
-#define TIMEOUT 750
-#define PAN_SERVO_MIN 940
-#define PAN_SERVO_MAX 2100
+#define DIR_PIN 7
+#define STEP_PIN 4
+#define MS1_PIN 2
+#define MS2_PIN 3
+#define TILT_SERVO_PIN 6
+#define EXPOSURE_PIN 5
+#define STEPS_PER_DEGREE 3.7 // ~1330 steps/rev
 #define TILT_SERVO_MIN 900
 #define TILT_SERVO_MAX 2100
 
-// function prototypes
-void tableLeft();
-void tableRight();
-void tableStop();
-
-// command message struct
-typedef struct
-{
-	byte panPosition;
-	byte tiltPosition;
-	byte motors;
-	byte csum;
-} command_t;
-
-// union for handling messages bytewise
-typedef union
-{
-	command_t cmd_struct;
-	byte cmd_bytes[sizeof(command_t)];
-} command_t_union;
-
-// checks for message header
-byte key[2] = {0, 0};
-
-Servo panServo;
+byte key[3] = {0, 0, 0};
+int panPosition = 0;
+int commandedPosition = 0;
 Servo tiltServo;
-
-// timeout counter
-unsigned long timer = 0;
 
 void setup()
 {
-	// configure I/O
-	pinMode(TABLE_A, OUTPUT);
-	pinMode(TABLE_B, OUTPUT);
-	pinMode(TABLE_PWM, OUTPUT);
-	panServo.attach(PAN_SERVO_PIN, PAN_SERVO_MIN, PAN_SERVO_MAX);
+	Serial.begin(9600);
+	pinMode(DIR_PIN, OUTPUT);
+	pinMode(STEP_PIN, OUTPUT);
+	pinMode(MS1_PIN, OUTPUT);
+	pinMode(MS2_PIN, OUTPUT);
+	pinMode(EXPOSURE_PIN, OUTPUT);
 	tiltServo.attach(TILT_SERVO_PIN, TILT_SERVO_MIN, TILT_SERVO_MAX);
-	
-	// initialize output states
-	tableStop();
-	panServo.write(90);
+	digitalWrite(DIR_PIN, LOW);
+	digitalWrite(STEP_PIN, LOW);
+	digitalWrite(MS1_PIN, HIGH);
+	digitalWrite(MS2_PIN, LOW);
+	digitalWrite(EXPOSURE_PIN, LOW);
 	tiltServo.write(90);
-	
-	// set up serial port for XBEE connection
-	Serial1.begin(9600);
-	Serial1.flush();
 }
 
-// runs forever
 void loop()
 {
-	static command_t_union msg;
-	byte i;
-		
-	// check serial port for new message data
-	if(Serial1.available())
+	int diff = commandedPosition - panPosition;
+	if(diff)
 	{
-		// shift in the next byte
+		spin(diff);
+		panPosition += diff;
+	}
+	if(Serial.available())
+	{
 		key[0] = key[1];
-		key[1] = (byte)Serial1.read();
-		
-		// check for a complete header
-		if((key[0] == 'm') && (key[1] == 's'))
+		key[1] = key[2];
+		key[2] = (byte)Serial.read();
+		if(key[0] == 'm' && key[1] == 's' && key[2] == 'g')
 		{
-			// reset key
 			key[0] = 0;
 			key[1] = 0;
-			
-			// read in message data
-			for(i = 0; i < sizeof(command_t_union); i++)
-			{
-				while(!Serial1.available());
-				msg.cmd_bytes[i] = Serial1.read();
-			}
-			
-			// check for a valid checksum
-			if((byte)msg.cmd_struct.csum == (byte)(msg.cmd_struct.panPosition
-				+ msg.cmd_struct.tiltPosition + msg.cmd_struct.motors))
-			{
-				timer = millis();
-  				panServo.write(180 - msg.cmd_struct.panPosition);
-				tiltServo.write(180 - msg.cmd_struct.tiltPosition);
-				
-				if(msg.cmd_struct.motors & 0x01)
-					tableLeft();
-				else if(msg.cmd_struct.motors & 0x02)
-					tableRight();
-				else
-					tableStop();
-			}
+			while(Serial.available() < 3);
+			commandedPosition = Serial.read() << 8;
+			commandedPosition += Serial.read();
+			tiltServo.write(180 - Serial.read());
 		}
 	}
-	if(millis() - timer > TIMEOUT) // check timeout
-		tableStop();
 }
 
-void tableLeft()
+void spin(int deg)
 {
-	digitalWrite(TABLE_A, HIGH);
-	digitalWrite(TABLE_B, LOW);
-	digitalWrite(TABLE_PWM, HIGH);
+	if(deg > 0)
+		digitalWrite(DIR_PIN, HIGH);
+	else
+		digitalWrite(DIR_PIN, LOW);
+	step(abs(round(deg * STEPS_PER_DEGREE)));
+	delay(70);
 }
 
-void tableRight()
+void step(int steps)
 {
-	digitalWrite(TABLE_A, LOW);
-	digitalWrite(TABLE_B, HIGH);
-	digitalWrite(TABLE_PWM, HIGH);
+	for(int i = 0; i < steps; i++)
+	{
+		digitalWrite(STEP_PIN, HIGH);
+		delayMicroseconds(600);
+		digitalWrite(STEP_PIN, LOW);
+		delayMicroseconds(600);
+	}
 }
-
-void tableStop()
-{
-	digitalWrite(TABLE_PWM, LOW);
-	digitalWrite(TABLE_A, LOW);
-	digitalWrite(TABLE_B, LOW);
-}
-

@@ -1,0 +1,19 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:usstgui"
+        xmlns:WindowsPresentation="clr-namespace:GMap.NET.WindowsPresentation;assembly=GMap.NET.WindowsPresentation" x:Class="usstgui.NavStatus"
+        mc:Ignorable="d"
+        Title="Navigation" Height="600" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="31*"/>
+            <ColumnDefinition Width="57*"/>
+        </Grid.ColumnDefinitions>
+
+        <WindowsPresentation:GMapControl x:Name="MainMap" Margin="10" CanDragMap="True" MaxZoom="1" MinZoom="17" Grid.ColumnSpan="2" Zoom="10" MouseWheelZoomType="MousePositionWithoutCenter"/>
+
+    </Grid>
+</Window>

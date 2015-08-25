@@ -8,16 +8,17 @@
 #define DISTANCE_THRESH 5
 #define DIR_PIN 10
 #define STEP_PIN 16
-#define MS1_PIN 99
-#define MS2_PIN 99
+#define MS1_PIN 14
+#define MS2_PIN 9
 
-int stepsPerReading = 100;
-int direction = 0;
+byte frequency = 255;
+volatile int count = 1;
 
 void setup()
 {
 	Serial.begin(57600);
 	delay(1000);
+	Serial.println("start");
 	I2c.begin();
 	I2c.timeOut(50);
 	pinMode(DIR_PIN, OUTPUT);
@@ -25,79 +26,53 @@ void setup()
 	pinMode(MS1_PIN, OUTPUT);
 	pinMode(MS2_PIN, OUTPUT);
 	digitalWrite(MS1_PIN, LOW);
-	digitalWrite(MS2_PIN, HIGH); // 1/4 step
+	digitalWrite(MS2_PIN, LOW);
 	digitalWrite(STEP_PIN, LOW);
 	digitalWrite(DIR_PIN, LOW);
-	goHome();
+	attachInterrupt(4, switchHit, RISING);
 }
 
 void loop()
 {
-	readCommand();
-	delay(200);
-	digitalWrite(DIR_PIN, LOW);
-	direction = 0;
-	scan();
-	readCommand();
-	delay(200);
-	digitalWrite(DIR_PIN, HIGH);
-	direction = 1;
-	scan();
-}
-
-void goHome()
-{
-	digitalWrite(DIR_PIN, LOW);
-	while(readTopSensor() > DISTANCE_THRESH)
-		for(int i = 0; i < 20; i++)
-			step();
+	noTone(STEP_PIN);
+	Serial.print("<");
+	Serial.print(readTopSensor());
+	Serial.print(",");
+	Serial.print(readBottomSensor());
+	Serial.print(",");
+	Serial.print(count);
+	Serial.println(">");
+	count++;
+	if(Serial.available())
+	{
+		frequency = Serial.read();
+		if(frequency < 32)
+			frequency = 32;
+		Serial.print("speed = ");
+		Serial.println((int)frequency);
+		Serial.flush();
+	}
+	tone(STEP_PIN, frequency);
+	delay(500);
 }
 
 void step()
 {
 	digitalWrite(STEP_PIN, HIGH);
-	delay(1);
+	delay(2);
 	digitalWrite(STEP_PIN, LOW);
-	delay(1);
-}
-
-void scan()
-{
-	int topDistance = 0;
-	int bottomDistance = 0;
-	int count = 0;
-	while(readTopSensor() < DISTANCE_THRESH)
-		for(int i = 0; i < 5; i++)
-			step();
-	while(topDistance > DISTANCE_THRESH || count < 5)
-	{
-		topDistance = readTopSensor();
-		bottomDistance = readBottomSensor();
-		Serial.print("<");
-		Serial.print(topDistance);
-		Serial.print(",");
-		Serial.print(bottomDistance);
-		Serial.print(",");
-		Serial.print(count);
-		Serial.print(",");
-		Serial.print(direction);
-		Serial.println(">");
-		count++;
-		for(int i = 0; i < stepsPerReading; i++)
-			step();
-	}
-	Serial.println(count);
+	delay(2);
 }
 
 int readTopSensor()
 {
-	setChannel(0);
+	setChannel(1);
 	return getDistance();
 }
 
 int readBottomSensor()
 {
-	setChannel(1);
+	setChannel(0);
 	return getDistance();
 }
 
@@ -124,50 +99,21 @@ int getDistance()
 			result = I2c.write(SENSOR_ADDRESS, TRIGGER_REG, TRIGGER_VALUE);
 			delay(1);
 		}
+		result = 1;
 		while(result)
 		{
 			result = I2c.read(SENSOR_ADDRESS, RESULT_REG, 2, buf);
 			delay(1);
 		}
 		distance = int(buf[0] << 8) + buf[1];
-		if(distance)
+		if(distance > 0)
 			break;
 	}
 	return distance;
 }
 
-void readCommand()
+void switchHit()
 {
-	char buf[64];
-	byte i = 0;
-	unsigned long start = millis();
-	while(Serial.available())
-	{
-		buf[0] = Serial.read();
-		if(buf[0] == '<')
-			while(millis() - start > 500)
-				if(Serial.available())
-				{
-					buf[++i] = Serial.read();
-					if(buf[i] == '>')
-					{
-						buf[i+1] = '\0';
-						parseCommand(buf);
-						return;
-					}
-					else if(i > 62)
-						return;
-				}
-	}
+	count = 0;
 }
 
-void parseCommand(char* cmd)
-{
-	Serial.println(cmd);
-	byte length = strcspn(cmd, ":");
-	Serial.println(length);
-	if(!strncmp("scanRate", cmd, length))
-		stepsPerReading = 10 * atoi(cmd + length);
-}		
-		
-		
