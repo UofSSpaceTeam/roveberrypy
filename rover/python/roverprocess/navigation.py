@@ -7,6 +7,7 @@ from libs.sbp.settings import SBP_MSG_SETTINGS_WRITE, MsgSettingsWrite
 import time
 import serial
 import math
+import Queue as Q
 
 class Navigation(RoverProcess):
 	'''GPS rover process
@@ -36,8 +37,14 @@ class Navigation(RoverProcess):
 		# self.handler.add_callback(self.baseline_callback, msg_type=SBP_MSG_BASELINE_NED)
 		self.handler.start()
 		self.magnetometer = serial.Serial(port="/dev/ttyAMA0", baudrate=9600, timeout=1)
+		self.start = False # starts navigation when set to true 
+		self.q = Q.PriorityQueue() # could be change to a normal queue
+		self.command = None
+		#self.target = Coordinate(lat,lon)
 
 	def loop(self):
+		#if self.start is True: 
+		#	self.runCommand()
 		# self.getPos()
 		time.sleep(1)
 
@@ -134,4 +141,30 @@ class Navigation(RoverProcess):
 			heading = -1*heading
 		return heading
 
-
+	def runCommand(self):
+		#an example on how to run the commands
+		if self.command is not None:
+			#self.command.update(self.getCoordinate())
+			self.command.execute() 
+			if self.command.isCancelled == True:
+				self.command = None
+		elif not self.q.empty():
+			self.command = self.q.get()
+			
+	def addCommand(self, command):
+		self.q.put(command)
+	
+	def removeAll(self):
+		while not self.q.empty():
+			self.q.get()
+			
+	# assuming we use the Coordinate class
+	def getCoordinate(self):
+		pass
+		#return Coordinate(self.getPos().lat, self.getPos().lon, self.getHeading()) 
+	
+	def startNav(self):
+		pass
+		# loads the first few commands 
+		#addCommand(TurnCommand(self.getCoordinate(), self.target))
+		#addCommand(ForwardCommand(self.getCoordinate(), self.target))

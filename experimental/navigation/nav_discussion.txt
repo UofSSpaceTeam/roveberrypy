@@ -72,5 +72,12 @@
 
 	text or email me if you have any questions 
 	
+	
+	Kyle 08/26/2015
+	
+	From what I understand about terrain traversal task the bonus is for navigation between point 2 and 3. 
+	During that section the rover has to go in a more or less straight line. I think for simplicity we
+	should start with turning to the right heading and just go straight. The only time the rover should
+	stop is if it gets off course or if it reaches the target.     
 
 

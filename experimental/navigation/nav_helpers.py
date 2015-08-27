@@ -166,7 +166,7 @@ class ForwardCommand(NavCommand):
 			#move forward
 	def update(self, newCoordinate):
 		self.current = newCoordinate
-		if self.current.distanceTo(target) == 0: # or within a certain distance too
+		if self.current.distanceTo(target) == 2: # or however close you want to get to target 
 			self.cancel()
 	def cancel(self):
 		self.isCancelled = True
