@@ -125,7 +125,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="NavMarkers\WaypointMarker.xaml.cs">
+      <DependentUpon>WaypointMarker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tasks\LidarTask.cs" />
+    <Compile Include="NavClasses.cs" />
     <Compile Include="Windows\DataWindow.xaml.cs">
       <DependentUpon>DataWindow.xaml</DependentUpon>
     </Compile>
@@ -168,6 +172,10 @@
     <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="NavMarkers\WaypointMarker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\DataWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -273,6 +281,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\noStream.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\red-dot.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
