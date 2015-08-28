@@ -229,3 +229,38 @@ class TurnCommand(NavCommand):
 
 
 
+#*****************************************************************************#
+#				DRIVE TO CLASS
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+#
+
+
+class goToCommand(NavCommand):
+	destination
+	initalBearing = -1
+	pathWidth = -1
+
+	def __init__(self, currentCoord, destinationCoord, pathWidth_):
+		self.initalBearing = currentCoord.bearingTo(destinationCoord)
+		self.pathWidth = pathWidth_
+		self.destination = destinationCoord
+	def execute(self):
+		
+		while( initalBearing - currentHeading < 85 ):
+			theta = initalBearing - currentHeading
+			distFromPath = currentPosition.distanceTo(destination) * sind(theta)
+			while(abs(distFromPath) > pathWidth):
+				# turn rover
+
+
+
+
+
+
+
+
+
+
+
+
+
