@@ -1,3 +1,8 @@
+#navigation process 
+#TODO:	needs to get input from interface to start
+#		add target coordinates 
+#		add what commands should be used on start
+#		check nav_helpers.py for more TODO
 from roverprocess import RoverProcess
 from libs.sbp.pyserial_driver import PySerialDriver
 from libs.sbp.handler import Handler
@@ -8,7 +13,7 @@ import time
 import serial
 import math
 import Queue as Q
-#from nav_helpers import *
+from nav_helpers import *
 
 class Navigation(RoverProcess):
 	'''GPS rover process
@@ -42,7 +47,8 @@ class Navigation(RoverProcess):
 		self.q = Q.PriorityQueue() # could be change to a normal queue
 		self.command = None
 		#load first few commands 
-		#self.target = Coordinate(lat,lon)
+		#self.startNav()
+		self.target = None # add target coordinates 
 
 	def loop(self):
 		#if self.start is True: 
@@ -52,7 +58,7 @@ class Navigation(RoverProcess):
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
-				#TODO: more descriptive error handling
+				#TODO: more descriptive error handling 
 		if "navHeartbeat" in message:
 			self.setShared("navHeartbeat", True)
 		if "gps_pos_lat" in message:
@@ -146,7 +152,7 @@ class Navigation(RoverProcess):
 	def runCommand(self):
 		#an example on how to run the commands
 		if self.command is not None:
-			#self.command.update(self.getCoordinate())
+			self.command.update(self.getCoordinate())
 			self.command.execute() 
 			if self.command.isCancelled == True:
 				self.command = None
@@ -162,11 +168,9 @@ class Navigation(RoverProcess):
 			
 	# assuming we use the Coordinate class
 	def getCoordinate(self):
-		pass
-		#return Coordinate(self.getPos().lat, self.getPos().lon, self.getHeading()) 
+		return Coordinate(self.getPos().lat, self.getPos().lon, self.getHeading()) 
 	
 	def startNav(self):
-		pass
-		# loads the first few commands 
-		#addCommand(TurnCommand(self.getCoordinate(), self.target))
-		#addCommand(ForwardCommand(self.getCoordinate(), self.target))
+		#loads the first few commands 
+		self.addCommand(TurnCommand(self.getCoordinate(), self.target))
+		self.addCommand(ForwardCommand(self.getCoordinate(), self.target))

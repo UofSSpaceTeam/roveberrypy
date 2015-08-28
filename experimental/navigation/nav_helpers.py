@@ -1,3 +1,7 @@
+#TODO:	add outputs to the commands to be sent to the drive process
+#		finish goToCommand 
+#		add priority to commands so it can be use in priority queue
+
 
 # --------------------    S I M P L E   H E L P E R S    ----------------------
 
@@ -29,7 +33,7 @@ class Coordinate:
     def __init__(self, latitude = -1, longitude = -1, heading = -1):
         self.lat = latitude
         self.lon = longitude
-		self.heading = heading
+        self.heading = heading
     # get the distance to another coordinate
     def distanceTo(self, coord):
         lat1 = self.lat * pi / 180
@@ -164,6 +168,7 @@ class ForwardCommand(NavCommand):
 	def execute(self):
 		if self.isCancelled is False:
 			#move forward
+			pass
 	def update(self, newCoordinate):
 		self.current = newCoordinate
 		if self.current.distanceTo(target) == 2: # or however close you want to get to target 
@@ -192,10 +197,15 @@ class TurnCommand(NavCommand):
 		hasExecuted = True
 	def execute(self):
 		if self.isCancelled is False:
-			#turn 
+			if selfself.current.bearingTo(target) - self.current.heading <= 180:
+				#turn right
+				pass
+			else:
+				#turn left
+				pass
 	def update(self, newCoordinate):
 		self.current = newCoordinate
-		if self.current.heading == self.current.bearingTo(target):
+		if abs(self.current.heading - self.current.bearingTo(target)) <= 5:
 			self.cancel
 	def cancel(self):
 		self.isCancelled = True
@@ -251,16 +261,3 @@ class goToCommand(NavCommand):
 			distFromPath = currentPosition.distanceTo(destination) * sind(theta)
 			while(abs(distFromPath) > pathWidth):
 				# turn rover
-
-
-
-
-
-
-
-
-
-
-
-
-
