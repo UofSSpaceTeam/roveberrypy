@@ -52,7 +52,13 @@ namespace usstgui
                                             "CamUp",
                                             "CamDown",
                                             "CamLeft",
-                                            "CamRight"}); 
+                                            "CamRight",
+                                            "gps_heading",  // Piksi GPS
+                                            "heading",
+                                            "gps_pos_lat",
+                                            "lattitude",
+                                            "gps_pos_lon",
+                                            "longitude"}); 
 			
 			// start all the tasks
 			jsonClient.start();

@@ -36,6 +36,7 @@
         <Label x:Name="LonLbl" Content="Lon:" HorizontalAlignment="Left" Margin="280,70,0,0" Grid.Row="1" VerticalAlignment="Top"/>
         <Label x:Name="NameLbl" Content="Name:" HorizontalAlignment="Left" Margin="280,10,0,0" Grid.Row="1" VerticalAlignment="Top"/>
         <Button x:Name="PtHere" Content="Get Here" HorizontalAlignment="Left" Margin="521,67,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Height="23" Click="PtHere_Click"/>
+        <Label x:Name="GPSFlag" Content="GET FLAG" Margin="0,67,20,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Width="90"/>
 
 
     </Grid>
