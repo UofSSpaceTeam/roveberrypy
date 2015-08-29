@@ -1,5 +1,3 @@
-import sys
-sys.dont_write_bytecode = True
 import os
 import time
 import multiprocessing
@@ -13,10 +11,12 @@ from roverprocess.armprocess import ArmProcess
 from roverprocess.drillprocess import  DrillProcess
 from roverprocess.cameraprocess import CameraProcess
 from roverprocess.lidarprocess import LidarProcess
+from roverprocess.oculusprocess import OculusProcess
 
 # system configuration
 localPort = 34567
 remotePort = 34568
+oculusPort = 34569
 
 # build and run the system
 if __name__ == "__main__":
@@ -108,6 +108,10 @@ if __name__ == "__main__":
 	system.addObserver("CamRight", process.downlink)
 	processes.append(process)
 
+	process = OculusProcess(
+		downlink = system.getDownlink(), uplink = system.getUplink(),
+			serialPort = "/dev/ttyAMA0", udpPort = oculusPort)
+	
 	# start everything
 	print "\nSTART: " + str([type(p).__name__ for p in processes]) + "\n"
 	for process in processes:
@@ -121,5 +125,4 @@ if __name__ == "__main__":
 		print("\nSTOP: " + str([type(p).__name__ for p in processes]) + "\n")
 	finally:
 		system.terminate()
-		os.remove("main.pyc")
 
