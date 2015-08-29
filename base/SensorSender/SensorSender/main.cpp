@@ -11,12 +11,12 @@ struct serialCommand
 	char h1;
 	char h2;
 	char h3;
-	INT16 pan;
+	byte panHigh;
+	byte panLow;
 	byte tilt;
 };
 
 ovrHmd hmd;
-ovrFrameTiming frameTiming;
 ovrSensorState ss;
 sockaddr_in rover;
 
@@ -62,29 +62,32 @@ int main(int argc, char* argv[])
 	hmd = ovrHmd_Create(0);
 	if(hmd)
 		ovrHmd_StartSensor(hmd, ovrSensorCap_Orientation | ovrSensorCap_YawCorrection, ovrSensorCap_Orientation);
+	else
+		fprintf(stderr, "no HMD!\n");
 	while(hmd)
 	{
 		ss = ovrHmd_GetSensorState(hmd, 0.0);
-		if (ss.StatusFlags & (ovrStatus_OrientationTracked))
+		if(ss.StatusFlags & (ovrStatus_OrientationTracked))
 		{
 			Transformf pose = ss.Recorded.Pose;
 			float fyaw, fpitch, froll;
 			pose.Rotation.GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&fyaw, &fpitch, &froll);
 			int pan = int(RadToDegree(fyaw) + 90);
 			int tilt = int(RadToDegree(1.7 * fpitch) + 90);
-			//printf("pan: %f\n", RadToDegree(pan));
-			//printf("tilt: %f\n", RadToDegree(tilt));
-			if (pan > 180)
+			if(pan > 180)
 				pan = 180;
-			else if (pan < 0)
+			else if(pan < 0)
 				pan = 0;
 			pan = 180 - pan;
-			if (tilt > 180)
+			if(tilt > 180)
 				tilt = 180;
-			else if (tilt < 0)
+			else if(tilt < 0)
 				tilt = 0;
-			data.pan = INT16(pan);
-			data.tilt = byte(tilt);
+			data.panHigh = (byte)(pan >> 8);
+			data.panLow = (byte)pan;
+			data.tilt = (byte)tilt;
+			printf("pan: %i\n", ((data.panHigh << 8) + (data.panLow)));
+			printf("tilt: %i\n", data.tilt);
 			sendto(sock, (char*)&data, sizeof(data), 0, (struct sockaddr*)&rover, sizeof(rover));
 			Sleep(50);
 		}
