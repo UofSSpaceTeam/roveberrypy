@@ -72,12 +72,12 @@ int main(int argc, char* argv[])
 			Transformf pose = ss.Recorded.Pose;
 			float fyaw, fpitch, froll;
 			pose.Rotation.GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&fyaw, &fpitch, &froll);
-			int pan = int(RadToDegree(fyaw) + 90);
+			int pan = int(RadToDegree(fyaw) + 180);
 			int tilt = int(RadToDegree(1.7 * fpitch) + 90);
-			if(pan > 180)
-				pan = 180;
+			if(pan > 360)
+				pan -= 360;
 			else if(pan < 0)
-				pan = 0;
+				pan += 360;
 			pan = 180 - pan;
 			if(tilt > 180)
 				tilt = 180;
@@ -86,8 +86,8 @@ int main(int argc, char* argv[])
 			data.panHigh = (byte)(pan >> 8);
 			data.panLow = (byte)pan;
 			data.tilt = (byte)tilt;
-			printf("pan: %i\n", ((data.panHigh << 8) + (data.panLow)));
-			printf("tilt: %i\n", data.tilt);
+			//printf("pan: %i\n", ((data.panHigh << 8) + (data.panLow)));
+			//printf("tilt: %i\n", data.tilt);
 			sendto(sock, (char*)&data, sizeof(data), 0, (struct sockaddr*)&rover, sizeof(rover));
 			Sleep(50);
 		}

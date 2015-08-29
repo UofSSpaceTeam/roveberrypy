@@ -11,8 +11,8 @@
 #define TILT_SERVO_MAX 2100
 
 byte key[3] = {0, 0, 0};
-int panPosition = 0;
-int commandedPosition = 0;
+int panPosition = 180;
+int commandedPosition = 180;
 Servo tiltServo;
 
 void setup()
@@ -49,10 +49,11 @@ void loop()
 		{
 			key[0] = 0;
 			key[1] = 0;
+			key[2] = 0;
 			while(Serial.available() < 3);
-			commandedPosition = Serial.read() << 8;
-			commandedPosition += Serial.read();
-			tiltServo.write(180 - Serial.read());
+			commandedPosition = Serial.read() << 8; // panHigh
+			commandedPosition += Serial.read(); // panLow
+			tiltServo.write(180 - Serial.read()); // tilt
 		}
 	}
 }
