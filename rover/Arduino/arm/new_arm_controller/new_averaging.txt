@@ -1,0 +1,157 @@
+int VNH5019::readPosition() {		// get digital position of the la
+  if (pinWIPER != -1) {
+    int reading[apx_term2];
+    int ocCount[apx_term2];
+    for (int take = 0; take < apx_term2; take++) {
+      int       wiperReading[apx_terms];
+      int       readingIndex[apx_terms];
+      double    wiperValue = -1;
+
+      for (int jdx = 0; jdx < apx_terms; jdx++) {
+        readingIndex[jdx] = 0;
+        wiperReading[jdx] = analogRead(pinWIPER);
+        for (int kdx = 0; kdx < jdx; kdx++) {
+          if (wiperReading[kdx] == wiperReading[jdx])
+            wiperValue = wiperReading[jdx];
+          if (wiperReading[kdx] > wiperReading[jdx])
+            readingIndex[kdx]++;
+          if (wiperReading[kdx] < wiperReading[jdx])
+            readingIndex[jdx]++;
+        }
+      }
+      if (wiperValue != -1) { // otherwise take the median
+        for (int jdx = 0; jdx < apx_terms; jdx++) {
+          if (readingIndex[jdx] == int(apx_terms / 2))
+            wiperValue = wiperReading[jdx];
+        }
+      }
+      reading[take] = wiperValue;
+    }
+    int mostCommon = reading[0];
+    int count = 1;
+    // get mode
+    for(int idx = 0; idx < apx_term2; idx++){
+      int currCount = 1;
+      for(int jdx = 0; jdx < apx_term2; jdx++){
+        if(idx != jdx) if(reading[idx] == reading[jdx]) currCount++;
+      }
+      if(currCount > count) mostCommon = reading[idx];      
+    }
+    return mostCommon;
+  }
+  return 0;
+}
+
+void VNH5019::initalizePins() {	// initalize the pins
+  pinMode(pinA, OUTPUT);
+  pinMode(pinB, OUTPUT);
+  if (pinPWM != -1)	pinMode(pinPWM, OUTPUT);
+  if (pinWIPER != -1) 	pinMode(pinWIPER, INPUT);
+}
+
+
+
+
+
+
+
+
+
+
+
+#define NUM_READINGS 7
+#define MAJOR_MEAN 5
+#define MINOR_MEAN 3
+
+float majorMean = 0;
+for(int majorIdx = 0; majorIdx < MAJOR_MEAN; majorIdx++){
+	
+	// get new mean
+	float minorMean = 0;
+	for(minorIdx = 0; minorIdx < MINOR_MEAN; majorIdx++){
+		int uniqueReadings = NUM_READINGS;
+		int wiperReading	[NUM_READINGS];
+		int sortedIndex		[NUM_READINGS];
+		 
+		// get wiper readings
+		for(int currIdx = 0; currIdx < NUM_READINGS; currIdx++){
+			
+			wiperReading[currIdx] = analogRead(pinWIPER); // read wiper
+			bool isUnique = true;
+			
+			// determine if unique
+			for(int idx = 0; idx < currIdx; idx++){
+				if(wiperReading[idx] == wiperReading[currIdx])
+					isUnique = false;
+			}
+			
+			// sort if unique
+			if(isUnique){ 
+				sortedIndex[currIdx] = 0; //inialize sortedIndex
+				for(int idx = 0; idx < currIdx; idx++){
+					if(wiperReading[idx] > wiperReading[currIdx]){
+						sortedIndex[idx]++;
+					} else {
+						sortedIndex[currIdx]++;
+					}
+				}
+			} else { // otherwise take note of not being unique
+				uniqueReadings--;
+			}
+		}
+
+		// get median
+		int median;
+		for(int idx = 0; idx < NUM_READINGS; idx++){
+			if(sortedIndex[idx] == uniqueReadings/2){
+				median = wiperReading[idx];
+				break;
+			}
+		}
+		
+		minorMean += median;
+	}
+	
+	minorMean /= float(MINOR_MEAN); // get minor mean
+	
+	majorMean += minorMean; // add minor mean
+}
+majorMean /= float(MAJOR_MEAN); // get major mean
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
