@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GMap.NET.WindowsPresentation;
 
-namespace usstgui.Windows
+namespace usstgui
 {
     public class GeoAngle
     {
@@ -191,6 +191,12 @@ namespace usstgui.Windows
         public override string ToString()
         {
             return this.Name;
+        }
+
+        public void UpdatePosDD(double lat, double lon)
+        {
+            this.Lat = GeoAngle.FromDouble(lat);
+            this.Lng = GeoAngle.FromDouble(lon);
         }
 
 

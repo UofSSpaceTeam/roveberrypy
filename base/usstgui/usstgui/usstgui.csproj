@@ -125,6 +125,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="NavMarkers\RoverMarker.xaml.cs">
+      <DependentUpon>RoverMarker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="NavMarkers\WaypointMarker.xaml.cs">
       <DependentUpon>WaypointMarker.xaml</DependentUpon>
     </Compile>
@@ -172,6 +175,10 @@
     <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="NavMarkers\RoverMarker.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="NavMarkers\WaypointMarker.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -284,6 +291,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\red-dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\RoverIcon.png" />
+    <Resource Include="Resources\RoverIconArrow.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

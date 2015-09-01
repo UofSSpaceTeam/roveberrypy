@@ -10,14 +10,14 @@ using GMap.NET.Projections;
 using GMap.NET.CacheProviders;
 using System.Net.NetworkInformation;
 using System.Diagnostics;
-using usstgui.Windows;
+using usstgui;
 using System.Collections.Generic;
-using usstgui.NavMarkers;
 
 namespace usstgui
 {
     public partial class NavStatus : Window
     {
+        bool windowOpen = true;
         public NavStatus()
         {
             InitializeComponent();
@@ -28,10 +28,46 @@ namespace usstgui
                 MessageBox.Show("No internet connection available, going to CacheOnly mode.");
             }
 
-            MainMap.MapProvider = GMapProviders.BingHybridMap;
+            MainMap.MapProvider = GMapProviders.OpenStreetMap;
             MainMap.Position = new PointLatLng(52.132452, -106.628350);
+            
+            // Add rover icon to list
+            WaypointStorage roverLocation = new WaypointStorage();
+            roverLocation = WaypointStorage.FromStrings("Rover", "52.132452", "-106.628350", "DD");
+            ListViewItem item = new ListViewItem();
+            item.Tag = roverLocation;
+            PointsList.Items.Add(roverLocation);
 
-           
+            // Add to map
+            PointLatLng initPosition = new PointLatLng(roverLocation.Lat.DecimalDegrees, roverLocation.Lng.DecimalDegrees); //Format for maps
+            GMapMarker roverMarker = new GMapMarker(initPosition);
+            RoverMarker roverIcon = new RoverMarker(roverMarker, "Rover");
+            roverMarker.Shape = roverIcon;
+            roverMarker.Offset = new Point(roverIcon.offesetX, roverIcon.offsetY);
+            roverMarker.ZIndex = 1;
+            MainMap.Markers.Add(roverMarker);
+            roverLocation.Marker = roverMarker;
+
+
+            // Test
+            UpdateRoverPosition(20, 20, 49);
+
+            while (false)
+            {
+                try
+                {
+                    double lat = SharedState.get("lat");
+                    double lng = SharedState.get("lon");
+                    double hdg = SharedState.get("heading");
+                    UpdateRoverPosition(lat, lng, hdg);
+                    Debug.WriteLine("Update Suceeded");
+                    System.Threading.Thread.Sleep(100);
+                }
+                catch
+                {
+                    Debug.WriteLine("Update Failed");
+                }
+            }
         }
 
         //Kinda dumb helper to check if connected.. could be better?
@@ -56,6 +92,12 @@ namespace usstgui
             }
 
             return pingStatus;
+        }
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            windowOpen = false;
+            base.OnClosing(e);
         }
 
         // Map manipulation stuff
@@ -110,21 +152,19 @@ namespace usstgui
                     mode = "DMD";
                 }
                 else return;
-
-                // Memory leaks galore.. doesn't really matter though :P
+                
                 WaypointStorage point = new WaypointStorage();
                 point = WaypointStorage.FromStrings(Name, Lat, Lng, mode);
                 ListViewItem item = new ListViewItem();
                 item.Tag = point;
                 PointsList.Items.Add(point);
-
-                Debug.WriteLine(point.Lng.DecimalDegrees);
-
+                
                 PointLatLng enteredPosition = new PointLatLng(point.Lat.DecimalDegrees, point.Lng.DecimalDegrees);
 
                 GMapMarker marker = new GMapMarker(enteredPosition);
-                marker.Shape = new WaypointMarker(marker, Name);
-                marker.Offset = new Point(-15, -30);
+                WaypointMarker icon = new WaypointMarker(marker, Name);
+                marker.Shape = icon;
+                marker.Offset = new Point(icon.offesetX, icon.offsetY);
                 marker.ZIndex = 1;
                 MainMap.Markers.Add(marker);
                 point.Marker = marker;
@@ -164,6 +204,13 @@ namespace usstgui
                 + Math.Cos(ToRadian(lat1)) * Math.Cos(ToRadian(lat2)) * Math.Pow(Math.Sin((DiffRadian(lng1, lng2)) / 2.0), 2.0)))))).ToString();
         }
 
-
+        public void UpdateRoverPosition(double lat, double lng, double hdg)
+        {
+            WaypointStorage rover = PointsList.Items.GetItemAt(0) as WaypointStorage;
+            RoverMarker roverIcon = rover.Marker.Shape as RoverMarker;
+            roverIcon.MarkerArrowHeading(hdg);
+            rover.UpdatePosDD(lat, lng);
+            rover.Marker.Position = new PointLatLng(rover.Lat.DecimalDegrees, rover.Lng.DecimalDegrees);
+        }
     }
 }

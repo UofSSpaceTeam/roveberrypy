@@ -17,7 +17,7 @@
             <RowDefinition Height="100" />
         </Grid.RowDefinitions>
 
-        <WindowsPresentation:GMapControl x:Name="MainMap" Margin="10,10,10,10" Grid.Column="0" Grid.Row="0" CanDragMap="True" MaxZoom="30" MinZoom="1" Zoom="10" MouseWheelZoomType="MousePositionWithoutCenter" OnMapZoomChanged="MainMap_OnMapZoomChanged" OnPositionChanged="MainMap_OnPositionChanged"/>
+        <WindowsPresentation:GMapControl x:Name="MainMap" Margin="10,10,10,10" Grid.Column="0" Grid.Row="0" CanDragMap="True" MaxZoom="30" MinZoom="1" Zoom="10" MouseWheelZoomType="ViewCenter" OnMapZoomChanged="MainMap_OnMapZoomChanged" OnPositionChanged="MainMap_OnPositionChanged"/>
         <Slider x:Name="ZoomSlider" Grid.Column="1" Margin="10,30,30,30" Orientation="Vertical" IsSnapToTickEnabled="True" TickFrequency="1" Maximum="30" ValueChanged="ZoomSliderChanged"/>
         <Label x:Name="DMSLabel" Content="DMS" HorizontalAlignment="Right" Margin="20,20" VerticalAlignment="Bottom" FontWeight="ExtraBlack" Foreground="#FFE0E0E0"/>
         <Label x:Name="DMDLabel" Content="DMD" HorizontalAlignment="Right" Margin="20,50" VerticalAlignment="Bottom" FontWeight="ExtraBlack" Foreground="#FFE0E0E0"/>
