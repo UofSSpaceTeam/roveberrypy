@@ -85,8 +85,8 @@ int main(int argc, char* argv[])
 			data.panHigh = (byte)(pan >> 8);
 			data.panLow = (byte)pan;
 			data.tilt = (byte)tilt;
-			printf("pan: %i\n", ((data.panHigh << 8) + (data.panLow)));
-			printf("tilt: %i\n", data.tilt);
+			//printf("pan: %i\n", ((data.panHigh << 8) + (data.panLow)));
+			//printf("tilt: %i\n", data.tilt);
 			sendto(sock, (char*)&data, sizeof(data), 0, (struct sockaddr*)&rover, sizeof(rover));
 			Sleep(50);
 		}
