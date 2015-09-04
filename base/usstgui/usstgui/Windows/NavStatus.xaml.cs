@@ -64,20 +64,34 @@ namespace usstgui
                 this.Dispatcher.Invoke((Action)(() =>
                 {
                     double lat = 52.132452;
-                    double lng = -106.628350;
-                    double hdg = 180;
+					double lng = -106.628350;
+					double hdg = 180;
+				    if(NMEA)
+				    {
+						SharedState.set("gps_NMEA", "");
+						try { lat = Convert.ToDouble(SharedState.get("NMEA_lat")); } catch { Debug.WriteLine("failed lat"); }
+						try { lng = Convert.ToDouble(SharedState.get("NMEA_lng")); } catch { Debug.WriteLine("failed lng"); }
+						try { hdg = Convert.ToDouble(SharedState.get("NMEA_hdg")); } catch { Debug.WriteLine("failed hdg"); }
 
-                    SharedState.set("gps_pos_lat", "");
-                    try { lat = Convert.ToDouble(SharedState.get("lattitude")); } catch { Debug.WriteLine("failed lat"); }
+				    }
+					
+					else
+					{
+						
 
-                    SharedState.set("gps_pos_lon", "");
-                    try { lng = Convert.ToDouble(SharedState.get("longitude")); } catch { Debug.WriteLine("failed lng"); }
+						SharedState.set("gps_pos_lat", "");
+						try { lat = Convert.ToDouble(SharedState.get("lattitude")); } catch { Debug.WriteLine("failed lat"); }
 
-                    SharedState.set("gps_heading", "");
-                    try { hdg = Convert.ToDouble(SharedState.get("heading")); } catch { Debug.WriteLine("failed hdg"); }
+						SharedState.set("gps_pos_lon", "");
+						try { lng = Convert.ToDouble(SharedState.get("longitude")); } catch { Debug.WriteLine("failed lng"); }
 
-                    UpdateRoverPosition(lat, lng, hdg);
-                    Debug.WriteLine("GPS Update Passed");
+						SharedState.set("gps_heading", "");
+						try { hdg = Convert.ToDouble(SharedState.get("heading")); } catch { Debug.WriteLine("failed hdg"); }
+
+						
+					}
+					UpdateRoverPosition(lat, lng, hdg);
+					Debug.WriteLine("GPS Update Passed");
                 }));
                 Thread.Sleep(500);
             }

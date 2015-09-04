@@ -22,7 +22,14 @@ class Navigation(RoverProcess):
 			gps_Baseline - the relative base position in NED coordinates.
 		'''
 
-	# helper classes go here if you want any
+	class NMEAPoint:
+		 def __init__(self):
+			self.lat = 0
+			self.lon = 0
+			self.hdg = 0
+			self.hdop = 0
+
+			
 
 	def setup(self, args):
 		import argparse
@@ -44,6 +51,8 @@ class Navigation(RoverProcess):
 		self.command = None
 		#load first few commands 
 		#self.target = Coordinate(lat,lon)
+		
+		
 
 	def loop(self):
 		#if self.start is True: 
@@ -80,6 +89,13 @@ class Navigation(RoverProcess):
 		if "gps_heading" in message:
 			try: self.setShared("heading", self.getGPSHeading())
 			except: self.setShared("heading", 0)
+			
+		if "gps_NMEA" in message:
+			p = readGPS_NMEA()
+			self.setShared("NMEA_lat", p.lat)
+			self.setShared("NMEA_lng", p,lng)
+			self.setShared("NMEA_hdg", p.hdg)
+			self.setShared("NMEA_hdop", p.hdop)
 
 
 	def cleanup(self):
@@ -103,6 +119,23 @@ class Navigation(RoverProcess):
 				return p
 		except:
 			return
+	
+	def readGPS_NMEA():
+		p = NMEAPoint()
+		rawData = gps.read(gps.inWaiting())
+		dataStart = rawData.find("GGA")
+		if dataStart != -1:	# found start of valid sentence
+			dataEnd = min(dataStart + 70, len(rawData) - dataStart - 2)
+			data = rawData[dataStart:dataEnd]
+			values = data.split(",")
+			if len(values) > 9:
+				p.lat = float(values[2][:2])
+				p.lat += float(values[2][2:])/60
+				p.lng = float(values[4][:3])
+				p.lng += float(values[4][3:])/60
+				p.hdop = float(values[8])
+				#altitude = float(values[9])
+		return p
 
 	def getBaseline(self, timeout=5.0):
 		''' Get relative baseline position in NED coordinates
