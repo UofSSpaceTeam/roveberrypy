@@ -12,6 +12,7 @@ using System.Net.NetworkInformation;
 using System.Diagnostics;
 using usstgui;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace usstgui
 {
@@ -21,6 +22,8 @@ namespace usstgui
         public NavStatus()
         {
             InitializeComponent();
+            Thread t = new Thread(new ThreadStart(NavDataMonitor));
+            t.Start();
 
             if (!PingNetwork("pingtest.com"))
             {
@@ -52,21 +55,31 @@ namespace usstgui
             // Test
             UpdateRoverPosition(20, 20, 49);
 
-            while (false)
+        }
+        
+        private void NavDataMonitor()
+        {
+            while (windowOpen)
             {
-                try
+                this.Dispatcher.Invoke((Action)(() =>
                 {
-                    double lat = SharedState.get("lat");
-                    double lng = SharedState.get("lon");
-                    double hdg = SharedState.get("heading");
+                    double lat = 52.132452;
+                    double lng = -106.628350;
+                    double hdg = 180;
+
+                    SharedState.set("gps_pos_lat", "");
+                    try { lat = Convert.ToDouble(SharedState.get("lattitude")); } catch { Debug.WriteLine("failed lat"); }
+
+                    SharedState.set("gps_pos_lon", "");
+                    try { lng = Convert.ToDouble(SharedState.get("longitude")); } catch { Debug.WriteLine("failed lng"); }
+
+                    SharedState.set("gps_heading", "");
+                    try { hdg = Convert.ToDouble(SharedState.get("heading")); } catch { Debug.WriteLine("failed hdg"); }
+
                     UpdateRoverPosition(lat, lng, hdg);
-                    Debug.WriteLine("Update Suceeded");
-                    System.Threading.Thread.Sleep(100);
-                }
-                catch
-                {
-                    Debug.WriteLine("Update Failed");
-                }
+                    Debug.WriteLine("GPS Update Passed");
+                }));
+                Thread.Sleep(500);
             }
         }
 

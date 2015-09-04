@@ -26,7 +26,7 @@
         <Button x:Name="CamRight" Content="&gt;" Grid.Column="2" HorizontalAlignment="Left" Margin="94,19,0,0" Grid.Row="1" VerticalAlignment="Top" Width="24" Click="CamCtl"/>
         <Button x:Name="CamDown" Content="v" Grid.Column="2" HorizontalAlignment="Left" Margin="67,30,0,0" Grid.Row="1" VerticalAlignment="Top" Width="22" Height="20" Click="CamCtl"/>
         <Button x:Name="CamLeft" Content="&lt;" Grid.Column="2" HorizontalAlignment="Left" Margin="39,19,0,0" Grid.Row="1" VerticalAlignment="Top" Width="23" Click="CamCtl"/>
-        <Button x:Name="Picture" Content="Picture" Grid.Row="1" Grid.Column="3" Click="stopStream" Margin="29,0,29,439" Height="25" VerticalAlignment="Bottom"/>
+        <Button x:Name="Picture" Content="Picture" Grid.Row="1" Grid.Column="3" Margin="40,0,18,439" Height="25" VerticalAlignment="Bottom" Click="TakePicture"/>
         <TextBox x:Name="fps" HorizontalAlignment="Left" Height="24" Margin="86,14,0,0" Grid.Row="1" TextWrapping="Wrap" Text="25" VerticalAlignment="Top" Width="35" RenderTransformOrigin="0.057,0.543"/>
         <TextBox x:Name="resX" HorizontalAlignment="Left" Height="23" Margin="0,14,0,0" Grid.Row="1" TextWrapping="Wrap" Text="1280" VerticalAlignment="Top" Width="41" Grid.Column="1"/>
         <TextBox x:Name="resY" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="76,14,0,0" Grid.Row="1" TextWrapping="Wrap" Text="720" VerticalAlignment="Top" Width="40"/>

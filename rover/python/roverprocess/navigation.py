@@ -8,6 +8,7 @@ import time
 import serial
 import math
 import Queue as Q
+import sys
 #from nav_helpers import *
 
 class Navigation(RoverProcess):
@@ -56,11 +57,14 @@ class Navigation(RoverProcess):
 		if "navHeartbeat" in message:
 			self.setShared("navHeartbeat", True)
 		if "gps_pos_lat" in message:
-			self.setShared("latitude", self.getPos().lat)
+			try: self.setShared("latitude", self.getPos().lat)
+			except: self.setShared(("latitude", 0))
 		if "gps_pos_lon" in message:
-			self.setShared("longtitude", self.getPos().lon)
+			try: self.setShared("longtitude", self.getPos().lon)
+			except: self.setShared("longtitude", 0)
 		if "gps_pos_height" in message:
-			self.setShared("altitude", self.getPos().height)
+			try: self.setShared("altitude", self.getPos().height)
+			except: self.setShared("altitude", 0)
 		if "gps_pos_flags" in message:
 			self.setShared("gps_flags", self.getPos().flags)
 		if "gps_baseline_n" in message:
@@ -74,7 +78,9 @@ class Navigation(RoverProcess):
 		if "compass_heading" in message:
 			self.setShared("heading", self.getHeading())
 		if "gps_heading" in message:
-			self.setShared("heading", self.getGPSHeading())
+			try: self.setShared("heading", self.getGPSHeading())
+			except: self.setShared("heading", 0)
+
 
 	def cleanup(self):
 		try:
@@ -88,13 +94,14 @@ class Navigation(RoverProcess):
 		''' Get current gps location
 		timeout is in seconds
 		'''
+		
 		try:
 			p = MsgPosLLH(self.handler.wait(msg_type=SBP_MSG_POS_LLH, timeout=timeout))
 			if not p == None:
 				print "%.6f,%.6f,%.6f,%i" % (p.lat, p.lon, p.height, p.flags)
 				return p
-		except Exception:
-			print("Could not get gps position")
+		except:
+			return
 
 	def getBaseline(self, timeout=5.0):
 		''' Get relative baseline position in NED coordinates

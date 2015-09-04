@@ -43,6 +43,12 @@ class CameraProcess(RoverProcess):
 		if "CamRight" in message:
 			self.cameraYaw -= 10
 			
+		if "resX" in message:
+			self.resX = int(message["resX"])
+		if "resY" in message:
+			self.resY = int(message["resY"])
+		if "fps" in message:
+			self.fps = int(message["fps"])
 			
 			
 	
@@ -85,12 +91,12 @@ class CameraProcess(RoverProcess):
 			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 
 	def startArmCam(self):
-		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_uvc.so -d /dev/video1 -r %dx%d" &''')  %(self.resX, self.resY)
+		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_uvc.so -d /dev/video2" &''')  #%(self.resX, self.resY)
 		subprocess.Popen(command, env = dict(os.environ,
 			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 	
 	def startDriveCam(self):
-		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_uvc.so -d /dev/video0 -r %dx%d -fps %d" &''')  %(self.resX, self.resY, self.fps)
+		command = ('''LD_LIBRARY_PATH=/root/mjpgStreamer && /root/mjpgStreamer/./mjpg_streamer -o "output_http.so -p 40000 -w ./www" -i "input_uvc.so -d /dev/video1" &''')  #%(self.resX, self.resY, self.fps)
 		subprocess.Popen(command, env = dict(os.environ,
 			LD_LIBRARY_PATH = "/root/mjpgStreamer"), shell = True)
 

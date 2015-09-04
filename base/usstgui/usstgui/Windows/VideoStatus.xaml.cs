@@ -49,6 +49,28 @@ namespace usstgui
             SharedState.set(pressed.Name, "Step");
         }
 
+        private void TakePicture(object sender, RoutedEventArgs e)
+        {
+            string url = @"http://192.168.1.103:40000/?action=snapshot";
+            //string file = System.IO.Path.GetFileName(url);
+            System.Net.WebClient cln = new System.Net.WebClient();
+
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.FileName = "Picture"; // Default file name
+            dlg.DefaultExt = ".jpg"; // Default file extension
+
+            // Show save file dialog box
+            bool? result = dlg.ShowDialog();
+
+            // Process save file dialog box results
+            if(result == true)
+            {
+                // Save document
+                string filename = dlg.FileName;
+                cln.DownloadFile(url, filename);
+            }
+        }
+
         private void mjpeg_FrameReady(object sender, FrameReadyEventArgs e)
         {
             VideoCanvas.Source = e.BitmapImage;

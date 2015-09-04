@@ -43,16 +43,17 @@ namespace usstgui
 											"IK_YVal",
 											"IK_WristVal",
 											"wristRotation",
-											"gripperOpenClose",
-											"DrillFeedPower", // Drill Controls
-											"DrillTranslation",
-											"DrillRotation",
-											"DrillPower",
+											"gripperOpenClose", // Drill Controls
+											"drillTranslation",
+											"drillRotation",
                                             "videoState", // Video
                                             "CamUp",
                                             "CamDown",
                                             "CamLeft",
                                             "CamRight",
+                                            "resX",
+                                            "resY",
+                                            "fps",
                                             "gps_heading",  // Piksi GPS
                                             "heading",
                                             "gps_pos_lat",

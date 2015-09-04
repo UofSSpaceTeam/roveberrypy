@@ -22,8 +22,8 @@ class JsonServer(RoverProcess):
 				data = self.byteify(json.loads(jsonData))
 				if isinstance(data, dict):
 					self.uplink.put(data)
-					if "commsHeartbeat" in data:
-						self.messageTrigger({"commsHeartbeat": True})
+					#if "commsHeartbeat" in data:
+					#	self.setShared("commsHeartbeat", True)
 					with self.parent.addressSem:
 						self.parent.address = address[0]
 		
