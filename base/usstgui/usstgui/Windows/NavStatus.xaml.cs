@@ -173,7 +173,7 @@ namespace usstgui
                 PointsList.Items.Add(point);
                 
                 PointLatLng enteredPosition = new PointLatLng(point.Lat.DecimalDegrees, point.Lng.DecimalDegrees);
-
+                 
                 GMapMarker marker = new GMapMarker(enteredPosition);
                 WaypointMarker icon = new WaypointMarker(marker, Name);
                 marker.Shape = icon;
@@ -224,6 +224,12 @@ namespace usstgui
             roverIcon.MarkerArrowHeading(hdg);
             rover.UpdatePosDD(lat, lng);
             rover.Marker.Position = new PointLatLng(rover.Lat.DecimalDegrees, rover.Lng.DecimalDegrees);
+        }
+
+        private void CenterMap_Click(object sender, RoutedEventArgs e)
+        {
+            WaypointStorage rover = PointsList.Items.GetItemAt(0) as WaypointStorage;
+            MainMap.Position = new PointLatLng(rover.Lat.DecimalDegrees, rover.Lng.DecimalDegrees);
         }
     }
 }

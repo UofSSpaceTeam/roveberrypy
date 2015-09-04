@@ -44,7 +44,6 @@ class DrillProcess(RoverProcess):
 		command.d1 = int(self.rotation * 255)
 		command.d2 = int(self.translation * 255)
 		self.sendCommand(command)
-		print command.d1, command.d2
 
 	def sendCommand(self, command):
 		command.csum = ((command.type + command.d1 + command.d2) % 256)

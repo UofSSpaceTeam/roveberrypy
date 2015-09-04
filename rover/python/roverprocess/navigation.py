@@ -97,6 +97,7 @@ class Navigation(RoverProcess):
 		
 		try:
 			p = MsgPosLLH(self.handler.wait(msg_type=SBP_MSG_POS_LLH, timeout=timeout))
+			print p
 			if not p == None:
 				print "%.6f,%.6f,%.6f,%i" % (p.lat, p.lon, p.height, p.flags)
 				return p
