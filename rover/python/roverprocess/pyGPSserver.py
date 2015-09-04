@@ -19,21 +19,21 @@ class NMEAPoint:
 		self.hdop = 0
 
 def readGPS_NMEA(self):
-	p = self.NMEAPoint()
-	rawData = driver.handle.read(driver.handle.inWaiting())
-	dataStart = rawData.find("GGA")
-	if dataStart != -1:	# found start of valid sentence
-		dataEnd = min(dataStart + 70, len(rawData) - dataStart - 2)
-		data = rawData[dataStart:dataEnd]
-		values = data.split(",")
-		if len(values) > 9:
-			p.lat = float(values[2][:2])
-			p.lat += float(values[2][2:])/60
-			p.lng = float(values[4][:3])
-			p.lng += float(values[4][3:])/60
-			p.hdop = float(values[8])
-			#altitude = float(values[9])
-	return p
+		p = self.NMEAPoint()
+		rawData = driver.handle.read(driver.handle.inWaiting())
+		dataStart = rawData.find("GGA")
+		if dataStart != -1:	# found start of valid sentence
+			dataEnd = min(dataStart + 70, len(rawData) - dataStart - 2)
+			data = rawData[dataStart:dataEnd]
+			values = data.split(",")
+			if len(values) > 9:
+				p.lat = float(values[2][:2])
+				p.lat += float(values[2][2:])/60
+				p.lng = float(values[4][:3])
+				p.lng += float(values[4][3:])/60
+				p.hdop = float(values[8])
+				#altitude = float(values[9])
+		return p
 
 while True:
 	print 'waiting to receive message'
@@ -41,7 +41,13 @@ while True:
 	
 	print 'received %s bytes from %s' % (len(data), address)
 	print  data
-	data = "GPSDATA"
+	
+	try:
+		p = readGPS_NMEA():
+		data = str(p.lat) + ' ' + str(p.lon)
+	
+	except:
+		pass
 	
 	if data:
 		sent = sock.sendto(data, address)

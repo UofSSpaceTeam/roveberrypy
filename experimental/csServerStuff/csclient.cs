@@ -50,7 +50,7 @@ class Program
 {
     static void Main()
     {
-        var client = Udp.ConnectTo("localhost", 10000);
+        var client = Udp.ConnectTo("192.168.1.103", 34567);
 
         // Here is a small threaded task
 		// It uses the async keyword to block until Receive runs (which again blocks until data)
@@ -63,11 +63,11 @@ class Program
         });
 
         // Console stuff to play with
-		string read;
-        while (true)
-        {
-            read = Console.ReadLine();
-            client.Send(read);
-        }
+		//tring read;
+        //while (true)
+        //{
+        //    read = Console.ReadLine();
+        //    client.Send(read);
+        //}
     }
 }

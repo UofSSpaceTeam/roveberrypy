@@ -45,7 +45,7 @@ class JsonServer(RoverProcess):
 		self.localPort = args["local"]
 		self.remotePort = args["remote"]
 		self.sendPeriod = args["sendPeriod"]
-		self.address = None
+		self.address = "192.168.1.110"
 		self.addressSem = BoundedSemaphore()
 		self.data = {}
 		self.dataSem = BoundedSemaphore()
@@ -59,6 +59,7 @@ class JsonServer(RoverProcess):
 	
 	def loop(self):
 		if self.data:
+			#print self.data
 			with self.dataSem:
 				jsonData = json.dumps(self.data)
 				self.data = {}
@@ -66,7 +67,7 @@ class JsonServer(RoverProcess):
 				if self.address:
 					self.sender.sendto(
 						jsonData, (self.address, self.remotePort))
-					#print "sent " + str(jsonData)
+					print "sent " + str(jsonData)
 		time.sleep(self.sendPeriod)
 	
 	def messageTrigger(self, message):

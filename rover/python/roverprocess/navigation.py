@@ -25,7 +25,7 @@ class Navigation(RoverProcess):
 	class NMEAPoint:
 		 def __init__(self):
 			self.lat = 0
-			self.lon = 0
+			self.lng = 0
 			self.hdg = 0
 			self.hdop = 0
 
@@ -44,7 +44,7 @@ class Navigation(RoverProcess):
 		self.handler = Handler(self.driver.read, self.driver.write, verbose=True)
 		#self.handler.add_callback(self.pos_callback, msg_type=SBP_MSG_POS_LLH)
 		# self.handler.add_callback(self.baseline_callback, msg_type=SBP_MSG_BASELINE_NED)
-		self.handler.start()
+		#self.handler.start()
 		self.magnetometer = serial.Serial(port="/dev/ttyAMA0", baudrate=9600, timeout=1)
 		self.start = False # starts navigation when set to true 
 		self.q = Q.PriorityQueue() # could be change to a normal queue
@@ -58,7 +58,30 @@ class Navigation(RoverProcess):
 		#if self.start is True: 
 		#	self.runCommand()
 		# self.getPos()
+		p = self.readGPS_NMEA()
+		print p.lat, p.lng
+		self.setShared("NMEAlat", str(p.lat))
+		self.setShared("NMEA_lng", p.lng)
+		self.setShared("NMEA_hdg", p.hdg)
+		self.setShared("NMEA_hdop", p.hdop)
 		time.sleep(1)
+		
+	def readGPS_NMEA(self):
+		p = self.NMEAPoint()
+		rawData = self.driver.handle.read(self.driver.handle.inWaiting())
+		dataStart = rawData.find("GGA")
+		if dataStart != -1:	# found start of valid sentence
+			dataEnd = min(dataStart + 70, len(rawData) - dataStart - 2)
+			data = rawData[dataStart:dataEnd]
+			values = data.split(",")
+			if len(values) > 9:
+				p.lat = float(values[2][:2])
+				p.lat += float(values[2][2:])/60
+				p.lng = float(values[4][:3])
+				p.lng += float(values[4][3:])/60
+				p.hdop = float(values[8])
+				#altitude = float(values[9])
+		return p
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
@@ -67,7 +90,7 @@ class Navigation(RoverProcess):
 			self.setShared("navHeartbeat", True)
 		if "gps_pos_lat" in message:
 			try: self.setShared("latitude", self.getPos().lat)
-			except: self.setShared(("latitude", 0))
+			except: self.setShared("latitude", 0)
 		if "gps_pos_lon" in message:
 			try: self.setShared("longtitude", self.getPos().lon)
 			except: self.setShared("longtitude", 0)
@@ -91,11 +114,8 @@ class Navigation(RoverProcess):
 			except: self.setShared("heading", 0)
 			
 		if "gps_NMEA" in message:
-			p = readGPS_NMEA()
-			self.setShared("NMEA_lat", p.lat)
-			self.setShared("NMEA_lng", p,lng)
-			self.setShared("NMEA_hdg", p.hdg)
-			self.setShared("NMEA_hdop", p.hdop)
+			print "NMEA Requested"
+			
 
 
 	def cleanup(self):
@@ -119,23 +139,6 @@ class Navigation(RoverProcess):
 				return p
 		except:
 			return
-	
-	def readGPS_NMEA():
-		p = NMEAPoint()
-		rawData = gps.read(gps.inWaiting())
-		dataStart = rawData.find("GGA")
-		if dataStart != -1:	# found start of valid sentence
-			dataEnd = min(dataStart + 70, len(rawData) - dataStart - 2)
-			data = rawData[dataStart:dataEnd]
-			values = data.split(",")
-			if len(values) > 9:
-				p.lat = float(values[2][:2])
-				p.lat += float(values[2][2:])/60
-				p.lng = float(values[4][:3])
-				p.lng += float(values[4][3:])/60
-				p.hdop = float(values[8])
-				#altitude = float(values[9])
-		return p
 
 	def getBaseline(self, timeout=5.0):
 		''' Get relative baseline position in NED coordinates

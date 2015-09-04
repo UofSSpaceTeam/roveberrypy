@@ -19,6 +19,7 @@ namespace usstgui
     public partial class NavStatus : Window
     {
         bool windowOpen = true;
+        bool NMEA = true;
         public NavStatus()
         {
             InitializeComponent();
@@ -63,22 +64,18 @@ namespace usstgui
             {
                 this.Dispatcher.Invoke((Action)(() =>
                 {
-                    double lat = 52.132452;
-					double lng = -106.628350;
-					double hdg = 180;
+                    double lat = 0;
+					double lng = 0;
+					double hdg = 0;
 				    if(NMEA)
 				    {
 						SharedState.set("gps_NMEA", "");
-						try { lat = Convert.ToDouble(SharedState.get("NMEA_lat")); } catch { Debug.WriteLine("failed lat"); }
-						try { lng = Convert.ToDouble(SharedState.get("NMEA_lng")); } catch { Debug.WriteLine("failed lng"); }
-						try { hdg = Convert.ToDouble(SharedState.get("NMEA_hdg")); } catch { Debug.WriteLine("failed hdg"); }
-
+                        try { lat = Convert.ToDouble(SharedState.get("NMEAlat")); } catch { Debug.WriteLine("failed lat"); }
+                        try { lng = Convert.ToDouble(SharedState.get("NMEA_lng")); } catch { Debug.WriteLine("failed lng"); }
+                        try { hdg = Convert.ToDouble(SharedState.get("NMEA_hdg")); } catch { Debug.WriteLine("failed hdg"); }
 				    }
-					
 					else
 					{
-						
-
 						SharedState.set("gps_pos_lat", "");
 						try { lat = Convert.ToDouble(SharedState.get("lattitude")); } catch { Debug.WriteLine("failed lat"); }
 
@@ -87,8 +84,7 @@ namespace usstgui
 
 						SharedState.set("gps_heading", "");
 						try { hdg = Convert.ToDouble(SharedState.get("heading")); } catch { Debug.WriteLine("failed hdg"); }
-
-						
+	
 					}
 					UpdateRoverPosition(lat, lng, hdg);
 					Debug.WriteLine("GPS Update Passed");
@@ -244,6 +240,26 @@ namespace usstgui
         {
             WaypointStorage rover = PointsList.Items.GetItemAt(0) as WaypointStorage;
             MainMap.Position = new PointLatLng(rover.Lat.DecimalDegrees, rover.Lng.DecimalDegrees);
+        }
+
+        private void radioButton1_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void GPSMode_Checked(object sender, RoutedEventArgs e)
+        {
+            RadioButton selected = sender as RadioButton;
+            if(selected.Name == "SelectSBP")
+            {
+                NMEA = false;
+                Debug.WriteLine("RTK GPS Enabled");
+            }
+            else
+            {
+                NMEA = true;
+                Debug.WriteLine("NMEA GPS Enabled");
+            }
         }
     }
 }

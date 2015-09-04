@@ -3,7 +3,7 @@ import time
 import multiprocessing
 
 # All modules ["Example", "JsonServer", "Example", "Navigation", "Drive", "Arm", "Drill", "Camera", "Lidar", "Oculus"]
-modulesList = ["JsonServer", "Navigation", "Arm", "Camera", "Drill"]
+modulesList = ["JsonServer", "Example"]
 
 from statemanager import StateManager
 if "JsonServer" in modulesList: from roverprocess.jsonserver import JsonServer
@@ -50,7 +50,12 @@ if __name__ == "__main__":
 		system.addObserver("gps_baseline_e", process.downlink)
 		system.addObserver("gps_baseline_d", process.downlink)
 		system.addObserver("gps_baseline_flags", process.downlink)
-		system.addObserver("compass_heading", process.downlink)
+		system.addObserver("gps_NMEA", process.downlink)
+		system.addObserver("NMEAlat", process.downlink)
+		system.addObserver("NMEA_lng", process.downlink)
+		system.addObserver("NMEA_hdg", process.downlink)
+		system.addObserver("NMEA_hdop", process.downlink)
+		
 		processes.append(process)
 
 	if "Drive" in modulesList: 
@@ -121,7 +126,13 @@ if __name__ == "__main__":
 			downlink = system.getDownlink(), uplink = system.getUplink(),
 				serialPort = "/dev/ttyACM0", udpPort = oculusPort)
 		processes.append(process)
-	
+		
+	if "Example" in modulesList:
+		process = ExampleProcess(
+			downlink = system.getDownlink(), uplink = system.getUplink())
+		system.addObserver("ExampleTime", process.downlink)
+		processes.append(process)
+		
 	# start everything
 	print "\nSTART: " + str([type(p).__name__ for p in processes]) + "\n"
 	for process in processes:

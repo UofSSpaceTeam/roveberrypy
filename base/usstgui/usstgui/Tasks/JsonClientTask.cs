@@ -59,20 +59,29 @@ namespace usstgui
 
 		private void netListenerFunction()
 		{
-			IPEndPoint remote = null;
-			while(receiver.Available > 0)
-			{
-				StateDict inData = parseJson(Encoding.ASCII.GetString(receiver.Receive(ref remote)));
-				foreach (StateElement e in inData)
-					setShared(e.Key, e.Value);
-			}
-		}
+
+            IPEndPoint remote = new IPEndPoint(IPAddress.Any, 34567);
+            while (true)
+            {
+                //IPEndPoint remote = null;
+                while (receiver.Available > 0)
+                {
+                    StateDict inData = parseJson(Encoding.ASCII.GetString(receiver.Receive(ref remote)));
+                    Debug.WriteLine(inData);
+                    foreach (StateElement e in inData)
+                        setShared(e.Key, e.Value);
+                }
+                Debug.WriteLine("loop");
+
+                Thread.Sleep(100);
+            }
+        }
 
 		protected override void messageTrigger(string key, dynamic value)
 		{
 			if(key.Equals("jsonPort"))
 			{
-				receiver.Client.Bind(new IPEndPoint(IPAddress.Any, getShared("jsonPort")));
+                receiver.Client.Bind(new IPEndPoint(IPAddress.Any, getShared("jsonPort")));
 			}
 			else
 			{
