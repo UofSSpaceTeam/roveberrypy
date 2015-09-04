@@ -3,7 +3,7 @@ import time
 import multiprocessing
 
 # All modules ["Example", "JsonServer", "Example", "Navigation", "Drive", "Arm", "Drill", "Camera", "Lidar", "Oculus"]
-modulesList = ["JsonServer", "Example"]
+modulesList = ["JsonServer"]
 
 from statemanager import StateManager
 if "JsonServer" in modulesList: from roverprocess.jsonserver import JsonServer
