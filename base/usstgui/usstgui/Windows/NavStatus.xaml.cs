@@ -32,7 +32,7 @@ namespace usstgui
                 MessageBox.Show("No internet connection available, going to CacheOnly mode.");
             }
 
-            MainMap.MapProvider = GMapProviders.OpenStreetMap;
+            MainMap.MapProvider = GMapProviders.GoogleHybridMap;
             MainMap.Position = new PointLatLng(52.132452, -106.628350);
             
             // Add rover icon to list
@@ -229,11 +229,11 @@ namespace usstgui
 
         public void UpdateRoverPosition(double lat, double lng, double hdg)
         {
-            WaypointStorage rover = PointsList.Items.GetItemAt(0) as WaypointStorage;
+            /*WaypointStorage rover = PointsList.Items.GetItemAt(0) as WaypointStorage;
             RoverMarker roverIcon = rover.Marker.Shape as RoverMarker;
             roverIcon.MarkerArrowHeading(hdg);
             rover.UpdatePosDD(lat, lng);
-            rover.Marker.Position = new PointLatLng(rover.Lat.DecimalDegrees, rover.Lng.DecimalDegrees);
+            rover.Marker.Position = new PointLatLng(rover.Lat.DecimalDegrees, rover.Lng.DecimalDegrees);*/
         }
 
         private void CenterMap_Click(object sender, RoutedEventArgs e)

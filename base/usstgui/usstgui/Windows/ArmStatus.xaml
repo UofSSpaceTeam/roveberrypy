@@ -37,7 +37,6 @@
         <ProgressBar x:Name="ArmYStat" HorizontalAlignment="Left" Height="10" Margin="91,149,0,0" VerticalAlignment="Top" Width="100" LargeChange="0.1" Maximum="1"/>
         <Label x:Name="ArmXMaxLbl" Content="??/??" HorizontalAlignment="Left" Margin="19,66,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.25,0.654"/>
         <Label x:Name="ArmYMaxLbl" Content="??/??" HorizontalAlignment="Left" Margin="19,133,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="BtnnvKFocus" Content="Button" HorizontalAlignment="Left" Margin="108,426,0,0" VerticalAlignment="Top" Width="75" Keyboard.KeyDown="ArmDrawing_KeyDown"/>
 
     </Grid>
 </Window>
