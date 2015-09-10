@@ -54,7 +54,7 @@ while True:
 		data = str(p.lat) + ' ' + str(p.lng)
 	
 	except:
-		raise
+		print "Serial Error"
 	
 	if data:
 		sent = sock.sendto(data, address)

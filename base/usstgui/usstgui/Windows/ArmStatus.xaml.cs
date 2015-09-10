@@ -186,7 +186,7 @@ namespace usstgui
         }
 
         double m_stepSize;
-        private void ArmDrawing_KeyDown(object sender, KeyEventArgs e)
+        /*private void ArmDrawing_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key) {
                 // wasd controls for when using the figure
@@ -230,6 +230,6 @@ namespace usstgui
             {
                 ArmDrawing.Children.Clear();
             }
-        }
+        }*/
     }
 }
