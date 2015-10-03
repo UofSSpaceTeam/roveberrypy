@@ -3,12 +3,19 @@ import time
 import multiprocessing
 
 # All modules ["Example", "JsonServer", "I2C"]
-modulesList = ["JsonServer", "I2C"]
+modulesList = []
+
+# Check if on windows - if so do not run rover hardware specific code!
+if(os.name == "nt"):
+	modulesList = ["JsonServer", "Example", "WebServer"]
+else:
+	modulesList = ["JsonServer", "I2C"]
 
 from statemanager import StateManager
 if "JsonServer" in modulesList: from roverprocess.jsonserver import JsonServer
 if "Example" in modulesList: from roverprocess.exampleprocess import ExampleProcess
 if "I2C" in modulesList: from roverprocess.I2Cexampleprocess import I2CExampleProcess
+if "WebServer" in modulesList: from roverprocess.webserverprocess import WebserverProcess
 
 # system configuration
 localPort = 34567
@@ -33,6 +40,12 @@ if __name__ == "__main__":
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		system.addObserver("ExampleTime", process.downlink)
 		processes.append(process)
+		
+	if "WebServer" in modulesList:
+		process = WebserverProcess(
+			downlink = system.getDownlink(), uplink = system.getUplink())
+		processes.append(process)
+
 	
 	if "I2C" in modulesList:
 		process = I2CExampleProcess(
