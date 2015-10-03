@@ -1,10 +1,10 @@
 from roverprocess import RoverProcess
 
 import time
-import smbus
+import mraa
 
 class CommandType:
-		setExample = 0x00
+		SET_LED = 0x00
 	
 class Command:
 	def __init__(self):
@@ -18,34 +18,50 @@ class Command:
 class I2CExampleProcess(RoverProcess):
 
 	def setup(self, args):
-		self.i2c = smbus.SMBus(1)
-		self.i2cAddress = 0x07
+		self.i2c = mraa.I2c(1)
+		self.i2c.address(0x07)
 		self.i2cSem = args["sem"]
 		self.update = False
 	
 	def loop(self):
-		time.sleep(0.01)
+		val = False
+		while(True):
+			self.update = True
+			self.setLED(0, int(val))
+			val = not val;
+			#print val
+			time.sleep(0.2)
 	
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
 			
 	def sendCommand(self, command):
 		command.csum = (command.type + command.d1 + command.d2) % 256
+
 		try:
 			self.i2cSem.acquire(block=True, timeout=None)
-			self.i2c.write_byte(self.i2cAddress, command.header)
-			self.i2c.write_byte(self.i2cAddress, command.type)
-			self.i2c.write_byte(self.i2cAddress, command.d1 & 0xFF)
-			self.i2c.write_byte(self.i2cAddress, command.d1 >> 8)
-			self.i2c.write_byte(self.i2cAddress, command.d2 & 0xFF)
-			self.i2c.write_byte(self.i2cAddress, command.d2 >> 8)
-			self.i2c.write_byte(self.i2cAddress, command.csum)
-			self.i2c.write_byte(self.i2cAddress, command.trailer)
-		except IOError:
-			print("Example thread got IOError")
+			self.i2c.writeByte(command.header)
+			self.i2c.writeByte(command.type)
+			self.i2c.writeByte(command.d1 & 0xFF)
+			self.i2c.writeByte(command.d1 >> 8)
+			self.i2c.writeByte(command.d2 & 0xFF)
+			self.i2c.writeByte(command.d2 >> 8)
+			self.i2c.writeByte(command.csum)
+			self.i2c.writeByte(command.trailer)
+		except:
+			print("Example thread got an I2C error")
 		self.i2cSem.release()
 			
 	def cleanup(self):
 		RoverProcess.cleanup(self)
 		
-
+	def setLED(self, ledIndex, state):
+		command = Command()
+		command.type = CommandType.SET_LED
+		command.d1 = int(ledIndex)
+		command.d2 = int(state)
+		if self.update:
+			self.sendCommand(command)
+			self.update = False
+		
+		

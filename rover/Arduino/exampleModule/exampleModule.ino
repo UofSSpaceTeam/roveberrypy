@@ -9,7 +9,7 @@
 
 enum command_type // instruction class from the Pi
 {
-	SET_EXAMPLE
+	SET_LED
 };
 
 typedef struct
@@ -23,6 +23,10 @@ typedef struct
 } command;
 
 // Wiring connections get defined here
+
+const int LEDPins[] = {13};
+
+// I2C data variables and functions
 
 unsigned long timer;
 volatile command cmd;
@@ -41,6 +45,10 @@ void setup()
 {
 	Wire.begin(I2C_ADDRESS);
 	Wire.onReceive(receiveEvent);
+	
+	// Example LED
+	pinMode(LEDPins[0], OUTPUT);
+	digitalWrite(LEDPins[0], LOW);
 	
 	stopAll();
 	timer = millis();
@@ -98,12 +106,18 @@ void processCommand()
 {
 	switch(cmd.type)
 	{		
-		case SET_MOTORS:
+		case SET_LED:
+			setLedByVal(cmd.d1, cmd.d2);
+			
 		break;
 	}
 	newCommand = false;
 }
 
+void setLedByVal(int led, int state)
+{
+	digitalWrite(LEDPins[led], state);
+}
 
 void stopAll()
 {
