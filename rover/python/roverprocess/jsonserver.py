@@ -18,12 +18,12 @@ class JsonServer(RoverProcess):
 		def run(self):
 			while True:
 				jsonData, address = self.listener.recvfrom(4096)
-				# print jsonData
+				print jsonData
 				data = self.byteify(json.loads(jsonData))
 				if isinstance(data, dict):
 					self.uplink.put(data)
-					#if "commsHeartbeat" in data:
-					#	self.setShared("commsHeartbeat", True)
+					if "commsHeartbeat" in data:
+						self.setShared("commsHeartbeat", True)
 					with self.parent.addressSem:
 						self.parent.address = address[0]
 		
@@ -40,7 +40,6 @@ class JsonServer(RoverProcess):
 			else:
 				return input
 	
-	
 	def setup(self, args):
 		self.localPort = args["local"]
 		self.remotePort = args["remote"]
@@ -56,10 +55,11 @@ class JsonServer(RoverProcess):
 		receiver = JsonServer.ListenThread(self.listener, self.uplink, self)
 		receiver.daemon = True
 		receiver.start()
+		self.load = False
+		
 	
 	def loop(self):
 		if self.data:
-			#print self.data
 			with self.dataSem:
 				jsonData = json.dumps(self.data)
 				self.data = {}
@@ -67,10 +67,11 @@ class JsonServer(RoverProcess):
 				if self.address:
 					self.sender.sendto(
 						jsonData, (self.address, self.remotePort))
-					print "sent " + str(jsonData)
 		time.sleep(self.sendPeriod)
 	
 	def messageTrigger(self, message):
+		# Prevent threads from triggering before server has started
+		while self.load: time.sleep(0.001)
 		RoverProcess.messageTrigger(self, message)
 		with self.dataSem:
 			self.data.update(message)

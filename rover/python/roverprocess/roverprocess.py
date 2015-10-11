@@ -25,6 +25,7 @@ class RoverProcess(Process):
 		self._state = dict()
 		self._stateSem = BoundedSemaphore()
 		self._args = kwargs
+		self.load = True
 		
 	def run(self):
 		receiver = RoverProcess.ReceiverThread(
@@ -49,6 +50,7 @@ class RoverProcess(Process):
 	
 	def messageTrigger(self, message):
 		if "quit" in message:
+			print "Got cleanup"
 			self.cleanup()
 			sys.exit(0)
 	
