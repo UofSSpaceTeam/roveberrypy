@@ -1,4 +1,4 @@
-import os
+import os, sys
 sys.dont_write_bytecode = True
 import time
 import multiprocessing
@@ -12,11 +12,11 @@ if(os.name == "nt"):
 else:
 	modulesList = ["JsonServer", "I2C"]
 
-from statemanager import StateManager
-if "JsonServer" in modulesList: from roverprocess.jsonserver import JsonServer
-if "Example" in modulesList: from roverprocess.exampleprocess import ExampleProcess
-if "I2C" in modulesList: from roverprocess.I2Cexampleprocess import I2CExampleProcess
-if "WebServer" in modulesList: from roverprocess.webserverprocess import WebserverProcess
+from StateManager import StateManager
+if "JsonServer" in modulesList: from RoverProcess.JsonServer import JsonServer
+if "Example" in modulesList: from RoverProcess.ExampleProcess import ExampleProcess
+if "I2C" in modulesList: from RoverProcess.I2cExampleProcess import I2cExampleProcess
+if "WebServer" in modulesList: from RoverProcess.WebserverProcess import WebserverProcess
 
 # system configuration
 localPort = 34567
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
 	
 	if "I2C" in modulesList:
-		process = I2CExampleProcess(
+		process = I2cExampleProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink(),
 			sem = i2cSem)
 		processes.append(process)

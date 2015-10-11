@@ -1,4 +1,4 @@
-from roverprocess import RoverProcess
+from RoverProcess import RoverProcess
 from threading import Thread
 
 import time
