@@ -3,6 +3,7 @@ from multiprocessing import Queue
 
 class StateManager:
 	class WorkerThread(Thread):
+		## threading module automatically initializes and runs worker
 		def __init__(self, uplink, state, observerMap, sem):
 			Thread.__init__(self)
 			self.uplink = uplink
@@ -18,21 +19,22 @@ class StateManager:
 					self.state.update(data)
 					for key in data:
 						self.notifyObservers(key)
-					if "quit" in data:
-						self.terminate()
 		
+		## Helper to send data to the registered observers defined in main.py
 		def notifyObservers(self, key):
 			if key in self.observerMap:
 				for downlink in self.observerMap[key]:
 					downlink.put({key:self.state[key]})
 
+	
+	## Main state management functions
 	def __init__(self):
 		self.stateSem = BoundedSemaphore()
 		self.state = dict()
 		self.observerMap = dict()
 		self.downlinks = []
 	
-	def terminate(self):
+	def terminateState(self):
 		for queue in self.downlinks:
 			queue.put({"quit":"True"})
 		self.downlinks = []

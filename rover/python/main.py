@@ -1,4 +1,5 @@
 import os
+sys.dont_write_bytecode = True
 import time
 import multiprocessing
 
@@ -26,7 +27,7 @@ if __name__ == "__main__":
 	system = StateManager()
 	processes = []
 	i2cSem = multiprocessing.Semaphore(1)
-	print "\nBUILD\n"
+	print "\nBUILD: Registering process subsribers...\n"
 
 	if "JsonServer" in modulesList: 
 		process = JsonServer(
@@ -38,7 +39,7 @@ if __name__ == "__main__":
 	if "Example" in modulesList:
 		process = ExampleProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
-		system.addObserver("ExampleTime", process.downlink)
+		system.addObserver("exampleTime", process.downlink)
 		processes.append(process)
 		
 	if "WebServer" in modulesList:
@@ -54,16 +55,15 @@ if __name__ == "__main__":
 		processes.append(process)
 	
 	# start everything
-	print "\nSTART: " + str([type(p).__name__ for p in processes]) + "\n"
+	print "\nSTARTING: " + str([type(p).__name__ for p in processes]) + "\n"
 	for process in processes:
 		process.start()
 
 	# wait until ctrl-C or error
-	# Note: There is a bug here and sometimes the software fails to exit cleanly
 	try:
 		while True:
 			time.sleep(60)
 	except KeyboardInterrupt:
-		print("\nSTOP: " + str([type(p).__name__ for p in processes]) + "\n")
+		print("\nSTOP: " + str([type(p).__name__ for p in processes]) + "\n")		
 	finally:
-		system.terminate()
+		system.terminateState()
