@@ -1,9 +1,10 @@
 from RoverProcess import RoverProcess
 from threading import Thread
 
-import time
 from libs.bottle import route, run, template, ServerAdapter
 
+
+import time
 class WebserverProcess(RoverProcess):
 	
 	## Replaces the stock WSGI server with one that we can control within
@@ -38,6 +39,7 @@ class WebserverProcess(RoverProcess):
 			self.srv.serve_forever()
 		
 	def setup(self, args):
+		self.routes = 
 		self.server = self.RoverWSGIServer(host='localhost', port=8080)
 		Thread(target = self.startBottleServer).start()
 
@@ -56,9 +58,9 @@ class WebserverProcess(RoverProcess):
 	##	TODO: Send and recieve data from the main software!
 		
 	def startBottleServer(self):
-		@route('/hello/<name>')
-		def index(name):
-			return template('<b>Hello {{name}}</b>!', name=name)
+		#@route('/hello/<name>')
+		#def index(name):
+		#	return template('<b>Hello {{name}}</b>!', name=name)
 		
 		run(server=self.server)
 		

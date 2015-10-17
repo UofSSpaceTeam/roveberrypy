@@ -3,12 +3,12 @@ sys.dont_write_bytecode = True
 import time
 import multiprocessing
 
-# All modules ["Example", "JsonServer", "I2C"]
+# All modules ["Example", "JsonServer", "I2C", "WebServer"]  #Webserver not working!
 modulesList = []
 
 # Check if on windows - if so do not run rover hardware specific code!
 if(os.name == "nt"):
-	modulesList = ["JsonServer", "Example", "WebServer"]
+	modulesList = ["JsonServer", "Example"]
 else:
 	modulesList = ["JsonServer", "I2C"]
 
