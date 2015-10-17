@@ -1,0 +1,16 @@
+/**
+@mainpage Arm Process Documentation
+
+This is the documentatin for the robotic arm controller developed by the 
+University of Saskatchewan Space Design Team (USST), during the 2015-2016
+school year.
+
+@section Project Structure
+The following is a UML diagram of the basic structure of the project.
+Right now this has been limited to only concern the set position function
+however this will be expanded as the project grows.
+
+
+\defgroup entities Main Functions
+\defgroup types Data Types
+*/
