@@ -7,30 +7,30 @@
 
 /**
  * @enum e_MOTOR_DIRECTION
- * \ingroup types
+ * \ingroup dirEnum
  * Used to specify the direction of a motor.
  * @author Liam Bindle
  */
-enum e_MOTOR_DIRECTION	
+typedef enum e_MOTOR_DIRECTION	
 {
 	CCW, /**< Counterclockwise rotation. */
 	CW	/**< Counterclockwise rotation. */
 
-};
+} e_MOTOR_DIRECTION;
 
 
 
 /**
  * @enum e_LA_DIRECTION
- * \ingroup types
+ * \ingroup dirEnum
  * Used to specify the direction a linear actuator is moving.
  * @author Liam Bindle
  */
-enum e_LA_DIRECTION
+typedef enum e_LA_DIRECTION
 {
 	EXTEND, /**< The actuator is extending. */
 	RETRACT	/**< The actuator is retracting. */
-};
+}e_LA_DIRECTION;
 
 
 #endif

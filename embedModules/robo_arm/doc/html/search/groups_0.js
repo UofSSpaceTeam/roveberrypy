@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['data_20types',['Data Types',['../group__types.html',1,'']]]
+  ['actuator',['Actuator',['../group__actu.html',1,'']]],
+  ['arm_20process',['Arm Process',['../group__arm_process.html',1,'']]]
 ];

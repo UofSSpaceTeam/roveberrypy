@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('struct_position_reading.html','');});
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<div class="title">PositionReading Struct Reference<div class="ingroups"><a class="el" href="group__types.html">Data Types</a></div></div>  </div>
+<div class="title">PositionReading Struct Reference<div class="ingroups"><a class="el" href="group__pos_reading.html">Position Reading</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
 
@@ -115,22 +115,22 @@ $(document).ready(function(){initNavTree('struct_position_reading.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a76777b356ab2a080225682528119c4fe"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_position_reading.html#a76777b356ab2a080225682528119c4fe">position</a></td></tr>
-<tr class="separator:a76777b356ab2a080225682528119c4fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3026936e1dfb63dcc2b71271412c657f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_position_reading.html#a3026936e1dfb63dcc2b71271412c657f">time_fine</a></td></tr>
-<tr class="separator:a3026936e1dfb63dcc2b71271412c657f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a043f20efde4ec8a417161684c4f518e5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_position_reading.html#a043f20efde4ec8a417161684c4f518e5">time_base</a></td></tr>
-<tr class="separator:a043f20efde4ec8a417161684c4f518e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6422aa07d6d7f1c9040f17aaad34e62b"><td class="memItemLeft" align="right" valign="top">const float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_position_reading.html#a6422aa07d6d7f1c9040f17aaad34e62b">POSITION</a></td></tr>
+<tr class="separator:a6422aa07d6d7f1c9040f17aaad34e62b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a338db381b691053c7044c1a0644ad18d"><td class="memItemLeft" align="right" valign="top">const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_position_reading.html#a338db381b691053c7044c1a0644ad18d">TIME_MS</a></td></tr>
+<tr class="separator:a338db381b691053c7044c1a0644ad18d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad982cd75db713933a86351426f0d2891"><td class="memItemLeft" align="right" valign="top">const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_position_reading.html#ad982cd75db713933a86351426f0d2891">TIME_S</a></td></tr>
+<tr class="separator:ad982cd75db713933a86351426f0d2891"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Used to organize position readings. Contains the position at a given time. Note that there is a time_fine and time_base. The actual time would be given by time_fine + time_base but they have been broken up here to avoid numeric instabilities. Thus 0 &lt; time_fine &lt; 1000. </p><dl class="section author"><dt>Author</dt><dd>Liam Bindle </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="a76777b356ab2a080225682528119c4fe"></a>
+<a class="anchor" id="a6422aa07d6d7f1c9040f17aaad34e62b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float position</td>
+          <td class="memname">const float POSITION</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -138,25 +138,12 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a043f20efde4ec8a417161684c4f518e5"></a>
+<a class="anchor" id="a338db381b691053c7044c1a0644ad18d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int time_base</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>The time of the reading. Unit: [s] </p>
-
-</div>
-</div>
-<a class="anchor" id="a3026936e1dfb63dcc2b71271412c657f"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int time_fine</td>
+          <td class="memname">const int TIME_MS</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -164,8 +151,21 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ad982cd75db713933a86351426f0d2891"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const int TIME_S</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The time of the reading. Unit: [s] </p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>C:/engr/usst/robo_arm/src/data_types/<a class="el" href="position__reading_8h_source.html">position_reading.h</a></li>
+<li>C:/engr/usst/git/rover-software/embedModules/robo_arm/src/data_types/<a class="el" href="position__reading_8h_source.html">position_reading.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

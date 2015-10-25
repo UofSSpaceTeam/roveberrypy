@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['data_20types',['Data Types',['../group__types.html',1,'']]]
+  ['direction_20enumerator',['Direction Enumerator',['../group__dir_enum.html',1,'']]]
 ];

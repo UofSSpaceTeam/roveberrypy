@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['max',['max',['../struct_position_constraint.html#a306b5ca364bf842a8ff5bbfc0b4d4a4b',1,'PositionConstraint']]],
-  ['min',['min',['../struct_position_constraint.html#ad2e88d75f808e6d4e78d48bceb10c336',1,'PositionConstraint']]]
+  ['max',['MAX',['../struct_position_constraint.html#a4453267876b8b20b05aab9b3311f95df',1,'PositionConstraint']]],
+  ['min',['MIN',['../struct_position_constraint.html#a7b168e749397f2c3614bcc37d69aa72d',1,'PositionConstraint']]]
 ];

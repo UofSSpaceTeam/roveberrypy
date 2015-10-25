@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['position',['position',['../struct_position_reading.html#a76777b356ab2a080225682528119c4fe',1,'PositionReading']]]
+  ['position',['POSITION',['../struct_position_reading.html#a6422aa07d6d7f1c9040f17aaad34e62b',1,'PositionReading']]]
 ];

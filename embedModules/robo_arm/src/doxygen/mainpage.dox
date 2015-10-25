@@ -10,7 +10,15 @@ The following is a UML diagram of the basic structure of the project.
 Right now this has been limited to only concern the set position function
 however this will be expanded as the project grows.
 
+\defgroup posReading Position Reading
+\defgroup posConstraint Position Constraint
+\defgroup dirEnum Direction Enumerator
+\defgroup logPos Position Log
+\defgroup actu Actuator
+\defgroup armProcess Arm Process
+\defgroup vnh5019 Motor Drivers
 
-\defgroup entities Main Functions
-\defgroup types Data Types
+
+
+
 */

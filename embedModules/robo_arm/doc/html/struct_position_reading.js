@@ -1,6 +1,6 @@
 var struct_position_reading =
 [
-    [ "position", "struct_position_reading.html#a76777b356ab2a080225682528119c4fe", null ],
-    [ "time_base", "struct_position_reading.html#a043f20efde4ec8a417161684c4f518e5", null ],
-    [ "time_fine", "struct_position_reading.html#a3026936e1dfb63dcc2b71271412c657f", null ]
+    [ "POSITION", "struct_position_reading.html#a6422aa07d6d7f1c9040f17aaad34e62b", null ],
+    [ "TIME_MS", "struct_position_reading.html#a338db381b691053c7044c1a0644ad18d", null ],
+    [ "TIME_S", "struct_position_reading.html#ad982cd75db713933a86351426f0d2891", null ]
 ];
