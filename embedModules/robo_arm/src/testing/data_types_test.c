@@ -6,6 +6,11 @@ int main(){
 	
 	int numPassed;
 	
+	/* Log tests */
+	int* l_return;
+	int i;
+	Log* testLog;
+	
 	/* first PositionReading */
 	
 	PositionReading* reading1 = NULL;
@@ -61,7 +66,33 @@ int main(){
 	printf("\nRESULT: PositionConstraint test encountered errors.\n");
 	}	
 	
+	// Log tests
+	init_Log(&testLog, sizeof(int), 5);
 	
+	append_Log(testLog, 1);
+	append_Log(testLog, 2);
+	append_Log(testLog, 3);
+	append_Log(testLog, 4);
+	append_Log(testLog, 5);
+	append_Log(testLog, 6);
+	append_Log(testLog, 7);
+	append_Log(testLog, 8);
+	append_Log(testLog, 9);
+	
+	read_Log(testLog, &l_return);
+	if(l_return[0] == 9
+		&& l_return[1] == 8
+		&& l_return[2] == 7
+		&& l_return[3] == 6
+		&& l_return[4] == 5 ){
+		printf("RESULT: Log is working as expected");
+	} else {
+		printf("RESULT: Errors were encountered in Log");	
+	}
+	
+	free(l_return);
+	free(testLog);
+	return 0;
 	
 	
 	return 0;
