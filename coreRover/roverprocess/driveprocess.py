@@ -39,6 +39,13 @@ class DriveProcess(RoverProcess):
 		if "inputOneRightY" in message:
 			self.joyAxes[1] = float(message["inputOneRightY"])
 			self.update = True
+		#for navigation control
+		#if "navInputLeft" in message:
+		#	self.joyAxes[0] = float(message["inputOneLeftY"])
+		#	self.update = True
+		#if "navInputRight" in message:
+		#	self.joyAxes[1] = float(message["inputOneRightY"])
+		#	self.update = True
 		
 			
 	def setMotors(self, speeds):
@@ -62,8 +69,8 @@ class DriveProcess(RoverProcess):
 			self.i2c.write_byte(command.d2 >> 8)
 			self.i2c.write_byte(command.csum)
 			self.i2c.write_byte(command.trailer)
-		except IOError:
-			print("Drive thread got IOError")
+		except:
+			print("Drive thread got an I2C Error")
 		self.i2cSem.release()
 			
 	
