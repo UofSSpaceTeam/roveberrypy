@@ -13,10 +13,10 @@ else:
 	modulesList = ["JsonServer", "I2C"]
 
 from StateManager import StateManager
-if "JsonServer" in modulesList: from RoverProcess.JsonServer import JsonServer
-if "Example" in modulesList: from RoverProcess.ExampleProcess import ExampleProcess
-if "I2C" in modulesList: from RoverProcess.I2cExampleProcess import I2cExampleProcess
-if "WebServer" in modulesList: from RoverProcess.WebserverProcess import WebserverProcess
+if "JsonServer" in modulesList: from roverprocess.JsonServer import JsonServer
+if "Example" in modulesList: from roverprocess.ExampleProcess import ExampleProcess
+if "I2C" in modulesList: from roverprocess.I2cExampleProcess import I2cExampleProcess
+if "WebServer" in modulesList: from roverprocess.WebserverProcess import WebserverProcess
 
 # system configuration
 localPort = 34567

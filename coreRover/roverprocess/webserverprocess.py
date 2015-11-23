@@ -1,16 +1,21 @@
+# Rover Modules
 from RoverProcess import RoverProcess
 from threading import Thread
 
-from libs.bottle import route, run, template, ServerAdapter
+# WebUI Modules
+from WebUI import bottle
+from WebUI.bottle import run, ServerAdapter
+from WebUI.Routes import WebserverRoutes
 
-
+# Python Modules
 import time
+
 class WebserverProcess(RoverProcess):
-	
+
 	## Replaces the stock WSGI server with one that we can control within
 	##	the context of the rover software
 	class RoverWSGIServer(ServerAdapter):
-		
+
 		def run(self, app):  # pragma: no cover
 			from wsgiref.simple_server import make_server
 			from wsgiref.simple_server import WSGIRequestHandler, WSGIServer
@@ -37,30 +42,28 @@ class WebserverProcess(RoverProcess):
 								   handler_cls)
 			self.port = self.srv.server_port
 			self.srv.serve_forever()
-		
+
 	def setup(self, args):
-		self.routes = 
+		self.routes = WebserverRoutes()
+		bottle.TEMPLATE_PATH += ['./WebUI/pages/views']
+		print "Web Templates Loaded From:"
+		print bottle.TEMPLATE_PATH
 		self.server = self.RoverWSGIServer(host='localhost', port=8080)
 		Thread(target = self.startBottleServer).start()
 
 	def loop(self):
 		time.sleep(1)
-	
+
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
 		#if "exampleKey" in message:
 		#	print "got: " + str(message["exampleKey"])
-	
+
 	def cleanup(self):
 		RoverProcess.cleanup(self)
-		
+
 	## Bottle server code running in independent thread
 	##	TODO: Send and recieve data from the main software!
-		
+
 	def startBottleServer(self):
-		#@route('/hello/<name>')
-		#def index(name):
-		#	return template('<b>Hello {{name}}</b>!', name=name)
-		
 		run(server=self.server)
-		
