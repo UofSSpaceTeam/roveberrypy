@@ -45,7 +45,7 @@ class WebserverProcess(RoverProcess):
 
 	def setup(self, args):
 		self.routes = WebserverRoutes()
-		bottle.TEMPLATE_PATH += ['./WebUI/pages/views']
+		bottle.TEMPLATE_PATH = ['./WebUI/views']
 		print "Web Templates Loaded From:"
 		print bottle.TEMPLATE_PATH
 		self.server = self.RoverWSGIServer(host='localhost', port=8080)

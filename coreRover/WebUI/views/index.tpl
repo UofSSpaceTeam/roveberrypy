@@ -1,4 +1,3 @@
-% rebase('layout.tpl', title='Home Page', year=year)
 <html>
     <head>
         <meta charset="utf-8">
@@ -6,11 +5,7 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
-        <script type="text/javascript" src="jquery/jquery v2.1.0.min.js"></script>
-        <script type="text/javascript" src = "js/Gamepad.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     </head>
     <body>
     <center>
@@ -21,9 +16,9 @@
             <button class = "btn btn-primary" onclick ="location.href='/gamepad'">Run Gamepad </button>
             <p></p>
             <div class = "row text-center">
-                <img src = "USST Logo.png" class="img-rounded" alt="Cinque Terre" width="757" height="477">
+                <img src = "/static/images/usstlogo.svg" class="img-rounded" alt="Cinque Terre" width="757" height="477">
             </div>
   </div>
     </center>
 </body>
-</html> 
+</html>
