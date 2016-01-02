@@ -1,5 +1,8 @@
-from models import HiddenProperties
-from models import VisibleProperties
+from models.aggregates import HiddenProperties
+from models.aggregates import VisibleProperties
+from models.aggregates import DriveModel
+from models.aggregates import GPSModel
+from models.modules import RoverAutonomousNavigation
 
 class RoverModel(object):
 
@@ -7,7 +10,7 @@ class RoverModel(object):
     def __init__(self, initalCoordinate, initialHeading, destination):
         self._hiddenProperties = HiddenProperties(initalCoordinate, initialHeading)
         self._visibleProperties = VisibleProperties(destination)
-        self._models = [] # TODO: add models here
+        self._models = [DriveModel(self), GPSModel(self), RoverAutonomousNavigation(self)]
     
     # hidden properties. Copied instance is linked to this object
     @property
@@ -28,5 +31,9 @@ class RoverModel(object):
     def stepTime(self, timeStep):
         for model in self._models:
             model.update(timeStep)
-    
             
+    def checkStatus(self):
+        return False
+    
+    def wasSuccessful(self):
+        return False

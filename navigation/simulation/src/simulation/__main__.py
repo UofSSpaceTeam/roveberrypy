@@ -1,21 +1,9 @@
-from models import *
+from simulation import RoverSimulation
 
-if __name__ == '__main__':
-    pass
+simulation = RoverSimulation()
 
-rover = RoverModel(1, 2, 3)
+simulation.runSimulation()
 
-hiddenPropertiesAlias1 = rover.hiddenProperties
-hiddenPropertiesAlias2 = rover.hiddenProperties
-print(rover.hiddenProperties)
+simulation.analyzeResults()
 
-hiddenPropertiesAlias1.position = 2
-print(rover.hiddenProperties)
-
-hiddenPropertiesAlias1.position = 3
-print(rover.hiddenProperties)
-
-hiddenPropertiesAlias1.position = 4
-hiddenPropertiesAlias2.position = 3
-print(rover.hiddenProperties)
 
