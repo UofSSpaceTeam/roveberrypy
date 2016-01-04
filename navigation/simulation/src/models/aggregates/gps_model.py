@@ -1,18 +1,26 @@
 from models.aggregates import AggregateModel
+from entities import TimeStamp
+from entities import GPSCoordinate
+from random import gauss
+from entities.coordinate import Coordinate
 
 class GPSModel(AggregateModel):
     """ Aggregate model to emulate the rover's GPS system.
     
     Attributes:
-        RADIAL_ACCURACY(float) -- The radial accuracy of the GPS system [m] 
+        STD_LAT(float) -- The standard deviation in latitude measurements.
+        STD_LON(float) -- The standard deviation in longitude measurements.
     Methods:
         update(timeStep) -- Update the GPS reading
     """
     
+    STD_LAT = 3.597286423674922e-06 # ~40cm standard deviation
+    STD_LON = 3.597286423674922e-06 # ~40cm standard deviation
     
     def __init__(self, roverModel):
         """ See `BaseModelClass.__init__(roverModel)` """
         AggregateModel.__init__(self, roverModel)
+        self._time = TimeStamp(0, 0, 0)
         
     
     @property
@@ -40,6 +48,16 @@ class GPSModel(AggregateModel):
         Return:
             n/a
         """
-        print("TODO: implement GPS model")
+        self.time = self.time + timeStep
+        
+        # create random GPS coordinate near the actual position
+        position = self.roverProperties.position.dd
+        latitude = position.latitude
+        longitude = position.longitude
+        latReading = gauss(latitude, self.STD_LAT)
+        lonReading = gauss(longitude, self.STD_LON)
+        self.roverProperties.gpsReading = GPSCoordinate(Coordinate(latReading, lonReading), self.time)
+        print(str(self.roverProperties.gpsReading))
+        
         
         

@@ -34,10 +34,16 @@ class TimeStamp(object):
         self._seconds = value
         
     def __add__(self, other):
-        seconds = self.seconds + other.seconds
-        minutes = self.minutes + other.minutes + floor(seconds/60)
-        hours = self.hours + other.hours + floor(minutes/60)
-        return TimeStamp(hours, minutes % 60, seconds % 60)
+        if(isinstance(other, TimeStamp)):
+            seconds = self.seconds + other.seconds
+            minutes = self.minutes + other.minutes + floor(seconds/60)
+            hours = self.hours + other.hours + floor(minutes/60)
+            return TimeStamp(hours, minutes % 60, seconds % 60)
+        else:
+            seconds = self.seconds + other
+            minutes = self.minutes + floor(seconds/60)
+            hours = self.hours + floor(minutes/60)
+            return TimeStamp(hours, minutes, seconds)
     
     def __sub__(self, other):
         seconds = self.seconds
@@ -60,4 +66,5 @@ class TimeStamp(object):
     @staticmethod
     def toSeconds(time):
         return time.hours * 3600 + time.minutes * 60 + time.seconds
+    
         

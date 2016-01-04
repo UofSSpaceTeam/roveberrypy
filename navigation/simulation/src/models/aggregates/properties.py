@@ -1,3 +1,4 @@
+from entities.coordinate import Coordinate
 class RoverProperties(object):
     """ Object which handles the properties of RoverModel.
     
@@ -152,10 +153,9 @@ class HiddenProperties(object):
         return self._position
     @position.setter
     def position(self, value):
+        self._heading = Coordinate.getBearing(self.position, value)
         self._position = value
         self._positionLog.append(value)
-        # TODO: call getHeading between two coordinates function
-        self._heading = "not yet implemented"
         
     @property
     def positionLog(self):

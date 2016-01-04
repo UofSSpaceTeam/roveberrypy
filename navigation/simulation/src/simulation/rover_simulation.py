@@ -1,4 +1,5 @@
 from models import RoverModel
+from entities import Coordinate
 
 class RoverSimulation:
     """ Run a simulation of the rover.
@@ -20,11 +21,11 @@ class RoverSimulation:
         self.time = 0
         self.status = False
         
-        initialCoordinate = 0
+        initialCoordinate = Coordinate(0,0)
         initialHeading = 0
-        destination = 1
+        destination = Coordinate(0.001, 0.001)
         
-        self.TIME_STEP = 1
+        self.TIME_STEP = 0.01
         self.TIME_LIMIT = 1000
         
         self._rover = RoverModel(initialCoordinate, initialHeading, destination)
