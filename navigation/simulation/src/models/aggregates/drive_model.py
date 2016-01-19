@@ -81,6 +81,40 @@ class DriveModel(AggregateModel):
 
   
 class KinematicModel(object):
+    """ Kinematic model for skid-steer robot.
+    
+    Attributes:
+        vy - Y-velocity in the rover relative frame.
+        vx - X-velocity in the rover relative frame.
+        wz - Rotational velocity about Z-axis in relative frame.
+        
+        v_L - Velocity of the rover's left wheels
+        v_R - Velocity of the rover's right wheels
+        
+        icr_Vx - Instantaneous center of rotation for rover's body (relative X-axis)
+        icr_Vy - Instantaneous center of rotation for rover's body (relative Y-axis)
+        icr_Lx - Instantaneous center of rotation for left side (relative X-axis)
+        icr_Ly - Instantaneous center of rotation for left side (relative Y-axis)
+        icr_Rx - Instantaneous center of rotation for right side (relative X-axis)
+        icr_Ry - Instantaneous center of rotation for for right side (relative Y-axis)
+        
+        alpha_L - Correction factor for left side
+        alpha_R - Correction factor for right side
+        
+        position - Reference to rover position.
+        heading - Reference to rover heading.
+        
+        archive - Archive of all atributes.
+        
+    Classes:
+        KMAInit - Data structure for kinematic model attribute initial conditions.
+        RDPInit - Data structure for rover drive property initial conditions.
+        RFKInit - Data structure for relative frame kinematics initial conditions. 
+        
+    Methods:
+        update(dt) -- Update the RKM attributes and calculate the new position.
+        All other methods are utility methods.
+    """
     # Relative frame kinematics.
     vx = None
     vy = None
@@ -109,6 +143,16 @@ class KinematicModel(object):
     archive = None
     
     def __init__(self, KMAInitial, RDPInitial, RFKInitial):
+        """ Initialize the kinematic model.
+        
+        Args:
+            KMAInitial (KinematicModel.KMAInit) - Initial conditions for 
+                                                  kinematic model attributes.
+            RDPInitial (KinematicModel.RDPInit) - Initial conditions for 
+                                                  rover drive properties.
+            RFKInitial (KinematicModel.RFKinit) - Initial conditions for 
+                                                  relative frame kinematics.
+        """
         # Initialize relative frame kinematics.
         self.vx = RFKInitial.vx
         self.vy = RFKInitial.vy
@@ -136,6 +180,7 @@ class KinematicModel(object):
         self.archive = KinematicModel.Archive()
         
     def archiveState(self):
+        """ Utility method: archive the current state of the model."""
         # Archive RFK
         self.archive.vx.append(self.vx)
         self.archive.vy.append(self.vy)
@@ -158,6 +203,7 @@ class KinematicModel(object):
         self.archive.heading.append(deepcopy(self.position))
         
     def recalculateKMA(self):
+        """ Utility method: recalculate the kinematic model attributes """
         # Calculate new KMA
         self.icr_Vx = -self.vy/self.wz
         self.icr_Lx = (self.alpha_L*self.v_L - self.vy)/self.wz
@@ -167,6 +213,7 @@ class KinematicModel(object):
         self.icr_Ry = self.vx/self.wz
     
     def recalculateRFK(self):
+        """ Utility methods: recalculate the relative frame kinematic values """
         # Calculate new RFK values
         coeff = 1.0/(self.icr_Rx - self.icr_Lx)
         self.vx = coeff * self.icr_Vy * ( -self.alpha_L*self.v_L + self.alpha_R*self.v_R)
@@ -174,9 +221,10 @@ class KinematicModel(object):
         self.wz = coeff * ( -self.alpha_L*self.v_L + self.alpha_R*self.v_R)
     
     def updatePosition(self, dt):
+        """ Utility methods: update the current position of the rover. """
         v = sqrt(self.vx*self.vx + self.vy*self.vy) # current velocity
         distance = v * dt                           # distance moved in dt
-        moveBearing = atan2(self.vx, self.vy)       # the bearing of the movement
+        moveBearing = self.heading + atan2(self.vx, self.vy)       # the bearing of the movement
         
         # update position and heading
         self.position = Coordinate.shiftCoordinate(self.position, moveBearing, distance)
@@ -185,12 +233,23 @@ class KinematicModel(object):
         
     
     def update(self, v_L, v_R, dt):
+        """ Update the kinematic model.
+        
+        Args:
+            v_L - Velocity of left wheels.
+            v_R - Velocity of right wheels.
+            dt - Elapsed time.
+        
+        Post:
+            All properties and attributes have been updated and archived.
+        """
         self.recalculateKMA()
         self.recalculateRFK()
         self.updatePosition(dt)
         self.archiveState()
     
     class Archive(object):
+        """ Utility method: archive the current state of the model. """
         # Relative frame kinematics.
         vx = []
         vy = []
@@ -216,6 +275,23 @@ class KinematicModel(object):
         
         
     class KMAInit(object):
+        """ Data structure for kinematic model attribute initial conditions 
+        
+        Attributes:
+            Instantaneous Center of Rotation Coordinates
+            ---------------------------------------------
+            icr_Vx
+            icr_Vy
+            icr_Lx
+            icr_Ly
+            icr_Rx
+            icr_Ry
+            
+            Correction Factors
+            -------------------
+            alpha_L
+            alpha_R
+        """
         # Initial conditions for kinematic model attributes.
         icr_Vx = None
         icr_Lx = None
@@ -227,6 +303,15 @@ class KinematicModel(object):
         alpha_R = None
         
     class RDPInit(object):
+        """ Data structure for specifying rover drive property initial 
+        conditions and linking rover.properties to model.
+        
+        Attributes:
+            v_L
+            v_R
+            position - Reference to rover.properties.position
+            heading - Reference to rover.properties.heading
+        """
         # Initial conditions for rover drive properties.
         v_L = None
         v_R = None
@@ -234,6 +319,13 @@ class KinematicModel(object):
         heading = None
         
     class RFKInit(object):
+        """ Data structure for specifying relative frame kinematic values.
+        
+        Attributes:
+            vx
+            vy
+            wz
+        """
         # Initial conditions for relative frame kinematics.
         vx = None
         vy = None
