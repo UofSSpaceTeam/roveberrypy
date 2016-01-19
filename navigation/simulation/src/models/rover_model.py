@@ -27,6 +27,7 @@ class RoverModel(object):
         """
         self._hiddenProperties = HiddenProperties(initalCoordinate, initialHeading)
         self._visibleProperties = VisibleProperties(destination)
+        
         self._models = [DriveModel(self), GPSModel(self), RoverAutonomousNavigation(self)]
     
     
