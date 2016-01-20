@@ -48,7 +48,7 @@ class DriveModel(AggregateModel):
         
         # Initialize Rover Drive Properties 
         RDPInitial.v_L = Configuration.get(KMAConfigPath + 'v_l')
-        RDPInitial.v_R = Configuration.get(KMAConfigPath + 'v_l')
+        RDPInitial.v_R = Configuration.get(KMAConfigPath + 'v_r')
         RDPInitial.position = self.roverProperties.position
         RDPInitial.heading = self.roverProperties.heading
         

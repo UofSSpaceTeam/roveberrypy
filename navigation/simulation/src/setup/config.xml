@@ -20,7 +20,7 @@
 			<latitude>0</latitude>
 			<longitude>0</longitude>
 			<heading>0</heading>
-			<power_left>1.0</power_left>
+			<power_left>0.01</power_left>
 			<power_right>1.0</power_right>
 		</initial_conditions>
 		
@@ -32,7 +32,7 @@
 		<aggregates>
 			<!--	KMA Initial Conditions	-->
 			<drive_model>
-				<v_l>0.91</v_l>
+				<v_l>0.01</v_l>
 				<v_r>0.91</v_r>
 				
 				<icr_vx>0.01</icr_vx>
