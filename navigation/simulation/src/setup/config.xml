@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<!--	Simulation Initial Conditions	-->
+	<simulation>
+		<time_step>0.01</time_step>
+		<time_limit>1000</time_limit>
+	</simulation>
+	
+	<rover>
+		<max_speed>1.0</max_speed>
+		<!-- 	Rover Initial Conditions	-->
+		<initial_conditions>
+			<latitude>0</latitude>
+			<longitude>0</longitude>
+			<heading>0</heading>
+			<power_left>1.0</power_left>
+			<power_right>1.0</power_right>
+		</initial_conditions>
+		
+		<!--	Configuration of Modules	-->
+		<modules>
+		</modules>
+		
+		<!-- 	Configuration of Aggregate Models	-->
+		<aggregate_models>
+			<!--	KMA Initial Conditions	-->
+			<drive_model>
+				<icr_vx>0.01</icr_vx>
+				<icr_lx>0.3</icr_lx>
+				<icr_rx>0.3</icr_rx>
+				<icr_vy>0.05</icr_vy>
+				<icr_ly>0.05</icr_ly>
+				<icr_ry>0.05</icr_ry>
+				<alpha_l>0.91</alpha_l>
+				<alpha_r>0.92</alpha_r>
+				<vx>0.05</vx>
+				<vy>0.915</vy>
+				<wz>0.005</wz>
+			</drive_model>
+			
+			<!--	Configuration of GPS Model	-->
+			<gps_model>
+				<std_lat>3.597286423674922e-06</std_lat>
+				<std_lon>3.597286423674922e-06</std_lon>
+			</gps_model>
+		</aggregate_models>
+	</rover>
+</configuration>
