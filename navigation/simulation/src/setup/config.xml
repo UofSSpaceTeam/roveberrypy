@@ -3,11 +3,18 @@
 	<!--	Simulation Initial Conditions	-->
 	<simulation>
 		<time_step>0.01</time_step>
-		<time_limit>1000</time_limit>
+		<time_limit>10</time_limit>
+		<destination>
+			<latitude>0.0001</latitude>
+			<longitude>0.0002</longitude>
+			
+			<tolerance>3</tolerance>
+		</destination>
 	</simulation>
 	
-	<rover>
+	<rover_model>
 		<max_speed>1.0</max_speed>
+		
 		<!-- 	Rover Initial Conditions	-->
 		<initial_conditions>
 			<latitude>0</latitude>
@@ -22,17 +29,22 @@
 		</modules>
 		
 		<!-- 	Configuration of Aggregate Models	-->
-		<aggregate_models>
+		<aggregates>
 			<!--	KMA Initial Conditions	-->
 			<drive_model>
+				<v_l>0.91</v_l>
+				<v_r>0.91</v_r>
+				
 				<icr_vx>0.01</icr_vx>
 				<icr_lx>0.3</icr_lx>
 				<icr_rx>0.3</icr_rx>
 				<icr_vy>0.05</icr_vy>
 				<icr_ly>0.05</icr_ly>
 				<icr_ry>0.05</icr_ry>
+				
 				<alpha_l>0.91</alpha_l>
 				<alpha_r>0.92</alpha_r>
+				
 				<vx>0.05</vx>
 				<vy>0.915</vy>
 				<wz>0.005</wz>
@@ -43,6 +55,6 @@
 				<std_lat>3.597286423674922e-06</std_lat>
 				<std_lon>3.597286423674922e-06</std_lon>
 			</gps_model>
-		</aggregate_models>
-	</rover>
+		</aggregates>
+	</rover_model>
 </configuration>

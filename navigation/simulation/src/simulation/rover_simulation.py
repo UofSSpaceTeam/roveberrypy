@@ -1,6 +1,7 @@
 from models import RoverModel
 from entities import Coordinate
 from math import radians, sin, cos
+from setup import Configuration
 
 class RoverSimulation:
     """ Run a simulation of the rover.
@@ -22,12 +23,16 @@ class RoverSimulation:
         self.time = 0
         self.status = False
         
-        initialCoordinate = Coordinate(0,0)
-        initialHeading = 0
-        destination = Coordinate(0.001, 0.001)
+        initialLatitude = Configuration.get('rover_model.initial_conditions.latitude')
+        initialLongitude = Configuration.get('rover_model.initial_conditions.longitude')
+        initialCoordinate = Coordinate(initialLatitude, initialLongitude)
+        initialHeading = Configuration.get('rover_model.initial_conditions.heading')
+        destLatitude = Configuration.get('simulation.destination.latitude')
+        destLongitude = Configuration.get('simulation.destination.longitude')
+        destination = Coordinate(destLatitude, destLongitude)
         
-        self.TIME_STEP = 0.01
-        self.TIME_LIMIT = 1000
+        self.TIME_STEP = Configuration.get('simulation.time_step')
+        self.TIME_LIMIT = Configuration.get('simulation.time_limit')
         
         self._rover = RoverModel(initialCoordinate, initialHeading, destination)
         
@@ -41,7 +46,8 @@ class RoverSimulation:
         notDone = True
         while notDone and self.time < self.TIME_LIMIT:
             self.rover.stepTime(self.TIME_STEP)
-            notDone = self.rover.isComplete()
+            notDone = not(self.rover.isComplete())
+            self.time += self.TIME_STEP
         # get status
         self.status = self.rover.wasSuccessful()
         return self.status
@@ -86,8 +92,8 @@ class RoverSimulation:
             y[i] = (distances[i]) * cos(radians(bearings[i]))
             
         "Write data to file"
-        file = open('simulation_output\\filename.txt', 'w+')
+        file = open("../../scratch/output.csv", "w") 
         for coord in range(0,len(x)-1):
             file.write(str(x[coord]) + ',' + str(y[coord]))
             file.write('\n')
-    
+            

@@ -5,6 +5,7 @@ from entities.coordinate import Coordinate
 from random import gauss
 
 from copy import deepcopy
+from setup.configuration import Configuration
 
 
 class DriveModel(AggregateModel):
@@ -18,14 +19,16 @@ class DriveModel(AggregateModel):
                             has elapsed.
     """
     
-    MAX_SPEED = 1
+    MAX_SPEED = Configuration.get('rover_model.max_speed')
     RKM = None
     
     def __init__(self, roverModel):
         AggregateModel.__init__(self, roverModel)
         
-        self.roverProperties.powerLeft = 1
-        self.roverProperties.powerRight = 1
+        KMAConfigPath = 'rover_model.aggregates.drive_model.'
+        
+        self.roverProperties.powerLeft = Configuration.get('rover_model.initial_conditions.power_left')
+        self.roverProperties.powerRight = Configuration.get('rover_model.initial_conditions.power_right')
         
         # Initialize RKM
         KMAInitial = KinematicModel.KMAInit()
@@ -34,25 +37,25 @@ class DriveModel(AggregateModel):
         
         
         # Initialize Kinematic Model Attribute's
-        KMAInitial.icr_Vx = 0.0
-        KMAInitial.icr_Lx = 0.3
-        KMAInitial.icr_Rx = 0.3
-        KMAInitial.icr_Vy = 0.05
-        KMAInitial.icr_Ly = 0.05
-        KMAInitial.icr_Ry = 0.05
-        KMAInitial.alpha_L = 0.91
-        KMAInitial.alpha_R = 0.92
+        KMAInitial.icr_Vx = Configuration.get(KMAConfigPath + 'icr_vx')
+        KMAInitial.icr_Lx = Configuration.get(KMAConfigPath + 'icr_lx')
+        KMAInitial.icr_Rx = Configuration.get(KMAConfigPath + 'icr_rx')
+        KMAInitial.icr_Vy = Configuration.get(KMAConfigPath + 'icr_vy')
+        KMAInitial.icr_Ly = Configuration.get(KMAConfigPath + 'icr_ly')
+        KMAInitial.icr_Ry = Configuration.get(KMAConfigPath + 'icr_ry')
+        KMAInitial.alpha_L = Configuration.get(KMAConfigPath + 'alpha_l')
+        KMAInitial.alpha_R = Configuration.get(KMAConfigPath + 'alpha_r')
         
         # Initialize Rover Drive Properties 
-        RDPInitial.v_L = 0.9
-        RDPInitial.v_R = 0.9
+        RDPInitial.v_L = Configuration.get(KMAConfigPath + 'v_l')
+        RDPInitial.v_R = Configuration.get(KMAConfigPath + 'v_l')
         RDPInitial.position = self.roverProperties.position
         RDPInitial.heading = self.roverProperties.heading
         
         # Initialize Relative Frame Kinematics
-        RFKInitial.vx = 0.01
-        RFKInitial.vy = 0.89
-        RFKInitial.wz = 0.001
+        RFKInitial.vx = Configuration.get(KMAConfigPath + 'vx')
+        RFKInitial.vy = Configuration.get(KMAConfigPath + 'vy')
+        RFKInitial.wz = Configuration.get(KMAConfigPath + 'wz')
         
         self.RKM = KinematicModel(KMAInitial, RDPInitial, RFKInitial)
         
@@ -76,6 +79,9 @@ class DriveModel(AggregateModel):
         v_R = self.roverProperties.powerRight * self.MAX_SPEED
         
         self.RKM.update(v_L, v_R, timeStep)
+        
+        self.roverProperties.position = self.RKM.position
+        self.roverProperties.heading = self.RKM.heading
         
         
 

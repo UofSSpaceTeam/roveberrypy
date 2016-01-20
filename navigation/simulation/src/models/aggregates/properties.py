@@ -61,13 +61,19 @@ class RoverProperties(object):
         
         Access:
             - Hidden
-        Note:
-            This property does not have a setter. It is set when `position` is updated.
         """
         if(self.hasHiddenPriviledge()):
             return self._hiddenProperties.heading
         else:
             raise AttributeError("Access to `RoverModel.hiddenProperties` was denied.")
+    @heading.setter
+    def heading(self, value):
+        if(self.hasHiddenPriviledge()):
+            self._hiddenProperties.heading = value
+        else:
+            raise AttributeError("Access to `RoverModel.hiddenProperties` was denied.")
+            
+        
     @property
     def positionLog(self):
         """ A log of the position of the rover.
@@ -153,7 +159,6 @@ class HiddenProperties(object):
         return self._position
     @position.setter
     def position(self, value):
-        self._heading = Coordinate.getBearing(self.position, value)
         self._position = value
         self._positionLog.append(value)
         
@@ -164,6 +169,9 @@ class HiddenProperties(object):
     @property
     def heading(self):
         return self._heading
+    @heading.setter
+    def heading(self, value):
+        self._heading = value
 
 
 class VisibleProperties(object):

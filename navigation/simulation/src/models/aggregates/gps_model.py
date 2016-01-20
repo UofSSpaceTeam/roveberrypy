@@ -3,6 +3,7 @@ from entities import TimeStamp
 from entities import GPSCoordinate
 from random import gauss
 from entities.coordinate import Coordinate
+from setup import Configuration
 
 class GPSModel(AggregateModel):
     """ Aggregate model to emulate the rover's GPS system.
@@ -14,14 +15,16 @@ class GPSModel(AggregateModel):
         update(timeStep) -- Update the GPS reading
     """
     
-    STD_LAT = 3.597286423674922e-06 # ~40cm standard deviation
-    STD_LON = 3.597286423674922e-06 # ~40cm standard deviation
+    STD_LAT = None
+    STD_LON = None
     
     def __init__(self, roverModel):
         """ See `BaseModelClass.__init__(roverModel)` """
         AggregateModel.__init__(self, roverModel)
         self._time = TimeStamp(0, 0, 0)
         
+        self.STD_LAT = Configuration.get('rover_model.aggregates.gps_model.std_lat')
+        self.STD_LON = Configuration.get('rover_model.aggregates.gps_model.std_lon')
     
     @property
     def time(self):

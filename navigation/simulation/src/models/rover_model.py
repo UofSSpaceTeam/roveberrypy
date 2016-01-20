@@ -3,8 +3,8 @@ from models.aggregates import VisibleProperties
 from models.aggregates import DriveModel
 from models.aggregates import GPSModel
 from models.modules import RoverAutonomousNavigation
-from pip._vendor.colorama.win32 import COORD
 from entities.coordinate import Coordinate
+from setup import Configuration
 
 class RoverModel(object):
     """ The model of the rover
@@ -65,7 +65,7 @@ class RoverModel(object):
     
     def isComplete(self):
         """ Returns true if the rover is at the destination """
-        COMPLETION_TOLERANCE = 3 # [m]
+        COMPLETION_TOLERANCE = Configuration.get('simulation.destination.tolerance')
         distance = Coordinate.getDistance(self.visibleProperties.DESTINATION, self.hiddenProperties.position)
         if( distance < COMPLETION_TOLERANCE):
             return True
