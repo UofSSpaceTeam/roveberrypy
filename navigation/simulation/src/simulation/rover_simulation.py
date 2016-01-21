@@ -45,6 +45,12 @@ class RoverSimulation:
         self.time = 0
         notDone = True
         while notDone and self.time < self.TIME_LIMIT:
+            if(self.time > 1):
+                self.rover.visibleProperties.powerLeft = 1.0
+                self.rover.visibleProperties.powerRight = 0.01
+            if(self.time > 2):
+                self.rover.visibleProperties.powerLeft = 1.0
+                self.rover.visibleProperties.powerRight = 1.0
             self.rover.stepTime(self.TIME_STEP)
             notDone = not(self.rover.isComplete())
             self.time += self.TIME_STEP
@@ -85,7 +91,7 @@ class RoverSimulation:
         for i in range(0, len(self.rover.hiddenProperties.positionLog)-1):
             distances[i]= Coordinate.getDistance(initialCoordinate, tempLog[i])
             bearings[i] = Coordinate.getBearing(initialCoordinate, tempLog[i])
-         
+                
         "convert distances and bearings to x-y coordinates"
         for i in range(0, len(self.rover.hiddenProperties.positionLog)-1):
             x[i] = (distances[i]) * sin(radians(bearings[i]))

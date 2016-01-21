@@ -134,7 +134,11 @@ class Coordinate(object):
         delta = distance/RE
         # calculate latitude
         latitude = asin(sin(lat1)*cos(delta) + cos(lat1)*sin(delta)*cos(bearing))
-        longitude = lon1 + atan2(sin(bearing)*sin(delta)*cos(lat1), cos(delta)-sin(lat1)*sin(latitude))
+        longitude = lon1 + atan2(sin(bearing)*sin(delta)*cos(lat1), cos(delta)-sin(lat1)*sin(latitude),)
+        
+        dist = Coordinate.getDistance(Coordinate(0,0), Coordinate(degrees(latitude), degrees(longitude)))
+        bear = Coordinate.getBearing(Coordinate(0,0), Coordinate(degrees(latitude), degrees(longitude)))
+        
         # return new coordinate
         return Coordinate(degrees(latitude), degrees(longitude))
 

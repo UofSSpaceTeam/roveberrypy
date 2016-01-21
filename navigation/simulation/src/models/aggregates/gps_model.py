@@ -60,7 +60,6 @@ class GPSModel(AggregateModel):
         latReading = gauss(latitude, self.STD_LAT)
         lonReading = gauss(longitude, self.STD_LON)
         self.roverProperties.gpsReading = GPSCoordinate(Coordinate(latReading, lonReading), self.time)
-        print(str(self.roverProperties.gpsReading))
         
         
         

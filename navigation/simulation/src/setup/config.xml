@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <configuration>
 	<!--	Simulation Initial Conditions	-->
 	<simulation>
 		<time_step>0.01</time_step>
-		<time_limit>10</time_limit>
+		<time_limit>3</time_limit>
 		<destination>
 			<latitude>0.0001</latitude>
 			<longitude>0.0002</longitude>
@@ -19,7 +20,7 @@
 		<initial_conditions>
 			<latitude>0</latitude>
 			<longitude>0</longitude>
-			<heading>0</heading>
+			<heading>-45</heading>
 			<power_left>0.01</power_left>
 			<power_right>1.0</power_right>
 		</initial_conditions>
@@ -30,24 +31,11 @@
 		
 		<!-- 	Configuration of Aggregate Models	-->
 		<aggregates>
+		
 			<!--	KMA Initial Conditions	-->
 			<drive_model>
-				<v_l>0.01</v_l>
-				<v_r>0.91</v_r>
-				
-				<icr_vx>0.01</icr_vx>
-				<icr_lx>0.3</icr_lx>
-				<icr_rx>0.3</icr_rx>
-				<icr_vy>0.05</icr_vy>
-				<icr_ly>0.05</icr_ly>
-				<icr_ry>0.05</icr_ry>
-				
-				<alpha_l>0.91</alpha_l>
-				<alpha_r>0.92</alpha_r>
-				
-				<vx>0.05</vx>
-				<vy>0.915</vy>
-				<wz>0.005</wz>
+				<icr>0.3</icr>
+				<alpha>1</alpha>
 			</drive_model>
 			
 			<!--	Configuration of GPS Model	-->
