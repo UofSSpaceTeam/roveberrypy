@@ -181,6 +181,7 @@ class VisibleProperties(object):
     """
     def __init__(self, DESTINATION):
         self._DESTINATION = DESTINATION
+        self._allGPSReadings = []
     
     
     @property
@@ -205,6 +206,11 @@ class VisibleProperties(object):
     @gpsReading.setter 
     def gpsReading(self, value):
         self._gpsReading = value
+        self._allGPSReadings.append(value)
+        
+    @property
+    def allGPSReadings(self):
+        return self._allGPSReadings
         
     @property
     def DESTINATION(self):

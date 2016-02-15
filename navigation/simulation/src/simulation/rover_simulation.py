@@ -51,6 +51,9 @@ class RoverSimulation:
             if(self.time > 2):
                 self.rover.visibleProperties.powerLeft = 1.0
                 self.rover.visibleProperties.powerRight = 1.0
+            if(self.time > 3):
+                self.rover.visibleProperties.powerLeft = 0.01
+                self.rover.visibleProperties.powerRight = 1.0
             self.rover.stepTime(self.TIME_STEP)
             notDone = not(self.rover.isComplete())
             self.time += self.TIME_STEP
@@ -80,26 +83,46 @@ class RoverSimulation:
         """
         
         tempLog = self.rover.hiddenProperties.positionLog
+        tempGPSLog = self.rover.visibleProperties.allGPSReadings
         initialCoordinate = tempLog[0]
         distances = [None]* len(self.rover.hiddenProperties.positionLog)
         bearings = [None] * len(self.rover.hiddenProperties.positionLog)
         x = [None] * len(self.rover.hiddenProperties.positionLog)
         y = [None] * len(self.rover.hiddenProperties.positionLog)
+        gps_distances = [None]* len(self.rover.visibleProperties.allGPSReadings)
+        gps_bearings = [None] * len(self.rover.visibleProperties.allGPSReadings)
+        gps_x = [None] * len(self.rover.visibleProperties.allGPSReadings)
+        gps_y = [None] * len(self.rover.visibleProperties.allGPSReadings)
         
+        dest_dist = Coordinate.getDistance(initialCoordinate, self.rover.visibleProperties.DESTINATION)
+        dest_heading = Coordinate.getBearing(initialCoordinate, self.rover.visibleProperties.DESTINATION)
+        dest_x = dest_dist * sin(radians(dest_heading))
+        dest_y = dest_dist * cos(radians(dest_heading))
 
         "create list of distances and bearings"
         for i in range(0, len(self.rover.hiddenProperties.positionLog)-1):
             distances[i]= Coordinate.getDistance(initialCoordinate, tempLog[i])
             bearings[i] = Coordinate.getBearing(initialCoordinate, tempLog[i])
+            gps_distances[i] = Coordinate.getDistance(initialCoordinate, tempGPSLog[i].coordinate)
+            gps_bearings[i] = Coordinate.getBearing(initialCoordinate, tempGPSLog[i].coordinate)
                 
         "convert distances and bearings to x-y coordinates"
         for i in range(0, len(self.rover.hiddenProperties.positionLog)-1):
             x[i] = (distances[i]) * sin(radians(bearings[i]))
             y[i] = (distances[i]) * cos(radians(bearings[i]))
+            gps_x[i] = (gps_distances[i]) * sin(radians(gps_bearings[i]))
+            gps_y[i] = (gps_distances[i]) * cos(radians(gps_bearings[i]))
             
         "Write data to file"
-        file = open("../../scratch/output.csv", "w") 
-        for coord in range(0,len(x)-1):
-            file.write(str(x[coord]) + ',' + str(y[coord]))
-            file.write('\n')
+        import matplotlib.pyplot as matplot
+        matplot.plot(x,y, label='Rover Path')
+        matplot.scatter(gps_x, gps_y,marker='^',color='g',s=3, label='GPS Readings')
+        matplot.scatter([dest_x], [dest_y], marker='o', color='r', s=5, label='Destination')
+        matplot.scatter([0], [0], marker='o', color='g', s=5, label='Start')
+        matplot.title("Autonomous Navigation Simulation Results")
+        matplot.xlabel("Relative Position, [m]")
+        matplot.ylabel("Relative Position, [m]")
+        matplot.legend(shadow=True)
+        matplot.gca().set_aspect('equal', adjustable='box')
+        matplot.show()
             

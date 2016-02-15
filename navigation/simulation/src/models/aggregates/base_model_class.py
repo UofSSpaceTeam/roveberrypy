@@ -10,7 +10,7 @@ class BaseModelClass(object):
         update(timeStep) -- update the model after `timeStep` has elapsed.
     """
     
-    __metaclass__ = ABCMeta
+    #__metaclass__ = ABCMeta
     
     
     def __init__(self, roverModel):
@@ -32,7 +32,7 @@ class BaseModelClass(object):
         return self._roverProperties
     
     
-    @abstractmethod
+    #@abstractmethod
     def update(self, timeStep):
         """ Update the rover models properties after `timeStep` has elapsed.
         
