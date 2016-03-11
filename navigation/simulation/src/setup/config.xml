@@ -4,7 +4,11 @@
 	<!--	Simulation Initial Conditions	-->
 	<simulation>
 		<time_step>0.02</time_step>
+<<<<<<< HEAD
 		<time_limit>100</time_limit>
+=======
+		<time_limit>10</time_limit>
+>>>>>>> origin/master
 		<destination>
 			<latitude>0.0002</latitude>
 			<longitude>0.0001</longitude>
@@ -20,7 +24,7 @@
 		<initial_conditions>
 			<latitude>0</latitude>
 			<longitude>0</longitude>
-			<heading>90</heading>
+			<heading>45</heading>
 			<power_left>1.0</power_left>
 			<power_right>1.0</power_right>
 		</initial_conditions>

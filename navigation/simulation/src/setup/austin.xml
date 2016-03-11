@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<demo>
+
+	<!-- 
+	
+	Hey Austin, hope this is able to help.
+	
+	Sorry this just set the power to the left/right side of the rover
+	at t = {0, ... , 9} seconds. The scale is between 0 and 1.
+	
+	Also to change the inital heading just edit t0.heading. It's in 
+	degree's.
+	
+	
+	
+	-->
+
+	<t0>
+		<heading>45</heading>
+		<right>1.0</right>
+		<left>1.0</left>
+	</t0>
+		
+	<t1>
+		<right>0.5</right>
+		<left>1.0</left>
+	</t1>
+	
+	<t2>
+		<right>1.0</right>
+		<left>1.0</left>
+	</t2>
+	
+	<t3>
+		<right>1.0</right>
+		<left>1.0</left>
+	</t3>
+	
+	<t4>
+		<right>0.3</right>
+		<left>1.0</left>
+	</t4>
+	
+	<t5>
+		<right>1.0</right>
+		<left>0.8</left>
+	</t5>
+	
+	<t6>
+		<right>1.0</right>
+		<left>1.0</left>
+	</t6>
+	
+	<t7>
+		<right>1.0</right>
+		<left>0.7</left>
+	</t7>
+	
+	<t8>
+		<right>0.8</right>
+		<left>0.9</left>
+	</t8>
+	
+	<t9>
+		<right>1.0</right>
+		<left>1.0</left>
+	</t9>
+</demo>

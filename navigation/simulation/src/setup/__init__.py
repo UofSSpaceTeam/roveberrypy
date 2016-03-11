@@ -1,1 +1,2 @@
 from setup.configuration import Configuration
+from setup.demo_config import DemoConfiguration
