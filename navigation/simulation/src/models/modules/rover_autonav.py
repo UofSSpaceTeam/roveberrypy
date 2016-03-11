@@ -43,23 +43,10 @@ class RoverAutonomousNavigation(BaseModelClass):
         self.count = self.count + 1
         
         # process GPS data
-        if (self.count == 500):
-            self.processGPSData()
+        self.processGPSData()
         
-        # make adjustements to roverProperties
-        if(self.count == 500):
-            bearing = Coordinate.getBearing(self.roverProperties.gpsReading.coordinate, self.roverProperties.DESTINATION)
-            
-            if(bearing < self.heading):
-                self.roverProperties.powerLeft = 0.99
-                self.roverProperties.powerRight = 1.0
-            else:
-                self.roverProperties.powerLeft = 1.0
-                self.roverProperties.powerRight = 0.99
-                
-            count = 0
-            
-            #self.setPower()
+        # set power to wheels
+        self.setPower()
     
     
     def updateGPSLog(self):
@@ -68,9 +55,8 @@ class RoverAutonomousNavigation(BaseModelClass):
         
         Post:
             `self.GPSLog is updated
-        """    
-        self.GPSLog.append(self.roverProperties.gpsReading)
-        
+        """
+        self.GPSLog = self.roverProperties.gpsReading
     def processGPSData(self):
         """ Process the current GPS data.
         
@@ -79,39 +65,6 @@ class RoverAutonomousNavigation(BaseModelClass):
             `self.heading is updated
         """
         
-        # unpackage to cartesian coordinates relative to first point
-        initial_coordinate = self.GPSLog.popleft().coordinate
-        x = [0]
-        y = [0]
-        while self.GPSLog:
-            temp = self.GPSLog.popleft()
-            distance = Coordinate.getDistance(initial_coordinate, temp.coordinate)
-            bearing = Coordinate.getBearing(initial_coordinate, temp.coordinate)
-            x.append(distance * sin(radians(bearing)))
-            y.append(distance * cos(radians(bearing)))
-        
-        norm_x = x - np.mean(x)
-        norm_y = y - np.mean(y)
-        
-        cov = np.cov(norm_x, norm_y)
-        
-        w,v = eig(cov)
-        
-        if(abs(w[0]) > abs(w[1])):
-            v = v[:,0]
-        else:
-            v = v[:,1]
-            
-        self.heading = atan2(v[0], v[1]) % 180
-        matplot.clf()
-        matplot.scatter(x,y, label='Rover Path')
-        matplot.plot([0,v[0]], [0,v[1]])
-        matplot.show()
-        
-        #print "heading = " + (atan2(v[1], v[0])*180/3.14159 % 180).__str__()
-        
-        #self.count
-        
     def setPower(self):
         """ Make adjustments to the current properties of the rover to 
         get back on track.
@@ -119,7 +72,7 @@ class RoverAutonomousNavigation(BaseModelClass):
         Post:
             `self.roverProperties.powerLeft is updated
             `self.roverProperties.powerRight is updated
-        """   
+        """
         
         
         
