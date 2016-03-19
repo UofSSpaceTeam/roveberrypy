@@ -36,20 +36,6 @@ class RoverAutonomousNavigation(BaseModelClass):
             `roverProperties.powerLeft` has been updated
             `roverProperties.powerRight` has been updated
         """        
-<<<<<<< HEAD
-        
-        # update gps coordinate
-        self.updateGPSLog()
-        
-        self.count = self.count + 1
-        
-        # process GPS data
-        self.processGPSData()
-        
-        # set power to wheels
-        self.setPower()
-=======
->>>>>>> origin/master
     
     
     def updateGPSLog(self):
@@ -58,13 +44,8 @@ class RoverAutonomousNavigation(BaseModelClass):
         
         Post:
             `self.GPSLog is updated
-<<<<<<< HEAD
-        """
-        self.GPSLog = self.roverProperties.gpsReading
-=======
         """    
         
->>>>>>> origin/master
     def processGPSData(self):
         """ Process the current GPS data.
         
@@ -73,10 +54,7 @@ class RoverAutonomousNavigation(BaseModelClass):
             `self.heading is updated
         """
         
-<<<<<<< HEAD
-=======
         
->>>>>>> origin/master
     def setPower(self):
         """ Make adjustments to the current properties of the rover to 
         get back on track.
@@ -84,7 +62,7 @@ class RoverAutonomousNavigation(BaseModelClass):
         Post:
             `self.roverProperties.powerLeft is updated
             `self.roverProperties.powerRight is updated
-        """
+        """   
         
         
         
