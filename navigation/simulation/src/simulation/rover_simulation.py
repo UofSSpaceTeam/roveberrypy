@@ -2,7 +2,6 @@ from models import RoverModel
 from entities import Coordinate
 from math import radians, sin, cos
 from setup import Configuration
-from setup import DemoConfiguration
 
 class RoverSimulation:
     """ Run a simulation of the rover.
@@ -27,7 +26,7 @@ class RoverSimulation:
         initialLatitude = Configuration.get('rover_model.initial_conditions.latitude')
         initialLongitude = Configuration.get('rover_model.initial_conditions.longitude')
         initialCoordinate = Coordinate(initialLatitude, initialLongitude)
-        initialHeading = DemoConfiguration.get('t0.heading') #Configuration.get('rover_model.initial_conditions.heading')
+        initialHeading = Configuration.get('rover_model.initial_conditions.heading')
         destLatitude = Configuration.get('simulation.destination.latitude')
         destLongitude = Configuration.get('simulation.destination.longitude')
         destination = Coordinate(destLatitude, destLongitude)
@@ -46,36 +45,15 @@ class RoverSimulation:
         self.time = 0
         notDone = True
         while notDone and self.time < self.TIME_LIMIT:
-            if(self.time > 0):
-                self.rover.visibleProperties.powerLeft = DemoConfiguration.get('t0.left')
-                self.rover.visibleProperties.powerRight = DemoConfiguration.get('t0.right')
             if(self.time > 1):
-                self.rover.visibleProperties.powerLeft = DemoConfiguration.get('t1.left')
-                self.rover.visibleProperties.powerRight = DemoConfiguration.get('t1.right')
+                self.rover.visibleProperties.powerLeft = 1.0
+                self.rover.visibleProperties.powerRight = 0.01
             if(self.time > 2):
-                self.rover.visibleProperties.powerLeft = DemoConfiguration.get('t2.left')
-                self.rover.visibleProperties.powerRight = DemoConfiguration.get('t2.right')
+                self.rover.visibleProperties.powerLeft = 1.0
+                self.rover.visibleProperties.powerRight = 1.0
             if(self.time > 3):
-                self.rover.visibleProperties.powerLeft = DemoConfiguration.get('t3.left')
-                self.rover.visibleProperties.powerRight = DemoConfiguration.get('t3.right')
-            if(self.time > 4):
-                self.rover.visibleProperties.powerLeft = DemoConfiguration.get('t4.left')
-                self.rover.visibleProperties.powerRight = DemoConfiguration.get('t4.right')
-            if(self.time > 5):
-                self.rover.visibleProperties.powerLeft = DemoConfiguration.get('t5.left')
-                self.rover.visibleProperties.powerRight = DemoConfiguration.get('t5.right')
-            if(self.time > 6):
-                self.rover.visibleProperties.powerLeft = DemoConfiguration.get('t6.left')
-                self.rover.visibleProperties.powerRight = DemoConfiguration.get('t6.right')
-            if(self.time > 7):
-                self.rover.visibleProperties.powerLeft = DemoConfiguration.get('t7.left')
-                self.rover.visibleProperties.powerRight = DemoConfiguration.get('t7.right')
-            if(self.time > 8):
-                self.rover.visibleProperties.powerLeft = DemoConfiguration.get('t8.left')
-                self.rover.visibleProperties.powerRight = DemoConfiguration.get('t8.right')
-            if(self.time > 9):
-                self.rover.visibleProperties.powerLeft = DemoConfiguration.get('t9.left')
-                self.rover.visibleProperties.powerRight = DemoConfiguration.get('t9.right')
+                self.rover.visibleProperties.powerLeft = 0.01
+                self.rover.visibleProperties.powerRight = 1.0
             self.rover.stepTime(self.TIME_STEP)
             notDone = not(self.rover.isComplete())
             self.time += self.TIME_STEP
@@ -139,8 +117,8 @@ class RoverSimulation:
         import matplotlib.pyplot as matplot
         matplot.plot(x,y, label='Rover Path')
         matplot.scatter(gps_x, gps_y,marker='^',color='g',s=3, label='GPS Readings')
-        #matplot.scatter([dest_x], [dest_y], marker='o', color='r', s=5, label='Destination')
-        #matplot.scatter([0], [0], marker='o', color='g', s=5, label='Start')
+        matplot.scatter([dest_x], [dest_y], marker='o', color='r', s=5, label='Destination')
+        matplot.scatter([0], [0], marker='o', color='g', s=5, label='Start')
         matplot.title("Autonomous Navigation Simulation Results")
         matplot.xlabel("Relative Position, [m]")
         matplot.ylabel("Relative Position, [m]")
