@@ -16,7 +16,7 @@ def run():
 	log = logging.getLogger(__name__)
 	logging.basicConfig(filename="C:\scratch\sys_log.log", level=logging.DEBUG)
 	log.info("Connecting to COM5...")
-	with PySerialDriver('com5', 1000000) as driver:
+	with PySerialDriver('com4', 1000000) as driver:
 		log.info("Connection successful.")
 		log.info("Opening SBP handler...")
 		with Handler(driver.read, driver.write) as handler:
@@ -24,15 +24,15 @@ def run():
 			log.info("Opening JSON logger...")
 			log.info("Beginning writing...")
 			log.info("Writing...")
-			json = GPSLogger(DEFAULT_LOG_FILENAME, __name__, 0x201, 0x203)
+			json = GPSLogger(DEFAULT_LOG_FILENAME)
 			handler.add_callback(json)
 			gpsl=json
 			try:
 				while True:
 					time.sleep(0.1)
 			except KeyboardInterrupt:
-				print json.rbuf[0x201]
-				print json.rbuf[0x203]
+				print json.recent[0x201]
+				print json.recent[0x203]
 				return
 
 

@@ -36,7 +36,7 @@ class GPSLink(object):
 	"""
 	def __init__(self, verbose=False):
 		self._verbose = verbose
-		self.log = logging.getLogger("GPS_SYSTEM_LOG")
+		self.log = logging.getLogger(__name__)
 		self.log.debug("GPSLink instance created.")
 	
 	def __del__(self):
