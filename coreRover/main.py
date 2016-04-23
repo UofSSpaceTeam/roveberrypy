@@ -10,11 +10,13 @@ signal(SIGPIPE,SIG_DFL)
 # All modules ["Example", "JsonServer", "I2C", "WebServer"]  #Webserver not working!
 modulesList = []
 
-# Check if on windows - if so do not run rover hardware specific code!
-if(os.name == "nt"):
-	modulesList = ["JsonServer", "Example", "WebServer"]
-else:
+# Check for hardware
+if(os.uname()[4] == "armv6l"):
+	print "Detected Rover hardware! Full config mode"
 	modulesList = ["JsonServer", "CanServer", "CanExample"]
+else:
+	print "Did not detect Rover hardware! Running server-only mode"
+	modulesList = ["JsonServer", "Example", "WebServer"]
 
 from StateManager import StateManager
 if "JsonServer" in modulesList: from roverprocess.JsonServer import JsonServer
