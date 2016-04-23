@@ -1,0 +1,9 @@
+.row [class*="-6"] {
+   /* the following is just used to show grid*/
+	background-color:#eee;
+}
+
+.no-gutter > [class*='col-'] {
+    padding-right:0;
+    padding-left:0;
+}

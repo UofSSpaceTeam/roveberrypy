@@ -10,18 +10,27 @@
 
 
 <head>
+   <div class="dropdown">
+                    <ul class="nav nav-tabs">
+                        <ul class="nav nav-tabs">
+                          <li><a href="/home">Navigation</a></li>
+                          <li><a href="/camera">Camera</a></li>
+                          <li class="active"><a href="/gamepad">Gamepad</a></li>
+                          <li><a href="/gamepadoptions">Gamepad Options</a></li>
+                      </ul>
+                    </ul>
+                </div>  
 </head>
-<body onload="GamePad();">>
-<div class="container">
-       <center>
-       <div class="jumbotron">
-           <h1>USST Rover GUI</h1>
-           <script src="/static/scripts/gamepad.js"></script>
-           <button class = "btn btn-primary" onclick ="location.href='/home'">Back</button>
-       <div id="gamepadPrompt" class = "row"></div>
-       <div id="gamepadDisplay" class = "row"></div>
- </div>
-   </center>
+<body onload="GamePad();">
+<div align ="center" class="container">
+    <div align ="center" class="jumbotron">
+            <h1>Gamepad</h1>
+      <script src="/static/scripts/gamepad.js"></script>
+          <input id = "GamepadValueChange"></input>
+          <div id="gamepadPrompt" class = "row"></div>
+          <div id="gamepadDisplay" class = "row"></div>
+        </div>
+  </div>
 
 </body>
 </html>
