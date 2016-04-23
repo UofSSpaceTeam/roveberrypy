@@ -33,10 +33,11 @@ class CanServer(RoverProcess):
 		
 		## LUT to convert CAN Arbitration IDs to Names
 		# Note that the lower the ID, the higher priority it has on the bus!
-		# If unknown ids come through they are given the name unknown
+		# If unknown ids come through they are given the name unknown and vice versa with unknown names
 		self.CanIdLUT = {
-		546L : "Test"
-		1000L : "unknown"
+		546L : "Test",
+		547L : "TestOut",
+		1000L : "unknown",
 		}
 		self.CanIdRLUT = {v: k for k, v in self.CanIdLUT.items()} #reverse lookup
 		self.CanIdLUT = defaultdict(lambda: "unknown", self.CanIdLUT)
@@ -46,10 +47,11 @@ class CanServer(RoverProcess):
 	def loop(self):
 		if self.data:
 			with self.dataSem:
-				for key, value in self.data.iteritems()
+				for key, value in self.data.iteritems():
 					canId = self.CanIdRLUT[key]
-					canData = value
-					msg = Message(data=canData, arbitration_id=canId))
+					canData = bytearray()
+					canData.extend(value)
+					msg = can.Message(data=canData, arbitration_id=canId)
 					self.bus.send(msg)
 					self.data = {}
 		time.sleep(self.sendPeriod)

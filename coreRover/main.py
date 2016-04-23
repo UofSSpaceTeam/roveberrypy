@@ -41,7 +41,7 @@ if __name__ == "__main__":
 	if "Example" in modulesList:
 		process = ExampleProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
-		system.addObserver("exampleTime", process.downlink)
+		system.addObserver("exampleKey", process.downlink)
 		processes.append(process)
 
 	if "WebServer" in modulesList:
@@ -58,6 +58,7 @@ if __name__ == "__main__":
 	if "CanServer" in modulesList:
 		process = CanServer(
 			downlink = system.getDownlink(), uplink=system.getUplink(), sendPeriod = 0.1)
+		system.addObserver("TestOut", process.downlink)
 		processes.append(process)
 		
 	if "CanExample" in modulesList:

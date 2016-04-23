@@ -8,7 +8,8 @@ class CanExampleProcess(RoverProcess):
 		pass
 	
 	def loop(self):
-		pass
+		self.setShared("TestOut", "DEADBEEF")
+		time.sleep(0.1)
 		
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
