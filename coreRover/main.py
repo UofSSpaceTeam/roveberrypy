@@ -10,13 +10,15 @@ modulesList = []
 if(os.name == "nt"):
 	modulesList = ["JsonServer", "Example", "WebServer"]
 else:
-	modulesList = ["JsonServer", "I2C"]
+	modulesList = ["JsonServer", "CanServer", "CanExample"]
 
 from StateManager import StateManager
 if "JsonServer" in modulesList: from roverprocess.JsonServer import JsonServer
 if "Example" in modulesList: from roverprocess.ExampleProcess import ExampleProcess
 if "I2C" in modulesList: from roverprocess.I2cExampleProcess import I2cExampleProcess
 if "WebServer" in modulesList: from roverprocess.WebserverProcess import WebserverProcess
+if "CanServer" in modulesList: from roverprocess.CanServer import CanServer
+if "CanExample" in modulesList: from roverprocess.CanExampleProcess import CanExampleProcess
 
 # system configuration
 localPort = 34567
@@ -47,12 +49,23 @@ if __name__ == "__main__":
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		processes.append(process)
 
-
 	if "I2C" in modulesList:
 		process = I2cExampleProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink(),
 			sem = i2cSem)
 		processes.append(process)
+		
+	if "CanServer" in modulesList:
+		process = CanServer(
+			downlink = system.getDownlink(), uplink=system.getUplink(), sendPeriod = 0.1)
+		processes.append(process)
+		
+	if "CanExample" in modulesList:
+		process = CanExampleProcess(
+			downlink = system.getDownlink(), uplink = system.getUplink())
+		system.addObserver("Test", process.downlink)
+		processes.append(process)
+		
 
 	# start everything
 	print "\nSTARTING: " + str([type(p).__name__ for p in processes]) + "\n"
