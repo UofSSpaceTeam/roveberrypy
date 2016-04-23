@@ -3,6 +3,10 @@ sys.dont_write_bytecode = True
 import time
 import multiprocessing
 
+# Fix for broken pipe error
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE,SIG_DFL)
+
 # All modules ["Example", "JsonServer", "I2C", "WebServer"]  #Webserver not working!
 modulesList = []
 
