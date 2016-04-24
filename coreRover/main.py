@@ -3,18 +3,18 @@ sys.dont_write_bytecode = True
 import time
 import multiprocessing
 
-# Check for hardware
-if(os.name == "nt"): # Windows
-	modulesList = ["JsonServer", "Example", "CanExample", "WebServer"]
+# Check for hardware and load required modules
+if(os.name == "nt"): # Windows test
+	modulesList = ["WebServer"]
 	
-elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX
+elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE,SIG_DFL)
-	modulesList = ["JsonServer", "Example", "WebServer"]
+	modulesList = ["WebServer"]
 
 else: # Rover! :D
 	print "Detected Rover hardware! Full config mode\n"
-	modulesList = ["JsonServer", "CanServer", "CanExample", "Example"]
+	modulesList = ["JsonServer", "CanServer", "WebServer", "CanExample"]
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE,SIG_DFL)
 
@@ -45,7 +45,6 @@ if __name__ == "__main__":
 	# macro for configuring threads
 	def subDelegate(module):
 		for sub in module.getSubscribed()["self"]:
-			print sub
 			system.addObserver(sub, module.downlink)
 		jsonSubs.extend(module.getSubscribed()["json"])
 		canSubs.extend(module.getSubscribed()["can"])
