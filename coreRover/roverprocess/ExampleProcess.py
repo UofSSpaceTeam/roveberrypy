@@ -7,6 +7,15 @@ class ExampleProcess(RoverProcess):
 	
 	# helper classes go here if you want any
 	
+	def getSubscribed(self):
+		# Returns a dictionary of lists for all the incoming (self) and outgoing (server) subscriptions
+		return {
+				"self" : ["heartbeat"],
+				"json" : ["exampleTime"],
+				"can" : [],
+				"web" : []
+				}
+	
 	def setup(self, args):
 		# your setup code here. examples:
 		# self.something = args["something"]
@@ -20,8 +29,8 @@ class ExampleProcess(RoverProcess):
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
 		# your message handling here. for example:
-		if "exampleKey" in message:
-			print "got: " + str(message["exampleKey"])
+		if "heartbeat" in message:
+			print "got: " + str(message["heartbeat"])
 	
 	def cleanup(self):
 		RoverProcess.cleanup(self)

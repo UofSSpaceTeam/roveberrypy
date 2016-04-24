@@ -27,6 +27,9 @@ class RoverProcess(Process):
 		self._args = kwargs
 		self.load = True
 		
+	def getSubscribed(self):
+		pass
+		
 	def run(self):
 		receiver = RoverProcess.ReceiverThread(
 			self.downlink, self._state, self._stateSem, self)

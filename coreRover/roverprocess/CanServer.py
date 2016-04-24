@@ -64,6 +64,6 @@ class CanServer(RoverProcess):
 			self.data.update(message)
 	
 	def cleanup(self):
+		self.bus.shutdown()
 		RoverProcess.cleanup(self)
-		#self.bus.shutdown()
 

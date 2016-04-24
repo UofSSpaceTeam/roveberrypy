@@ -4,6 +4,15 @@ import time
 
 class CanExampleProcess(RoverProcess):
 
+	def getSubscribed(self):
+		# Returns a dictionary of lists for all the incoming (self) and outgoing (server) subscriptions
+		return {
+				"self" : ["Test"],
+				"json" : ["exampleTime"],
+				"can" : ["TestOut"],
+				"web" : []
+				}
+
 	def setup(self, args):
 		pass
 	

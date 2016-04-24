@@ -3,26 +3,28 @@ sys.dont_write_bytecode = True
 import time
 import multiprocessing
 
-# Fix for broken pipe error
-from signal import signal, SIGPIPE, SIG_DFL
-signal(SIGPIPE,SIG_DFL)
-
-# All modules ["Example", "JsonServer", "I2C", "WebServer"]  #Webserver not working!
-modulesList = []
-
 # Check for hardware
-if(os.uname()[4] == "armv6l"):
-	print "Detected Rover hardware! Full config mode"
-	modulesList = ["JsonServer", "CanServer", "CanExample"]
-else:
-	print "Did not detect Rover hardware! Running server-only mode"
+if(os.name == "nt"): # Windows
+	modulesList = ["JsonServer", "Example", "CanExample", "WebServer"]
+	
+elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX
+	from signal import signal, SIGPIPE, SIG_DFL
+	signal(SIGPIPE,SIG_DFL)
 	modulesList = ["JsonServer", "Example", "WebServer"]
 
+else: # Rover! :D
+	print "Detected Rover hardware! Full config mode\n"
+	modulesList = ["JsonServer", "CanServer", "CanExample", "Example"]
+	from signal import signal, SIGPIPE, SIG_DFL
+	signal(SIGPIPE,SIG_DFL)
+
+	
+# Import modules
 from StateManager import StateManager
 if "JsonServer" in modulesList: from roverprocess.JsonServer import JsonServer
 if "Example" in modulesList: from roverprocess.ExampleProcess import ExampleProcess
-if "I2C" in modulesList: from roverprocess.I2cExampleProcess import I2cExampleProcess
-if "WebServer" in modulesList: from roverprocess.WebserverProcess import WebserverProcess
+if "I2CExample" in modulesList: from roverprocess.I2cExampleProcess import I2cExampleProcess
+if "WebServer" in modulesList: from roverprocess.WebServer import WebServer
 if "CanServer" in modulesList: from roverprocess.CanServer import CanServer
 if "CanExample" in modulesList: from roverprocess.CanExampleProcess import CanExampleProcess
 
@@ -34,43 +36,62 @@ remotePort = 34568
 if __name__ == "__main__":
 	system = StateManager()
 	processes = []
+	jsonSubs = []
+	canSubs = []
+	webSubs = []
+	
 	i2cSem = multiprocessing.Semaphore(1)
+	
+	# macro for configuring threads
+	def subDelegate(module):
+		for sub in module.getSubscribed()["self"]:
+			print sub
+			system.addObserver(sub, module.downlink)
+		jsonSubs.extend(module.getSubscribed()["json"])
+		canSubs.extend(module.getSubscribed()["can"])
+		webSubs.extend(module.getSubscribed()["web"])
+		processes.append(module)	
+	
 	print "\nBUILD: Registering process subsribers...\n"
 
+	# modules
+	if "Example" in modulesList:
+		process = ExampleProcess(
+			downlink = system.getDownlink(), uplink = system.getUplink())
+		subDelegate(process)
+	
+	if "CanExample" in modulesList:
+		process = CanExampleProcess(
+			downlink = system.getDownlink(), uplink = system.getUplink())
+		subDelegate(process)
+
+	if "I2CExample" in modulesList:
+		process = I2cExampleProcess(
+			downlink = system.getDownlink(), uplink = system.getUplink(),
+			sem = i2cSem)
+		subDelegate(process)
+	
+	# servers
+	if "CanServer" in modulesList:
+		process = CanServer(
+			downlink = system.getDownlink(), uplink=system.getUplink(), sendPeriod = 0.1)
+		for sub in canSubs:
+			system.addObserver(sub, process.downlink)
+		processes.append(process)
+			
 	if "JsonServer" in modulesList:
 		process = JsonServer(
 			downlink = system.getDownlink(), uplink = system.getUplink(),
 			local = localPort, remote = remotePort, sendPeriod = 0.1)
-		system.addObserver("exampleTime", process.downlink)
+		for sub in jsonSubs:
+			system.addObserver(sub, process.downlink)		
 		processes.append(process)
-
-	if "Example" in modulesList:
-		process = ExampleProcess(
-			downlink = system.getDownlink(), uplink = system.getUplink())
-		system.addObserver("exampleKey", process.downlink)
-		processes.append(process)
-
+		
 	if "WebServer" in modulesList:
-		process = WebserverProcess(
+		process = WebServer(
 			downlink = system.getDownlink(), uplink = system.getUplink())
-		processes.append(process)
-
-	if "I2C" in modulesList:
-		process = I2cExampleProcess(
-			downlink = system.getDownlink(), uplink = system.getUplink(),
-			sem = i2cSem)
-		processes.append(process)
-		
-	if "CanServer" in modulesList:
-		process = CanServer(
-			downlink = system.getDownlink(), uplink=system.getUplink(), sendPeriod = 0.1)
-		system.addObserver("TestOut", process.downlink)
-		processes.append(process)
-		
-	if "CanExample" in modulesList:
-		process = CanExampleProcess(
-			downlink = system.getDownlink(), uplink = system.getUplink())
-		system.addObserver("Test", process.downlink)
+		for sub in webSubs:
+			system.addObserver(sub, process.downlink)
 		processes.append(process)
 		
 

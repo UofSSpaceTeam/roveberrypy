@@ -18,12 +18,9 @@ class JsonServer(RoverProcess):
 		def run(self):
 			while True:
 				jsonData, address = self.listener.recvfrom(4096)
-				print jsonData
 				data = self.byteify(json.loads(jsonData))
 				if isinstance(data, dict):
 					self.uplink.put(data)
-					if "commsHeartbeat" in data:
-						self.setShared("commsHeartbeat", True)
 					with self.parent.addressSem:
 						self.parent.address = address[0]
 		
@@ -61,12 +58,14 @@ class JsonServer(RoverProcess):
 	def loop(self):
 		if self.data:
 			with self.dataSem:
+				print self.data
 				jsonData = json.dumps(self.data)
 				self.data = {}
 			with self.addressSem:
 				if self.address:
 					self.sender.sendto(
 						jsonData, (self.address, self.remotePort))
+		self.setShared("heartbeat", "running")
 		time.sleep(self.sendPeriod)
 	
 	def messageTrigger(self, message):

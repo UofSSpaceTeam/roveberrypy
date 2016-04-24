@@ -2,7 +2,7 @@ from bottle import route, view, get, template, static_file, post, request
 import json
 import os
 
-class WebserverRoutes():
+class WebServerRoutes():
 
 	# Routes and views for the bottle application.
 	from bottle import route, view
