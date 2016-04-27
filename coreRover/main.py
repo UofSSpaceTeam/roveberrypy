@@ -5,7 +5,7 @@ import multiprocessing
 
 # Check for hardware and load required modules
 if(os.name == "nt"): # Windows test
-	modulesList = ["WebServer"]
+	modulesList = ["Camera"]
 	
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
@@ -27,6 +27,7 @@ if "I2CExample" in modulesList: from roverprocess.I2cExampleProcess import I2cEx
 if "WebServer" in modulesList: from roverprocess.WebServer import WebServer
 if "CanServer" in modulesList: from roverprocess.CanServer import CanServer
 if "CanExample" in modulesList: from roverprocess.CanExampleProcess import CanExampleProcess
+if "Camera" in modulesList: from roverprocess.CameraProcess import CameraProcess
 
 # system configuration
 localPort = 34567
@@ -68,6 +69,11 @@ if __name__ == "__main__":
 		process = I2cExampleProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink(),
 			sem = i2cSem)
+		subDelegate(process)
+		
+	if "Camera" in modulesList:
+		process = CameraProcess(
+			downlink = system.getDownlink(), uplink = system.getUplink())
 		subDelegate(process)
 	
 	# servers
