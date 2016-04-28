@@ -5,7 +5,7 @@ import multiprocessing
 
 # Check for hardware and load required modules
 if(os.name == "nt"): # Windows test
-	modulesList = ["Camera"]
+	modulesList = ["Camera", "CanExample"]
 	
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
