@@ -9,6 +9,7 @@ from WebUI.Routes import WebServerRoutes
 
 # Python Modules
 import time
+import json
 
 class WebServer(RoverProcess):
 
@@ -43,15 +44,39 @@ class WebServer(RoverProcess):
 			self.port = self.srv.server_port
 			self.srv.serve_forever()
 
+			
+	def getSubscribed(self):
+		# Returns a dictionary of lists for all the incoming (self) and outgoing (server) subscriptions
+		return {
+				"self" : [],
+				"json" : [],
+				"can" : [],
+				"web" : []
+				}
+				
 	def setup(self, args):
 		self.routes = WebServerRoutes()
 		bottle.TEMPLATE_PATH = ['./WebUI/views']
 		print "Web Templates Loaded From:", bottle.TEMPLATE_PATH
 		self.server = self.RoverWSGIServer(host='localhost', port=8080)
 		Thread(target = self.startBottleServer).start()
+		#for testing
+		self.message = {}
 
 	def loop(self):
 		time.sleep(1)
+		
+		#send test message to UI
+		#self.message["Speed"] = 20
+		#self.routes.testToUI(self.message)
+		
+		#receive messages from UI
+		message = self.routes.rvcFromUI()
+		if "axes" in message: 
+			#do something 
+			print message["axes"]
+		if "nodes" in message:
+			print message["nodes"]
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)

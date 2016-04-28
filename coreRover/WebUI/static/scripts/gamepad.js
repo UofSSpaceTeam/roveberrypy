@@ -63,7 +63,7 @@ function GamePad(){
     $("#gamepadDisplay").html(html);
 	
 	$.ajax({
-		url: "/gamepadAxes",
+		url: "/testSend",
 		type: "POST",
 		data: JSON.stringify({"axes" : gp.axes}),
 		contentType: "application/json"

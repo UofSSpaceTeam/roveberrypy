@@ -1,17 +1,18 @@
 //global variables 
 var roverMarker 
 
-/*
+
 //sends all marker coordinates to rover 
 function sendMarkers(array) {
 	var i;
-	var marker = ""; 
-	//var array = [1,2,3];
-	for (i = 0; i < array.length; i++) {
-		//send marker coordinate
-	}
+	$.ajax({
+		url: "/testSend",
+		type: "POST",
+		data: JSON.stringify({"nodes" : array}),
+		contentType: "application/json"
+	});	
 }
-*/
+
 
 /*	
 Prints out all maker coordinates in the system
@@ -34,8 +35,9 @@ updates the rovers current position
 function updateRoverPos() {
 	
 	//get Coordinates from input boxes
+	//var latlng = L.latLng(document.getElementById("YPos").value, document.getElementById("XPos").value);
+	//get coordinates from rover input
 	var latlng = L.latLng(document.getElementById("YPos").value, document.getElementById("XPos").value);
-	//alert(latlng);
 	//set new rover position 
 	roverMarker.setLatLng(latlng);
 	//updates the rovers position 
@@ -97,15 +99,9 @@ function main(){
 			message = num.toString().concat(",",latlng.lat, ",",latlng.lng ); 
 			layer.bindPopup(message);
 			marker_array.push(message); 
-			//sendMarkers(marker_array);
+			sendMarkers(marker_array);
 			//printMarkers(marker_array); 
-			$.ajax({
-			url: "/testSend",
-			type: "POST",
-			data: JSON.stringify({"node" : message}),
-			contentType: "application/json"
-	});
-			
+
 		}
 		drawnItems.addLayer(layer);
 	});

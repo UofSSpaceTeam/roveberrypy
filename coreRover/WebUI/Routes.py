@@ -1,13 +1,20 @@
 from bottle import route, view, get, template, static_file, post, request
 import json
 import os
+from threading import Lock
+
+
+#global value to keep track of sent data
+outData = {}
+lock = Lock()
 
 class WebServerRoutes():
 
+	
 	# Routes and views for the bottle application.
 	from bottle import route, view
 	from datetime import datetime
-
+		
 	@route('/')
 	@route('/home')
 	@view('index')
@@ -56,8 +63,29 @@ class WebServerRoutes():
 		message = request.json
 		print message
 		
+
+	#testing for communication 
+		
 	# test to send data to rover
 	@post('/testSend')
 	def testSend():
+		global outData
+		global lock
 		message = request.json
+		print message
+		with lock:
+			for key in message: 
+					outData[key] = message[key]
+		
+	def testToUI(self, message):
+		print message
+		
+	def rvcFromUI(self):
+		global outData
+		global lock
+		with lock:
+			return outData
+		
+		
+		
 		
