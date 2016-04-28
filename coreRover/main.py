@@ -14,7 +14,7 @@ elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 
 else: # Rover! :D
 	print "Detected Rover hardware! Full config mode\n"
-	modulesList = ["JsonServer", "CanServer", "WebServer", "CanExample"]
+	modulesList = ["JsonServer", "CanServer", "Camera"]
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE,SIG_DFL)
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
 	# servers
 	if "CanServer" in modulesList:
 		process = CanServer(
-			downlink = system.getDownlink(), uplink=system.getUplink(), sendPeriod = 0.1)
+			downlink = system.getDownlink(), uplink=system.getUplink(), sendPeriod = 0.01)
 		for sub in canSubs:
 			system.addObserver(sub, process.downlink)
 		processes.append(process)

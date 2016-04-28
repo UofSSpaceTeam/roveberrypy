@@ -53,9 +53,11 @@ class CanServer(RoverProcess):
 					canId = self.CanIdRLUT[key]
 					canData = bytearray()
 					canData.extend(value)
+					print "CAN Message: ", canId, canData
 					msg = can.Message(data=canData, arbitration_id=canId)
+					print "CAN DATA: ", msg
 					self.bus.send(msg)
-					self.data = {}
+				self.data = {}
 		time.sleep(self.sendPeriod)
 	
 	def messageTrigger(self, message):

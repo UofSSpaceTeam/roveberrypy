@@ -5,7 +5,7 @@ int led = 13;
 FlexCAN CANbus(1000000);
 static CAN_message_t txmsg, rxmsg;
 int mode = 5;
-int pin_up_down = 6;  //range 0-90
+int pin_up_down = 6;  //range 130-220
 int pin_left_right = 9;  //range 50-130, 90->stop
 Servo myservo;
 int cmd = 0;
