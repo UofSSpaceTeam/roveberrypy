@@ -17,13 +17,16 @@ class CameraProcess(RoverProcess):
 		pass
 	
 	def loop(self):
-		self.setShared("CameraUpDown", str(1)) #control the position, value ranges between 1-90
+		self.setShared("CameraUpDown", str(130)) #control the position, value ranges between 130-220
+		time.sleep(1)
 		self.setShared("CameraLeftRight", str(50)) # control the speed, value ranges between 50-130, 90 -> stop
 		time.sleep(1)
-		self.setShared("CameraUpDown", str(45))
+		self.setShared("CameraUpDown", str(175))
+		time.sleep(1)
 		self.setShared("CameraLeftRight", str(90))
 		time.sleep(1)
-		self.setShared("CameraUpDown", str(90))
+		self.setShared("CameraUpDown", str(220))
+		time.sleep(1)
 		self.setShared("CameraLeftRight", str(130))
 		time.sleep(1)
 		time.sleep(0.1)

@@ -12,7 +12,8 @@ int cmd = 0;
 int val = 0;
 int cmd_up_down = 300;
 int cmd_left_right = 301;
-
+int count = 0;
+char* data = (char*)malloc(sizeof(char)*8);
 void setup() {
   CANbus.begin();
   pinMode(led, OUTPUT);
@@ -30,17 +31,18 @@ void setup() {
 }
 
 void loop() {
+  digitalWrite(led, 1);
   rxmsg.timeout = 10;
   while(CANbus.read(rxmsg));
   
-  Serial.print(rxmsg.id);
-  Serial.print(' ');
-  for(int i = 0; i < 8; i++) {
+  //Serial.print(rxmsg.id);
+  //Serial.print(' ');
+  /*for(int i = 0; i < 8; i++) {
     Serial.print((char)rxmsg.buf[i]);
   }
-  Serial.print("\r\n");
+  Serial.print("\r\n");*/
   cmd = rxmsg.id;
-  char* data = (char*)malloc(sizeof(char)*8);
+  
   for(int i = 0; i < 8; i++) {
     data[i] = rxmsg.buf[i];
   }
@@ -48,14 +50,19 @@ void loop() {
   if(cmd == cmd_up_down){
     Serial.println("up_down");
     Serial.println(val);
+    Serial.println(count++);
     analogWrite(pin_up_down,val);
     }
   if(cmd == cmd_left_right){
     Serial.println("left_right");
     Serial.println(val);
+    Serial.println(count++);
     myservo.write(val);
     }
-   
+    digitalWrite(led, LOW);
+    
+   cmd = 0;
+   rxmsg.id = 0;
 
   /*txmsg.len = 8;
   txmsg.id = 0x222;
