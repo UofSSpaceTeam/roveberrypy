@@ -5,7 +5,7 @@ import multiprocessing
 
 # Check for hardware and load required modules
 if(os.name == "nt"): # Windows test
-	modulesList = ["Camera", "CanExample"]
+	modulesList = ["WebServer", "JsonServer"]
 	
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
@@ -77,11 +77,23 @@ if __name__ == "__main__":
 		subDelegate(process)
 	
 	# servers
+	if "WebServer" in modulesList:
+		process = WebServer(
+			downlink = system.getDownlink(), uplink = system.getUplink())
+		for sub in webSubs:
+			system.addObserver(sub, process.downlink)
+		for sub in process.getSubscribed()["self"]:
+			system.addObserver(sub, process.downlink)
+		jsonSubs.extend(process.getSubscribed()["json"])
+		canSubs.extend(process.getSubscribed()["can"])
+		processes.append(process)
+	
 	if "CanServer" in modulesList:
 		process = CanServer(
 			downlink = system.getDownlink(), uplink=system.getUplink(), sendPeriod = 0.1)
 		for sub in canSubs:
 			system.addObserver(sub, process.downlink)
+		#subDelegate(process)
 		processes.append(process)
 			
 	if "JsonServer" in modulesList:
@@ -90,14 +102,7 @@ if __name__ == "__main__":
 			local = localPort, remote = remotePort, sendPeriod = 0.1)
 		for sub in jsonSubs:
 			system.addObserver(sub, process.downlink)		
-		processes.append(process)
-		
-	if "WebServer" in modulesList:
-		process = WebServer(
-			downlink = system.getDownlink(), uplink = system.getUplink())
-		for sub in webSubs:
-			system.addObserver(sub, process.downlink)
-		processes.append(process)
+		processes.append(process)		
 		
 
 	# start everything
