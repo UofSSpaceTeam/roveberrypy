@@ -26,7 +26,7 @@ void setup() {
   analogWrite(mode, 120);
   
   delay(1000);
-  Serial.println("CAN Testing Time!!");
+  //Serial.println("CAN Testing Time!!");
 
 }
 

@@ -2,14 +2,14 @@ from RoverProcess import RoverProcess
 
 import time
 
-class CameraProcess(RoverProcess):
+class StorageBinProcess(RoverProcess):
 
 	def getSubscribed(self):
 		# Returns a dictionary of lists for all the incoming (self) and outgoing (server) subscriptions
 		return {
 				"self" : [],
 				"json" : [],
-				"can" : ["CameraUpDown", "CameraLeftRight"],
+				"can" : ["Open", "Close"],
 				"web" : []
 				}
 
@@ -17,17 +17,17 @@ class CameraProcess(RoverProcess):
 		pass
 	
 	def loop(self):
-		self.setShared("CameraUpDown", str(130)) #control the position, value ranges between 130-220
+		self.setShared("Open", str(1))
 		time.sleep(1)
-		self.setShared("CameraLeftRight", str(50)) # control the speed, value ranges between 50-130, 90 -> stop
+		self.setShared("Close", str(1)) 
 		time.sleep(1)
-		self.setShared("CameraUpDown", str(175))
+		self.setShared("Open", str(2))
 		time.sleep(1)
-		self.setShared("CameraLeftRight", str(90))
+		self.setShared("Close", str(2))
 		time.sleep(1)
-		self.setShared("CameraUpDown", str(220))
+		self.setShared("Open", str(3))
 		time.sleep(1)
-		self.setShared("CameraLeftRight", str(130))
+		self.setShared("Close", str(3))
 		time.sleep(1)
 		time.sleep(0.1)
 		
@@ -38,4 +38,3 @@ class CameraProcess(RoverProcess):
 			
 	def cleanup(self):
 		RoverProcess.cleanup(self)
-		

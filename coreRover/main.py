@@ -5,7 +5,7 @@ import multiprocessing
 
 # Check for hardware and load required modules
 if(os.name == "nt"): # Windows test
-	modulesList = ["Camera", "CanExample"]
+	modulesList = ["Camera", "CanExample", "StorageBin"]
 	
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
@@ -28,6 +28,7 @@ if "WebServer" in modulesList: from roverprocess.WebServer import WebServer
 if "CanServer" in modulesList: from roverprocess.CanServer import CanServer
 if "CanExample" in modulesList: from roverprocess.CanExampleProcess import CanExampleProcess
 if "Camera" in modulesList: from roverprocess.CameraProcess import CameraProcess
+if "StorageBin" in modulesList: from roverprocess.StorageBinProcess import StorageBinProcess
 
 # system configuration
 localPort = 34567
@@ -76,6 +77,11 @@ if __name__ == "__main__":
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		subDelegate(process)
 	
+	if "StorageBin" in modulesList:
+		process = StorageBinProcess(
+			downlink = system.getDownlink(), uplink = system.getUplink())
+		subDelegate(process)
+		
 	# servers
 	if "CanServer" in modulesList:
 		process = CanServer(
