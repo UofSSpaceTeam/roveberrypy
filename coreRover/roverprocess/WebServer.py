@@ -55,28 +55,16 @@ class WebServer(RoverProcess):
 				}
 				
 	def setup(self, args):
-		self.routes = WebServerRoutes()
+		self.routes = WebServerRoutes(parent=self)
+		
 		bottle.TEMPLATE_PATH = ['./WebUI/views']
 		print "Web Templates Loaded From:", bottle.TEMPLATE_PATH
+		
 		self.server = self.RoverWSGIServer(host='localhost', port=8080)
 		Thread(target = self.startBottleServer).start()
-		#for testing
-		self.message = {}
-
+		
 	def loop(self):
 		time.sleep(1)
-		
-		#send test message to UI
-		#self.message["Speed"] = 20
-		#self.routes.testToUI(self.message)
-		
-		#receive messages from UI
-		message = self.routes.rvcFromUI()
-		if "axes" in message: 
-			#do something 
-			print message["axes"]
-		if "nodes" in message:
-			print message["nodes"]
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
@@ -87,7 +75,6 @@ class WebServer(RoverProcess):
 		RoverProcess.cleanup(self)
 
 	## Bottle server code running in independent thread
-	##	TODO: Send and recieve data from the main software!
-
+	# Please see routes.py for information about exchanging data
 	def startBottleServer(self):
-		run(server=self.server)
+		run(server=self.server, app=self.routes.instance)
