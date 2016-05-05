@@ -2,7 +2,7 @@
 #include <Servo.h>
 
 int led = 13;
-FlexCAN CANbus(1000000);
+FlexCAN CANbus(500000);
 static CAN_message_t txmsg, rxmsg;
 int mode = 5;
 int pin_up_down = 6;  //range 130-220

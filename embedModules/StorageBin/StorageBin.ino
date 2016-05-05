@@ -1,15 +1,17 @@
 #include <Servo.h>
 #include <FlexCAN.h>
 Servo servo1, servo2, servo3;
-FlexCAN CANbus(1000000);
+FlexCAN CANbus(500000);
 static CAN_message_t  rxmsg;
 int pin_1 = 9;
 int pin_2 = 10;
 int pin_3 = 11;
+int cmd = 0;
+int val = 0;
 int cmd_open = 400;
-int cmd_close = 401;
-int val_open = 0;
-int val_close = 90;
+//int cmd_close = 401;
+int val_open = 90;
+//int val_close = 150;
 char* data = (char*)malloc(sizeof(char)*8);
 void setup() {
   // put your setup code here, to run once:
@@ -17,6 +19,9 @@ void setup() {
   servo1.attach(pin_1);
   servo2.attach(pin_2);
   servo3.attach(pin_3);
+  servo1.write(150);
+  servo2.write(150);
+  servo3.write(150);
 }
 
 void loop() {
@@ -40,17 +45,22 @@ void loop() {
     else if(val == 3)
       servo3.write(val_open);
     }
-  if(cmd == cmd_close){
+  /*else if(cmd == cmd_close){
     Serial.println("close");
     Serial.println(val);
     //Serial.println(count++);
-    if(val == 1)
+    if(val == 1){
+      //Serial.println("1");
       servo1.write(val_close);
+      }
     else if(val == 2)
       servo2.write(val_close);
     else if(val == 3)
       servo3.write(val_close);
     }
+   else if(cmd != 0){
+    Serial.println(cmd);
+    }*/
     cmd = 0;
     rxmsg.id = 0;
 
