@@ -52,7 +52,7 @@ class Piksi(object):
                 self._open_objs.append(self._satobs_sender)
                 self._satobs_sender.__enter__()
                 for satobs_msg in self._SBP_SATOBS_MSGS:
-                    self._ser_handler.add_callback(self._udp_sender, satobs_msg)
+                    self._ser_handler.add_callback(self._satobs_sender, satobs_msg)
             if self.recv_addr is not None:
                 self._recv_satobs_thread = threading.Thread(target=self._recvSatObs)
                 self._continue = True
@@ -120,12 +120,12 @@ class Piksi(object):
     def poll(self, sbp_msg_id):
         return self._msg_record[sbp_msg_id]
 
-    def add_callback(self, callback, sbp_msg_id=None):
+    def add_callback(self, callback, sbp_msg_id):
         if self._ser_handler:
             self._ser_handler.add_callback(callback, sbp_msg_id)
         self._callbacks.append([callback, sbp_msg_id])
 
-    def remove_callback(self, callback, sbp_msg_id=None):
+    def remove_callback(self, callback, sbp_msg_id):
         if self._ser_handler:
             self._ser_handler.remove_callback(callback, sbp_msg_id)
         self._callbacks.remove([callback, sbp_msg_id])
