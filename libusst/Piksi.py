@@ -2,12 +2,23 @@ from sbp.client import Handler, Framer
 from sbp.client.drivers.pyserial_driver import PySerialDriver
 from sbp.client.loggers.udp_logger import UdpLogger
 from sbp.observation import SBP_MSG_OBS
-import threading, socket, collections
+import threading, socket, collections, struct
 
 
 class Piksi(object):
     _SBP_SATOBS_MSGS = [0x43, 0x44, 0x47, 0x48]
     def __init__(self, serport, serbaud, **options):
+        """
+        Create connection object with a Piksi.
+
+        Args:
+            serport (str): Serial port
+            serbaud (int): Serial port baudrate
+        Kwargs:
+            send_addr (tuple): Address to send satelite observations to
+            recv_addr (tuple): Address to receive satelite observations from
+
+        """
         self.serport = serport
         self.serbaud = serbaud
         # Handle optional configurations
@@ -30,6 +41,12 @@ class Piksi(object):
         self._callbacks = []
 
     def start(self):
+        """
+        Safely open the connection.
+
+        Raises:
+            EnvironmentError
+        """
         if self.is_alive():
             print 'Already open. Nothing done.'
         try:
@@ -62,6 +79,9 @@ class Piksi(object):
             raise EnvironmentError(e)
 
     def stop(self):
+        """
+        Safely close the connection with the Piksi.
+        """
         # join the receiving thread if it exists
         self._continue = False
         if self._recv_satobs_thread is not None and self._recv_satobs_thread.is_alive():
@@ -83,7 +103,10 @@ class Piksi(object):
         self.stop()
 
     def _recordMsg(self, msg, **metadata):
-        self._msg_record[msg.msg_type] = {'payload':msg, 'metadata':metadata}
+        msg_struct = struct
+        msg_struct.payload = msg
+        msg_struct.metadata = metadata
+        self._msg_record[msg.msg_type] = msg_struct
 
     def _recvSatObs(self):
         # Open UDP socket
@@ -103,6 +126,12 @@ class Piksi(object):
             raise e
 
     def is_alive(self):
+        """
+        Check if serial communication with the Piksi is nominal.
+
+        Returns:
+            Boolean of whether we have serial communication with the Piksi.
+        """
         # Check if serial comm with Piksi is alive
         ser_comm_alive = (self._ser_handler is not None) and self._ser_handler.is_alive()
         # Check if we are supposed to receive satobs and check if its alive
@@ -112,20 +141,56 @@ class Piksi(object):
             return ser_comm_alive
 
     def connected(self):
+        """
+        Check if serial communication with the Piksi is nominal, as well as
+        if Piksi is receiving satelite observations if applicable.
+
+        Return:
+            Piksi is connected and operating normally.
+        """
         if self.recv_addr:
             return self.is_alive() and not self._recv_timeout
         else:
             return self.is_alive()
 
     def poll(self, sbp_msg_id):
-        return self._msg_record[sbp_msg_id]
+        """
+        Get the last message received from the Piksi with message type
+        `sbp_msg_id`.
+
+        Args:
+            sbp_msg_id (int): The ID of the query message
+        Returns:
+            Last message received with msg_type=`sbp_msg_id`. Message data is
+            stored in the `payload` member and metadata is stored in the
+            `metadata` member.
+        """
+        if sbp_msg_id in self._msg_record:
+            return self._msg_record[sbp_msg_id]
+        else:
+            return None
 
     def add_callback(self, callback, sbp_msg_id):
+        """
+        Add a callback for message types `sbp_msg_id`.
+
+        Args:
+            callback (func): Function which will be passed message payload and
+                metadata
+            sbp_msg_id (int): ID of the interesting message.
+        """
         if self._ser_handler:
             self._ser_handler.add_callback(callback, sbp_msg_id)
         self._callbacks.append([callback, sbp_msg_id])
 
     def remove_callback(self, callback, sbp_msg_id):
+        """
+        Remove a callback.
+
+        Args:
+            callback (func): Callback function to be removed.
+            sbp_msg_id (int): ID of the message.
+        """
         if self._ser_handler:
             self._ser_handler.remove_callback(callback, sbp_msg_id)
         self._callbacks.remove([callback, sbp_msg_id])
