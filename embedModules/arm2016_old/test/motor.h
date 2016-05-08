@@ -25,12 +25,12 @@ typedef struct {
 static const MOC_SPEC moc_spec[] = {
     {0, 20, INTERNAL_FB, INVALID_U, INVALID_U, INVALID_U},
     {1, 21, INTERNAL_FB, INVALID_U, INVALID_U, INVALID_U},
-    {2, 22, INTERNAL_FB, INVALID_U, 15, 0},
-    {3, 23, INTERNAL_FB, INVALID_U, 16, 13},
-    {4, 5, INTERNAL_FB, INVALID_U, 16, 13},
-    {5, 6, INTERNAL_FB, INVALID_U, 15, 0},
-    {6, 9, INTERNAL_FB, INVALID_U, 15, 0},
-    {7, 10, INTERNAL_FB, INVALID_U, 15, 0}
+    {2, 22, EXTERNAL_FB, INVALID_U, 15, 0},
+    {3, 23, EXTERNAL_FB, INVALID_U, 16, 13},
+    {4, 5,  EXTERNAL_FB, INVALID_U, 16, 13},
+    {5, 6,  EXTERNAL_FB, INVALID_U, 15, 0},
+    {6, 9,  EXTERNAL_FB, INVALID_U, 15, 0},
+    {7, 10, EXTERNAL_FB, INVALID_U, 15, 0}
 };
 
 static MotorController motor[] = {
@@ -49,7 +49,6 @@ void moc_initializePins() {
      pinMode(_MOCHI_SEL[1], OUTPUT);
      pinMode(_MOCHI_SEL[2], OUTPUT);
      pinMode(_MOCHI_DAT, OUTPUT);
-     pinMode(_MOCHI_DAT, OUTPUT);
      pinMode(_MOCHI_WRT, OUTPUT);
      pinMode(_MOCHI_CSEL[0], OUTPUT);
      pinMode(_MOCHI_CSEL[1], OUTPUT);
@@ -59,6 +58,7 @@ void moc_initializePins() {
      pinMode(_MOCHI_CRST, OUTPUT);
      for(uint_t i = 0; i < 8; ++i) {
          pinMode(moc_spec[i].PIN_PWM, OUTPUT);
+         moc_setSpeed(moc_spec + i, 0);
          if (moc_spec[i].EXT_FB) {
             pinMode(moc_spec[i].PIN_EXT_FB, INPUT);
         }

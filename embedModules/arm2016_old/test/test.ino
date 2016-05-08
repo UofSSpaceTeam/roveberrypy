@@ -18,7 +18,7 @@ void setup() {
   delay(1000);
   digitalWrite(_MOCHI_SEL[0], LOW);
   digitalWrite(_MOCHI_SEL[1], LOW);
-  digitalWrite(_MOCHI_SEL[2], HIGH);
+  digitalWrite(_MOCHI_SEL[2], LOW);
   delay(1000);
   Serial.println("Starting");
 }
@@ -26,34 +26,20 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-/*
-  for(int i = 0; i < 200; ++i) {
+  for(int i = 0; i < 255; ++i) {
     analogWrite(20, i);
     delay(10);
   }
-    dir ^= 0x01;
+  if(dir)
+    dir = 0;
+   else
+    dir = 1;
   digitalWrite(_MOCHI_DAT, dir);
   digitalWrite(_MOCHI_WRT, HIGH);
-  delay(1);
+  delay(20);
   digitalWrite(_MOCHI_WRT, LOW);
-  for(int i = 200; i > 0; --i) {
+  for(int i = 255; i > 0; --i) {
     analogWrite(20, i);
     delay(10);
-  }*/
-  for(int b = 0; b < 4; ++b)
-  {
-    digitalWrite(_MOCHI_CSEL[b], HIGH);
-    delay(1000);
-    Serial.print(1<<b);
-    Serial.print(";");
-    delay(500);
-    int foo = digitalRead(_MOCHI_CRD);
-    Serial.println(foo);
-    
-    digitalWrite(_MOCHI_CSEL[b], LOW);
   }
-  uint_t count = moc_readPosition(moc_spec+4);
-  Serial.print("Count = ");
-  Serial.println(count);
-  delay(1000);
 }
