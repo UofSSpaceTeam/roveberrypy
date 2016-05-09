@@ -75,6 +75,8 @@ int DCManager_update(float elapsed_ms, float* dists, float* vels, int* dc)
             float t =  elapsed_ms / TIME_RAMP_UP_MS;
             if (elapsed_ms > TIME_RAMP_UP_MS) {
                 DCM_stages[i] = POSITION_SYNC;
+            } else if(dists[i] < DCM_rd_dists[i]) {
+                DCM_stages[i] = RAMP_DOWN;
             } else {
                 dc[i] = scale * t * t (3.0 - 2.0 * t);
             }
