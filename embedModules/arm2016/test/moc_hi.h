@@ -11,7 +11,7 @@
 #define __MOC_HI_H__
 
 // Propogation delay constants to be used to guarantee valid i/o
-#define _MOCHI_DELAY_US  1000
+#define _MOCHI_DELAY_US  10
 
 // Unsigned int typede
 typedef unsigned int uint_t;

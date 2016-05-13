@@ -64,11 +64,11 @@ void moc_select(const MOC_SPEC * moc) {
 	// Write the ID of `moc to the select bits
 	for(i = 0; i < 3; ++i){
 		sel = moc->ID & 1 << i;
-    if(sel > 0) {
-		  digitalWriteFast(_MOCHI_SEL[i], HIGH);
-    } else {
-      digitalWriteFast(_MOCHI_SEL[i], LOW);
-    }
+	    if(sel > 0) {
+			digitalWriteFast(_MOCHI_SEL[i], HIGH);
+	    } else {
+	      digitalWriteFast(_MOCHI_SEL[i], LOW);
+	    }
 	}
 	// Record the current motor controller and delay to guarantee valid access
 	_MOCHI_CURMOC = moc->ID;
@@ -78,16 +78,16 @@ void moc_select(const MOC_SPEC * moc) {
 void moc_setDirection(const MOC_SPEC * moc, uint_t dir) {
 	moc_select(moc);
 	// Write dir to data bit
-  if(dir > 0) {
+	if(dir > 0) {
 	  digitalWriteFast(_MOCHI_DAT, HIGH);
-    Serial.println("Writing data HIGH");
-  } else {
-    digitalWriteFast(_MOCHI_DAT, LOW);
-    Serial.println("Writing data LOW");
-  }
+	  Serial.println("Writing data HIGH");
+	} else {
+	  digitalWriteFast(_MOCHI_DAT, LOW);
+	  Serial.println("Writing data LOW");
+	}
 	// Write the data bit motor controller registers
 	digitalWriteFast(_MOCHI_WRT, HIGH);
- delayMicroseconds(_MOCHI_DELAY_US);
+	delayMicroseconds(_MOCHI_DELAY_US);
 	digitalWriteFast(_MOCHI_WRT, LOW);
 }
 
@@ -109,11 +109,16 @@ uint_t _moc_readIntFb(const MOC_SPEC * moc) {
 	count = 0;
 	for(i = msb; i >= lsb; --i){
 		// Select bit `i and then delay to guarantee valid access
-		for(j = 0; j < 4; ++j)
-			digitalWriteFast(_MOCHI_CSEL[j], i & 1 << j);
+		for(j = 0; j < 4; ++j) {
+			if((i & 1<<j) > 0) {
+				digitalWriteFast(_MOCHI_CSEL[j], HIGH);
+			} else {
+				digitalWriteFast(_MOCHI_CSEL[j], LOW);
+			}
+		}
 		delayMicroseconds(_MOCHI_DELAY_US);
 		// Write the bit `i of `count
-		count |= digitalReadFast(_MOCHI_CRD) << i;
+		count |= digitalReadFast(_MOCHI_CRD) << (15-i);
 	}
 	return count;
 }
@@ -131,9 +136,9 @@ void moc_resetCount(const MOC_SPEC * moc) {
 		return;
 	moc_select(moc);
 	// Write to internal count reset bit
-	digitalWriteFast(_MOCHI_CRST, 1);
+	digitalWriteFast(_MOCHI_CRST, HIGH);
 	delayMicroseconds(_MOCHI_DELAY_US);
-	digitalWriteFast(_MOCHI_CRST, 0);
+	digitalWriteFast(_MOCHI_CRST, LOW);
 }
 
 
