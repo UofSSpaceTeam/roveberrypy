@@ -1,25 +1,29 @@
-
+#ifndef ARM2016_CONTROL
+#define ARM2016_CONTROL
 
 #include "arm2016_vars.h"
 
-static		double		norm_dists		[NUM_MOCS];
-
-void controlTask() {
+void updateControllers() {
 	// update the duty-cycle's
 	if(ramping_enabled) {
-		DCManager_update(elapsed_cycles * cntrl_tsk_period, position, velocity, duty_cycle)
+		DCManager_update(...)
 	}
 	
+	// update motor controllers
 	for(int i = 0; i < NUM_MOCS; ++i) {
 		// set direction
-		if(duty_cycle[i] > 0) {		// motor should go forwards
-			// ...
-		} else {					// motor should go backwards
-			// ...
+		if(duty_cycle[i] >= 0) {	
+			// motor should go forwards
+			digitalWrite(PINS_A[i], HIGH);
+			digitalWrite(PINS_B[i], LOW);
+			analogWrite(PINS_PWM[i], duty_cycle[i]);
+		} else {					
+			// motor should go backwards
+			digitalWrite(PINS_A[i], LOW);
+			digitalWrite(PINS_B[i], HIGH);
+			analogWrite(PINS_PWM[i], -duty_cycle[i]);
 		}
-		
-		// set the duty-cycle
-		// ...
 	}
-
 }
+
+#endif
