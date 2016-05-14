@@ -2,6 +2,7 @@
 #define ARM2016_VARS
 
 #include <limits.h>
+#include "communications.cpp"
 
 // Task period definitions
 #define 		PERIOD_CONTROL_TASK		100
@@ -20,6 +21,7 @@ double			velocity				[NUM_MOCS];
 int				duty_cycle				[NUM_MOCS];
 bool			ramping_enabled			= false;
 int				elapsed_cycles			= 0;
+packet			command			= null;
 
 // Motor limits
 const int		limits_min				[NUM_MOCS] = {
