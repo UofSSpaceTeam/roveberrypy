@@ -1,7 +1,7 @@
 #include <FlexCAN.h>
 
 int led = 13;
-FlexCAN CANbus(1000000);
+FlexCAN CANbus(500000);
 static CAN_message_t txmsg, rxmsg;
 
 void setup() {
