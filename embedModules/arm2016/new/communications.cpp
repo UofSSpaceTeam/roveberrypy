@@ -1,42 +1,46 @@
-
 #include <Wire.h>
 #include "communications.h"
 
-kin_packet::kin_packet() {
-	type = INVERSE_KIN;
+
+/**
+ * Calculate packet checksum by adding data elements together.
+ */
+uint16_t packet::checksum() {
+	uint16_t sum = 0;
+	for(int i=0; i<3; ++i) {
+		sum += position[i];
+	}
+	for(int i=0; i<6; ++i) {
+		sum += velocity[i];
+	}
+	return sum;
 }
 
-manual_packet::manual_packet() {
-	type = MANUAL;
-}
-
-
-
-
+/**
+ * Recieve a command packet over i2c and updates global
+ * command packet if the checksum matches.
+ * Must be initialized with Wire.onReceive
+ */
 void receiveCommand(int count) {
 	while(Wire.available()) {
 		//read in data
-		Ecommand_type cmd_type = Wire.read();
-		if(cmd_type == MANUAL) {
-			//read datafor maual packet
-			manual_packet p;
-			for(int offset=1; offset<sizeof(manual_packet); ++i) {
-				// read in middle bytes
-				*(p + offeset) = Wire.read();
-			}
-			//checksumm
-			int received_checksum = 0;
-			for(int offset=1; offset<sizeof(manual_packet); ++i) {
-				// read in middle bytes
-				received_checksum += *(p + offset);
-			}
-			if(received_checksum == Wire.read()) {
-				//packet data successfull
-				return p;
-			} else {
-				// packet data unreliable
-				return null;
-			}
+		packet in_command;
+		in_command.type = Wire.read();
+
+		for(int i=1; i<3; ++i) {
+			// read in position data
+			in_command.position[i] = Wire.read();
+		}
+		for(int i=1; i<6; ++i) {
+			// read in velocity data
+			in_command.velocity[i] = Wire.read();
+		}
+
+		if(command.checksum() == Wire.read()) {
+			//packet data successfull
+			command = in_command
+		} else {
+			// packet data unreliable
 		}
 
 	}
