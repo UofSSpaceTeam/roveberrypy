@@ -14,13 +14,13 @@
 #define 		LOG_SIZE				POSITION_LOG_DEPTH*NUM_MOCS
 
 // Global variables
-int 			destination				[NUM_MOCS];
-int				(*position)	[NUM_MOCS] 	= position_log;
-int 			position_log			[POSITION_LOG_DEPTH][NUM_MOCS];
-double			velocity				[NUM_MOCS];
-int				duty_cycle				[NUM_MOCS];
-bool			ramping_enabled			= false;
-int				elapsed_cycles			= 0;
+int 			g_destination				[NUM_MOCS];
+int				(*g_position)	[NUM_MOCS] 	= position_log;
+int 			g_position_log			[POSITION_LOG_DEPTH][NUM_MOCS];
+double			g_velocity				[NUM_MOCS];
+int				g_duty_cycle				[NUM_MOCS];
+bool			g_ramping_enabled			= false;
+int				g_elapsed_cycles			= 0;
 packet			g_command				= NULL;
 
 // Pinout

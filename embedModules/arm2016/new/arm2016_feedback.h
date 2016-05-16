@@ -14,17 +14,17 @@ int median(int arset[], int n);
 double calculateVelocity(int id);
 
 void updateFeedback() {
-	// update position pointer
-	--position;
-	if (position < position_log) {
-		position = position_log + POSITION_LOG_DEPTH - 1;
+	// update g_position pointer
+	--g_position;
+	if (g_position < g_position_log) {
+		g_position = g_position_log + POSITION_LOG_DEPTH - 1;
 	}
-	// update the position and velocity of each of the motors
+	// update the g_position and velocity of each of the motors
 	for(int i = 0; i < NUM_MOCS; ++i) {
-		// Read position
-		(*position)[i] = readPosition(i);
+		// Read g_position
+		(*g_position)[i] = readPosition(i);
 		// Calculate velocity
-		velocity[i] = calculateVelocity(i);
+		g_velocity[i] = calculateVelocity(i);
 	}
 }
 
@@ -37,12 +37,12 @@ int readPosition(int id) {
 }
 
 double calculateVelocity(int id) {
-	int pos_idx = (position - position_log);
+	int pos_idx = (g_position - g_position_log);
 	int log_idx;
 	double velo = 0;
 	for(int d = 0; d < POSITION_LOG_DEPTH; ++d) {
 		log_idx = (pos_idx + d) % POSITION_LOG_DEPTH;
-		velo += term_coeffs[d] * position_log[log_idx][id];
+		velo += term_coeffs[d] * g_position_log[log_idx][id];
 	}
 	return leading_coeff * velo;
 }

@@ -52,7 +52,7 @@ void receiveCommand(int count) {
 			in_command.velocity[i] = Wire.read();
 		}
 
-		if(command.checksum() == Wire.read()) {
+		if(in_command.checksum() == Wire.read()) {
 			//packet data successfull
 			command = in_command
 		} else {
