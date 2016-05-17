@@ -16,7 +16,7 @@ elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 
 else: # Rover! :D
 	print "Detected Rover hardware! Full config mode\n"
-	modulesList = ["JsonServer", "CanServer", "Camera", "StorageBin"]
+	modulesList = ["JsonServer", "CanServer", "Navigation"]
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE,SIG_DFL)
 
@@ -31,6 +31,7 @@ if "CanServer" in modulesList: from roverprocess.CanServer import CanServer
 if "CanExample" in modulesList: from roverprocess.CanExampleProcess import CanExampleProcess
 if "Camera" in modulesList: from roverprocess.CameraProcess import CameraProcess
 if "StorageBin" in modulesList: from roverprocess.StorageBinProcess import StorageBinProcess
+if "Navigation" in modulesList: from roverprocess.Navprocess import Navprocess
 
 # system configuration
 localPort = 34567
@@ -111,6 +112,12 @@ if __name__ == "__main__":
 		for sub in jsonSubs:
 			system.addObserver(sub, process.downlink)		
 		processes.append(process)		
+		
+	if "Navigation" in modulesList:
+		process = Navprocess(
+			downlink = system.getDownlink(), uplink = system.getUplink(),
+			serial = "/dev/ttyUSB0", baud = 1000000, addr = "127.0.0.1", port = 13320)
+		subDelegate(process)	
 		
 
 	# start everything
