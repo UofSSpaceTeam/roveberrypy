@@ -38,8 +38,13 @@ void DCManager_init()
 {
 #ifdef DCM_DEBUG
     Serial.println("Initializing duty-cycle manager");
-    Serial.print("Ramp-up time:")
-    Serial.print(TIME_RAMP_UP_MS);
+    Serial.print("Ramp-up time (ms):");
+    Serial.println(TIME_RAMP_UP_MS);
+    Serial.print("DCM period (ms):");
+    Serial.println(DCM_PERIOD_MS);
+    Serial.print("DCM_MIN_VEL_INC=");
+    Serial.println(DCM_MIN_VEL_INC);
+
 #endif
     for (uint_t i = 0; i < DCM_SIZE; ++i) {
         DCM_stages[i] = RAMP_UP;
@@ -50,7 +55,7 @@ void DCManager_init()
 void DCManager_update()
 {
 	// Find the max distance remaining
-    double elapsed_ms = g_elapsed_cycles * DCM_PERIOD_MS / 1000;
+    double elapsed_ms = g_elapsed_cycles * DCM_PERIOD_MS;
     int* dc = g_duty_cycle;
     DCM_dists[0] = g_destination[0] - (*g_position)[0];
 	double max_dist = abs(DCM_dists[0]);
