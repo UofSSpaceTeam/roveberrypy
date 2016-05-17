@@ -9,9 +9,9 @@ int pin_3 = 11;
 int cmd = 0;
 int val = 0;
 int cmd_open = 400;
-//int cmd_close = 401;
-int val_open = 90;
-//int val_close = 150;
+int cmd_close = 401;
+//int val_open = 0;
+int val_close = 90;
 char* data = (char*)malloc(sizeof(char)*8);
 void setup() {
   // put your setup code here, to run once:
@@ -19,9 +19,9 @@ void setup() {
   servo1.attach(pin_1);
   servo2.attach(pin_2);
   servo3.attach(pin_3);
-  servo1.write(150);
-  servo2.write(150);
-  servo3.write(150);
+  servo1.write(90);
+  servo2.write(90);
+  servo3.write(90);
 }
 
 void loop() {
@@ -39,13 +39,13 @@ void loop() {
     Serial.println(val);
     //Serial.println(count++);
     if(val == 1)
-      servo1.write(val_open);
+      servo1.write(10);
     else if(val == 2)
-      servo2.write(val_open);
+      servo2.write(25);
     else if(val == 3)
-      servo3.write(val_open);
+      servo3.write(30);
     }
-  /*else if(cmd == cmd_close){
+  else if(cmd == cmd_close){
     Serial.println("close");
     Serial.println(val);
     //Serial.println(count++);
@@ -60,7 +60,7 @@ void loop() {
     }
    else if(cmd != 0){
     Serial.println(cmd);
-    }*/
+    }
     cmd = 0;
     rxmsg.id = 0;
 

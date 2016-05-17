@@ -1,6 +1,6 @@
 #include <FlexCAN.h>
 #include <Servo.h>
-
+static int TIME_OUT = 500;
 int led = 13;
 FlexCAN CANbus(500000);
 static CAN_message_t txmsg, rxmsg;
@@ -50,17 +50,21 @@ void loop() {
   if(cmd == cmd_up_down){
     Serial.println("up_down");
     Serial.println(val);
-    Serial.println(count++);
+    //count = 0;
     analogWrite(pin_up_down,val);
     }
-  if(cmd == cmd_left_right){
+  else if(cmd == cmd_left_right){
     Serial.println("left_right");
     Serial.println(val);
-    Serial.println(count++);
+    count = 0;
     myservo.write(val);
     }
-    digitalWrite(led, LOW);
-    
+    else{
+      count = count + 1;
+      }
+    if (count > TIME_OUT) {
+      myservo.write(90);
+      }
    cmd = 0;
    rxmsg.id = 0;
 
