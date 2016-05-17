@@ -6,7 +6,7 @@ TODO
 - [ ] Finish duty-cycle manager but for the time being we can just set everything to +/- 255 depending on the direction
 - [ ] Test communication
 - [ ] Finish control file
-- [ ] Fill in pinout
+- [X] Fill in pinout
 - [ ] Test feedback
 - [ ] Write .ino file
 - [ ] Calibrate arm

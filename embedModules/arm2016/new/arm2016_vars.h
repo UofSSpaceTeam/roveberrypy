@@ -24,21 +24,10 @@ int				g_elapsed_cycles			= 0;
 packet			g_command				= NULL;
 
 // Pinout
-const int		PINS_A					[NUM_MOCS] = {
-
-
-};
-const int		PINS_B					[NUM_MOCS] = {
-
-
-};
-const int		PINS_PWM				[NUM_MOCS] = {
-
-
-};
-const int		PINS_AI					[NUM_MOCS] = {
-
-};
+const int		PINS_A					[NUM_MOCS] = { 1, 7, 11, 17, 15, 13 };
+const int		PINS_B					[NUM_MOCS] = { 3, 2, 8, 16, 14, 12 };
+const int		PINS_PWM				[NUM_MOCS] = { INT_MAX, 4, 5, 10, 9, 6 };
+const int		PINS_AI					[NUM_MOCS] = { INT_MAX, INT_MAX, INT_MAX, A8, A7, A6 };
 
 // Motor limits
 const int		LIMITS_MIN				[NUM_MOCS] = {
