@@ -1,6 +1,8 @@
 #ifndef ARM2016_DCM
 #define ARM2016_DCM
+
 #include "arm2016_vars.h"
+#include <Arduino.h>
 
 typedef unsigned int uint_t;
 
@@ -44,7 +46,6 @@ void DCManager_init()
     Serial.println(DCM_PERIOD_MS);
     Serial.print("DCM_MIN_VEL_INC=");
     Serial.println(DCM_MIN_VEL_INC);
-
 #endif
     for (uint_t i = 0; i < DCM_SIZE; ++i) {
         DCM_stages[i] = RAMP_UP;
@@ -131,7 +132,32 @@ void DCManager_update()
 		}
 		break;
 		};
+
+#ifdef DCM_DEBUG
+        Serial.print(i);
+        Serial.print(": dist=");
+        Serial.print(DCM_dists[i]);
+        Serial.print(", vels=");
+        Serial.print(DCM_vels);
+        Serial.print(", dc=");
+        Serial.print(dc[i]);
+        Serial.print(", stage=");
+        switch (DCM_stages[i]) {
+        case RAMP_UP:
+            Serial.print("RAMP_UP");
+            break;
+        case POSITION_SYNC:
+            Serial.print("POSITION_SYNC")
+            break;
+        case RAMP_DOWN:
+            Serial.print("RAMP_DOWN")
+            break;
+        case MIN_VEL:
+            Serial.print("MIN_VEL");
+            break;
+        }
+        Serial.println("");
+#endif
 	}
 }
-
 #endif
