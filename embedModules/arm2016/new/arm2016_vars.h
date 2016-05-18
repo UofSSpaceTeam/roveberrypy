@@ -48,6 +48,7 @@ int				g_elapsed_cycles			= 0;										// number of control task cycles elapsed
 ////////////////////////////////////////////////////////////////////////////////
 #define 		ANALOG_READ_NSAMPLES 11													// number of samples used for reading position
 #define 		SMOOTH_DIFF_SIZE 	POSITION_LOG_DEPTH									// order of smooth-differentiator
+
 int 			analog_read_samples	[ANALOG_READ_NSAMPLES];									// work array for finding median of dataset
 const double 	leading_coeff 		= 1.0/(8.0 * ((double) PERIOD_FEEDBACK_TASK / 1000.0));	// normalizing coefficient
 const double 	term_coeffs			[SMOOTH_DIFF_SIZE] = { 1.0, 2.0, -2.0, -1.0 };			// term coefficients
@@ -55,7 +56,11 @@ const double 	term_coeffs			[SMOOTH_DIFF_SIZE] = { 1.0, 2.0, -2.0, -1.0 };			// 
 ////////////////////////////////////////////////////////////////////////////////
 //							COMM'S GLOBALS
 ////////////////////////////////////////////////////////////////////////////////
+#define		I2C_ADDRESS 0x07
+
 packet			g_command;
+bool				g_command_received		= false;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //							DCM GLOBALS/CONFIG

@@ -3,6 +3,7 @@
 
 #include <Wire.h>
 #include "arm2016_vars.h"
+#include "arm2016_types"
 
 /**
  * Recieve a command packet over i2c and updates global
@@ -21,34 +22,74 @@ uint16_t packet::checksum() {
 		sum += position[i];
 	}
 	for(int i=0; i<6; ++i) {
-		sum += velocity[i];
+		sum += duty_cycle[i];
 	}
 	return sum;
 }
 
 
 void receiveCommand(int count) {
+	byte in_bytes[11]; // buffer
+	int i = 0;
+
+	//read in all bytes into buffer
 	while(Wire.available()) {
-		//read in data
-		packet in_command;
-		in_command.type = Wire.read();
+		in_bytes[i] = Wire.read();
+		i++;
+	}
 
-		for(int i=1; i<3; ++i) {
-			// read in position data
-			in_command.position[i] = Wire.read();
-		}
-		for(int i=1; i<6; ++i) {
-			// read in velocity data
-			in_command.velocity[i] = Wire.read();
-		}
+	packet in_command;
+	//move buffer to new packet
+	in_command.type = (Ecommand_type)in_bytes[0];
+	for(int i=0; i<3; i++) {
+		in_command.position[i] = in_bytes[i+1];
+	}
+	for(int i=0; i<6; i++) {
+		in_command.duty_cycle[i] = in_bytes[i+4];
+	}
 
-		if(in_command.checksum() == Wire.read()) {
-			//packet data successfull
-			command = in_command
-		} else {
-			// packet data unreliable
-		}
+	//================================
+	// Debugging
+#ifdef COMMS_DEBUG
+	Serial.println(in_command.type);
+	for(int i=0; i<3; i++) {
+		Serial.println(in_command.position[i]);
+	}
+	for(int i=0; i<6; i++) {
+		Serial.println(in_command.duty_cycle[i]);
+	}
+	Serial.println(in_command.checksum());
+#endif
+	//===================================
 
+	if(in_command.checksum() == in_bytes[10]) {
+		// update global packet
+		g_command = in_command;
+		g_command_received = true;
+#ifdef COMMS_DEBUG
+		Serial.println("Packet recieved");
+#endif
+
+	} else {
+		// bad packet; do nothing
+#ifdef COMMS_DEBUG
+		Serial.println("Got bad packet");
+#endif
+	}
+
+}
+
+
+
+//command parsing
+void parseCommand(packet command) {
+	if(command.type == MANUAL) { // actions for manual command
+		for(int i=0; i<NUM_MOCS; i++) {
+			g_duty_cycle[i] = command.duty_cycle[i];
+		}
+		g_ramping_enabled = false;
+	} else if(command.type == INVERSE_KIN) {
+		g_ramping_enabled = true;
 	}
 }
 
