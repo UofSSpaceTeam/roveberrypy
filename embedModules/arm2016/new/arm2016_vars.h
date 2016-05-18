@@ -23,15 +23,14 @@
 #define MAX_POS 1023
 #define DEF_POS 512
 #define MIN_POS 0
+#define NOT_REF DEF_POS
 
 int 			g_destination	[NUM_MOCS]; 											// destinations
 int 			g_position_log	[POSITION_LOG_DEPTH][NUM_MOCS] = {						// log of positions
-	{DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS},
-	{DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS},
-	{DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS},
-	{DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS},
-	{DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS},
-	{DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS, DEF_POS}
+	{NOT_REF, NOT_REF, NOT_REF, DEF_POS, DEF_POS, DEF_POS},
+	{NOT_REF, NOT_REF, NOT_REF, DEF_POS, DEF_POS, DEF_POS},
+	{NOT_REF, NOT_REF, NOT_REF, DEF_POS, DEF_POS, DEF_POS},
+	{NOT_REF, NOT_REF, NOT_REF, DEF_POS, DEF_POS, DEF_POS}
 };
 int				(*g_position)	[NUM_MOCS] 	= g_position_log;							// current positions
 double			g_velocity		[NUM_MOCS];												// current velocities
@@ -87,7 +86,7 @@ const int		PINS_A					[NUM_MOCS]	= { 1, 7, 11, 17, 15, 13 };				// direction A p
 const int		PINS_B					[NUM_MOCS] 	= { 3, 2, 8, 16, 14, 12 };				// direction B pins
 const int		PINS_PWM				[NUM_MOCS] 	= { NO_PWM, 4, 5, 10, 9, 6 };			// PWM pins
 const int		PINS_AI					[NUM_MOCS] 	= { NO_FB, NO_FB, NO_FB, A8, A7, A6 };	// analog-input pins
-const int		DIRECTION_MASK			[NUM_MOCS] 	= {										// mask for hardware direction
+const int		DIR_CORRECTION			[NUM_MOCS] 	= {										// mask for hardware direction
 	DIRECTION_NORMAL,
 	DIRECTION_NORMAL,
 	DIRECTION_NORMAL,

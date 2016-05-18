@@ -26,15 +26,15 @@ void DCManager_update()
 	// Find the max distance remaining
     double elapsed_ms = g_elapsed_cycles * DCM_PERIOD_MS;
     int* dc = g_duty_cycle;
-    DCM_dists[0] = g_destination[0] - (*g_position)[0];
-	double max_dist = abs(DCM_dists[0]);
-	for (uint_t i = 1; i < DCM_SIZE; ++i) {
+    DCM_dists[3] = g_destination[3] - (*g_position)[3];
+	double max_dist = abs(DCM_dists[3]);
+	for (uint_t i = 4; i < DCM_SIZE; ++i) {
         DCM_dists[i] = g_destination[i] - (*g_position)[i];
         DCM_vels[i] = abs(g_velocity[i]);
 		if (abs(DCM_dists[i]) > max_dist) max_dist = abs(DCM_dists[i]);
 	}
 	// Loop through each movement
-	for (uint_t i = 0; i < DCM_SIZE; ++i) {
+	for (uint_t i = 3; i < DCM_SIZE; ++i) {                                        // ONLY USE DCM FOR MOTORS WITH FEEDBACK
 		// Check if the movement has finished
 		if (DCM_stages[i] != DONE && (abs(DCM_dists[i]) < DCM_tolerance[i])) {
 			DCM_stages[i] = DONE;
