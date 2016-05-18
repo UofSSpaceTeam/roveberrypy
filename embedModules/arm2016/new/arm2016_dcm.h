@@ -2,39 +2,6 @@
 #define ARM2016_DCM
 
 #include "arm2016_vars.h"
-#include <Arduino.h>
-
-typedef unsigned int uint_t;
-
-// Enumeration of Ramp-Function Stages
-typedef enum {
-	RAMP_UP,
-	POSITION_SYNC,
-	RAMP_DOWN,
-	MIN_VEL,
-	DONE
-} ERFStage;
-
-// Basic configuration
-#define DCM_SIZE 6
-#define MAX_DC 255.0
-
-// Duty-cycle manager variables
-static const    double  TIME_RAMP_UP_MS = 300;     //  Time of ramp-up
-static const    double  DCM_PERIOD_MS = 100;      //  Period of duty-cycle manager
-static const    double  DCM_MIN_VEL_INC = MAX_DC * DCM_PERIOD_MS / TIME_RAMP_UP_MS;
-static const    double  DCM_rd_dists[DCM_SIZE] = {  // ramp-down distances of movements
-    50, 50, 50, 50, 50, 50
-};
-static const    double  DCM_min_vels[DCM_SIZE] = {  // minimum velocities for MIN_VELO stage of movements
-    10, 10, 10, 10, 10, 10
-};
-static const    double  DCM_tolerance[DCM_SIZE] = {
-    5, 5, 5, 5, 5, 5
-};
-static          double  DCM_dists[DCM_SIZE];
-static          double  DCM_vels[DCM_SIZE];
-static          ERFStage DCM_stages[DCM_SIZE];  // stages of movements
 
 void DCManager_init()
 {
@@ -51,6 +18,7 @@ void DCManager_init()
         DCM_stages[i] = RAMP_UP;
     }
 }
+
 // Update the duty-cycle for each movement.
 // @param elapsed_ms Elapsed time in milliseconds since movements began.
 void DCManager_update()
@@ -62,7 +30,7 @@ void DCManager_update()
 	double max_dist = abs(DCM_dists[0]);
 	for (uint_t i = 1; i < DCM_SIZE; ++i) {
         DCM_dists[i] = g_destination[i] - (*g_position)[i];
-        DCM_vels[i] = g_velocity[i];
+        DCM_vels[i] = abs(g_velocity[i]);
 		if (abs(DCM_dists[i]) > max_dist) max_dist = abs(DCM_dists[i]);
 	}
 	// Loop through each movement
@@ -104,7 +72,7 @@ void DCManager_update()
 		// Ramp-down the duty-cycle until we're near the minimum velocity
 		case RAMP_DOWN:
 		{
-			if (abs(DCM_vels[i]) <= 1.2 * DCM_min_vels[i]) { // If we're within 20% of the minimum velocity then increment stage
+			if (DCM_vels[i] <= 1.2 * DCM_min_vels[i]) { // If we're within 20% of the minimum velocity then increment stage
 				DCM_stages[i] = MIN_VEL;
 			}
 			else {
@@ -117,11 +85,11 @@ void DCManager_update()
 		case MIN_VEL:
 		{
 			int abs_dc = abs(dc[i]);
-			if (abs(DCM_vels[i]) < DCM_min_vels[i]) {
+			if (DCM_vels[i] < DCM_min_vels[i]) {
                 if(DCM_dists[i] > 0){
-                     dc[i] = (int) (abs_dc + DCM_MIN_VEL_INC * (DCM_min_vels[i] - abs(DCM_vels[i])) / DCM_min_vels[i]);
+                     dc[i] = (int) (abs_dc + DCM_MIN_VEL_INC * (DCM_min_vels[i] - DCM_vels[i]) / DCM_min_vels[i]);
                  } else {
-                     dc[i] = (int) -(abs_dc + DCM_MIN_VEL_INC * (DCM_min_vels[i] - abs(DCM_vels[i])) / DCM_min_vels[i]);
+                     dc[i] = (int) -(abs_dc + DCM_MIN_VEL_INC * (DCM_min_vels[i] - DCM_vels[i]) / DCM_min_vels[i]);
                  }
 			}
 		}

@@ -1,13 +1,7 @@
 #ifndef ARM2016_FEEDBACK
 #define ARM2016_FEEDBACK
 
-#define ANALOG_READ_NSAMPLES 11
-static int analog_read_samples[ANALOG_READ_NSAMPLES];
-
-#define SMOOTH_DIFF_SIZE POSITION_LOG_DEPTH
-static const double leading_coeff = 1.0/(8.0 * ((double)PERIOD_FEEDBACK_TASK/1000));
-static const double term_coeffs[SMOOTH_DIFF_SIZE] = { 1.0, 2.0, -2.0, -1.0 };
-
+#include "arm2016_vars.h"
 
 int readPosition(int id);
 int median(int arset[], int n);

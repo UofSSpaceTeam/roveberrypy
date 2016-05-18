@@ -13,7 +13,7 @@ void updateControllers() {
 	// update motor controllers
 	for(int i = 0; i < NUM_MOCS; ++i) {
 		// set direction
-		if(g_duty_cycle[i] >= 0) {
+		if(g_duty_cycle[i] * DIRECTION_MASK[i] >= 0) {
 			// motor should go forwards
 			digitalWrite(PINS_A[i], HIGH);
 			digitalWrite(PINS_B[i], LOW);
