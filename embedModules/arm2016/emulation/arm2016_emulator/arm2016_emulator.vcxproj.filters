@@ -30,21 +30,6 @@
     <ClInclude Include="system_emulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="arm2016.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="arm2016_control.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="arm2016_dcm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="arm2016_feedback.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="arm2016_vars.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
