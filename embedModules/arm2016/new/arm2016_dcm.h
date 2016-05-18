@@ -31,7 +31,7 @@ static const    double  DCM_min_vels[DCM_SIZE] = {  // minimum velocities for MI
 };
 static const    double  DCM_tolerance[DCM_SIZE] = {
     5, 5, 5, 5, 5, 5
-}
+};
 static          double  DCM_dists[DCM_SIZE];
 static          double  DCM_vels[DCM_SIZE];
 static          ERFStage DCM_stages[DCM_SIZE];  // stages of movements
@@ -68,7 +68,7 @@ void DCManager_update()
 	// Loop through each movement
 	for (uint_t i = 0; i < DCM_SIZE; ++i) {
 		// Check if the movement has finished
-		if (DCM_stages[i] != DONE && (abs(DCM_dists[i]) < DCM_tolerance[i]) {
+		if (DCM_stages[i] != DONE && (abs(DCM_dists[i]) < DCM_tolerance[i])) {
 			DCM_stages[i] = DONE;
 		}
 		// Calculate the duty-cycle scale for this movement
@@ -82,7 +82,7 @@ void DCManager_update()
 			if (elapsed_ms > TIME_RAMP_UP_MS) {
 				DCM_stages[i] = POSITION_SYNC;
 			}
-			else if (DCM_dists[i] < DCM_rd_dists[i]) {
+			else if (abs(DCM_dists[i]) < DCM_rd_dists[i]) {
 				DCM_stages[i] = RAMP_DOWN;
 			}
 			else {
@@ -93,7 +93,7 @@ void DCManager_update()
 		// Syncronize the relative position of this movement with the others
 		case POSITION_SYNC:
 		{
-			if (DCM_dists[i] < DCM_rd_dists[i]) {
+			if (abs(DCM_dists[i]) < DCM_rd_dists[i]) {
 				DCM_stages[i] = RAMP_DOWN;
 			}
 			else {
@@ -108,7 +108,7 @@ void DCManager_update()
 				DCM_stages[i] = MIN_VEL;
 			}
 			else {
-				dc[i] = scale * abs(DCM_dists[i]) / DCM_rd_dists[i];
+				dc[i] = (int) (scale * abs(DCM_dists[i]) / DCM_rd_dists[i]);
 			}
 			break;
 		}
@@ -116,11 +116,12 @@ void DCManager_update()
 		// Once near the minimum velocity, hold it until we reach the destination
 		case MIN_VEL:
 		{
+			int abs_dc = abs(dc[i]);
 			if (abs(DCM_vels[i]) < DCM_min_vels[i]) {
                 if(DCM_dists[i] > 0){
-                     dc[i] = (int) (abs_dc[i] + DCM_MIN_VEL_INC * (DCM_min_vels[i] - abs(DCM_vels[i])) / DCM_min_vels[i]);
+                     dc[i] = (int) (abs_dc + DCM_MIN_VEL_INC * (DCM_min_vels[i] - abs(DCM_vels[i])) / DCM_min_vels[i]);
                  } else {
-                     dc[i] = (int) -(abs_dc[i] + DCM_MIN_VEL_INC * (DCM_min_vels[i] - abs(DCM_vels[i])) / DCM_min_vels[i]);
+                     dc[i] = (int) -(abs_dc + DCM_MIN_VEL_INC * (DCM_min_vels[i] - abs(DCM_vels[i])) / DCM_min_vels[i]);
                  }
 			}
 		}

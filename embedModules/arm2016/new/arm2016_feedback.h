@@ -21,17 +21,19 @@ void updateFeedback() {
 	}
 	// update the g_position and velocity of each of the motors
 	for(int i = 0; i < NUM_MOCS; ++i) {
-		// Read g_position
-		(*g_position)[i] = readPosition(i);
-		// Calculate velocity
-		g_velocity[i] = calculateVelocity(i);
+		if(PINS_AI[i]) { // if we have feedback for this motor
+			// Read g_position
+			(*g_position)[i] = readPosition(i);
+			// Calculate velocity
+			g_velocity[i] = calculateVelocity(i);
+		}
 	}
 }
 
 
-int readPosition(int id) {
+int readPosition(int motor_id) {
 	for(int i = 0; i < ANALOG_READ_NSAMPLES; ++i){
-		analog_read_samples[i] = analogRead(PINS_AI[i]);
+		analog_read_samples[i] = analogRead(PINS_AI[motor_id]);
 	}
 	return median(analog_read_samples, ANALOG_READ_NSAMPLES);
 }
@@ -54,16 +56,16 @@ int median(int arset[], int n)
 	k = n / 2;
 	l = 0; m = n - 1;
 	while (l<m) {
-		x = a[k];
+		x = arset[k];
 		i = l;
 		j = m;
 		do {
-			while (a[i]<x) i++;
-			while (x<a[j]) j--;
+			while (arset[i]<x) i++;
+			while (x<arset[j]) j--;
 			if (i <= j) {
-				t = a[i];
-				a[i] = a[j];
-				a[j] = t;
+				t = arset[i];
+				arset[i] = arset[j];
+				arset[j] = t;
 				i++;
 				j--;
 			}
@@ -71,7 +73,7 @@ int median(int arset[], int n)
 		if (j<k) l = i;
 		if (k<i) m = j;
 	}
-	return a[k];
+	return arset[k];
 }
 
 #endif
