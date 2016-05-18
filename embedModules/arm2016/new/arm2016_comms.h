@@ -22,7 +22,7 @@ uint16_t packet::checksum() {
 		sum += position[i];
 	}
 	for(int i=0; i<6; ++i) {
-		sum += velocity[i];
+		sum += duty_cycle[i];
 	}
 	return sum;
 }
@@ -45,7 +45,7 @@ void receiveCommand(int count) {
 		in_command.position[i] = in_bytes[i+1];
 	}
 	for(int i=0; i<6; i++) {
-		in_command.velocity[i] = in_bytes[i+4];
+		in_command.duty_cycle[i] = in_bytes[i+4];
 	}
 
 	//================================
@@ -56,7 +56,7 @@ void receiveCommand(int count) {
 		Serial.println(in_command.position[i]);
 	}
 	for(int i=0; i<6; i++) {
-		Serial.println(in_command.velocity[i]);
+		Serial.println(in_command.duty_cycle[i]);
 	}
 	Serial.println(in_command.checksum());
 #endif
@@ -65,6 +65,7 @@ void receiveCommand(int count) {
 	if(in_command.checksum() == in_bytes[10]) {
 		// update global packet
 		g_command = in_command;
+		g_command_received = true;
 #ifdef COMMS_DEBUG
 		Serial.println("Packet recieved");
 #endif
@@ -76,6 +77,20 @@ void receiveCommand(int count) {
 #endif
 	}
 
+}
+
+
+
+//command parsing
+void parseCommand(packet command) {
+	if(command.type == MANUAL) { // actions for manual command
+		for(int i=0; i<NUM_MOCS; i++) {
+			g_duty_cycle[i] = command.duty_cycle[i];
+		}
+		g_ramping_enabled = false;
+	} else if(command.type == INVERSE_KIN) {
+		g_ramping_enabled = true;
+	}
 }
 
 
