@@ -32,6 +32,7 @@ if "CanExample" in modulesList: from roverprocess.CanExampleProcess import CanEx
 if "Camera" in modulesList: from roverprocess.CameraProcess import CameraProcess
 if "StorageBin" in modulesList: from roverprocess.StorageBinProcess import StorageBinProcess
 if "Navigation" in modulesList: from roverprocess.Navprocess import Navprocess
+if "Arm" in modulesList: from roverprocess.ArmProcess import ArmProcess
 
 # system configuration
 localPort = 34567
@@ -71,6 +72,11 @@ if __name__ == "__main__":
 
 	if "I2CExample" in modulesList:
 		process = I2cExampleProcess(
+			downlink = system.getDownlink(), uplink = system.getUplink(),
+			sem = i2cSem)
+		subDelegate(process)
+	if "Arm" in modulesList:
+		process = ArmProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink(),
 			sem = i2cSem)
 		subDelegate(process)
