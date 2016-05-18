@@ -1,7 +1,15 @@
 #pragma once
 #include "stdafx.h"
 #include "motor_emulator.h"
-#include "arm2016.h"
+
+struct packet;
+
+void digitalWrite(int pin, int v);
+void analogWrite(int pin, int v);
+int analogRead(int pin);
+
+#include "../../new/arm2016_feedback.h"
+#include "../../new/arm2016_control.h"
 #include <iostream>
 
 #define A8 19

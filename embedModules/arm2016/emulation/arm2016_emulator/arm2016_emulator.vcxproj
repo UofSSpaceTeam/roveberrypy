@@ -145,11 +145,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="arm2016.h" />
-    <ClInclude Include="arm2016_control.h" />
-    <ClInclude Include="arm2016_dcm.h" />
-    <ClInclude Include="arm2016_feedback.h" />
-    <ClInclude Include="arm2016_vars.h" />
     <ClInclude Include="motor_emulator.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="system_emulator.h" />
