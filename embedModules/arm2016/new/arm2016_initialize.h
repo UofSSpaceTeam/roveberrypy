@@ -2,6 +2,8 @@
 #define ARM2016_INIT
 
 #include "arm2016_vars.h"
+#include <Wire.h>
+#include "arm2016_comms.h" // for Wire.onReceive
 
 void arm2016_init()
 {
@@ -21,6 +23,9 @@ void arm2016_init()
         g_velocity[i] = 0;
         DCM_stages[i] = DONE;
     }
+	 Wire.begin(I2C_ADDRESS);
+	 Wire.onReceive(receiveCommand);
+
 }
 
 
