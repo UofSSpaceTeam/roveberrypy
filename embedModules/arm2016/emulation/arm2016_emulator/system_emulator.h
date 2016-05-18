@@ -1,20 +1,22 @@
 #pragma once
 #include "stdafx.h"
-#include "motor_emulator.h"
-
-struct packet;
 
 void digitalWrite(int pin, int v);
 void analogWrite(int pin, int v);
 int analogRead(int pin);
 
-#include "../../new/arm2016_feedback.h"
-#include "../../new/arm2016_control.h"
 #include <iostream>
 
 #define A8 19
 #define A7 20
 #define A6 21
+#define HIGH 1
+#define LOW 0
+#include "motor_emulator.h"
+#include "../../new/arm2016_feedback.h"
+#include "../../new/arm2016_control.h"
+#define EMULATOR
+#include "../../new/arm2016_initialize.h"
 
 class Emulator
 {
@@ -27,14 +29,8 @@ public:
 		motors.push_back(MotorEmulator(17, 16, 10, A8));
 		motors.push_back(MotorEmulator(15, 14, 9, A7));
 		motors.push_back(MotorEmulator(13, 12, 6, A6));
-		updateFeedback();
-		updateFeedback();
-		updateFeedback();
-		updateFeedback();
-		updateFeedback();
-		updateFeedback();
-		updateFeedback();
-		updateFeedback();
+		motors[0].setDutyCycle(0);
+		arm2016_init();
 	}
 
 	static  MotorEmulator* findPINA(int pina) {
@@ -87,6 +83,7 @@ public:
 		g_destination[3] = pos4;
 		g_destination[4] = pos5;
 		g_destination[5] = pos6;
+		DCManager_init();
 		while (!done) {
 			updateFeedback();
 			updateControllers();
@@ -94,7 +91,8 @@ public:
 			//std::cout << g_destination[3] - (*g_position)[3] << "\n";
 			//std::cout << g_destination[4] - (*g_position)[4] << "\n";
 			//std::cout << g_destination[5] - (*g_position)[5] << "\n";
-
+			int t = Emulator::motors[0].time_log.back();
+			std::cout << Emulator::motors[0].time_log.back() << "\n";;
 			done = (DCM_stages[0] == DONE
 				&& DCM_stages[1] == DONE
 				&& DCM_stages[2] == DONE
@@ -102,13 +100,13 @@ public:
 				&& DCM_stages[4] == DONE
 				&& DCM_stages[5] == DONE);
 		}
-		std::cout << "dc(1,:)=[" << motors[3].getDCLog() << "];\n";
+		std::cout << "dc_1=[" << motors[3].getDCLog() << "];\n";
 		std::cout << "time=[" << motors[3].getTimeLog() << "];\n";
-		std::cout << "pos(1,:)=[" << motors[3].getPosLog() << "];\n";
-		std::cout << "dc(2,:)=[" << motors[4].getDCLog() << "];\n";
-		std::cout << "pos(2,:)=[" << motors[4].getPosLog() << "];\n";
-		std::cout << "dc(2,:)=[" << motors[5].getDCLog() << "];\n";
-		std::cout << "pos(3,:)=[" << motors[5].getPosLog() << "];\n";
+		std::cout << "pos_1=[" << motors[3].getPosLog() << "];\n";
+		std::cout << "dc_2=[" << motors[4].getDCLog() << "];\n";
+		std::cout << "pos_2=[" << motors[4].getPosLog() << "];\n";
+		std::cout << "dc_3=[" << motors[5].getDCLog() << "];\n";
+		std::cout << "pos_3=[" << motors[5].getPosLog() << "];\n";
 	}
 	static std::vector<MotorEmulator> motors;
 

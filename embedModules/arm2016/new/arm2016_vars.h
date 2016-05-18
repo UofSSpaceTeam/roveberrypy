@@ -59,7 +59,7 @@ const double 	term_coeffs			[SMOOTH_DIFF_SIZE] = { 1.0, 2.0, -2.0, -1.0 };			// 
 #define		I2C_ADDRESS 0x07
 
 packet			g_command;
-bool				g_command_received		= false;
+bool			g_command_received		= false;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,7 @@ bool				g_command_received		= false;
 #define 		DCM_SIZE 					6
 #define 		MAX_DC 						255.0
 
+const double 	MIN_VEL_TOL					= 1.4;  									// 40% tolerance
 const double 	TIME_RAMP_UP_MS 			= 300;  									//  Time of ramp-up
 const double 	DCM_PERIOD_MS 				= PERIOD_CONTROL_TASK;						//  Period of duty-cycle manager
 const double 	DCM_MIN_VEL_INC 			= MAX_DC * DCM_PERIOD_MS / TIME_RAMP_UP_MS;	// size of below min velocity dc increment

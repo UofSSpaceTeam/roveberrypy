@@ -17,12 +17,16 @@ void updateControllers() {
 			// motor should go forwards
 			digitalWrite(PINS_A[i], HIGH);
 			digitalWrite(PINS_B[i], LOW);
-			analogWrite(PINS_PWM[i], g_duty_cycle[i]);
+			if (PINS_PWM[i]) {	// check if the pin exists
+				analogWrite(PINS_PWM[i], g_duty_cycle[i]);
+			} 
 		} else {
 			// motor should go backwards
 			digitalWrite(PINS_A[i], LOW);
 			digitalWrite(PINS_B[i], HIGH);
-			analogWrite(PINS_PWM[i], -g_duty_cycle[i]);
+			if (PINS_PWM[i]) {	// check if the pin exists
+				analogWrite(PINS_PWM[i], -g_duty_cycle[i]);
+			}
 		}
 	}
 }

@@ -14,7 +14,7 @@ void DCManager_init()
     Serial.print("DCM_MIN_VEL_INC=");
     Serial.println(DCM_MIN_VEL_INC);
 #endif
-    for (uint_t i = 0; i < DCM_SIZE; ++i) {
+    for (uint_t i = 3; i < DCM_SIZE; ++i) {
         DCM_stages[i] = RAMP_UP;
     }
 }
@@ -27,6 +27,7 @@ void DCManager_update()
     double elapsed_ms = g_elapsed_cycles * DCM_PERIOD_MS;
     int* dc = g_duty_cycle;
     DCM_dists[3] = g_destination[3] - (*g_position)[3];
+	DCM_vels[3] = abs(g_velocity[3]);
 	double max_dist = abs(DCM_dists[3]);
 	for (uint_t i = 4; i < DCM_SIZE; ++i) {
         DCM_dists[i] = g_destination[i] - (*g_position)[i];
@@ -72,7 +73,7 @@ void DCManager_update()
 		// Ramp-down the duty-cycle until we're near the minimum velocity
 		case RAMP_DOWN:
 		{
-			if (DCM_vels[i] <= 1.2 * DCM_min_vels[i]) { // If we're within 20% of the minimum velocity then increment stage
+			if (DCM_vels[i] <= MIN_VEL_TOL * DCM_min_vels[i]) { // If we're close to the minimum velocity then increment stage
 				DCM_stages[i] = MIN_VEL;
 			}
 			else {

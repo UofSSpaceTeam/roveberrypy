@@ -9,7 +9,7 @@ std::vector<MotorEmulator> Emulator::motors;
 int main()
 {
 	Emulator::initialize();
-	Emulator::emulateMovement(0, 0, 0, 1000, 24, 450);
+	Emulator::emulateMovement(0, 0, 0, 550, 350, 1006);
     return 0;
 }
 
