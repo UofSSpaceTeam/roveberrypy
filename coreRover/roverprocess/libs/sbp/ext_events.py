@@ -18,8 +18,8 @@ e.g. camera shutter time.
 
 from construct import *
 import json
-from sbp.msg import SBP, SENDER_ID
-from sbp.utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
+from msg import SBP, SENDER_ID
+from utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
 
 # Automatically generated from piksi/yaml/swiftnav/sbp/ext_events.yaml with generate.py.
 # Please do not hand edit!

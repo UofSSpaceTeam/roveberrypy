@@ -194,3 +194,4 @@ class Piksi(object):
         if self._ser_handler:
             self._ser_handler.remove_callback(callback, sbp_msg_id)
         self._callbacks.remove([callback, sbp_msg_id])
+

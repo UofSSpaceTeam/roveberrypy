@@ -6,7 +6,7 @@ import multiprocessing
 # Check for hardware and load required modules
 if(os.name == "nt"): # Windows test
 
-	modulesList = [ "WebServer", "JsonServer"]
+	modulesList = [ "WebServer", "JsonServer", "Navigation"]
 
 	
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
@@ -31,7 +31,7 @@ if "CanServer" in modulesList: from roverprocess.CanServer import CanServer
 if "CanExample" in modulesList: from roverprocess.CanExampleProcess import CanExampleProcess
 if "Camera" in modulesList: from roverprocess.CameraProcess import CameraProcess
 if "StorageBin" in modulesList: from roverprocess.StorageBinProcess import StorageBinProcess
-if "Navigation" in modulesList: from roverprocess.Navprocess import Navprocess
+if "Navigation" in modulesList: from roverprocess.Navprocess import NavProcess
 
 # system configuration
 localPort = 34567
@@ -114,9 +114,9 @@ if __name__ == "__main__":
 		processes.append(process)		
 		
 	if "Navigation" in modulesList:
-		process = Navprocess(
+		process = NavProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink(),
-			serial = "/dev/ttyUSB0", baud = 1000000, addr = "127.0.0.1", port = 13320)
+			serial = "COM11", baud = 1000000)
 		subDelegate(process)	
 		
 

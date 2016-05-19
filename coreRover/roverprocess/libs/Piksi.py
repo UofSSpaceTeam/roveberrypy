@@ -103,10 +103,7 @@ class Piksi(object):
         self.stop()
 
     def _recordMsg(self, msg, **metadata):
-        msg_struct = struct
-        msg_struct.payload = msg
-        msg_struct.metadata = metadata
-        self._msg_record[msg.msg_type] = msg_struct
+        self._msg_record[msg.msg_type] = msg
 
     def _recvSatObs(self):
         # Open UDP socket
