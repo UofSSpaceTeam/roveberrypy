@@ -58,8 +58,8 @@ const double 	term_coeffs			[SMOOTH_DIFF_SIZE] = { 1.0, 2.0, -2.0, -1.0 };			// 
 ////////////////////////////////////////////////////////////////////////////////
 #define		I2C_ADDRESS 0x07
 
-packet			g_command;
-bool			g_command_received		= false;
+packet			g_command; // the current global command message packet
+bool			g_command_received		= false; // flag for keeping track of when new commands arrive
 
 
 ////////////////////////////////////////////////////////////////////////////////

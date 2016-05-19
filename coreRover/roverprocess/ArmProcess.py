@@ -38,8 +38,8 @@ class ArmProcess(RoverProcess):
             self.update = True
             c = Command();
             c.type = CommandType.INVERSE_KIN
-            c.position = [3,1,1]
-            c.velocity = [60,50,40,30,20,10]
+            c.position = [300,2,-512]
+            c.velocity = [-20,50,40,-100,20,10]
             self.sendCommand(c)
             time.sleep(3)
 
@@ -47,15 +47,20 @@ class ArmProcess(RoverProcess):
         RoverProcess.messageTrigger(self, message)
 
     def sendCommand(self, command):
+	#break command.position into 6 8-bit values, lsb first
+        buff = [0, 0, 0, 0, 0, 0]
+	for i in range(0,5,2):
+            buff[i] = command.position[i/2] & 0x00FF
+            buff[i+1] = (command.position[i/2] & 0xFF00) >> 8
 
-            try:
-                self.i2cSem.acquire(block=True, timeout=None)
-                print(command.csum())
-                self.i2c.write_i2c_block_data(self.address, command.type,
-                        command.position + command.velocity + [command.csum()])
-            except:
-                print("Arm thread got an I2C error")
-            self.i2cSem.release()
+        try:
+	    self.i2cSem.acquire(block=True, timeout=None)
+	    #print(command.csum())
+	    self.i2c.write_i2c_block_data(self.address, command.type,
+			buff + command.velocity + [command.csum()])
+        except:
+            print("Arm thread got an I2C error")
+        self.i2cSem.release()
 
     def cleanup(self):
         RoverProcess.cleanup(self)
