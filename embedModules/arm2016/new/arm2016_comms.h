@@ -3,7 +3,7 @@
 
 #include <Wire.h>
 #include "arm2016_vars.h"
-#include "arm2016_types"
+#include "arm2016_types.h"
 
 /**
  * Recieve a command packet over i2c and updates global
@@ -95,7 +95,7 @@ void receiveCommand(int count) {
 void parseCommand(packet command) {
 	if(command.type == MANUAL) { // actions for manual command
 		for(int i=0; i<NUM_MOCS; i++) {
-			g_duty_cycle[i] = command.duty_cycle[i];
+			g_duty_cycle[i] = 2*command.duty_cycle[i];
 		}
 		g_ramping_enabled = false;
 	} else if(command.type == INVERSE_KIN) {
