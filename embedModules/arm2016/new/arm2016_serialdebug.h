@@ -57,6 +57,9 @@ void ReadSerialCommand(char command_cstr[]) {
 		Serial.print(": destination=");
 		Serial.println(arg);
 		break;
+	case ERROR:
+		Serial.println("ERROR: There was an error in your arguments!");
+		motor_id = ALL_MOTORS;
 	case STOP:
 		if(motor_id != ALL_MOTORS) {
 			g_duty_cycle[motor_id] = 0;
@@ -71,8 +74,6 @@ void ReadSerialCommand(char command_cstr[]) {
 			g_duty_cycle[5] = 0;
 			Serial.println("Stopping all motors");
 		}
-		break;
-	case ERROR:
 		break;
 	}
 
