@@ -9,7 +9,7 @@ TODO
 - [X] Fill in pinout
 - [X] Test feedback
 - [X] Write .ino file
-- [ ] Find proper resistance to add to L1
+- [X] Find proper resistance to add to L1 (4.7k)
 - [ ] Calibrate arm
 - [X] Add limits.
 - [X] Figure out how to determine if a motor should be shut off until the next command for inverse kin. **Always on and use tolerance**

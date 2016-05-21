@@ -23,6 +23,7 @@ void setup() {
   Serial.println("initializing");
 	arm2016_init();
   Serial.println("initilizeing done");
+  Serial.println("Remember to set terminal to \"No line ending\" for serial command line");
 }
 
 
