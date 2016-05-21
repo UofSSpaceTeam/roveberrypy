@@ -101,4 +101,17 @@ const int		DIR_CORRECTION			[NUM_MOCS] 	= {										// mask for hardware direct
 	DIRECTION_NORMAL
 };
 
+////////////////////////////////////////////////////////////////////////////////
+//							INVERSE KINEMATICS
+////////////////////////////////////////////////////////////////////////////////
+double		ORIGIN_ELBOW			= 352.12;
+double 		ORIGIN_L1CONN 			= 347.9;
+double 		ORIGIN_L1BASE 			= 127.44;
+double 		ELBOW_L2CONN 			= 170;
+double 		PHI_ELBOW_L1CONN 		= 1.1383;
+double 		ELBOW_END 				= 569;
+
+
+
+
 #endif
