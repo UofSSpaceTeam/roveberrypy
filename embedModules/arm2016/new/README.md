@@ -7,12 +7,15 @@ TODO
 - [X] Test communication
 - [X] Finish control file
 - [X] Fill in pinout
-- [ ] Test feedback
-- [ ] Write .ino file
+- [X] Test feedback
+- [X] Write .ino file
+- [ ] Find proper resistance to add to L1
 - [ ] Calibrate arm
 - [X] Add limits.
 - [X] Figure out how to determine if a motor should be shut off until the next command for inverse kin. **Always on and use tolerance**
 - [ ] Inverse kinematics
+- [ ] Look into whether position ranges need to be normalized
+- [ ] Lots of wiring
 - [ ] Testing, testing, testing!!
 
 There's probably more but this is what I could think of off the top of my head.
