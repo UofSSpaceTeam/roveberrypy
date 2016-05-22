@@ -13,11 +13,11 @@ TODO
 - [X] Calibrate arm
 - [X] Add limits.
 - [X] Figure out how to determine if a motor should be shut off until the next command for inverse kin. Always on and use tolerance
-- [X] Inverse kinematics ** NEEDS TESTING**
+- [X] Inverse kinematics **NEEDS TESTING**
 - [ ] Look into whether position ranges need to be normalized
-- [ ] Make it so that the arm can send back its position data to the rover **NEW**
-- [ ] Implement the encoder feedback for the base rotation **NEW**
-- [ ] Look at automating some basic movements **NEW**
+- [ ] **NEW** Make it so that the arm can send back its position data to the rover
+- [ ] **NEW** Implement the encoder feedback for the base rotation
+- [ ] **NEW** Look at automating some basic movements 
 - [ ] Lots of wiring
 - [ ] Testing, testing, testing!!
 
