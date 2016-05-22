@@ -69,7 +69,7 @@ bool			g_command_received		= false; // flag for keeping track of when new comman
 #define 		MAX_DC 						255.0
 
 const double 	MIN_VEL_TOL					= 1.4;  									// 40% tolerance
-const double 	TIME_RAMP_UP_MS 			= 300;  									//  Time of ramp-up
+const double 	TIME_RAMP_UP_MS 			= 1000;  									//  Time of ramp-up
 const double 	DCM_PERIOD_MS 				= PERIOD_CONTROL_TASK;						//  Period of duty-cycle manager
 const double 	DCM_MIN_VEL_INC 			= MAX_DC * DCM_PERIOD_MS / TIME_RAMP_UP_MS;	// size of below min velocity dc increment
 const double 	DCM_rd_dists	[DCM_SIZE] 	= { 50, 50, 50, 50, 50, 50 };				// distance to begin ramp-down

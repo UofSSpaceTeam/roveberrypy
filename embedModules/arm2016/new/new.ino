@@ -1,6 +1,5 @@
 #include "arm2016.h"
 #include "arm2016_initialize.h"
-#include "arm2016_vars.h"
 #include "arm2016_serialdebug.h"
 
 // L2 : blue: wiper, yellow: gnd, white: 5v
@@ -12,9 +11,9 @@
 	feedback
 	control
 	*/
-Metro commsTimer = Metro(1000);
-Metro feedbackTimer = Metro(1500);
-Metro controlTimer = Metro(500);
+Metro commsTimer = Metro(PERIOD_COMM_TASK);
+Metro feedbackTimer = Metro(PERIOD_FEEDBACK_TASK);
+Metro controlTimer = Metro(PERIOD_CONTROL_TASK);
 
 
 void setup() {

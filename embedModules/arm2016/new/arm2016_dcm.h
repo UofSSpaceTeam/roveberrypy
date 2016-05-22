@@ -3,7 +3,7 @@
 
 #include "arm2016_vars.h"
 
-void DCManager_init()
+void DCManager_init(int motor_idx)
 {
 #ifdef DCM_DEBUG
     Serial.println("Initializing duty-cycle manager");
@@ -14,8 +14,17 @@ void DCManager_init()
     Serial.print("DCM_MIN_VEL_INC=");
     Serial.println(DCM_MIN_VEL_INC);
 #endif
-    for (uint_t i = 3; i < DCM_SIZE; ++i) {
-        DCM_stages[i] = RAMP_UP;
+    DCM_stages[0] = DONE;
+    DCM_stages[1] = DONE;
+    DCM_stages[2] = DONE;
+    if(motor_idx == 3) {
+      DCM_stages[3] = RAMP_UP;
+    } 
+    if(motor_idx == 4) {
+      DCM_stages[4] = RAMP_UP;
+    }
+    if(motor_idx == 5){
+      DCM_stages[5] = RAMP_UP;
     }
 }
 

@@ -59,6 +59,7 @@ void ReadSerialCommand(char command_cstr[]) {
 		g_ramping_enabled = true;
 		g_elapsed_cycles = 0;
 		g_destination[motor_id] = arg;
+    DCManager_init(motor_id);
 		Serial.print("Initializing movement of m");
 		Serial.print(motor_id);
 		Serial.print(": destination=");
@@ -72,9 +73,11 @@ void ReadSerialCommand(char command_cstr[]) {
 	case STOP:
 		if(motor_id != ALL_MOTORS) {
 			g_duty_cycle[motor_id] = 0;
+      g_ramping_enabled = false;
 			Serial.print("Stopping m");
 			Serial.println(motor_id);
 		} else {
+      g_ramping_enabled = false;
 			g_duty_cycle[0] = 0;
 			g_duty_cycle[1] = 0;
 			g_duty_cycle[2] = 0;
