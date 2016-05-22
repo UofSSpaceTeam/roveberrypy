@@ -16,8 +16,8 @@ TODO
 - [X] Inverse kinematics ** NEEDS TESTING**
 - [ ] Look into whether position ranges need to be normalized
 - [ ] Make it so that the arm can send back its position data to the rover **NEW**
-- [ ] Implement the encoder feedback for the base rotation ** NEW **
-- [ ] Look at automating some basic movements **NEW*
+- [ ] Implement the encoder feedback for the base rotation **NEW**
+- [ ] Look at automating some basic movements **NEW**
 - [ ] Lots of wiring
 - [ ] Testing, testing, testing!!
 
