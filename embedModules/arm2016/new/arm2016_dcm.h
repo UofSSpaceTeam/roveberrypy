@@ -9,7 +9,16 @@ void smartMove(int motor, int position)
 {
     g_ramping_enabled = true;
     g_destination[motor] = position;
+    DCM_corrections[motor] = 0;
     DCManager_init(motor);
+}
+
+void DCManager_correct(int motor_id) {
+  if(DCM_stages[motor_id] == DONE && DCM_corrections[motor_id] < DCM_max_corrections[motor_id]) {
+    DCM_corrections[motor_id] = DCM_corrections[motor_id] + 1;
+    g_elapsed_cycles[motor_id] = 0;
+    DCM_stages[motor_id] = RAMP_UP;
+  }
 }
 
 void DCManager_init(int motor_idx)
@@ -50,13 +59,13 @@ void DCManager_update()
 	// Find the max distance remaining
 
     int* dc = g_duty_cycle;
-    DCM_dists[2] = g_destination[2] - (*g_position)[2];
-	DCM_vels[2] = abs(g_velocity[2]);
-	double max_dist = abs(DCM_dists[2]);
-	for (uint_t i = 3; i < DCM_SIZE; ++i) {
-        DCM_dists[i] = g_destination[i] - (*g_position)[i];
-        DCM_vels[i] = abs(g_velocity[i]);
-		if (abs(DCM_dists[i]) > max_dist) max_dist = abs(DCM_dists[i]);
+	double max_dist = 0;
+	for (uint_t i = 2; i < DCM_SIZE; ++i) {
+        if(DCM_stages[i] != DONE) {
+            DCM_dists[i] = g_destination[i] - (*g_position)[i];
+            DCM_vels[i] = abs(g_velocity[i]);
+    		if (abs(DCM_dists[i]) > max_dist) max_dist = abs(DCM_dists[i]);
+        }
 	}
 	// Loop through each movement
 	for (uint_t i = 2; i < DCM_SIZE; ++i) {

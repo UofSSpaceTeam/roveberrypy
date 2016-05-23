@@ -6,9 +6,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 //							TASK PERIOD DEFINITIONS
 ////////////////////////////////////////////////////////////////////////////////
-#define 	PERIOD_CONTROL_TASK			100
 #define 	PERIOD_FEEDBACK_TASK		100
-#define 	PERIOD_COMM_TASK			100
+#define 	PERIOD_COMM_TASK			  150
+#define   PERIOD_CONTROL_TASK     PERIOD_FEEDBACK_TASK      // depricated
 
 ////////////////////////////////////////////////////////////////////////////////
 //							GENERAL SIZING DEFINITIONS
@@ -45,19 +45,19 @@ int				g_duty_cycle	[NUM_MOCS];												// current duty-cycles
 ////////////////////////////////////////////////////////////////////////////////
 //							FEEDBACK GLOBALS
 ////////////////////////////////////////////////////////////////////////////////
-#define 		ANALOG_READ_NSAMPLES 11													// number of samples used for reading position
+#define 		ANALOG_READ_NSAMPLES 13													// number of samples used for reading position
 #define 		SMOOTH_DIFF_SIZE 	POSITION_LOG_DEPTH									// order of smooth-differentiator
 
 int 			analog_read_samples	[ANALOG_READ_NSAMPLES];									// work array for finding median of dataset
 const double 	leading_coeff 		= 1.0/(8.0 * ((double) PERIOD_FEEDBACK_TASK / 1000.0));	// normalizing coefficient
 const double 	term_coeffs			[SMOOTH_DIFF_SIZE] = { 1.0, 2.0, -2.0, -1.0 };			// term coefficients
 
-volatile int g_base_counter = 0;
-#define BASE_MOC 2
+volatile int g_base_counter 		= 0;
+#define BASE_MOC 					2
 ////////////////////////////////////////////////////////////////////////////////
 //							COMM'S GLOBALS
 ////////////////////////////////////////////////////////////////////////////////
-#define		I2C_ADDRESS 0x07
+#define			I2C_ADDRESS 			0x07
 
 packet			g_command; // the current global command message packet
 bool			g_command_received		= false; // flag for keeping track of when new commands arrive
@@ -73,14 +73,16 @@ const double 	MIN_VEL_TOL					= 1.4;  									// 40% tolerance
 const double 	TIME_RAMP_UP_MS 			= 1000;  									//  Time of ramp-up
 const double 	DCM_PERIOD_MS 				= PERIOD_CONTROL_TASK;						//  Period of duty-cycle manager
 const double 	DCM_MIN_VEL_INC 			= MAX_DC * DCM_PERIOD_MS / TIME_RAMP_UP_MS;	// size of below min velocity dc increment
-const double 	DCM_rd_dists	[DCM_SIZE] 	= { 50, 50, 50, 50, 50, 50 };				// distance to begin ramp-down
+const double 	DCM_rd_dists	[DCM_SIZE] 	= { 50, 50, 50, 60, 50, 50 };				// distance to begin ramp-down
 const double 	DCM_min_vels	[DCM_SIZE] 	= { 10, 10, 10, 10, 10, 10 };				// minimum allowable velocity
-const double  	DCM_tolerance	[DCM_SIZE] 	= { 5, 5, 5, 5, 5, 5 };						// 'close enough' tolerance
+const double  	DCM_tolerance	[DCM_SIZE] 	= { 5, 5, 5, 2, 5, 5 };						// 'close enough' tolerance
 double  		DCM_dists		[DCM_SIZE];												// work array used internally by dcm
 double  		DCM_vels		[DCM_SIZE];												// work array used internally by dcm
 ERFStage 		DCM_stages		[DCM_SIZE]; 											// stages of movements
 bool			g_ramping_enabled			= true;
 int				g_elapsed_cycles[DCM_SIZE]	= {0, 0, 0, 0, 0, 0};						// number of control task cycles elapsed
+int       DCM_corrections[DCM_SIZE]     = {0, 0, 0, 0, 0, 0};
+int       DCM_max_corrections[DCM_SIZE] = {0, 0, 0, 2, 2, 0};
 
 ////////////////////////////////////////////////////////////////////////////////
 // 								PINOUT

@@ -8,6 +8,8 @@ void updateControllers() {
 	// update the duty-cycle's
 	if(g_ramping_enabled) {
 		DCManager_update();
+    DCManager_correct(3);
+    DCManager_correct(4);
 	}
 	// update motor controllers
 	for(int i = 0; i < NUM_MOCS; ++i) {

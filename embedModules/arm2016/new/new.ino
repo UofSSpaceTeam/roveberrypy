@@ -35,12 +35,8 @@ void loop() {
 	}
 	if(feedbackTimer.check() == 1) {
     updateFeedback();
-	}
-	if(controlTimer.check() == 1) {
     updateControllers();
 	}
-
-
 }
 
 
