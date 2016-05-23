@@ -53,6 +53,8 @@ int 			analog_read_samples	[ANALOG_READ_NSAMPLES];									// work array for fin
 const double 	leading_coeff 		= 1.0/(8.0 * ((double) PERIOD_FEEDBACK_TASK / 1000.0));	// normalizing coefficient
 const double 	term_coeffs			[SMOOTH_DIFF_SIZE] = { 1.0, 2.0, -2.0, -1.0 };			// term coefficients
 
+volatile int g_base_counter = 0;
+#define BASE_MOC 2
 ////////////////////////////////////////////////////////////////////////////////
 //							COMM'S GLOBALS
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +102,7 @@ const int		DIR_CORRECTION			[NUM_MOCS] 	= {										// mask for hardware direct
 	DIRECTION_NORMAL,
 	DIRECTION_NORMAL
 };
+const int		BASE_INT = 20;
 
 ////////////////////////////////////////////////////////////////////////////////
 //							INVERSE KINEMATICS
