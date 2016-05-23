@@ -53,6 +53,3 @@ void serialEvent() {
   buf.toCharArray(s, 20);
   ReadSerialCommand(s);
 }
-
-
-

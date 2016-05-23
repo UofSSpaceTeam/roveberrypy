@@ -35,7 +35,6 @@ int 			g_position_log	[POSITION_LOG_DEPTH][NUM_MOCS] = {						// log of position
 int				(*g_position)	[NUM_MOCS] 	= g_position_log;							// current positions
 double			g_velocity		[NUM_MOCS];												// current velocities
 int				g_duty_cycle	[NUM_MOCS];												// current duty-cycles
-int				g_elapsed_cycles			= 0;										// number of control task cycles elapsed
 																						// since last new movement command
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,7 +80,7 @@ double  		DCM_dists		[DCM_SIZE];												// work array used internally by dcm
 double  		DCM_vels		[DCM_SIZE];												// work array used internally by dcm
 ERFStage 		DCM_stages		[DCM_SIZE]; 											// stages of movements
 bool			g_ramping_enabled			= true;
-
+int				g_elapsed_cycles[DCM_SIZE]	= {0, 0, 0, 0, 0, 0};						// number of control task cycles elapsed
 
 ////////////////////////////////////////////////////////////////////////////////
 // 								PINOUT
