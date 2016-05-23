@@ -1,5 +1,6 @@
 #ifndef ARM2016_COMMS
 #define ARM2016_COMMS
+#define COMMS_DEBUG
 
 #include <Wire.h>
 #include "arm2016_vars.h"
@@ -11,6 +12,8 @@
  * Must be initialized with Wire.onReceive
  */
 void recieveCommand(int count);
+void sendPosition();
+void parseCommand(packet command);
 
 
 /**
@@ -24,7 +27,7 @@ uint16_t packet::checksum() {
 	for(int i=0; i<6; ++i) {
 		sum += duty_cycle[i];
 	}
-	return sum;
+	return sum % 256;
 }
 
 
@@ -37,58 +40,76 @@ void receiveCommand(int count) {
     in_bytes[i] = (int8_t)Wire.read();
     i++;
   }
-#ifdef COMMS_DEBUG
-  Serial.println("incomming packet:");
-  for (int i = 0; i < count; i++) {
-    Serial.println(in_bytes[i]);
-  }
-  Serial.println("end of packet");
-#endif
-  packet in_command;
-  //move buffer to new packet
-  in_command.type = (Ecommand_type)in_bytes[0];
-  for (int i = 1; i < 6; i += 2) {
-    in_command.position[(i - 1) / 2] = 0x00FF & in_bytes[i]; //lsb
-    in_command.position[(i - 1) / 2] |= 0xFF00 & (in_bytes[i + 1] << 8); //msb
-  }
-  for (int i = 7; i <= 13; i++) {
-    //we devided by 2 on the other side to fit negative numbers in
-    //will mess up the checksum
-    in_command.duty_cycle[i - 7] = in_bytes[i];
-  }
-
-  //================================
-  // Debugging
-#ifdef COMMS_DEBUG
-  Serial.println("final structured packet");
-  Serial.println(in_command.type);
-  for (int i = 0; i < 3; i++) {
-    Serial.println(in_command.position[i]);
-  }
-  for (int i = 0; i < 6; i++) {
-    Serial.println(in_command.duty_cycle[i]);
-  }
-  Serial.println(in_command.checksum());
-#endif
-  //===================================
-
-  if (in_command.checksum() == in_bytes[count - 1]) {
-    // update global packet
-    //g_command = in_command;
-    //g_command_received = true;
-#ifdef COMMS_DEBUG
-    Serial.println("Packet recieved");
-#endif
-
+  if(in_bytes[0] == GET_FEEDBACK) {
+     sendPosition();
   } else {
-    // bad packet; do nothing
-#ifdef COMMS_DEBUG
-    Serial.println("Got bad packet");
-#endif
-  }
 
+#ifdef COMMS_DEBUG
+     Serial.println("incomming packet:");
+     for (int i = 0; i < count; i++) {
+       Serial.println(in_bytes[i]);
+     }
+     Serial.println("end of packet");
+#endif
+     packet in_command;
+     //move buffer to new packet
+     in_command.type = (Ecommand_type)in_bytes[0];
+     for (int i = 1; i < 6; i += 2) {
+       in_command.position[(i - 1) / 2] = 0x00FF & in_bytes[i]; //lsb
+       in_command.position[(i - 1) / 2] |= 0xFF00 & (in_bytes[i + 1] << 8); //msb
+     }
+     for (int i = 7; i <= 13; i++) {
+       in_command.duty_cycle[i - 7] = in_bytes[i];
+     }
+
+     //================================
+     // Debugging
+#ifdef COMMS_DEBUG
+     Serial.println("final structured packet");
+     Serial.println(in_command.type);
+     for (int i = 0; i < 3; i++) {
+       Serial.println(in_command.position[i]);
+     }
+     for (int i = 0; i < 6; i++) {
+       Serial.println(in_command.duty_cycle[i]);
+     }
+     Serial.println(in_command.checksum());
+#endif
+     //===================================
+
+     if (in_command.checksum() == in_bytes[count - 1]) {
+       // update global packet
+       //g_command = in_command;
+       //g_command_received = true;
+#ifdef COMMS_DEBUG
+       Serial.println("Packet recieved");
+#endif
+
+     } else {
+       // bad packet; do nothing
+#ifdef COMMS_DEBUG
+       Serial.println("Got bad packet");
+       Serial.printf("(Expected chksum: %d)", in_bytes[count-1]);
+#endif
+     }
+
+   }
 }
 
+void sendPosition() {
+	//transmit position feedback data to the rover
+#ifdef COMMS_DEBUG
+	Serial.println("Got a position feedback request");
+#endif
+	for(int i=3; i<=4; ++i) {
+#ifdef COMMS_DEBUG
+		Serial.println(*(g_position)[i]);
+#endif
+		Wire.write(((*g_position)[i]) & 0x00FF); //lsb
+		Wire.write((((*g_position)[i]) & 0xFF00) >> 8); //msb
+	}
+
+}
 
 
 //command parsing
