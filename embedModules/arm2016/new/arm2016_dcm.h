@@ -3,6 +3,8 @@
 
 #include "arm2016_vars.h"
 
+void DCManager_init(int motor_idx);
+
 void smartMove(int motor, int position)
 {
     g_ramping_enabled = true;
@@ -46,7 +48,7 @@ void DCManager_init(int motor_idx)
 void DCManager_update()
 {
 	// Find the max distance remaining
-    double elapsed_ms = g_elapsed_cycles * DCM_PERIOD_MS;
+
     int* dc = g_duty_cycle;
     DCM_dists[2] = g_destination[2] - (*g_position)[2];
 	DCM_vels[2] = abs(g_velocity[2]);
@@ -59,6 +61,7 @@ void DCManager_update()
 	// Loop through each movement
 	for (uint_t i = 2; i < DCM_SIZE; ++i) {
         ++g_elapsed_cycles[i];         // increment the number of elapsed cycles
+        double elapsed_ms = g_elapsed_cycles[i] * DCM_PERIOD_MS;
 		// Check if the movement has finished
 		if (DCM_stages[i] != DONE && (abs(DCM_dists[i]) < DCM_tolerance[i])) {
 			DCM_stages[i] = DONE;
