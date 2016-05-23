@@ -15,6 +15,10 @@ void updateFeedback() {
 	}
 	// update the g_position and velocity of each of the motors
 	for(int i = 0; i < NUM_MOCS; ++i) {
+		if(i == BASE_MOC) {
+			(*g_position)[i] += g_base_counter;
+			g_base_counter = 0;
+		}
 		if(PINS_AI[i]) { // if we have feedback for this motor
 			// Read g_position
 			(*g_position)[i] = readPosition(i);
@@ -68,6 +72,15 @@ int median(int arset[], int n)
 		if (k<i) m = j;
 	}
 	return arset[k];
+}
+
+
+void baseCounterInterupt() {
+	if(g_duty_cycle[BASE_MOC] > 0) {
+		++g_base_counter;
+	} else if(g_duty_cycle[BASE_MOC] < 0){
+		--g_base_counter;
+	}
 }
 
 #endif

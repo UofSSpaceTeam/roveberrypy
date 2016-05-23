@@ -4,6 +4,7 @@
 #include "arm2016_vars.h"
 #include <Wire.h>
 #include "arm2016_comms.h" // for Wire.onReceive
+#include "arm2016_feedback.h"
 
 void arm2016_init()
 {
@@ -23,9 +24,11 @@ void arm2016_init()
         g_velocity[i] = 0;
         DCM_stages[i] = DONE;
     }
+	 pinMode(BASE_INT, INPUT);
 	 Wire.begin(I2C_ADDRESS);
 	 Wire.onReceive(receiveCommand);
 	 Wire.onRequest(sendPosition);
+	 attachInterrupt(BASE_INT, baseCounterInterupt, CHANGE);
 
 }
 
