@@ -25,6 +25,7 @@ void arm2016_init()
     }
 	 Wire.begin(I2C_ADDRESS);
 	 Wire.onReceive(receiveCommand);
+	 Wire.onRequest(sendPosition);
 
 }
 
