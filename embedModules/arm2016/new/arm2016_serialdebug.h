@@ -56,9 +56,7 @@ void ReadSerialCommand(char command_cstr[]) {
 		Serial.println((*g_position)[motor_id]);
 		break;
 	case MOVE:
-		g_ramping_enabled = true;
-		g_elapsed_cycles = 0;
-		g_destination[motor_id] = arg;
+		smartMove(motor_id, arg);
     DCManager_init(motor_id);
 		Serial.print("Initializing movement of m");
 		Serial.print(motor_id);
