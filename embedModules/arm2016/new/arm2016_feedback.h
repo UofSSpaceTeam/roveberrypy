@@ -33,7 +33,9 @@ int readPosition(int motor_id) {
 	for(int i = 0; i < ANALOG_READ_NSAMPLES; ++i){
 		analog_read_samples[i] = analogRead(PINS_AI[motor_id]);
 	}
-	return median(analog_read_samples, ANALOG_READ_NSAMPLES);
+ // normalize position
+ int pos = FB_NORM_SCALE[motor_id] * (median(analog_read_samples, ANALOG_READ_NSAMPLES) - FB_MIN_POS[motor_id]);
+	return pos;
 }
 
 double calculateVelocity(int id) {

@@ -82,6 +82,12 @@ void ReadSerialCommand(char command_cstr[]) {
 			g_duty_cycle[3] = 0;
 			g_duty_cycle[4] = 0;
 			g_duty_cycle[5] = 0;
+      DCM_stages[0] = DONE;
+      DCM_stages[1] = DONE;
+      DCM_stages[2] = DONE;
+      DCM_stages[3] = DONE;
+      DCM_stages[4] = DONE;
+      DCM_stages[5] = DONE;
 			Serial.println("Stopping all motors");
 		}
 		break;

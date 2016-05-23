@@ -71,10 +71,10 @@ void DCManager_update()
 	for (uint_t i = 2; i < DCM_SIZE; ++i) {
         ++g_elapsed_cycles[i];         // increment the number of elapsed cycles
         double elapsed_ms = g_elapsed_cycles[i] * DCM_PERIOD_MS;
-		// Check if the movement has finished
-		if (DCM_stages[i] != DONE && (abs(DCM_dists[i]) < DCM_tolerance[i])) {
-			DCM_stages[i] = DONE;
-		}
+		// Check if the movement has finished and that we're moving in the right direction
+    if (DCM_stages[i] != DONE && abs(DCM_dists[i]) < DCM_tolerance[i]) {
+      DCM_stages[i] = DONE;
+    }
 		// Calculate the duty-cycle scale for this movement
 		double scale = MAX_DC * DCM_dists[i] / max_dist;
 		// Assign duty-cycle based on ramp-function stage
@@ -127,6 +127,13 @@ void DCManager_update()
                  } else {
                      dc[i] = (int) -(abs_dc + DCM_MIN_VEL_INC * (DCM_min_vels[i] - DCM_vels[i]) / DCM_min_vels[i]);
                  }
+			} else {
+        // check if we're going in the right direction. if we aren't then say we're done
+        if(DCM_dists[i] > 0 && dc[i] < 0) {
+          DCM_stages[i] = DONE;
+        } else if (DCM_dists[i] < 0 && dc[i] > 0) {
+          DCM_stages[i] = DONE;
+        }
 			}
 		}
 		break;

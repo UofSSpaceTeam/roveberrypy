@@ -47,13 +47,39 @@ int				g_duty_cycle	[NUM_MOCS];												// current duty-cycles
 ////////////////////////////////////////////////////////////////////////////////
 #define 		ANALOG_READ_NSAMPLES 13													// number of samples used for reading position
 #define 		SMOOTH_DIFF_SIZE 	POSITION_LOG_DEPTH									// order of smooth-differentiator
+#define BASE_MOC           2
 
 int 			analog_read_samples	[ANALOG_READ_NSAMPLES];									// work array for finding median of dataset
 const double 	leading_coeff 		= 1.0/(8.0 * ((double) PERIOD_FEEDBACK_TASK / 1000.0));	// normalizing coefficient
 const double 	term_coeffs			[SMOOTH_DIFF_SIZE] = { 1.0, 2.0, -2.0, -1.0 };			// term coefficients
+volatile int g_base_counter     = 0;
 
-volatile int g_base_counter 		= 0;
-#define BASE_MOC 					2
+const double  FB_MIN_POS[NUM_MOCS]       = {
+  MIN_POS, 
+  MIN_POS, 
+  MIN_POS,
+  18, 
+  535, 
+  MIN_POS
+};
+const double  FB_MAX_POS[NUM_MOCS]       = {
+  MAX_POS, 
+  MAX_POS, 
+  MAX_POS, 
+  945, 
+  910, 
+  MAX_POS
+};
+
+const double  FB_NORM_SCALE[NUM_MOCS]   = {
+  1024.0 / (FB_MAX_POS[0] - FB_MIN_POS[0]), 
+  1024.0 / (FB_MAX_POS[1] - FB_MIN_POS[1]),
+  1024.0 / (FB_MAX_POS[2] - FB_MIN_POS[2]),
+  1024.0 / (FB_MAX_POS[3] - FB_MIN_POS[3]),
+  1024.0 / (FB_MAX_POS[4] - FB_MIN_POS[4]),
+  1024.0 / (FB_MAX_POS[5] - FB_MIN_POS[5]),
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 //							COMM'S GLOBALS
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,14 +94,13 @@ bool			g_command_received		= false; // flag for keeping track of when new comman
 ////////////////////////////////////////////////////////////////////////////////
 #define 		DCM_SIZE 					6
 #define 		MAX_DC 						255.0
-
 const double 	MIN_VEL_TOL					= 1.4;  									// 40% tolerance
 const double 	TIME_RAMP_UP_MS 			= 1000;  									//  Time of ramp-up
 const double 	DCM_PERIOD_MS 				= PERIOD_CONTROL_TASK;						//  Period of duty-cycle manager
 const double 	DCM_MIN_VEL_INC 			= MAX_DC * DCM_PERIOD_MS / TIME_RAMP_UP_MS;	// size of below min velocity dc increment
-const double 	DCM_rd_dists	[DCM_SIZE] 	= { 50, 50, 50, 60, 50, 50 };				// distance to begin ramp-down
+const double 	DCM_rd_dists	[DCM_SIZE] 	= { 50, 50, 50, 60, 60, 50 };				// distance to begin ramp-down
 const double 	DCM_min_vels	[DCM_SIZE] 	= { 10, 10, 10, 10, 10, 10 };				// minimum allowable velocity
-const double  	DCM_tolerance	[DCM_SIZE] 	= { 5, 5, 5, 2, 5, 5 };						// 'close enough' tolerance
+const double  	DCM_tolerance	[DCM_SIZE] 	= { 5, 5, 5, 3, 3, 5 };						// 'close enough' tolerance
 double  		DCM_dists		[DCM_SIZE];												// work array used internally by dcm
 double  		DCM_vels		[DCM_SIZE];												// work array used internally by dcm
 ERFStage 		DCM_stages		[DCM_SIZE]; 											// stages of movements
