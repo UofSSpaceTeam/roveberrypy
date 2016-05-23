@@ -3,6 +3,13 @@
 
 #include "arm2016_vars.h"
 
+void smartMove(int motor, int position)
+{
+    g_ramping_enabled = true;
+    g_destination[motor] = position;
+    DCManager_init(motor);
+}
+
 void DCManager_init(int motor_idx)
 {
 #ifdef DCM_DEBUG
@@ -17,14 +24,17 @@ void DCManager_init(int motor_idx)
     DCM_stages[0] = DONE;
     DCM_stages[1] = DONE;
     DCM_stages[2] = DONE;
-    if(motor_idx == 3) {
+    if(motor_idx == 3 && DCM_stages[3] == DONE) {
       DCM_stages[3] = RAMP_UP;
-    } 
-    if(motor_idx == 4) {
-      DCM_stages[4] = RAMP_UP;
+      g_elapsed_cycles[3] = 0;
     }
-    if(motor_idx == 5){
+    if(motor_idx == 4 && DCM_stages[4] == DONE) {
+      DCM_stages[4] = RAMP_UP;
+      g_elapsed_cycles[4] = 0;
+    }
+    if(motor_idx == 5 && DCM_stages[5] == DONE){
       DCM_stages[5] = RAMP_UP;
+      g_elapsed_cycles[5] = 0;
     }
 }
 
@@ -44,7 +54,8 @@ void DCManager_update()
 		if (abs(DCM_dists[i]) > max_dist) max_dist = abs(DCM_dists[i]);
 	}
 	// Loop through each movement
-	for (uint_t i = 3; i < DCM_SIZE; ++i) {                                        // ONLY USE DCM FOR MOTORS WITH FEEDBACK
+	for (uint_t i = 3; i < DCM_SIZE; ++i) {
+        ++g_elapsed_cycles[i];         // increment the number of elapsed cycles
 		// Check if the movement has finished
 		if (DCM_stages[i] != DONE && (abs(DCM_dists[i]) < DCM_tolerance[i])) {
 			DCM_stages[i] = DONE;
