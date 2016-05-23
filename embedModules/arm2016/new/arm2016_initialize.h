@@ -24,7 +24,7 @@ void arm2016_init()
         g_velocity[i] = 0;
         DCM_stages[i] = DONE;
     }
-	 pinMode(BASE_INT, INPUT);
+	 pinMode(BASE_INT, INPUT_PULLUP);
 	 Wire.begin(I2C_ADDRESS);
 	 Wire.onReceive(receiveCommand);
 	 Wire.onRequest(sendPosition);

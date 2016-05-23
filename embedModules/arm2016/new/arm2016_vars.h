@@ -128,7 +128,7 @@ const int		DIR_CORRECTION			[NUM_MOCS] 	= {										// mask for hardware direct
 	DIRECTION_NORMAL,
 	DIRECTION_NORMAL
 };
-const int		BASE_INT = 20;
+const int		BASE_INT = 23;
 
 ////////////////////////////////////////////////////////////////////////////////
 //							INVERSE KINEMATICS
