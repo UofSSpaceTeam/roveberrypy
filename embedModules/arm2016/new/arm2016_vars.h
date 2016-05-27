@@ -6,9 +6,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 //							TASK PERIOD DEFINITIONS
 ////////////////////////////////////////////////////////////////////////////////
-#define 	PERIOD_CONTROL_TASK			100
 #define 	PERIOD_FEEDBACK_TASK		100
-#define 	PERIOD_COMM_TASK			100
+#define 	PERIOD_COMM_TASK			  150
+#define   PERIOD_CONTROL_TASK     PERIOD_FEEDBACK_TASK      // depricated
 
 ////////////////////////////////////////////////////////////////////////////////
 //							GENERAL SIZING DEFINITIONS
@@ -35,7 +35,6 @@ int 			g_position_log	[POSITION_LOG_DEPTH][NUM_MOCS] = {						// log of position
 int				(*g_position)	[NUM_MOCS] 	= g_position_log;							// current positions
 double			g_velocity		[NUM_MOCS];												// current velocities
 int				g_duty_cycle	[NUM_MOCS];												// current duty-cycles
-int				g_elapsed_cycles			= 0;										// number of control task cycles elapsed
 																						// since last new movement command
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,20 +45,48 @@ int				g_elapsed_cycles			= 0;										// number of control task cycles elapsed
 ////////////////////////////////////////////////////////////////////////////////
 //							FEEDBACK GLOBALS
 ////////////////////////////////////////////////////////////////////////////////
-#define 		ANALOG_READ_NSAMPLES 11													// number of samples used for reading position
+#define 		ANALOG_READ_NSAMPLES 13													// number of samples used for reading position
 #define 		SMOOTH_DIFF_SIZE 	POSITION_LOG_DEPTH									// order of smooth-differentiator
+#define BASE_MOC           2
 
 int 			analog_read_samples	[ANALOG_READ_NSAMPLES];									// work array for finding median of dataset
 const double 	leading_coeff 		= 1.0/(8.0 * ((double) PERIOD_FEEDBACK_TASK / 1000.0));	// normalizing coefficient
 const double 	term_coeffs			[SMOOTH_DIFF_SIZE] = { 1.0, 2.0, -2.0, -1.0 };			// term coefficients
+volatile int g_base_counter     = 0;
+
+const double  FB_MIN_POS[NUM_MOCS]       = {
+  MIN_POS, 
+  MIN_POS, 
+  MIN_POS,
+  18, 
+  535, 
+  MIN_POS
+};
+const double  FB_MAX_POS[NUM_MOCS]       = {
+  MAX_POS, 
+  MAX_POS, 
+  MAX_POS, 
+  945, 
+  910, 
+  MAX_POS
+};
+
+const double  FB_NORM_SCALE[NUM_MOCS]   = {
+  1024.0 / (FB_MAX_POS[0] - FB_MIN_POS[0]), 
+  1024.0 / (FB_MAX_POS[1] - FB_MIN_POS[1]),
+  1024.0 / (FB_MAX_POS[2] - FB_MIN_POS[2]),
+  1024.0 / (FB_MAX_POS[3] - FB_MIN_POS[3]),
+  1024.0 / (FB_MAX_POS[4] - FB_MIN_POS[4]),
+  1024.0 / (FB_MAX_POS[5] - FB_MIN_POS[5]),
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 //							COMM'S GLOBALS
 ////////////////////////////////////////////////////////////////////////////////
-#define		I2C_ADDRESS 0x07
+#define			I2C_ADDRESS 			0x07
 
-packet			g_command;
-bool			g_command_received		= false;
+packet			g_command; // the current global command message packet
+bool			g_command_received		= false; // flag for keeping track of when new commands arrive
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,19 +94,20 @@ bool			g_command_received		= false;
 ////////////////////////////////////////////////////////////////////////////////
 #define 		DCM_SIZE 					6
 #define 		MAX_DC 						255.0
-
 const double 	MIN_VEL_TOL					= 1.4;  									// 40% tolerance
-const double 	TIME_RAMP_UP_MS 			= 300;  									//  Time of ramp-up
+const double 	TIME_RAMP_UP_MS 			= 1000;  									//  Time of ramp-up
 const double 	DCM_PERIOD_MS 				= PERIOD_CONTROL_TASK;						//  Period of duty-cycle manager
 const double 	DCM_MIN_VEL_INC 			= MAX_DC * DCM_PERIOD_MS / TIME_RAMP_UP_MS;	// size of below min velocity dc increment
-const double 	DCM_rd_dists	[DCM_SIZE] 	= { 50, 50, 50, 50, 50, 50 };				// distance to begin ramp-down
+const double 	DCM_rd_dists	[DCM_SIZE] 	= { 50, 50, 50, 60, 60, 50 };				// distance to begin ramp-down
 const double 	DCM_min_vels	[DCM_SIZE] 	= { 10, 10, 10, 10, 10, 10 };				// minimum allowable velocity
-const double  	DCM_tolerance	[DCM_SIZE] 	= { 5, 5, 5, 5, 5, 5 };						// 'close enough' tolerance
+const double  	DCM_tolerance	[DCM_SIZE] 	= { 5, 5, 5, 3, 3, 5 };						// 'close enough' tolerance
 double  		DCM_dists		[DCM_SIZE];												// work array used internally by dcm
 double  		DCM_vels		[DCM_SIZE];												// work array used internally by dcm
 ERFStage 		DCM_stages		[DCM_SIZE]; 											// stages of movements
 bool			g_ramping_enabled			= true;
-
+int				g_elapsed_cycles[DCM_SIZE]	= {0, 0, 0, 0, 0, 0};						// number of control task cycles elapsed
+int       DCM_corrections[DCM_SIZE]     = {0, 0, 0, 0, 0, 0};
+int       DCM_max_corrections[DCM_SIZE] = {0, 0, 0, 2, 2, 0};
 
 ////////////////////////////////////////////////////////////////////////////////
 // 								PINOUT
@@ -100,5 +128,26 @@ const int		DIR_CORRECTION			[NUM_MOCS] 	= {										// mask for hardware direct
 	DIRECTION_NORMAL,
 	DIRECTION_NORMAL
 };
+const int		BASE_INT = 23;
+
+////////////////////////////////////////////////////////////////////////////////
+//							INVERSE KINEMATICS
+////////////////////////////////////////////////////////////////////////////////
+double		ORIGIN_ELBOW			= 0.35212;
+double 		ORIGIN_L1CONN 			= 0.3479;
+double 		ORIGIN_L1BASE 			= 0.12744;
+double 		ELBOW_L2CONN 			= 0.170;
+double 		PHI_ELBOW_L1CONN 		= 1.1383;
+double 		ELBOW_END 				= 0.569;
+
+
+double		L1_BODY_LENGTH			= 0;
+double		L2_BODY_LENGTH			= 0;
+
+double 		L1_PHYS_DIGI[2] 		=  {6.198, -101.9};
+double		L2_PHYS_DIGI[2]			=  {2.436, 483.1};
+
+
+
 
 #endif

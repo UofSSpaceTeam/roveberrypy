@@ -3,7 +3,25 @@
 
 #include "arm2016_vars.h"
 
-void DCManager_init()
+void DCManager_init(int motor_idx);
+
+void smartMove(int motor, int position)
+{
+    g_ramping_enabled = true;
+    g_destination[motor] = position;
+    DCM_corrections[motor] = 0;
+    DCManager_init(motor);
+}
+
+void DCManager_correct(int motor_id) {
+  if(DCM_stages[motor_id] == DONE && DCM_corrections[motor_id] < DCM_max_corrections[motor_id]) {
+    DCM_corrections[motor_id] = DCM_corrections[motor_id] + 1;
+    g_elapsed_cycles[motor_id] = 0;
+    DCM_stages[motor_id] = RAMP_UP;
+  }
+}
+
+void DCManager_init(int motor_idx)
 {
 #ifdef DCM_DEBUG
     Serial.println("Initializing duty-cycle manager");
@@ -14,8 +32,23 @@ void DCManager_init()
     Serial.print("DCM_MIN_VEL_INC=");
     Serial.println(DCM_MIN_VEL_INC);
 #endif
-    for (uint_t i = 3; i < DCM_SIZE; ++i) {
-        DCM_stages[i] = RAMP_UP;
+    DCM_stages[0] = DONE;
+    DCM_stages[1] = DONE;
+    if(motor_idx == 2 && DCM_stages[2] == DONE) {
+      DCM_stages[2] = RAMP_UP;
+      g_elapsed_cycles[2] = 0;
+    }
+    if(motor_idx == 3 && DCM_stages[3] == DONE) {
+      DCM_stages[3] = RAMP_UP;
+      g_elapsed_cycles[3] = 0;
+    }
+    if(motor_idx == 4 && DCM_stages[4] == DONE) {
+      DCM_stages[4] = RAMP_UP;
+      g_elapsed_cycles[4] = 0;
+    }
+    if(motor_idx == 5 && DCM_stages[5] == DONE){
+      DCM_stages[5] = RAMP_UP;
+      g_elapsed_cycles[5] = 0;
     }
 }
 
@@ -24,22 +57,24 @@ void DCManager_init()
 void DCManager_update()
 {
 	// Find the max distance remaining
-    double elapsed_ms = g_elapsed_cycles * DCM_PERIOD_MS;
+
     int* dc = g_duty_cycle;
-    DCM_dists[3] = g_destination[3] - (*g_position)[3];
-	DCM_vels[3] = abs(g_velocity[3]);
-	double max_dist = abs(DCM_dists[3]);
-	for (uint_t i = 4; i < DCM_SIZE; ++i) {
-        DCM_dists[i] = g_destination[i] - (*g_position)[i];
-        DCM_vels[i] = abs(g_velocity[i]);
-		if (abs(DCM_dists[i]) > max_dist) max_dist = abs(DCM_dists[i]);
+	double max_dist = 0;
+	for (uint_t i = 2; i < DCM_SIZE; ++i) {
+        if(DCM_stages[i] != DONE) {
+            DCM_dists[i] = g_destination[i] - (*g_position)[i];
+            DCM_vels[i] = abs(g_velocity[i]);
+    		if (abs(DCM_dists[i]) > max_dist) max_dist = abs(DCM_dists[i]);
+        }
 	}
 	// Loop through each movement
-	for (uint_t i = 3; i < DCM_SIZE; ++i) {                                        // ONLY USE DCM FOR MOTORS WITH FEEDBACK
-		// Check if the movement has finished
-		if (DCM_stages[i] != DONE && (abs(DCM_dists[i]) < DCM_tolerance[i])) {
-			DCM_stages[i] = DONE;
-		}
+	for (uint_t i = 2; i < DCM_SIZE; ++i) {
+        ++g_elapsed_cycles[i];         // increment the number of elapsed cycles
+        double elapsed_ms = g_elapsed_cycles[i] * DCM_PERIOD_MS;
+		// Check if the movement has finished and that we're moving in the right direction
+    if (DCM_stages[i] != DONE && abs(DCM_dists[i]) < DCM_tolerance[i]) {
+      DCM_stages[i] = DONE;
+    }
 		// Calculate the duty-cycle scale for this movement
 		double scale = MAX_DC * DCM_dists[i] / max_dist;
 		// Assign duty-cycle based on ramp-function stage
@@ -92,6 +127,13 @@ void DCManager_update()
                  } else {
                      dc[i] = (int) -(abs_dc + DCM_MIN_VEL_INC * (DCM_min_vels[i] - DCM_vels[i]) / DCM_min_vels[i]);
                  }
+			} else {
+        // check if we're going in the right direction. if we aren't then say we're done
+        if(DCM_dists[i] > 0 && dc[i] < 0) {
+          DCM_stages[i] = DONE;
+        } else if (DCM_dists[i] < 0 && dc[i] > 0) {
+          DCM_stages[i] = DONE;
+        }
 			}
 		}
 		break;
