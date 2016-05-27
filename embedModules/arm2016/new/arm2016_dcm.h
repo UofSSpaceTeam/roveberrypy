@@ -2,39 +2,6 @@
 #define ARM2016_DCM
 
 #include "arm2016_vars.h"
-#include <Arduino.h>
-
-typedef unsigned int uint_t;
-
-// Enumeration of Ramp-Function Stages
-typedef enum {
-	RAMP_UP,
-	POSITION_SYNC,
-	RAMP_DOWN,
-	MIN_VEL,
-	DONE
-} ERFStage;
-
-// Basic configuration
-#define DCM_SIZE 6
-#define MAX_DC 255.0
-
-// Duty-cycle manager variables
-static const    double  TIME_RAMP_UP_MS = 300;     //  Time of ramp-up
-static const    double  DCM_PERIOD_MS = 100;      //  Period of duty-cycle manager
-static const    double  DCM_MIN_VEL_INC = MAX_DC * DCM_PERIOD_MS / TIME_RAMP_UP_MS;
-static const    double  DCM_rd_dists[DCM_SIZE] = {  // ramp-down distances of movements
-    50, 50, 50, 50, 50, 50
-};
-static const    double  DCM_min_vels[DCM_SIZE] = {  // minimum velocities for MIN_VELO stage of movements
-    10, 10, 10, 10, 10, 10
-};
-static const    double  DCM_tolerance[DCM_SIZE] = {
-    5, 5, 5, 5, 5, 5
-}
-static          double  DCM_dists[DCM_SIZE];
-static          double  DCM_vels[DCM_SIZE];
-static          ERFStage DCM_stages[DCM_SIZE];  // stages of movements
 
 void DCManager_init()
 {
@@ -47,10 +14,11 @@ void DCManager_init()
     Serial.print("DCM_MIN_VEL_INC=");
     Serial.println(DCM_MIN_VEL_INC);
 #endif
-    for (uint_t i = 0; i < DCM_SIZE; ++i) {
+    for (uint_t i = 3; i < DCM_SIZE; ++i) {
         DCM_stages[i] = RAMP_UP;
     }
 }
+
 // Update the duty-cycle for each movement.
 // @param elapsed_ms Elapsed time in milliseconds since movements began.
 void DCManager_update()
@@ -58,17 +26,18 @@ void DCManager_update()
 	// Find the max distance remaining
     double elapsed_ms = g_elapsed_cycles * DCM_PERIOD_MS;
     int* dc = g_duty_cycle;
-    DCM_dists[0] = g_destination[0] - (*g_position)[0];
-	double max_dist = abs(DCM_dists[0]);
-	for (uint_t i = 1; i < DCM_SIZE; ++i) {
+    DCM_dists[3] = g_destination[3] - (*g_position)[3];
+	DCM_vels[3] = abs(g_velocity[3]);
+	double max_dist = abs(DCM_dists[3]);
+	for (uint_t i = 4; i < DCM_SIZE; ++i) {
         DCM_dists[i] = g_destination[i] - (*g_position)[i];
-        DCM_vels[i] = g_velocity[i];
+        DCM_vels[i] = abs(g_velocity[i]);
 		if (abs(DCM_dists[i]) > max_dist) max_dist = abs(DCM_dists[i]);
 	}
 	// Loop through each movement
-	for (uint_t i = 0; i < DCM_SIZE; ++i) {
+	for (uint_t i = 3; i < DCM_SIZE; ++i) {                                        // ONLY USE DCM FOR MOTORS WITH FEEDBACK
 		// Check if the movement has finished
-		if (DCM_stages[i] != DONE && (abs(DCM_dists[i]) < DCM_tolerance[i]) {
+		if (DCM_stages[i] != DONE && (abs(DCM_dists[i]) < DCM_tolerance[i])) {
 			DCM_stages[i] = DONE;
 		}
 		// Calculate the duty-cycle scale for this movement
@@ -82,7 +51,7 @@ void DCManager_update()
 			if (elapsed_ms > TIME_RAMP_UP_MS) {
 				DCM_stages[i] = POSITION_SYNC;
 			}
-			else if (DCM_dists[i] < DCM_rd_dists[i]) {
+			else if (abs(DCM_dists[i]) < DCM_rd_dists[i]) {
 				DCM_stages[i] = RAMP_DOWN;
 			}
 			else {
@@ -93,7 +62,7 @@ void DCManager_update()
 		// Syncronize the relative position of this movement with the others
 		case POSITION_SYNC:
 		{
-			if (DCM_dists[i] < DCM_rd_dists[i]) {
+			if (abs(DCM_dists[i]) < DCM_rd_dists[i]) {
 				DCM_stages[i] = RAMP_DOWN;
 			}
 			else {
@@ -104,11 +73,11 @@ void DCManager_update()
 		// Ramp-down the duty-cycle until we're near the minimum velocity
 		case RAMP_DOWN:
 		{
-			if (abs(DCM_vels[i]) <= 1.2 * DCM_min_vels[i]) { // If we're within 20% of the minimum velocity then increment stage
+			if (DCM_vels[i] <= MIN_VEL_TOL * DCM_min_vels[i]) { // If we're close to the minimum velocity then increment stage
 				DCM_stages[i] = MIN_VEL;
 			}
 			else {
-				dc[i] = scale * abs(DCM_dists[i]) / DCM_rd_dists[i];
+				dc[i] = (int) (scale * abs(DCM_dists[i]) / DCM_rd_dists[i]);
 			}
 			break;
 		}
@@ -116,11 +85,12 @@ void DCManager_update()
 		// Once near the minimum velocity, hold it until we reach the destination
 		case MIN_VEL:
 		{
-			if (abs(DCM_vels[i]) < DCM_min_vels[i]) {
+			int abs_dc = abs(dc[i]);
+			if (DCM_vels[i] < DCM_min_vels[i]) {
                 if(DCM_dists[i] > 0){
-                     dc[i] = (int) (abs_dc[i] + DCM_MIN_VEL_INC * (DCM_min_vels[i] - abs(DCM_vels[i])) / DCM_min_vels[i]);
+                     dc[i] = (int) (abs_dc + DCM_MIN_VEL_INC * (DCM_min_vels[i] - DCM_vels[i]) / DCM_min_vels[i]);
                  } else {
-                     dc[i] = (int) -(abs_dc[i] + DCM_MIN_VEL_INC * (DCM_min_vels[i] - abs(DCM_vels[i])) / DCM_min_vels[i]);
+                     dc[i] = (int) -(abs_dc + DCM_MIN_VEL_INC * (DCM_min_vels[i] - DCM_vels[i]) / DCM_min_vels[i]);
                  }
 			}
 		}

@@ -1,13 +1,7 @@
 #ifndef ARM2016_FEEDBACK
 #define ARM2016_FEEDBACK
 
-#define ANALOG_READ_NSAMPLES 11
-static int analog_read_samples[ANALOG_READ_NSAMPLES];
-
-#define SMOOTH_DIFF_SIZE POSITION_LOG_DEPTH
-static const double leading_coeff = 1.0/(8.0 * ((double)PERIOD_FEEDBACK_TASK/1000));
-static const double term_coeffs[SMOOTH_DIFF_SIZE] = { 1.0, 2.0, -2.0, -1.0 };
-
+#include "arm2016_vars.h"
 
 int readPosition(int id);
 int median(int arset[], int n);
@@ -21,17 +15,19 @@ void updateFeedback() {
 	}
 	// update the g_position and velocity of each of the motors
 	for(int i = 0; i < NUM_MOCS; ++i) {
-		// Read g_position
-		(*g_position)[i] = readPosition(i);
-		// Calculate velocity
-		g_velocity[i] = calculateVelocity(i);
+		if(PINS_AI[i]) { // if we have feedback for this motor
+			// Read g_position
+			(*g_position)[i] = readPosition(i);
+			// Calculate velocity
+			g_velocity[i] = calculateVelocity(i);
+		}
 	}
 }
 
 
-int readPosition(int id) {
+int readPosition(int motor_id) {
 	for(int i = 0; i < ANALOG_READ_NSAMPLES; ++i){
-		analog_read_samples[i] = analogRead(PINS_AI[i]);
+		analog_read_samples[i] = analogRead(PINS_AI[motor_id]);
 	}
 	return median(analog_read_samples, ANALOG_READ_NSAMPLES);
 }
@@ -54,16 +50,16 @@ int median(int arset[], int n)
 	k = n / 2;
 	l = 0; m = n - 1;
 	while (l<m) {
-		x = a[k];
+		x = arset[k];
 		i = l;
 		j = m;
 		do {
-			while (a[i]<x) i++;
-			while (x<a[j]) j--;
+			while (arset[i]<x) i++;
+			while (x<arset[j]) j--;
 			if (i <= j) {
-				t = a[i];
-				a[i] = a[j];
-				a[j] = t;
+				t = arset[i];
+				arset[i] = arset[j];
+				arset[j] = t;
 				i++;
 				j--;
 			}
@@ -71,7 +67,7 @@ int median(int arset[], int n)
 		if (j<k) l = i;
 		if (k<i) m = j;
 	}
-	return a[k];
+	return arset[k];
 }
 
 #endif
