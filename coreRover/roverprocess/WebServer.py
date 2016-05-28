@@ -65,7 +65,7 @@ class WebServer(RoverProcess):
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
-		print message
+		#print message
 		with self.dataSem:
 			self.data.update(message)
 

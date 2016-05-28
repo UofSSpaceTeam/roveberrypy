@@ -30,8 +30,8 @@ class ExampleProcess(RoverProcess):
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
 		# your message handling here. for example:
-		if "heartbeat" in message:
-			print "got: " + str(message["heartbeat"])
+#		if "heartbeat" in message:
+#			print "got: " + str(message["heartbeat"])
 	
 	def cleanup(self):
 		RoverProcess.cleanup(self)
