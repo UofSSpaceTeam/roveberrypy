@@ -1,8 +1,12 @@
-int clk = 14 ; //Set digital pin 14 as clk
-int din = 15 ;
-int le = 16 ;
-int oe = 17 ;
-bool pins[8] = {true, true, true, true, true, true, true, true} ;
+//Code to control the LED Driver MAX6977
+
+int clk = 14 ; //Set pin as Clock
+int din = 15 ; //Set pin as digital input
+int le = 16 ; //Set pin as latch
+int oe = 17 ; //Set pin as output enable (high forces high impedence, low causes to follow latch)
+
+//boolean to control what to set each pin to
+bool pinout[8] = {true, false, false, false, false, false, false, false} ;
 
 
 void setup() {
@@ -13,24 +17,33 @@ void setup() {
   pinMode(din, OUTPUT) ;
   pinMode(le, OUTPUT) ;
   pinMode(oe, OUTPUT) ;
+  digitalWrite(oe, LOW) ;
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-    digitalWrite(le, LOW) ;
-  
-    for (int i = 7 ; i => 0 ; i--){
-      if (pins(i) = true){
+void loop() 
+{
+  // put your main code here, to run repeatedly 
+    digitalWrite(le, LOW) ; // Set latch to zero
+    
+    for (int i = 7 ; i >= 0 ; i--) //outputs written backwards from pin 7 to pin 0.
+    {
+      //decide output based on boolean
+      if (pinout[i] == true)
+      {
           digitalWrite(din, HIGH) ;
       }
-      else {
+      else
+      {
           digitalWrite(din, LOW) ;
       }
+      //tick clock
       digitalWrite(clk, HIGH) ;
-      delay(1) ;
       digitalWrite(clk, LOW) ;
     }
+    //tick latch once loop over
     digitalWrite(le, HIGH) ;
-  }
-  
+    digitalWrite(le, LOW) ;
+
+    digitalWrite(oe, LOW) ;
+    
 }
