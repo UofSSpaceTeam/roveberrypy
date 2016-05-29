@@ -5,7 +5,7 @@ import multiprocessing
 
 # Check for hardware and load required modules
 if(os.name == "nt"): # Windows test
-	modulesList = ["Drive", "CanExample"]
+	modulesList = ["Drive", "CanExample", "Navigation", "Drill"]
 	
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
@@ -14,7 +14,7 @@ elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 
 else: # Rover! :D
 	print "Detected Rover hardware! Full config mode\n"
-	modulesList = ["JsonServer", "WebServer", "CanServer", "Example"]
+	modulesList = ["JsonServer", "WebServer", "CanServer", "Example", "Drill", "CanExample"]
 	#modulesList = ["JsonServer", "CanServer","WebServer","Arm"]
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE,SIG_DFL)
@@ -32,6 +32,8 @@ if "CanExample" in modulesList: from roverprocess.CanExampleProcess import CanEx
 if "Camera" in modulesList: from roverprocess.CameraProcess import CameraProcess
 if "Drive" in modulesList: from roverprocess.DriveProcess import DriveProcess
 if "Arm" in modulesList: from roverprocess.ArmProcess import ArmProcess
+if "Drill" in modulesList: from roverprocess.DrillProcess import DrillProcess
+if "Navigation" in modulesList: from roverprocess.Navprocess import NavProcess
 
 # system configuration
 localPort = 34567
@@ -85,6 +87,18 @@ if __name__ == "__main__":
 		process = CameraProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		subDelegate(process)
+
+	if "Navigation" in modulesList:
+		process = NavProcess(
+			downlink = system.getDownlink(), uplink = system.getUplink())
+		subDelegate(process)
+	
+	if "Drill" in modulesList:
+		process = DrillProcess(
+			downlink = system.getDownlink(), uplink = system.getUplink())
+		subDelegate(process)
+	
+	
 
 	if "Drive" in modulesList:
 		process = DriveProcess(

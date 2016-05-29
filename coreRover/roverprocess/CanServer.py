@@ -46,7 +46,11 @@ class CanServer(RoverProcess):
 		769L  : "769",
 		1L    : "1",
 		257   : "257",
-		0x901L : "m1Stats"		
+		0x901L : "m1Stats",	
+        500L : "DrillMotor",
+		501L : "ElevMotor",
+		502L : "Moisture",
+		503L : "temperature"
 		}
 		self.CanIdRLUT = {v: k for k, v in self.CanIdLUT.items()} #reverse lookup
 		self.CanIdLUT = defaultdict(lambda: "unknown", self.CanIdLUT)

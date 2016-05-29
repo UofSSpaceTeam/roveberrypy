@@ -1,7 +1,8 @@
 #include <FlexCAN.h>
 #include <Servo.h>
 
-#define TIMEOUT 750
+#define TIMEOUT 1000
+#define DURATION 1000
 
 FlexCAN CANbus(500000);
 static CAN_message_t txmsg, rxmsg;
@@ -13,11 +14,11 @@ int elev_IN2 = 8;
 int drill_PWM = 9; //D2
 int elev_PWM = 10;
 int EN = 11;
-int drillPWM2 = 0;  //D1
+int drill_PWM2 = 0;  //D1
 int elev_PWM2 = 1;
 
 //moisture
-int decagon_pin = A9 ;
+int decagon_pin = A1;
 float V = 3.3 ;
 
 //moisture
@@ -27,12 +28,18 @@ float coef3 = -7.37*pow(10,-6) ;
 float coef4 = 6.69*pow(10,-3) ;
 float coef5 = -1.92 ;
 
-static int cmd_drill = 600;
-static int cmd_elev = 601;
-static int cmd_moisture = 602;
-static int cmd_x = 603;
+//temperature
+float temperature ;
+int temp_pin = A0;
+
+static int cmd_drill = 500;
+static int cmd_elev = 501;
+static int cmd_moisture = 502;
+static int cmd_temp = 503;
 
 unsigned long timeout;
+unsigned long moisture_timeout;
+unsigned long temp_timeout;
 int cmd = 0;
 int val = 0;
 char* data = (char*)malloc(sizeof(char)*8);
@@ -60,12 +67,14 @@ void setup() {
  digitalWrite(elev_PWM2, LOW);
  
   timeout = millis();
+  moisture_timeout = millis();
+  temp_timeout = millis();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  rxmsg.timeout = 10;
-  while(CANbus.read(rxmsg));
+  rxmsg.timeout = 0;
+  if (CANbus.read(rxmsg)){
   cmd = rxmsg.id;
   for(int i = 0; i < 8; i++) {
     data[i] = rxmsg.buf[i];
@@ -98,19 +107,20 @@ void loop() {
       analogWrite(elev_PWM, 0);
       }
     else if(val < 0){
-      digitalWrite(elev_IN1, HIGH);
-      digitalWrite(elev_IN2, LOW);
-      analogWrite(elev_PWM, abs(val));
-      digitalWrite(EN, HIGH);
-      }
-    else {
       digitalWrite(elev_IN1, LOW);
       digitalWrite(elev_IN2, HIGH);
       analogWrite(elev_PWM, abs(val));
       digitalWrite(EN, HIGH);
       }
+    else {
+      digitalWrite(elev_IN1, HIGH);
+      digitalWrite(elev_IN2, LOW);
+      analogWrite(elev_PWM, abs(val));
+      digitalWrite(EN, HIGH);
+      }
     timeout = millis();
     }
+  }
   if(millis() - timeout > TIMEOUT)
   {
     Serial.println("TIME OUT");
@@ -119,9 +129,10 @@ void loop() {
   }
   cmd = 0;
   rxmsg.id = 0;
-
+  
 
   //moisture
+  if(millis() - moisture_timeout > DURATION){
   int raw_moisture_reading = analogRead(decagon_pin) ;
 
   //code to convert to raw voltage (in mV)
@@ -135,12 +146,37 @@ void loop() {
   txmsg.len = 8;
   txmsg.id = cmd_moisture;
   sprintf(data, "%f", moisture_reading);
-  Serial.println("moisture");
-  Serial.println(data);
-  for(unsigned int i = 0; i < strlen(data); i++){
+  //Serial.println("moisture");
+  //Serial.println(data);
+  for(unsigned int i = 0; i < 8; i++){
     txmsg.buf[i] = data[i];
   }
   CANbus.write(txmsg);
+  moisture_timeout = millis();
+  }
+
+  //temperature
+  if(millis() - temp_timeout > DURATION){
+  int rawData = analogRead(temp_pin) ;
+
+  // Convert value to voltage by scaling between 0.0 and 5.0
+  float Vout = rawData * (3.3 / 1023.0) ;
+
+  // Datasheet says temperature roughly linear (Provides polynomial for more realistic values, look later)
+  temperature = Vout/0.005 ;
+  
+  txmsg.len = 8;
+  txmsg.id = cmd_temp;
+  sprintf(data, "%f", temperature);
+  //Serial.println("temperature");
+  
+  for(unsigned int i = 0; i < 8; i++){
+    txmsg.buf[i] = data[i];
+  }
+  //Serial.println(txmsg.buf);
+  CANbus.write(txmsg);
+  temp_timeout = millis();
+  }
 
   
 }
