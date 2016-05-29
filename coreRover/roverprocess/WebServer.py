@@ -1,6 +1,7 @@
 # Rover Modules
 from RoverProcess import RoverProcess
 from threading import Thread
+from multiprocessing import BoundedSemaphore
 
 # WebUI Modules
 from WebUI import bottle
@@ -10,6 +11,9 @@ from WebUI.Routes import WebServerRoutes
 # Python Modules
 import time
 import json
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
 
 class WebServer(RoverProcess):
 
@@ -48,7 +52,7 @@ class WebServer(RoverProcess):
 	def getSubscribed(self):
 		# Returns a dictionary of lists for all the incoming (self) and outgoing (server) subscriptions
 		return {
-				"self" : [],
+				"self" : [axes],
 				"json" : [],
 				"can" : [],
 				"web" : []
@@ -60,16 +64,19 @@ class WebServer(RoverProcess):
 		bottle.TEMPLATE_PATH = ['./WebUI/views']
 		print "Web Templates Loaded From:", bottle.TEMPLATE_PATH
 		
-		self.server = self.RoverWSGIServer(host='localhost', port=8080)
+		self.server = self.RoverWSGIServer(host='3.3.3.3', port=80)
 		Thread(target = self.startBottleServer).start()
+		self.dataSem = BoundedSemaphore()
+		self.data = {}
 		
 	def loop(self):
+		self.setShared("TestData", "hi!")
 		time.sleep(1)
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
-		#if "exampleKey" in message:
-		#	print "got: " + str(message["exampleKey"])
+		with self.dataSem:
+			self.data.update(message)
 
 	def cleanup(self):
 		RoverProcess.cleanup(self)

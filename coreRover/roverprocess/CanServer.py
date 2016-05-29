@@ -18,6 +18,7 @@ class CanServer(RoverProcess):
 		def run(self):
 			while True:
 				for msg in self.bus:
+					#print msg.arbitration_id
 					data = {self.parent.CanIdLUT[msg.arbitration_id] : str(msg.data)}
 					if isinstance(data, dict):
 						self.uplink.put(data)
@@ -35,16 +36,17 @@ class CanServer(RoverProcess):
 		# Note that the lower the ID, the higher priority it has on the bus!
 		# If unknown ids come through they are given the name unknown and vice versa with unknown names
 		self.CanIdLUT = {
-		546L : "Test",
-		547L : "TestOut",
+		546L  : "Test",
+		547L  : "TestOut",
 		1000L : "unknown",
-		300L : "CameraUpDown",
-		301L : "CameraLeftRight",
-		400L : "Open",
-		600L : "DrillMotor",
-		601L : "ElevMotor",
-		602L : "Moisture",
-		603L : "x"
+		300L  : "CameraUpDown",
+		301L  : "CameraLeftRight",
+		400L  : "Open",
+		401L  : "Close",
+		769L  : "769",
+		1L    : "1",
+		257   : "257",
+		0x901L : "m1Stats"		
 		}
 		self.CanIdRLUT = {v: k for k, v in self.CanIdLUT.items()} #reverse lookup
 		self.CanIdLUT = defaultdict(lambda: "unknown", self.CanIdLUT)
@@ -58,9 +60,9 @@ class CanServer(RoverProcess):
 					canId = self.CanIdRLUT[key]
 					canData = bytearray()
 					canData.extend(value)
-					print "CAN Message: ", canId, canData
-					msg = can.Message(data=canData, arbitration_id=canId)
-					print "CAN DATA: ", msg
+					#print "CAN Message: ", canId, canData
+					msg = can.Message(data=canData, arbitration_id=canId, extended_id=True)
+					#print "CAN DATA: ", msg
 					self.bus.send(msg)
 				self.data = {}
 		time.sleep(self.sendPeriod)

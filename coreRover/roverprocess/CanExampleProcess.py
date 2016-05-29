@@ -7,7 +7,7 @@ class CanExampleProcess(RoverProcess):
 	def getSubscribed(self):
 		# Returns a dictionary of lists for all the incoming (self) and outgoing (server) subscriptions
 		return {
-				"self" : ["Test", "Open", "Close"],
+				"self" : ["Test", "CameraUpDown"],
 				"json" : ["exampleTime"],
 				"can" : ["TestOut"],
 				"web" : []
@@ -24,10 +24,8 @@ class CanExampleProcess(RoverProcess):
 		RoverProcess.messageTrigger(self, message)
 		if "Test" in message:
 			print message["Test"]
-		if "Open" in message:
-			print message["Open"]
-		if "Close" in message:
-			print message["Close"]
+		if "CameraUpDown" in message:
+			print message["CameraUpDown"]
 			
 	def cleanup(self):
 		RoverProcess.cleanup(self)

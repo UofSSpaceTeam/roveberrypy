@@ -21,7 +21,7 @@ class ArmProcess(RoverProcess):
 
     def getSubscribed(self):
         return {
-                "self" : ["axes"],
+                "self" : ["axes", "arm_mode"],
                 "json" : [],
                 "can" : [],
                 "web" : []
@@ -33,30 +33,37 @@ class ArmProcess(RoverProcess):
         self.i2cSem = args["sem"]
         self.update = False
         self.feedback = [0,0]
-        self.dutys = [0,0,0,0,0,0]
-        self.positions = [0,0,0]
+        self.command = Command()
+        self.command.type = CommandType.MANUAL
+        self.command.position = [0,0,0]
+        self.command.duty_cycle = [0,0,0,0,0,0]
 
     def loop(self):
-        val = False
         while(True):
             self.update = True
-            c = Command();
-            c.type = CommandType.INVERSE_KIN
-            c.position = [300,2,-512]
-            c.duty_cycle = self.dutys
-            c.position = self.positions
-            self.sendCommand(c)
-            #temp_feedback = self.requestPosition()
-            #if not None in temp_feedback:
-            #    self.feedback = temp_feedback
-            #else:
-            #    print("got invalid data");
+            #self.sendCommand(self.command)
+            #self.requestPosition()
+            #print(self.feedback)
             time.sleep(0.1)
 
     def messageTrigger(self, message):
         RoverProcess.messageTrigger(self, message)
+        if "arm_mode" in message:
+            if message["arm_mode"] == CommandType.GET_FEEDBACK:
+                self.requestPosition()
+            else:
+                self.command.type = message["arm_mode"]
+
         if "axes" in message:
-            self.dutys = [int(float(x)*127) for x in message["axes"]]
+            if self.command.type == CommandType.MANUAL:
+	        self.command.duty_cycle = \
+                     [int(float(x)*127) for x in message["axes"]] + [0,0]
+            elif self.command.type  == CommandType.INVERSE_KIN:
+                #change these to suit control scheme
+                self.command.position[0] = int(float(message["axes"][0])*127)
+                self.command.position[1] = int(float(message["axes"][1])*127)
+                self.command.position[2] = int(float(message["axes"][2])*127)
+            self.sendCommand(self.command)
 
     def sendCommand(self, command):
         #break command.position into 6 8-bit values, lsb first
@@ -65,7 +72,7 @@ class ArmProcess(RoverProcess):
             buff[i] = command.position[i/2] & 0x00FF
             buff[i+1] = (command.position[i/2] & 0xFF00) >> 8
 
-        #print(command.duty_cycle)
+        print(buff + [11111111] +  command.duty_cycle)
         try:
             self.i2cSem.acquire(block=True, timeout=None)
             print(command.csum())
@@ -85,15 +92,17 @@ class ArmProcess(RoverProcess):
             for i in range(1,5,2):
                 position[(i-1)/2] = buffer[i-1] & 0x00FF
                 position[(i-1)/2] |= (buffer[i] << 8) & 0xFF00
-            print(position)
-            print("\n")
+            if None in position:
+                print("Arm got invalid feedback")
+            else:
+                self.feedback = position
+            #print(position)
+            #print("\n")
 
         except:
             print("Arm thread got an I2C error")
         self.i2cSem.release()
-        return position
 
 
     def cleanup(self):
         RoverProcess.cleanup(self)
-

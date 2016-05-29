@@ -9,7 +9,7 @@ class StorageBinProcess(RoverProcess):
 		return {
 				"self" : [],
 				"json" : [],
-				"can" : ["Open"],
+				"can" : ["Open", "Close"],
 				"web" : []
 				}
 
@@ -17,15 +17,19 @@ class StorageBinProcess(RoverProcess):
 		pass
 	
 	def loop(self):
+	
 		self.setShared("Open", str(1))
-		time.sleep(1)
-		
+		time.sleep(5)
+		self.setShared("Close", str(1))
+		time.sleep(5)		
 		self.setShared("Open", str(2))
-		time.sleep(1)
-		
+		time.sleep(5)
+		self.setShared("Close", str(2))
+		time.sleep(5)
 		self.setShared("Open", str(3))
-		time.sleep(1)
-		
+		time.sleep(5)
+		self.setShared("Close", str(3))
+		time.sleep(5)
 		time.sleep(0.1)
 		
 	def messageTrigger(self, message):
