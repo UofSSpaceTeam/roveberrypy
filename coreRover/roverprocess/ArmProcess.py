@@ -24,7 +24,7 @@ class ArmProcess(RoverProcess):
                 "self" : ["axes", "arm_mode"],
                 "json" : [],
                 "can" : [],
-                "web" : []
+                "web" : ["arm_feedback"]
                 }
 
     def setup(self, args):
@@ -42,8 +42,9 @@ class ArmProcess(RoverProcess):
         while(True):
             self.update = True
             #self.sendCommand(self.command)
-            #self.requestPosition()
-            #print(self.feedback)
+            self.requestPosition()
+            # print(self.feedback)
+            self.setShared("arm_feedback", self.feedback)
             time.sleep(0.1)
 
     def messageTrigger(self, message):
@@ -56,7 +57,8 @@ class ArmProcess(RoverProcess):
 
         if "axes" in message:
             if self.command.type == CommandType.MANUAL:
-	        self.command.duty_cycle = \
+                #change this to match desired control scheme
+                self.command.duty_cycle = \
                      [int(float(x)*127) for x in message["axes"]] + [0,0]
             elif self.command.type  == CommandType.INVERSE_KIN:
                 #change these to suit control scheme
