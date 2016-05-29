@@ -47,34 +47,25 @@ class WebServer(RoverProcess):
 								   handler_cls)
 			self.port = self.srv.server_port
 			self.srv.serve_forever()
-
-			
-	def getSubscribed(self):
-		# Returns a dictionary of lists for all the incoming (self) and outgoing (server) subscriptions
-		return {
-				"self" : [axes],
-				"json" : [],
-				"can" : [],
-				"web" : []
-				}
 				
 	def setup(self, args):
-		self.routes = WebServerRoutes(parent=self)
+		self.dataSem = BoundedSemaphore()
+		self.data = {}
+		self.routes = WebServerRoutes(parent=self, dataSem=self.dataSem)
 		
 		bottle.TEMPLATE_PATH = ['./WebUI/views']
 		print "Web Templates Loaded From:", bottle.TEMPLATE_PATH
 		
 		self.server = self.RoverWSGIServer(host='3.3.3.3', port=80)
 		Thread(target = self.startBottleServer).start()
-		self.dataSem = BoundedSemaphore()
-		self.data = {}
 		
 	def loop(self):
-		self.setShared("TestData", "hi!")
+		#self.setShared("TestData", "hi!")
 		time.sleep(1)
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
+		print message
 		with self.dataSem:
 			self.data.update(message)
 

@@ -13,7 +13,7 @@ class ExampleProcess(RoverProcess):
 				"self" : ["heartbeat"],
 				"json" : ["exampleTime"],
 				"can" : [],
-				"web" : []
+				"web" : ["TestData"]
 				}
 	
 	def setup(self, args):
@@ -24,6 +24,7 @@ class ExampleProcess(RoverProcess):
 	def loop(self):
 		# your looping code here. for example:
 		self.setShared("exampleTime", time.time())
+		self.setShared("TestData", time.time())
 		time.sleep(1)
 	
 	def messageTrigger(self, message):

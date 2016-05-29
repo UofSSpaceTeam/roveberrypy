@@ -5,9 +5,7 @@ import multiprocessing
 
 # Check for hardware and load required modules
 if(os.name == "nt"): # Windows test
-
-	modulesList = [ "WebServer", "JsonServer"]
-
+	modulesList = ["Drive", "CanExample"]
 	
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
@@ -16,10 +14,12 @@ elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 
 else: # Rover! :D
 	print "Detected Rover hardware! Full config mode\n"
-	modulesList = ["JsonServer", "CanServer", "Navigation"]
+	modulesList = ["JsonServer", "WebServer", "CanServer", "Example"]
+	#modulesList = ["JsonServer", "CanServer","WebServer","Arm"]
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE,SIG_DFL)
 
+print modulesList
 	
 # Import modules
 from StateManager import StateManager
@@ -30,8 +30,7 @@ if "WebServer" in modulesList: from roverprocess.WebServer import WebServer
 if "CanServer" in modulesList: from roverprocess.CanServer import CanServer
 if "CanExample" in modulesList: from roverprocess.CanExampleProcess import CanExampleProcess
 if "Camera" in modulesList: from roverprocess.CameraProcess import CameraProcess
-if "StorageBin" in modulesList: from roverprocess.StorageBinProcess import StorageBinProcess
-if "Navigation" in modulesList: from roverprocess.Navprocess import Navprocess
+if "Drive" in modulesList: from roverprocess.DriveProcess import DriveProcess
 if "Arm" in modulesList: from roverprocess.ArmProcess import ArmProcess
 
 # system configuration
@@ -75,6 +74,7 @@ if __name__ == "__main__":
 			downlink = system.getDownlink(), uplink = system.getUplink(),
 			sem = i2cSem)
 		subDelegate(process)
+
 	if "Arm" in modulesList:
 		process = ArmProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink(),
@@ -85,30 +85,18 @@ if __name__ == "__main__":
 		process = CameraProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		subDelegate(process)
-	
-	if "StorageBin" in modulesList:
-		process = StorageBinProcess(
+
+	if "Drive" in modulesList:
+		process = DriveProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		subDelegate(process)
-		
-	# servers
-	if "WebServer" in modulesList:
-		process = WebServer(
-			downlink = system.getDownlink(), uplink = system.getUplink())
-		for sub in webSubs:
-			system.addObserver(sub, process.downlink)
-		for sub in process.getSubscribed()["self"]:
-			system.addObserver(sub, process.downlink)
-		jsonSubs.extend(process.getSubscribed()["json"])
-		canSubs.extend(process.getSubscribed()["can"])
-		processes.append(process)
 	
+	# servers
 	if "CanServer" in modulesList:
 		process = CanServer(
 			downlink = system.getDownlink(), uplink=system.getUplink(), sendPeriod = 0.01)
 		for sub in canSubs:
 			system.addObserver(sub, process.downlink)
-		#subDelegate(process)
 		processes.append(process)
 			
 	if "JsonServer" in modulesList:
@@ -117,13 +105,15 @@ if __name__ == "__main__":
 			local = localPort, remote = remotePort, sendPeriod = 0.1)
 		for sub in jsonSubs:
 			system.addObserver(sub, process.downlink)		
-		processes.append(process)		
+		processes.append(process)
 		
-	if "Navigation" in modulesList:
-		process = Navprocess(
-			downlink = system.getDownlink(), uplink = system.getUplink(),
-			serial = "/dev/ttyUSB0", baud = 1000000, addr = "127.0.0.1", port = 13320)
-		subDelegate(process)	
+	if "WebServer" in modulesList:
+		process = WebServer(
+			downlink = system.getDownlink(), uplink = system.getUplink())
+		for sub in webSubs:
+			print sub
+			system.addObserver(sub, process.downlink)
+		processes.append(process)
 		
 
 	# start everything
