@@ -54,13 +54,16 @@ void receiveCommand(int count) {
      packet in_command;
      //move buffer to new packet
      in_command.type = (Ecommand_type)in_bytes[0];
-     for (int i = 1; i < 6; i += 2) {
-       in_command.position[(i - 1) / 2] = 0x00FF & in_bytes[i]; //lsb
-       in_command.position[(i - 1) / 2] |= 0xFF00 & (in_bytes[i + 1] << 8); //msb
-     }
-     for (int i = 7; i <= 13; i++) {
-       in_command.duty_cycle[i - 7] = in_bytes[i];
-     }
+	  if(in_bytes[0] == MANUAL) {
+		  for (int i = 7; i <= 13; i++) {
+			 in_command.duty_cycle[i - 7] = in_bytes[i];
+		  }
+	  } else {
+		  for (int i = 1; i < 6; i += 2) {
+			 in_command.position[(i - 1) / 2] = 0x00FF & in_bytes[i]; //lsb
+			 in_command.position[(i - 1) / 2] |= 0xFF00 & (in_bytes[i + 1] << 8); //msb
+		  }
+	  }
 
      //================================
      // Debugging

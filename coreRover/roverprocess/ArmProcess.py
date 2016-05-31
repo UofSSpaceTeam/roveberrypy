@@ -68,21 +68,32 @@ class ArmProcess(RoverProcess):
             self.sendCommand(self.command)
 
     def sendCommand(self, command):
-        #break command.position into 6 8-bit values, lsb first
-        buff = [0, 0, 0, 0, 0, 0]
-        for i in range(0,5,2):
-            buff[i] = command.position[i/2] & 0x00FF
-            buff[i+1] = (command.position[i/2] & 0xFF00) >> 8
+        if command.type == INVERSE_KIN:
+            #break command.position into 6 8-bit values, lsb first
+            buff = [0, 0, 0, 0, 0, 0]
+            for i in range(0,5,2):
+                buff[i] = command.position[i/2] & 0x00FF
+                buff[i+1] = (command.position[i/2] & 0xFF00) >> 8
 
-        print(buff + [11111111] +  command.duty_cycle)
-        try:
-            self.i2cSem.acquire(block=True, timeout=None)
-            print(command.csum())
-            self.i2c.write_i2c_block_data(self.address, command.type,
-                    buff + command.duty_cycle + [command.csum()])
-        except:
-            print("Arm thread got an I2C error")
-        self.i2cSem.release()
+            # print(buff + [11111111] +  command.duty_cycle)
+            try:
+                self.i2cSem.acquire(block=True, timeout=None)
+                print(command.csum())
+                self.i2c.write_i2c_block_data(self.address, command.type,
+                        buff + [command.csum()])
+            except:
+                print("Arm thread got an I2C error")
+            self.i2cSem.release()
+        else if command.type == MANUAL:
+            try:
+                self.i2cSem.acquire(block=True, timeout=None)
+                print(command.csum())
+                self.i2c.write_i2c_block_data(self.address, command.type,
+                        command.duty_cycle + [command.csum()])
+            except:
+                print("Arm thread got an I2C error")
+            self.i2cSem.release()
+
 
 
     def requestPosition(self):
