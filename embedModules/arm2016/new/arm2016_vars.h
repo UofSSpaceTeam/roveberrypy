@@ -94,7 +94,7 @@ bool			g_command_received		= false; // flag for keeping track of when new comman
 ////////////////////////////////////////////////////////////////////////////////
 #define 		DCM_SIZE 					6
 #define 		MAX_DC 						255.0
-#define 		CIVK_STEP_SIZE				1											// 1cm step size
+#define 		CIVK_STEP_SIZE				0.01										// 0.01, step size
 const double 	MIN_VEL_TOL					= 1.4;  									// 40% tolerance
 const double 	TIME_RAMP_UP_MS 			= 1000;  									//  Time of ramp-up
 const double 	DCM_PERIOD_MS 				= PERIOD_CONTROL_TASK;						//  Period of duty-cycle manager
@@ -151,7 +151,7 @@ double 		ELBOW_END 				= 0.569;
 double		L1_BODY_LENGTH			= 0;
 double		L2_BODY_LENGTH			= 0;
 
-double 		L1_PHYS_DIGI[2] 		=  {6.198, -101.9};
+double 		L1_PHYS_DIGI[2] 		=  {6.198, -101.9};		// mm -> digital position
 double		L2_PHYS_DIGI[2]			=  {2.436, 483.1};
 
 

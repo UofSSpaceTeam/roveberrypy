@@ -6,6 +6,9 @@
 #include "arm2016_comms.h" // for Wire.onReceive
 #include "arm2016_feedback.h"
 
+#define     INITIAL_RADIUS      0.4
+#define     INITIAL_ALTITUDE    0.3
+
 void arm2016_init()
 {
     // set pin mode
@@ -30,6 +33,15 @@ void arm2016_init()
 	 Wire.onRequest(sendPosition);
 	 attachInterrupt(BASE_INT, baseCounterInterupt, CHANGE);
 
+     // move to initial position
+    //  double r0 = INITIAL_RADIUS;
+    //  double z0 = INITIAL_ALTITUDE;
+    //  CalculatePositions(r0, z0);
+    //  g_ramping_enabled = true;
+    //  DCM_corrections[3] = 0;
+    //  DCManager_init(3);
+    //  DCM_corrections[4] = 0;
+    //  DCManager_init(4);
 }
 
 
