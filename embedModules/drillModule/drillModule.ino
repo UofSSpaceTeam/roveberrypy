@@ -142,6 +142,10 @@ void loop() {
 
   //code to calibrate (curve provided in datasheet)
   float moisture_reading = 100*(coef1*pow(mV,4)+coef2*pow(mV,3)+coef3*pow(mV,2)+coef4*mV+coef5) ;
+  // Set to zero if less than zero
+  if (moisture_reading < 0.0) {
+    moisture_reading = 0.0 ;
+  }
   //float moisture_reading = mV*57.0 ;
   txmsg.len = 8;
   txmsg.id = cmd_moisture;
