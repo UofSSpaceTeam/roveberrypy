@@ -55,24 +55,24 @@ const double 	term_coeffs			[SMOOTH_DIFF_SIZE] = { 1.0, 2.0, -2.0, -1.0 };			// 
 volatile int g_base_counter     = 0;
 
 const double  FB_MIN_POS[NUM_MOCS]       = {
-  MIN_POS, 
-  MIN_POS, 
   MIN_POS,
-  18, 
-  535, 
+  MIN_POS,
+  MIN_POS,
+  18,
+  535,
   MIN_POS
 };
 const double  FB_MAX_POS[NUM_MOCS]       = {
-  MAX_POS, 
-  MAX_POS, 
-  MAX_POS, 
-  945, 
-  910, 
+  MAX_POS,
+  MAX_POS,
+  MAX_POS,
+  945,
+  910,
   MAX_POS
 };
 
 const double  FB_NORM_SCALE[NUM_MOCS]   = {
-  1024.0 / (FB_MAX_POS[0] - FB_MIN_POS[0]), 
+  1024.0 / (FB_MAX_POS[0] - FB_MIN_POS[0]),
   1024.0 / (FB_MAX_POS[1] - FB_MIN_POS[1]),
   1024.0 / (FB_MAX_POS[2] - FB_MIN_POS[2]),
   1024.0 / (FB_MAX_POS[3] - FB_MIN_POS[3]),
@@ -94,6 +94,7 @@ bool			g_command_received		= false; // flag for keeping track of when new comman
 ////////////////////////////////////////////////////////////////////////////////
 #define 		DCM_SIZE 					6
 #define 		MAX_DC 						255.0
+#define 		CIVK_STEP_SIZE				1											// 1cm step size
 const double 	MIN_VEL_TOL					= 1.4;  									// 40% tolerance
 const double 	TIME_RAMP_UP_MS 			= 1000;  									//  Time of ramp-up
 const double 	DCM_PERIOD_MS 				= PERIOD_CONTROL_TASK;						//  Period of duty-cycle manager
@@ -108,6 +109,12 @@ bool			g_ramping_enabled			= true;
 int				g_elapsed_cycles[DCM_SIZE]	= {0, 0, 0, 0, 0, 0};						// number of control task cycles elapsed
 int       DCM_corrections[DCM_SIZE]     = {0, 0, 0, 0, 0, 0};
 int       DCM_max_corrections[DCM_SIZE] = {0, 0, 0, 2, 2, 0};
+bool 			g_ivk_controller;
+int 			g_ivk_controller_scale;
+double 			g_radius;
+double 			g_altitude;
+int				g_inc_radius;
+int 			g_inc_altitude;
 
 ////////////////////////////////////////////////////////////////////////////////
 // 								PINOUT

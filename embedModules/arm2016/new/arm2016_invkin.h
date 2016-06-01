@@ -30,5 +30,15 @@ void CalculatePositions(double r, double z) {
     g_destination[4] = L2_PHYS_DIGI[0] * pos2 * 1000 + L2_PHYS_DIGI[1];
 }
 
+void civkUpdate(double step_size)
+{
+    if(g_inc_radius) {
+        g_radius += step_size;
+    } else if (g_inc_altitude) {
+        g_altitude += step_size;
+    }
+    CalculatePositions(g_radius, g_altitude);
+}
+
 
 #endif

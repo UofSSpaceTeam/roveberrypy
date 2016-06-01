@@ -51,13 +51,52 @@ void DCManager_init(int motor_idx)
       g_elapsed_cycles[5] = 0;
     }
 }
+void DCManagerCIVK_update()
+{
+    int* dc = g_duty_cycle;
+	double max_dist = 0;
+	for (uint_t i = 3; i < 4; ++i) {
+        DCM_dists[i] = g_destination[i] - (*g_position)[i];
+        DCM_vels[i] = abs(g_velocity[i]);
+    	if (abs(DCM_dists[i]) > max_dist) max_dist = abs(DCM_dists[i]);
+	}
+    if(max_dist == 0) {
+        return;
+    }
+    for (uint_t i = 3; i < 4; ++i) {
+        double scale = MAX_DC * DCM_dists[i] / max_dist;
+        bool must_increase = DCM_dists[i] > 0;
+        bool are_increaing = dc[i] > 0;
+        bool not_moving = 0 == dc[i] && g_ivk_controller;
+        if(not_moving) {
+            dc[i] = (int) (abs(g_ivk_controller_scale[i]) * scale);
+        } else {
+            if(are_increaing) {
+                if(DCM_dists[i] <= 0) { // must re-increase radius
+                    civkUpdate(CIVK_STEP_SIZE);
+                } else {
+                    dc[i] = (int) (abs(g_ivk_controller_scale) * scale);
+                }
+            } else {
+                if(DCM_dists[i] >= 0) { // must re-decrease radius
+                    civkUpdate(-CIVK_STEP_SIZE);
+                } else {
+                    dc[i] = (int) (abs(g_ivk_controller_scale) * scale);
+                }
+            }
+        }
+    }
+}
 
 // Update the duty-cycle for each movement.
 // @param elapsed_ms Elapsed time in milliseconds since movements began.
 void DCManager_update()
 {
 	// Find the max distance remaining
-
+    if(g_ivk_controller) {
+        DCManagerCIVK_update();
+        return;
+    }
     int* dc = g_duty_cycle;
 	double max_dist = 0;
 	for (uint_t i = 2; i < DCM_SIZE; ++i) {
