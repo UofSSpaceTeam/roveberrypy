@@ -5,12 +5,13 @@ import smbus
 
 class CommandType:
     MANUAL = 0x00
-    INVERSE_KIN = 0x01
-    GET_FEEDBACK = 0x02
+    INVERSE_KIN_GUI = 0x01
+    INVERSE_KIN_CON = 0x02
+    GET_FEEDBACK = 0x03
 
 class Command:
     def __init__(self):
-        self.type = 0x00
+        self.type = CommandType.MANUAL
         self.position = [0,0,0]
         self.duty_cycle = [0,0,0,0,0,0]
 
@@ -21,7 +22,7 @@ class ArmProcess(RoverProcess):
 
     def getSubscribed(self):
         return {
-                "self" : ["axes", "arm_mode"],
+                "self" : ["axes", "arm_mode", "gui_kin"]
                 "json" : [],
                 "can" : [],
                 "web" : ["arm_feedback"]
@@ -41,10 +42,9 @@ class ArmProcess(RoverProcess):
     def loop(self):
         while(True):
             self.update = True
-            #self.sendCommand(self.command)
-            self.requestPosition()
-            # print(self.feedback)
-            self.setShared("arm_feedback", self.feedback)
+            self.sendCommand(self.command)
+            # self.requestPosition()
+            # self.setShared("arm_feedback", self.feedback)
             time.sleep(0.1)
 
     def messageTrigger(self, message):
@@ -60,12 +60,16 @@ class ArmProcess(RoverProcess):
                 #change this to match desired control scheme
                 self.command.duty_cycle = \
                      [int(float(x)*127) for x in message["axes"]] + [0,0]
-            elif self.command.type  == CommandType.INVERSE_KIN:
+            elif self.command.type  == CommandType.INVERSE_KIN_CON:
                 #change these to suit control scheme
-                self.command.position[0] = int(float(message["axes"][0])*127)
-                self.command.position[1] = int(float(message["axes"][1])*127)
-                self.command.position[2] = int(float(message["axes"][2])*127)
-            self.sendCommand(self.command)
+                self.command.position[0] = int(float(message["axes"][0])*20)
+                self.command.position[1] = int(float(message["axes"][1])*20)
+                self.command.position[2] = int(float(message["axes"][2])*20)
+
+        if "gui_kin" in message:
+            if self.command.type == CommandType.INVERSE_KIN_GUI:
+                self.command.position = message["gui_kin"]
+
 
     def sendCommand(self, command):
         if command.type == INVERSE_KIN:

@@ -9,7 +9,7 @@ typedef unsigned int uint_t;
 ////////////////////////////////////////////////////////////////////////////////
 //                              COMM'S TYPES
 ////////////////////////////////////////////////////////////////////////////////
-enum Ecommand_type {MANUAL, INVERSE_KIN, GET_FEEDBACK};
+enum Ecommand_type {MANUAL, INVERSE_KIN_GUI, INVERSE_KIN_CON, GET_FEEDBACK};
 
 struct packet {
 	Ecommand_type type = MANUAL;
