@@ -119,8 +119,25 @@ void parseCommand(packet command) {
 			g_duty_cycle[i] = 2*command.duty_cycle[i];
 		}
 		g_ramping_enabled = false;
-	} else if(command.type == INVERSE_KIN) {
-		g_ramping_enabled = true;
+	} else if(command.type == INVERSE_KIN_GUI) {
+		for(int i=0; i<3; i++) {
+			g_destination[i] += command.position[i];
+		}
+
+		g_ramping_enabled = true; // ramping may be anoying for joystick controll
+	} else if(command.type == INVERSE_KIN_CON) {
+		g_ramping_enabled = false; // ramping may be anoying for joystick controll
+		if((command.position[0]+command.position[1]+command.position[2]) == 0) {
+			//stop all motors
+			for(int i=0; i<NUM_MOCS; i++) { // change to only affect the linear actuators
+				g_duty_cycle[i] = 0;
+			}
+		} else {
+			for(int i=0; i<3; i++) {
+				g_destination[i] += command.position[i];
+			}
+		}
+
 	}
 }
 
