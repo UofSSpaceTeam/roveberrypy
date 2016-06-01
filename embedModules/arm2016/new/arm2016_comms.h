@@ -117,6 +117,7 @@ void sendPosition() {
 
 //command parsing
 void parseCommand(packet command) {
+	g_ivk_controller = command.type == INVERSE_KIN_CON;
 	if(command.type == MANUAL) { // actions for manual command
 		for(int i=0; i<NUM_MOCS; i++) {
 			g_duty_cycle[i] = 2*command.duty_cycle[i];
@@ -129,18 +130,24 @@ void parseCommand(packet command) {
 
 		g_ramping_enabled = true; // ramping may be anoying for joystick controll
 	} else if(command.type == INVERSE_KIN_CON) {
-		g_ramping_enabled = false; // ramping may be anoying for joystick controll
-		if((command.position[0]+command.position[1]+command.position[2]) == 0) {
-			//stop all motors
-			for(int i=0; i<NUM_MOCS; i++) { // change to only affect the linear actuators
-				g_duty_cycle[i] = 0;
-			}
+		if(command.position[0] > 0) { // set radius flag
+			g_inc_radius = 1;
+		} else if(command.position[0] < 0) {
+			g_inc_radius = -1;
 		} else {
-			for(int i=0; i<3; i++) {
-				g_destination[i] += command.position[i];
-			}
+			g_inc_radius = 0;
+		}
+		if(command.position[1] > 0) { // set altitude flag
+			g_inc_altitude = 1;
+		} else if(command.position[1] < 0) {
+			g_inc_altitude = -1;
+		} else {
+			g_inc_altitude = 0;
 		}
 
+
+		g_ivk_controller_scale = max(abs(command.position[0])/255,
+				abs(command.position[1])/255);
 	}
 }
 

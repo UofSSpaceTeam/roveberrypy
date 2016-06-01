@@ -58,16 +58,16 @@ const double  FB_MIN_POS[NUM_MOCS]       = {
   MIN_POS,
   MIN_POS,
   MIN_POS,
-  18,
-  535,
+  MIN_POS,
+  MIN_POS,
   MIN_POS
 };
 const double  FB_MAX_POS[NUM_MOCS]       = {
   MAX_POS,
   MAX_POS,
   MAX_POS,
-  945,
-  910,
+  MAX_POS,
+  MAX_POS,
   MAX_POS
 };
 

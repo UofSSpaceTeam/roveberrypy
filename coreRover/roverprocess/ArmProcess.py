@@ -62,9 +62,9 @@ class ArmProcess(RoverProcess):
                      [int(float(x)*127) for x in message["axes"]] + [0,0]
             elif self.command.type  == CommandType.INVERSE_KIN_CON:
                 #change these to suit control scheme
-                self.command.position[0] = int(float(message["axes"][0])*20)
-                self.command.position[1] = int(float(message["axes"][1])*20)
-                self.command.position[2] = int(float(message["axes"][2])*20)
+                self.command.position[0] = int(float(message["axes"][0])*127)
+                self.command.position[1] = int(float(message["axes"][1])*127)
+                self.command.position[2] = int(float(message["axes"][2])*127)
 
         if "gui_kin" in message:
             if self.command.type == CommandType.INVERSE_KIN_GUI:
