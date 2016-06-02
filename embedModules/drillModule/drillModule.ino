@@ -136,13 +136,11 @@ void loop() {
   int raw_moisture_reading = analogRead(decagon_pin) ;
 
   //code to convert to raw voltage (in mV)
-  //float mV = (raw_moisture_reading/1023.0)*950.0+300.0 ;
   //Note: Teensy uses 3.3 V as VRef by default, other boards may use different reference voltages
   float mV = raw_moisture_reading*(3.3/1.0240) ;
 
   //code to calibrate (curve provided in datasheet)
   float moisture_reading = 100*(coef1*pow(mV,4)+coef2*pow(mV,3)+coef3*pow(mV,2)+coef4*mV+coef5) ;
-  //float moisture_reading = mV*57.0 ;
   txmsg.len = 8;
   txmsg.id = cmd_moisture;
   sprintf(data, "%f", moisture_reading);
