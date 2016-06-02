@@ -22,7 +22,7 @@ class ArmProcess(RoverProcess):
 
     def getSubscribed(self):
         return {
-                "self" : ["axes", "arm_mode", "gui_kin"]
+                "self" : ["axes", "arm_mode", "gui_kin", "buttons"]
                 "json" : [],
                 "can" : [],
                 "web" : ["arm_feedback"]
@@ -59,12 +59,26 @@ class ArmProcess(RoverProcess):
             if self.command.type == CommandType.MANUAL:
                 #change this to match desired control scheme
                 self.command.duty_cycle = \
-                     [int(float(x)*127) for x in message["axes"]] + [0,0]
+                     [int(float(x)*127) for x in message["axes"] + [0,0]
             elif self.command.type  == CommandType.INVERSE_KIN_CON:
                 #change these to suit control scheme
                 self.command.position[0] = int(float(message["axes"][0])*127)
                 self.command.position[1] = int(float(message["axes"][1])*127)
                 self.command.position[2] = int(float(message["axes"][2])*127)
+
+        if "buttons" in message:
+            A,B,X,Y = 1,2,3,4
+            if self.command.type == CommandType.MANUAL:
+                if message["buttons"][A]:
+                    self.command.duty_cycle[4] = 127
+                elif message["buttons"][B]:
+                    self.command.duty_cycle[4] = -127
+
+                if message["buttons"][X]:
+                    self.command.duty_cycle[5] = 127
+                elif message["buttons"][Y]:
+                    self.command.duty_cycle[5] = -127
+
 
         if "gui_kin" in message:
             if self.command.type == CommandType.INVERSE_KIN_GUI:

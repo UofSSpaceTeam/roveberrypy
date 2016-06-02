@@ -1,5 +1,6 @@
 #ifndef ARM2016_DCM
 #define ARM2016_DCM
+#include "arm2016_invkin.h"
 
 #include "arm2016_vars.h"
 
@@ -69,7 +70,7 @@ void DCManagerCIVK_update()
         bool are_increaing = dc[i] > 0;
         bool not_moving = 0 == dc[i] && g_ivk_controller;
         if(not_moving) {
-            dc[i] = (int) (abs(g_ivk_controller_scale[i]) * scale);
+            dc[i] = (int) (abs(g_ivk_controller_scale) * scale);
         } else {
             if(are_increaing) {
                 if(DCM_dists[i] <= 0) { // must re-increase radius

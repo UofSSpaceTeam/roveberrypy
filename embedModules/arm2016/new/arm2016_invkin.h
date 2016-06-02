@@ -6,6 +6,8 @@ void CalculatePositions(double r, double z) {
     // Variables to be used in calculation
     double L1 = ORIGIN_ELBOW;
     double L2 = ELBOW_END;
+    double r_p2 = r*r;
+    double z_p2 = z*z;
     double L1_p2 = L1*L1;
     double L1_p3 = L1*L1*L1;
     double L1_p4 = L1*L1*L1*L1;
