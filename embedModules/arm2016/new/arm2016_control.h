@@ -14,14 +14,25 @@ void updateControllers() {
 		}
 	}
 	// update motor controllers
+	Serial.print("setting motors");
 	for(int i = 0; i < NUM_MOCS; ++i) {
 		// set direction
+		Serial.print(g_duty_cycle[i]);
+		Serial.print(",");
 		if(g_duty_cycle[i] * DIR_CORRECTION[i] >= 0) {
 			// motor should go forwards
-			digitalWrite(PINS_A[i], HIGH);
-			digitalWrite(PINS_B[i], LOW);
 			if (PINS_PWM[i]) {	// check if the pin exists
+				digitalWrite(PINS_A[i], HIGH);
+				digitalWrite(PINS_B[i], LOW);
 				analogWrite(PINS_PWM[i], g_duty_cycle[i]);
+			} else {
+				if(g_duty_cycle[i] == 0){
+					digitalWrite(PINS_A[i], LOW);
+					digitalWrite(PINS_B[i], LOW);
+				} else {
+					digitalWrite(PINS_A[i], HIGH);
+					digitalWrite(PINS_B[i], LOW);
+				}
 			}
 		} else {
 			// motor should go backwards
@@ -32,6 +43,7 @@ void updateControllers() {
 			}
 		}
 	}
+	Serial.println();
 }
 
 #endif

@@ -109,8 +109,8 @@ bool			g_ramping_enabled			= true;
 int				g_elapsed_cycles[DCM_SIZE]	= {0, 0, 0, 0, 0, 0};						// number of control task cycles elapsed
 int       DCM_corrections[DCM_SIZE]     = {0, 0, 0, 0, 0, 0};
 int       DCM_max_corrections[DCM_SIZE] = {0, 0, 0, 2, 2, 0};
-bool 			g_ivk_controller;
-int 			g_ivk_controller_scale;
+bool 			g_ivk_controller = false;
+int 			g_ivk_controller_scale = 0;
 double 			g_radius;
 double 			g_altitude;
 int				g_inc_radius;

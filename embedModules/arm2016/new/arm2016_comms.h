@@ -1,6 +1,5 @@
 #ifndef ARM2016_COMMS
 #define ARM2016_COMMS
-#define COMMS_DEBUG
 
 #include <Wire.h>
 #include "arm2016_vars.h"
@@ -82,8 +81,8 @@ void receiveCommand(int count) {
 
      if (in_command.checksum() == in_bytes[count - 1]) {
        // update global packet
-       //g_command = in_command;
-       //g_command_received = true;
+       g_command = in_command;
+       g_command_received = true;
 #ifdef COMMS_DEBUG
        Serial.println("Packet recieved");
 #endif
@@ -119,6 +118,8 @@ void sendPosition() {
 void parseCommand(packet command) {
 	g_ivk_controller = command.type == INVERSE_KIN_CON;
 	if(command.type == MANUAL) { // actions for manual command
+		Serial.println("manual command get");
+		g_ivk_controller = false;
 		for(int i=0; i<NUM_MOCS; i++) {
 			g_duty_cycle[i] = 2*command.duty_cycle[i];
 		}
