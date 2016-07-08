@@ -2,7 +2,7 @@
 ## IGNORES for the rover-software library
 ## Contains defitinions for Python, C#, Visual Studio and other specific files!
 ##
-## Last edited by Austin Shirley
+## Last edited by Carl Hofmeister
 #########################################
 
 ###
@@ -290,6 +290,17 @@ FakesAssemblies/
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
 
+
+###
+### Operating system files
+###
+
+Thumbs.db
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 
 ###
 ### Specific Files
