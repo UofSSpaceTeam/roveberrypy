@@ -22,4 +22,4 @@ To view Legacy Code please download one of our "releases".
 
 We will be doing a near complete rewrite for 2015-2016 of most modules. The main framework aims to be backward compatable with old rover modules.
 
-Please see our Wiki for design information. The team will be updating it over the course of the year.
+Please see our Wiki for design information. The team will be updating it over the course of the year. 
