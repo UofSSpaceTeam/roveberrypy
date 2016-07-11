@@ -69,17 +69,25 @@ class ArmProcess(RoverProcess):
 
         if "buttons" in message:
             print(message["buttons"])
-            A,B,X,Y = 1,2,3,4
+            A,B,X,Y,left,right = 0,1,2,3,14,15
             if self.command.type == CommandType.MANUAL:
-                if message["buttons"][A]:
-                    self.command.duty_cycle[4] = 127
-                elif message["buttons"][B]:
-                    self.command.duty_cycle[4] = -127
-
+                #gripper wrist
                 if message["buttons"][X]:
                     self.command.duty_cycle[5] = 127
-                elif message["buttons"][Y]:
+                elif message["buttons"][B]:
                     self.command.duty_cycle[5] = -127
+
+                #open/close
+                if message["buttons"][Y]:
+                    self.command.duty_cycle[1] = 127
+                elif message["buttons"][A]:
+                    self.command.duty_cycle[1] = -127
+
+                #base rotation
+                if message["buttons"][left]:
+                    self.command.duty_cycle[2] = 127
+                elif message["buttons"][right]:
+                    self.command.duty_cycle[2] = -127
 
 
         if "gui_kin" in message:

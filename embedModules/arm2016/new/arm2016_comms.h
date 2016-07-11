@@ -33,6 +33,7 @@ uint16_t packet::checksum() {
 void receiveCommand(int count) {
   byte in_bytes[count]; // buffer
   int i = 0;
+  packet in_command;
 
   //read in all bytes into buffer
   while (Wire.available()) {
@@ -50,18 +51,14 @@ void receiveCommand(int count) {
      }
      Serial.println("end of packet");
 #endif
-     packet in_command;
      //move buffer to new packet
      in_command.type = (Ecommand_type)in_bytes[0];
-	  if(in_bytes[0] == MANUAL) {
-		  for (int i = 7; i <= 13; i++) {
-			 in_command.duty_cycle[i - 7] = in_bytes[i];
-		  }
-	  } else {
-		  for (int i = 1; i < 6; i += 2) {
-			 in_command.position[(i - 1) / 2] = 0x00FF & in_bytes[i]; //lsb
-			 in_command.position[(i - 1) / 2] |= 0xFF00 & (in_bytes[i + 1] << 8); //msb
-		  }
+	  for (int i = 7; i <= 13; i++) {
+		  in_command.duty_cycle[i - 7] = in_bytes[i];
+	  }
+	  for (int i = 1; i < 6; i += 2) {
+		 in_command.position[(i - 1) / 2] = 0x00FF & in_bytes[i]; //lsb
+		 in_command.position[(i - 1) / 2] |= 0xFF00 & (in_bytes[i + 1] << 8); //msb
 	  }
 
      //================================
