@@ -1,3 +1,4 @@
+// BUGGY! see /embededModules/README.md for prose
 #ifndef ARM2016_COMMS
 #define ARM2016_COMMS
 
@@ -30,6 +31,9 @@ uint16_t packet::checksum() {
 }
 
 
+/* NOTE: parseCommand doesn't work correctly.
+ * Try bypassing it and setting g_duty_cycle directly for this function.
+ */
 void receiveCommand(int count) {
   byte in_bytes[count]; // buffer
   int i = 0;
@@ -112,6 +116,10 @@ void sendPosition() {
 
 
 //command parsing
+/* NOTE: This may not be behaving properly, motors do not move when told to.
+ * The duty cycle manager seems to be recieving the values correctly,
+ * and sets the motors accordingly, but they don't move.
+ */
 void parseCommand(packet command) {
 	g_ivk_controller = command.type == INVERSE_KIN_CON;
 	if(command.type == MANUAL) { // actions for manual command
