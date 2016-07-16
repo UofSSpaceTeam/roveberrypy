@@ -47,18 +47,18 @@ class WebServer(RoverProcess):
 								   handler_cls)
 			self.port = self.srv.server_port
 			self.srv.serve_forever()
-				
+
 	def setup(self, args):
 		self.dataSem = BoundedSemaphore()
 		self.data = {}
 		self.routes = WebServerRoutes(parent=self, dataSem=self.dataSem)
-		
+
 		bottle.TEMPLATE_PATH = ['./WebUI/views']
 		print "Web Templates Loaded From:", bottle.TEMPLATE_PATH
-		
+
 		self.server = self.RoverWSGIServer(host='localhost', port=80)
 		Thread(target = self.startBottleServer).start()
-		
+
 	def loop(self):
 		#self.setShared("TestData", "hi!")
 		time.sleep(1)

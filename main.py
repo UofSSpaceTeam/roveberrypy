@@ -6,7 +6,7 @@ import multiprocessing
 # Check for hardware and load required modules
 if(os.name == "nt"): # Windows test
 	modulesList = ["Drive", "CanExample", "Navigation", "Drill"]
-	
+
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE,SIG_DFL)
@@ -20,7 +20,7 @@ else: # Rover! :D
 	signal(SIGPIPE,SIG_DFL)
 
 print modulesList
-	
+
 # Import modules
 from StateManager import StateManager
 if "JsonServer" in modulesList: from roverprocess.JsonServer import JsonServer
@@ -46,9 +46,9 @@ if __name__ == "__main__":
 	jsonSubs = []
 	canSubs = []
 	webSubs = []
-	
+
 	i2cSem = multiprocessing.Semaphore(1)
-	
+
 	# macro for configuring threads
 	def subDelegate(module):
 		for sub in module.getSubscribed()["self"]:
@@ -56,8 +56,8 @@ if __name__ == "__main__":
 		jsonSubs.extend(module.getSubscribed()["json"])
 		canSubs.extend(module.getSubscribed()["can"])
 		webSubs.extend(module.getSubscribed()["web"])
-		processes.append(module)	
-	
+		processes.append(module)
+
 	print "\nBUILD: Registering process subsribers...\n"
 
 	# modules
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 		process = ExampleProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		subDelegate(process)
-	
+
 	if "CanExample" in modulesList:
 		process = CanExampleProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
@@ -82,7 +82,7 @@ if __name__ == "__main__":
 			downlink = system.getDownlink(), uplink = system.getUplink(),
 			sem = i2cSem)
 		subDelegate(process)
-		
+
 	if "Camera" in modulesList:
 		process = CameraProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
@@ -92,19 +92,19 @@ if __name__ == "__main__":
 		process = NavProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		subDelegate(process)
-	
+
 	if "Drill" in modulesList:
 		process = DrillProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		subDelegate(process)
-	
-	
+
+
 
 	if "Drive" in modulesList:
 		process = DriveProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		subDelegate(process)
-	
+
 	# servers
 	if "CanServer" in modulesList:
 		process = CanServer(
@@ -112,15 +112,15 @@ if __name__ == "__main__":
 		for sub in canSubs:
 			system.addObserver(sub, process.downlink)
 		processes.append(process)
-			
+
 	if "JsonServer" in modulesList:
 		process = JsonServer(
 			downlink = system.getDownlink(), uplink = system.getUplink(),
 			local = localPort, remote = remotePort, sendPeriod = 0.1)
 		for sub in jsonSubs:
-			system.addObserver(sub, process.downlink)		
+			system.addObserver(sub, process.downlink)
 		processes.append(process)
-		
+
 	if "WebServer" in modulesList:
 		process = WebServer(
 			downlink = system.getDownlink(), uplink = system.getUplink())
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 			print sub
 			system.addObserver(sub, process.downlink)
 		processes.append(process)
-		
+
 
 	# start everything
 	print "\nSTARTING: " + str([type(p).__name__ for p in processes]) + "\n"

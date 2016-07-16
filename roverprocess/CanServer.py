@@ -14,7 +14,7 @@ class CanServer(RoverProcess):
 			self.bus = bus
 			self.uplink = uplink
 			self.parent = parent
-		
+
 		def run(self):
 			while True:
 				for msg in self.bus:
@@ -22,7 +22,7 @@ class CanServer(RoverProcess):
 					data = {self.parent.CanIdLUT[msg.arbitration_id] : str(msg.data)}
 					if isinstance(data, dict):
 						self.uplink.put(data)
-	
+
 	def setup(self, args):
 		self.sendPeriod = args["sendPeriod"]
 		self.bus = can.interface.Bus("can0", bustype="socketcan")
@@ -31,7 +31,7 @@ class CanServer(RoverProcess):
 		receiver = CanServer.ListenThread(self.bus, self.uplink, self)
 		receiver.daemon = True
 		receiver.start()
-		
+
 		## LUT to convert CAN Arbitration IDs to Names
 		# Note that the lower the ID, the higher priority it has on the bus!
 		# If unknown ids come through they are given the name unknown and vice versa with unknown names
@@ -46,7 +46,7 @@ class CanServer(RoverProcess):
 		769L  : "769",
 		1L    : "1",
 		257   : "257",
-		0x901L : "m1Stats",	
+		0x901L : "m1Stats",
         500L : "DrillMotor",
 		501L : "ElevMotor",
 		502L : "Moisture",
@@ -54,9 +54,9 @@ class CanServer(RoverProcess):
 		}
 		self.CanIdRLUT = {v: k for k, v in self.CanIdLUT.items()} #reverse lookup
 		self.CanIdLUT = defaultdict(lambda: "unknown", self.CanIdLUT)
-		
+
 		self.load = False
-	
+
 	def loop(self):
 		if self.data:
 			with self.dataSem:
@@ -70,14 +70,14 @@ class CanServer(RoverProcess):
 					self.bus.send(msg)
 				self.data = {}
 		time.sleep(self.sendPeriod)
-	
+
 	def messageTrigger(self, message):
 		# Prevent threads from triggering before server has started
 		while self.load: time.sleep(0.001)
 		RoverProcess.messageTrigger(self, message)
 		with self.dataSem:
 			self.data.update(message)
-	
+
 	def cleanup(self):
 		self.bus.shutdown()
 		RoverProcess.cleanup(self)

@@ -9,7 +9,7 @@ class RoverProcess(Process):
 			self._state = state
 			self._stateSem = sem
 			self._parent = parent
-		
+
 		def run(self):
 			while True:
 				data = self.downlink.get()
@@ -17,7 +17,7 @@ class RoverProcess(Process):
 				with self._stateSem:
 					self._state.update(data)
 				self._parent.messageTrigger(data)
-		
+
 	def __init__(self, **kwargs):
 		Process.__init__(self)
 		self.uplink = kwargs["uplink"]
@@ -26,10 +26,10 @@ class RoverProcess(Process):
 		self._stateSem = BoundedSemaphore()
 		self._args = kwargs
 		self.load = True
-		
+
 	def getSubscribed(self):
 		pass
-		
+
 	def run(self):
 		receiver = RoverProcess.ReceiverThread(
 			self.downlink, self._state, self._stateSem, self)
@@ -44,31 +44,31 @@ class RoverProcess(Process):
 		except:
 			self.cleanup()
 			raise
-	
+
 	def setup(self, args):
 		pass
-	
+
 	def loop(self):
 		pass
-	
+
 	def messageTrigger(self, message):
 		if "quit" in message:
 			print "Got cleanup"
 			self.cleanup()
 			sys.exit(0)
-	
+
 	def getShared(self, key):
 		with self._stateSem:
 			if key in self._state:
 				return self._state[key]
 			else:
 				return None
-	
+
 	def setShared(self, key, value):
 		with self._stateSem:
 			self._state.update({key:value})
 		self.uplink.put({key:value})
-	
+
 	def cleanup(self):
 		for thread in threading.enumerate():
 				if thread is not threading.current_thread():
