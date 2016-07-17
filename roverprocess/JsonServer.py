@@ -1,4 +1,4 @@
-from RoverProcess import RoverProcess
+from roverprocess.RoverProcess import RoverProcess
 
 import time
 from threading import Thread
@@ -58,7 +58,7 @@ class JsonServer(RoverProcess):
 	def loop(self):
 		if self.data:
 			with self.dataSem:
-				#print self.data
+				#print(self.data)
 				jsonData = json.dumps(self.data)
 				self.data = {}
 			with self.addressSem:

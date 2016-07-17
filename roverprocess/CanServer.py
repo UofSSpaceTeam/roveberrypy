@@ -1,4 +1,4 @@
-from RoverProcess import RoverProcess
+from roverprocess.RoverProcess import RoverProcess
 
 import time
 from threading import Thread
@@ -18,7 +18,7 @@ class CanServer(RoverProcess):
 		def run(self):
 			while True:
 				for msg in self.bus:
-					#print msg.arbitration_id
+					#print(msg.arbitration_id)
 					data = {self.parent.CanIdLUT[msg.arbitration_id] : str(msg.data)}
 					if isinstance(data, dict):
 						self.uplink.put(data)
@@ -64,9 +64,9 @@ class CanServer(RoverProcess):
 					canId = self.CanIdRLUT[key]
 					canData = bytearray()
 					canData.extend(value)
-					#print "CAN Message: ", canId, canData
+					#print("CAN Message: ", canId, canData)
 					msg = can.Message(data=canData, arbitration_id=canId, extended_id=True)
-					#print "CAN DATA: ", msg
+					#print("CAN DATA: ", msg)
 					self.bus.send(msg)
 				self.data = {}
 		time.sleep(self.sendPeriod)
