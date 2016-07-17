@@ -18,7 +18,7 @@ Features
 
 Future
 ------
-* Update from Python 2.7 to 3.5
+* ~~Update from Python 2.7 to 3.5~~ In progress. Haven't tested the servers yet.
 * Implement a lightweight standardized serialization protocol for communication with embedded peripherals
 * Add logging and database features
 * Automated unit testing
@@ -31,7 +31,7 @@ How To Contribute
 2. Check out or create a milestone branch
 2. Code!
 3. Make a pull request to the dev branch
-4. Stable code will be automatically pushed to master 
+4. Stable code will be automatically pushed to master
 
 For general information on how to contribue to USST projects please see the Wiki in the usst-docs repository.
 To get in touch with the team, visit www.usst.ca.
