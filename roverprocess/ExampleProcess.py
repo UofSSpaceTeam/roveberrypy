@@ -1,4 +1,4 @@
-from RoverProcess import RoverProcess
+from roverprocess.RoverProcess import RoverProcess
 
 # Any libraries you need can be imported here. You almost always need time!
 import time
@@ -54,7 +54,7 @@ class ExampleProcess(RoverProcess):
 		RoverProcess.messageTrigger(self, message)
 
 		if "heartbeat" in message:
-			print "got: " + str(message["heartbeat"])
+			print("got: " + str(message["heartbeat"]))
 
 	# This runs once at the end when the program shuts down.
 	#	You can use this to do something like stop motors clean up open files

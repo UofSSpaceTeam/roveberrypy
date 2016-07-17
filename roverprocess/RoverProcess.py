@@ -9,9 +9,11 @@ class RoverProcess(Process):
 			self._state = state
 			self._stateSem = sem
 			self._parent = parent
+			self.quit = False
+			self.daemon = True
 
 		def run(self):
-			while True:
+			while not self.quit:
 				data = self.downlink.get()
 				assert isinstance(data, dict)
 				with self._stateSem:
@@ -26,14 +28,14 @@ class RoverProcess(Process):
 		self._stateSem = BoundedSemaphore()
 		self._args = kwargs
 		self.load = True
+		self.receiver = RoverProcess.ReceiverThread(
+			self.downlink, self._state, self._stateSem, self)
 
 	def getSubscribed(self):
 		pass
 
 	def run(self):
-		receiver = RoverProcess.ReceiverThread(
-			self.downlink, self._state, self._stateSem, self)
-		receiver.start()
+		self.receiver.start()
 		try:
 			self.setup(self._args)
 			while True:
@@ -53,7 +55,7 @@ class RoverProcess(Process):
 
 	def messageTrigger(self, message):
 		if "quit" in message:
-			print "Got cleanup"
+			print("Got cleanup")
 			self.cleanup()
 			sys.exit(0)
 
@@ -70,8 +72,6 @@ class RoverProcess(Process):
 		self.uplink.put({key:value})
 
 	def cleanup(self):
-		for thread in threading.enumerate():
-				if thread is not threading.current_thread():
-					thread._Thread__stop()
-					thread._Thread__delete()
+		self.receiver.quit = True
+		self.receiver.join(0.25)  # receiver is blocked by call to queue.get()
 
