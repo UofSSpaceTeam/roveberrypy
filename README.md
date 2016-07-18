@@ -1,25 +1,37 @@
-# rover-software
+#rover-software
 
-This project includes all of the client, server, and embedded software elements written for the University of Saskatchewan Space Design Team's Mars Rover project.
-For more information on the team, see [usst.ca](http://usst.ca)
+About
+-----
+The USST Rover project has developed a multi-threaded python application designed to manage a system of interconnected embedded modules over a variety of networks.
 
-## Pulling remote UofSSpaceDesign Code
+Using the python language and focusing on support from standard libraries, high-level abstraction of hardware interfaces and devices can be prototyped, tested and deployed in embedded environments and on the user's PC. The software supports defined configurations based on detected hardware, and multithreading allows for standalone modules to be easily swapped out.
 
-The gui-software/RoverWebUI repo is reflected inside this repository. In order to get the latest files you must do the following:
+Features
+-------
+* Synchronizes state between an arbitrary number of independent python processes using the multiprocessing library and a very simple global state dictionary
+  * Write any python code, threads, classes or libraries with no restrictions
+  * Trigger event-driven actions based on watched changes in the global state
+* Extends the global state on a numbner of network interfaces:
+  * CAN through SocketCAN
+  * JSON Raw Sockets with the native Python Socket module
+  * Lightweight BottlePy WSGI web server (see rover-gui for the user interface software)
 
-    $ git merge -s ours --no-commit WebUI/master
-    $ git rm -rf coreRover/WebUI
-    $ git read-tree --prefix=coreRover/WebUI/ -u WebUI/master:RoverWebUI
-    $ git commit
+Future
+------
+* Update from Python 2.7 to 3.5
+* Implement a lightweight standardized serialization protocol for communication with embedded peripherals
+* Add logging and database features
+* Automated unit testing
+* Rewrite the CAN server using python sockets
+* Add a UART and I2C server
 
-Or you can temporarily copy and paste the files if you just want to do some quick testing.
-__All commits to these files should happen from the gui-software repo!__
+How To Contribute
+-----------------
+1. Pick an issue on the issue tracker or create an issue and have it assigned to a milestone
+2. Check out or create a milestone branch
+2. Code!
+3. Make a pull request to the dev branch
+4. Stable code will be automatically pushed to master 
 
-### Update 09/24
-
-All of the 2014-2015 code has been removed and only a skelleton of the rover main software remains.
-To view Legacy Code please download one of our "releases".
-
-We will be doing a near complete rewrite for 2015-2016 of most modules. The main framework aims to be backward compatable with old rover modules.
-
-Please see our Wiki for design information. The team will be updating it over the course of the year. 
+For general information on how to contribue to USST projects please see the Wiki in the usst-docs repository.
+To get in touch with the team, visit www.usst.ca.
