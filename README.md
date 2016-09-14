@@ -1,4 +1,4 @@
-#rover-software
+#roveberrypy
 
 About
 -----
@@ -27,6 +27,8 @@ Future
 
 How To Contribute
 -----------------
+We have a wiki page outlining our workflow: [https://github.com/UofSSpaceDesignTeam/rover-software/wiki/USST-git-work-flow](https://github.com/UofSSpaceDesignTeam/rover-software/wiki/USST-git-work-flow).
+
 1. Pick an issue on the issue tracker or create an issue and have it assigned to a milestone
 2. Check out or create a milestone branch
 2. Code!
