@@ -11,7 +11,7 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-from RoverProcess import RoverProcess
+from .RoverProcess import RoverProcess
 
 # Any libraries you need can be imported here. You almost always need time!
 import time
