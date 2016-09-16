@@ -23,15 +23,15 @@ if(os.name == "nt"): # Windows test
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE,SIG_DFL)
-	modulesList = []
+	modulesList = ["Example"]
 
 else: # Rover! :D
-	print "Detected Rover hardware! Full config mode\n"
-	modulesList = []
+	print("Detected Rover hardware! Full config mode\n")
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE,SIG_DFL)
+	modulesList = []
 
-print modulesList
+print(modulesList)
 
 # Import modules
 from StateManager import StateManager
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 		webSubs.extend(module.getSubscribed()["web"])
 		processes.append(module)
 
-	print "\nBUILD: Registering process subsribers...\n"
+	print("\nBUILD: Registering process subsribers...\n")
 
 	# modules
 	if "Example" in modulesList:
@@ -91,13 +91,13 @@ if __name__ == "__main__":
 		process = WebServer(
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		for sub in webSubs:
-			print sub
+			print(sub)
 			system.addObserver(sub, process.downlink)
 		processes.append(process)
 
 
 	# start everything
-	print "\nSTARTING: " + str([type(p).__name__ for p in processes]) + "\n"
+	print("\nSTARTING: " + str([type(p).__name__ for p in processes]) + "\n")
 	for process in processes:
 		process.start()
 

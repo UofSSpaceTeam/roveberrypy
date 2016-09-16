@@ -12,7 +12,7 @@
 # permissions and limitations under the License.
 
 # Rover Modules
-from RoverProcess import RoverProcess
+from roverprocess.RoverProcess import RoverProcess
 from threading import Thread
 from multiprocessing import BoundedSemaphore
 
@@ -67,7 +67,7 @@ class WebServer(RoverProcess):
 		self.routes = WebServerRoutes(parent=self, dataSem=self.dataSem)
 
 		bottle.TEMPLATE_PATH = ['./WebUI/views']
-		print "Web Templates Loaded From:", bottle.TEMPLATE_PATH
+		print("Web Templates Loaded From:", bottle.TEMPLATE_PATH)
 
 		self.server = self.RoverWSGIServer(host='localhost', port=80)
 		Thread(target = self.startBottleServer).start()
@@ -78,7 +78,7 @@ class WebServer(RoverProcess):
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
-		#print message
+		#print(message)
 		with self.dataSem:
 			self.data.update(message)
 
