@@ -40,42 +40,40 @@ import importlib #for dynamic imports
 import inspect
 
 # dynamically import all modules in the modulesList
-try:
-    modules = [importlib.import_module("roverprocess."+name) for name in modulesList]
-except (ImportError):
-    print("Could not import modules") # CHANGE
-    sys.exit(1)
+# try:
+modules = [importlib.import_module("roverprocess."+name) for name in modulesList]
+# except (ImportError):
+#     print("Could not import modules") # CHANGE
+#     sys.exit(1)
 
-# module_classes is a list of tuples where each
+# module_classes is a list of lists where each list
+# contains tuples for every class in the module, and each
 # tuple contains a class name and a class object
-module_classes = [inspect.getmembers(module, inspect.isclass) for module in modules][0]
+module_classes = [inspect.getmembers(module, inspect.isclass) for module in modules]
 
 # rover_classes is a list of classes to be instantiated.
-rover_classes = [tu[1] for tu in [x for x in module_classes] if tu[0] in modulesList]
+rover_classes = []
+for _list in module_classes:
+    for tup in _list:
+        if tup[0] in modulesList:
+            rover_classes.append(tup[1])
+
 print(rover_classes)
+
+system = StateManager()
+processes = []
 for c in rover_classes:
     if c.__name__ in modulesList:
-        print(c.__name__)
+        instance = c(downlink=system.getDownlink(), uplink=system.getUplink())
+        for sub in instance.getSubscribed()["self"]:
+                system.addObserver(sub, instance.downlink)
+        processes.append(instance)
 
 # build and run the system
 if __name__ == "__main__":
-	system = StateManager()
-	processes = []
 
-	# macro for configuring threads
-	def subDelegate(module):
-		for sub in module.getSubscribed()["self"]:
-			system.addObserver(sub, module.downlink)
-		processes.append(module)
 
 	print("\nBUILD: Registering process subsribers...\n")
-
-	# modules
-	if "Example" in modulesList:
-		process = ExampleProcess(
-			downlink = system.getDownlink(), uplink = system.getUplink())
-		subDelegate(process)
-
 
 	# start everything
 	print("\nSTARTING: " + str([type(p).__name__ for p in processes]) + "\n")
