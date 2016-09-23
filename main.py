@@ -15,6 +15,7 @@ import os, sys
 sys.dont_write_bytecode = True
 import time
 import multiprocessing
+import inspect
 
 # Check for hardware and load required modules
 if(os.name == "nt"): # Windows test
@@ -23,7 +24,7 @@ if(os.name == "nt"): # Windows test
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE,SIG_DFL)
-	modulesList = ["Example"]
+	modulesList = ["ExampleProcess"]
 
 else: # Rover! :D
 	print("Detected Rover hardware! Full config mode\n")
@@ -35,32 +36,36 @@ print(modulesList)
 
 # Import modules
 from StateManager import StateManager
-if "JsonServer" in modulesList: from roverprocess.JsonServer import JsonServer
-if "Example" in modulesList: from roverprocess.ExampleProcess import ExampleProcess
-if "WebServer" in modulesList: from roverprocess.WebServer import WebServer
-if "CanServer" in modulesList: from roverprocess.CanServer import CanServer
+import importlib #for dynamic imports
+import inspect
 
-# system configuration
-localPort = 34567
-remotePort = 34568
+# dynamically import all modules in the modulesList
+try:
+    modules = [importlib.import_module("roverprocess."+name) for name in modulesList]
+except (ImportError):
+    print("Could not import modules") # CHANGE
+    sys.exit(1)
+
+# module_classes is a list of tuples where each
+# tuple contains a class name and a class object
+module_classes = [inspect.getmembers(module, inspect.isclass) for module in modules][0]
+
+# rover_classes is a list of classes to be instantiated.
+rover_classes = [tu[1] for tu in [x for x in module_classes] if tu[0] in modulesList]
+print(rover_classes)
+for c in rover_classes:
+    if c.__name__ in modulesList:
+        print(c.__name__)
 
 # build and run the system
 if __name__ == "__main__":
 	system = StateManager()
 	processes = []
-	jsonSubs = []
-	canSubs = []
-	webSubs = []
-
-	i2cSem = multiprocessing.Semaphore(1)
 
 	# macro for configuring threads
 	def subDelegate(module):
 		for sub in module.getSubscribed()["self"]:
 			system.addObserver(sub, module.downlink)
-		jsonSubs.extend(module.getSubscribed()["json"])
-		canSubs.extend(module.getSubscribed()["can"])
-		webSubs.extend(module.getSubscribed()["web"])
 		processes.append(module)
 
 	print("\nBUILD: Registering process subsribers...\n")
@@ -70,30 +75,6 @@ if __name__ == "__main__":
 		process = ExampleProcess(
 			downlink = system.getDownlink(), uplink = system.getUplink())
 		subDelegate(process)
-
-	# servers
-	if "CanServer" in modulesList:
-		process = CanServer(
-			downlink = system.getDownlink(), uplink=system.getUplink(), sendPeriod = 0.01)
-		for sub in canSubs:
-			system.addObserver(sub, process.downlink)
-		processes.append(process)
-
-	if "JsonServer" in modulesList:
-		process = JsonServer(
-			downlink = system.getDownlink(), uplink = system.getUplink(),
-			local = localPort, remote = remotePort, sendPeriod = 0.1)
-		for sub in jsonSubs:
-			system.addObserver(sub, process.downlink)
-		processes.append(process)
-
-	if "WebServer" in modulesList:
-		process = WebServer(
-			downlink = system.getDownlink(), uplink = system.getUplink())
-		for sub in webSubs:
-			print(sub)
-			system.addObserver(sub, process.downlink)
-		processes.append(process)
 
 
 	# start everything

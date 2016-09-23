@@ -18,21 +18,11 @@ import time
 
 
 class ExampleProcess(RoverProcess):
-
-
-
-
-
 	# Some blank space to write functions, classes, threads - whatever you need.
 	# There are no restrictions - this is your own process!
 
 	# See the tutorials on the wiki for things like basic threads and custom libraries.
 	# 	< TO DO: INSTERT LINK TO THAT WIKI AND WRITE IT >
-
-
-
-
-
 	# This is a tool to communicate with the main state manager at startup.
 	# 	It returns a dictionary of lists for all the incoming (self) and outgoing (server) messages
 	#	so that the StateManager knows who gets what message.
