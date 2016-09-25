@@ -66,7 +66,7 @@ class RoverProcess(Process):
 		pass
 
 	def loop(self):
-		time.sleep(10)
+		time.sleep(60)
 
 
 	def messageTrigger(self, message):

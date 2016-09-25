@@ -18,9 +18,20 @@ import time
 class ExampleServer(RoverServer):
 
     def setup(self, args):
+        #spawn 10 threads
         for i in list(range(0,10)):
+            # spawnThread is inherited from RoverServer,
+            # and takes a function, and any keyword arguments that the function needs.
             self.spawnThread(self.workerFunction, name=i)
 
+    # This is a function specific to the ExampleServer class.
+    # Takes in a variable number of keyword arguments.
+    def workerFunction(self, **kwargs):
+        while True:
+            print("Testing server threading " + str(kwargs["name"]))
+            time.sleep(2)
+
+    # regular RoverProcess stuff
     def getSubscribed(self):
         return {
                 "self" : ["heartbeat"],
@@ -28,8 +39,3 @@ class ExampleServer(RoverServer):
                 "can" : [],
                 "web" : []
                 }
-
-    def workerFunction(self, **kwargs):
-        while True:
-            print("Testing server threading " + str(kwargs["name"]))
-            time.sleep(2)
