@@ -12,7 +12,9 @@
 # permissions and limitations under the License.
 
 from multiprocessing import Process, BoundedSemaphore
-import threading, sys
+import threading
+import sys
+import time
 
 class RoverProcess(Process):
 	class ReceiverThread(threading.Thread):
@@ -64,7 +66,8 @@ class RoverProcess(Process):
 		pass
 
 	def loop(self):
-		pass
+		time.sleep(10)
+
 
 	def messageTrigger(self, message):
 		if "quit" in message:

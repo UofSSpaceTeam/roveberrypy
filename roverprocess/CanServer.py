@@ -11,7 +11,7 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-from RoverProcess import RoverProcess
+from .RoverProcess import RoverProcess
 
 import time
 from threading import Thread
