@@ -28,12 +28,10 @@ class ExampleProcess(RoverProcess):
 	#	so that the StateManager knows who gets what message.
 	# Just put the name of the message in the relevant list.
 	def getSubscribed(self):
-		return {
-				"self" : ["heartbeat"],
-				"json" : ["TestData"],
-				"can" : [],
-				"web" : []
-				}
+		return ["heartbeat"]
+
+	def getPublished(self):
+		return ["example_msg"]
 
 	# This is run once to set up anything you need.
 	# 	Hint: use the self object to store variables global to this process.

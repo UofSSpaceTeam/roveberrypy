@@ -33,9 +33,4 @@ class ExampleServer(RoverServer):
 
     # regular RoverProcess stuff
     def getSubscribed(self):
-        return {
-                "self" : ["heartbeat"],
-                "json" : ["TestData"],
-                "can" : [],
-                "web" : []
-                }
+        return ["heartbeat"]

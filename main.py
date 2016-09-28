@@ -71,7 +71,7 @@ if __name__ == "__main__":
 		# and hook it up to the messaging system
 		if _class.__name__ in modulesList:
 			instance = _class(downlink=system.getDownlink(), uplink=system.getUplink())
-			for sub in instance.getSubscribed()["self"]:
+			for sub in instance.getSubscribed():
 				system.addObserver(sub, instance.downlink)
 				processes.append(instance)
 
