@@ -11,18 +11,16 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-from multiprocessing import Process, BoundedSemaphore
+from multiprocessing import Process, BoundedSemaphore, Queue
 import threading
 import sys
 import time
 
 class RoverProcess(Process):
 	class ReceiverThread(threading.Thread):
-		def __init__(self, downlink, state, sem, parent):
+		def __init__(self, downlink, parent):
 			threading.Thread.__init__(self)
 			self.downlink = downlink
-			self._state = state
-			self._stateSem = sem
 			self._parent = parent
 			self.quit = False
 			self.daemon = True
@@ -31,20 +29,16 @@ class RoverProcess(Process):
 			while not self.quit:
 				data = self.downlink.get()
 				assert isinstance(data, dict)
-				with self._stateSem:
-					self._state.update(data)
 				self._parent.messageTrigger(data)
 
 	def __init__(self, **kwargs):
 		Process.__init__(self)
 		self.uplink = kwargs["uplink"]
-		self.downlink = kwargs["downlink"]
-		self._state = dict()
-		self._stateSem = BoundedSemaphore()
+		self.downlink = Queue()
 		self._args = kwargs
 		self.load = True
-		self.receiver = RoverProcess.ReceiverThread(
-			self.downlink, self._state, self._stateSem, self)
+		self.quit = False
+		self.receiver = RoverProcess.ReceiverThread(self.downlink, self)
 
 	def getSubscribed(self):
 		pass
@@ -53,11 +47,12 @@ class RoverProcess(Process):
 		self.receiver.start()
 		try:
 			self.setup(self._args)
-			while True:
-				self.loop()
-		except KeyboardInterrupt:
+			while not self.quit:
+				try:
+					self.loop()
+				except KeyboardInterrupt:
+					pass
 			self.cleanup()
-			sys.exit(0)
 		except:
 			self.cleanup()
 			raise
@@ -71,23 +66,20 @@ class RoverProcess(Process):
 
 	def messageTrigger(self, message):
 		if "quit" in message:
-			print("Got cleanup")
+			print("Got quit")
 			self.cleanup()
 			sys.exit(0)
 
-	def getShared(self, key):
-		with self._stateSem:
-			if key in self._state:
-				return self._state[key]
-			else:
-				return None
+	def getPublished(self, key):
+		pass
 
 	def setShared(self, key, value):
-		with self._stateSem:
-			self._state.update({key:value})
 		self.uplink.put({key:value})
 
 	def cleanup(self):
-		self.receiver.quit = True
-		self.receiver.join(0.25)  # receiver is blocked by call to queue.get()
+		if self.receiver != threading.current_thread():
+			self.receiver.quit = True
+			self.receiver.join(0.25)  # receiver is blocked by call to queue.get()
+		else: # cleanup was called from a message: cannot join current_thread
+			self.quit = True
 

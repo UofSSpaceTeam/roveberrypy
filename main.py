@@ -70,9 +70,9 @@ if __name__ == "__main__":
 		# if _class was enabled, instantiate it,
 		# and hook it up to the messaging system
 		if _class.__name__ in modulesList:
-			instance = _class(downlink=system.getDownlink(), uplink=system.getUplink())
+			instance = _class(uplink=system.getUplink())
 			for sub in instance.getSubscribed():
-				system.addObserver(sub, instance.downlink)
+				system.addSubscriber(sub, instance)
 				processes.append(instance)
 
 	# start everything
