@@ -26,10 +26,12 @@ class ExampleServer(RoverServer):
 
     # This is a function specific to the ExampleServer class.
     # Takes in a variable number of keyword arguments.
+    # NEVER USE "while True"; USE "while not self.quit".
     def workerFunction(self, **kwargs):
-        while True:
+        while not self.quit:
             print("Testing server threading " + str(kwargs["name"]))
             time.sleep(2)
+        print(str(kwargs["name"]) + " done")
 
     # regular RoverProcess stuff
     def getSubscribed(self):

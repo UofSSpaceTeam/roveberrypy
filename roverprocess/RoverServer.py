@@ -14,6 +14,7 @@
 from .RoverProcess import RoverProcess
 
 import time
+import sys
 from threading import Thread
 
 class RoverServer(RoverProcess):
@@ -28,7 +29,21 @@ class RoverServer(RoverProcess):
 		def run(self):
 			self.function(**self.kwargs)
 
+	def __init__(self, **kwargs):
+		RoverProcess.__init__(self, manager=kwargs["manager"], uplink=kwargs["uplink"])
+		self.workers = []
+
 	def spawnThread(self, function, **kwargs):
 		new_thread = RoverServer.WorkerThread(function, **kwargs)
+		self.workers.append(new_thread)
 		new_thread.start()
+
+	def cleanup(self):
+		RoverProcess.cleanup(self)
+		self.quit = True
+		for thread in self.workers:
+			# print(thread)
+			# if thread.is_alive():
+				#force kill thread
+			thread.join(0.25)
 

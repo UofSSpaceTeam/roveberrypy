@@ -17,24 +17,23 @@ from multiprocessing import Queue
 class StateManager:
 	class WorkerThread(Thread):
 		## threading module automatically initializes and runs worker
-		def __init__(self, uplink, subscriberMap, sem):
+		def __init__(self, uplink, parent):
 			Thread.__init__(self)
 			self.uplink = uplink
-			self.subscriberMap = subscriberMap
-			self.stateSem = sem
+			self.parent = parent
 
 		def run(self):
 			while True:
 				message = self.uplink.get()
 				assert isinstance(message, dict)
-				with self.stateSem:
+				with self.parent.stateSem:
 					for key in message:
 						self.notifySubscribers(key, message)
 
 		## Helper to send data to the registered observers defined in main.py
 		def notifySubscribers(self, key, message):
-			if key in self.subscriberMap:
-				for downlink in self.subscriberMap[key]:
+			if key in self.parent.subscriberMap:
+				for downlink in self.parent.subscriberMap[key]:
 					downlink.put(message)
 
 
@@ -45,7 +44,6 @@ class StateManager:
 		self.downlinks = []
 
 	def terminateState(self):
-		#broken
 		for queue in self.downlinks:
 			queue.put({"quit":"True"})
 		self.downlinks = []
@@ -60,7 +58,7 @@ class StateManager:
 	def getUplink(self):
 		uplink = Queue()
 		worker = StateManager.WorkerThread(
-			uplink, self.subscriberMap, self.stateSem)
+			uplink, self)
 		worker.daemon = True
 		worker.start()
 		return uplink
@@ -73,6 +71,7 @@ class StateManager:
 				self.subscriberMap[key].append(process.downlink)
 			if process.downlink not in self.downlinks:
 				self.downlinks.append(process.downlink)
+			print(self.subscriberMap)
 
 	def removeSubscriber(self, key, process):
 		with self.stateSem:

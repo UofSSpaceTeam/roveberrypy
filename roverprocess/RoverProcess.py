@@ -33,15 +33,17 @@ class RoverProcess(Process):
 
 	def __init__(self, **kwargs):
 		Process.__init__(self)
-		self.uplink = kwargs["uplink"]
+		self.manager = kwargs["manager"]
+		self.uplink = self.manager.getUplink()
 		self.downlink = Queue()
 		self._args = kwargs
 		self.load = True
 		self.quit = False
+		self.subscriptions = ["quit"]
 		self.receiver = RoverProcess.ReceiverThread(self.downlink, self)
 
 	def getSubscribed(self):
-		pass
+		return self.subscriptions
 
 	def run(self):
 		self.receiver.start()
@@ -61,12 +63,10 @@ class RoverProcess(Process):
 		pass
 
 	def loop(self):
-		time.sleep(60)
-
+		pass
 
 	def messageTrigger(self, message):
 		if "quit" in message:
-			print("Got quit")
 			self.cleanup()
 			sys.exit(0)
 
@@ -76,8 +76,13 @@ class RoverProcess(Process):
 	def setShared(self, key, value):
 		self.uplink.put({key:value})
 
+	def subscribe(self, key):
+		self.subscriptions.append(key)
+		self.manager.addSubscriber(key, self);
+
 	def cleanup(self):
 		if self.receiver != threading.current_thread():
+			print(self.__class__.__name__ + " shutting down")
 			self.receiver.quit = True
 			self.receiver.join(0.25)  # receiver is blocked by call to queue.get()
 		else: # cleanup was called from a message: cannot join current_thread

@@ -27,7 +27,7 @@ if(os.name == "nt"): # Windows test
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE, SIG_DFL)
-	modulesList = ["ExampleProcess", "ExampleServer"]
+	modulesList = ["Generator", "Receiver", "Receiver2"]
 
 else: # Rover! :D
 	print("Detected Rover hardware! Full config mode\n")
@@ -70,10 +70,10 @@ if __name__ == "__main__":
 		# if _class was enabled, instantiate it,
 		# and hook it up to the messaging system
 		if _class.__name__ in modulesList:
-			instance = _class(uplink=system.getUplink())
-			for sub in instance.getSubscribed():
-				system.addSubscriber(sub, instance)
-				processes.append(instance)
+			instance = _class(manager=system)
+			for msg_key in instance.getSubscribed():
+				system.addSubscriber(msg_key, instance)
+			processes.append(instance)
 
 	# start everything
 	print("\nSTARTING: " + str([type(p).__name__ for p in processes]) + "\n")
