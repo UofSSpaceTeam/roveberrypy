@@ -29,6 +29,10 @@ class RoverProcess(Process):
 			while not self.quit:
 				data = self.downlink.get()
 				assert isinstance(data, dict)
+				for key in data.keys():
+					if hasattr(self._parent, "on_" + key):
+						#call trigger method
+						getattr(self._parent, "on_" + key)(data[key])
 				self._parent.messageTrigger(data)
 
 	def __init__(self, **kwargs):
@@ -66,9 +70,15 @@ class RoverProcess(Process):
 		pass
 
 	def messageTrigger(self, message):
-		if "quit" in message:
-			self.cleanup()
-			sys.exit(0)
+		# if "quit" in message:
+		# 	self.cleanup()
+		# 	sys.exit(0)
+		pass
+
+	def on_quit(self, message):
+		self.cleanup()
+		sys.exit(0)
+
 
 	def getPublished(self, key):
 		pass

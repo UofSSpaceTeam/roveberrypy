@@ -36,5 +36,6 @@ class Receiver(RoverProcess):
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
 
-		if "generator" in message:
-			print("got: " + str(message["generator"]))
+
+	def on_generator(self, message):
+		print("got: " + str(message))
