@@ -27,7 +27,7 @@ if(os.name == "nt"): # Windows test
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE, SIG_DFL)
-	modulesList = ["Generator", "Receiver", "Receiver2"]
+	modulesList = ["ExampleProcess", "ExampleServer"]
 
 else: # Rover! :D
 	print("Detected Rover hardware! Full config mode\n")

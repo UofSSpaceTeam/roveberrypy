@@ -48,13 +48,6 @@ class StateManager:
 			queue.put({"quit":"True"})
 		self.downlinks = []
 
-	def dumpState(self):
-		out = ""
-		with self.stateSem:
-			for key in self.state:
-				out += str(key) + ":" + str(self.state[key]) + "\n"
-		return out
-
 	def getUplink(self):
 		uplink = Queue()
 		worker = StateManager.WorkerThread(
@@ -71,14 +64,6 @@ class StateManager:
 				self.subscriberMap[key].append(process.downlink)
 			if process.downlink not in self.downlinks:
 				self.downlinks.append(process.downlink)
-			print(self.subscriberMap)
-
-	def removeSubscriber(self, key, process):
-		with self.stateSem:
-			if key not in self.subscriberMap:
-				return # nothing to remove
-			if process.downlink in self.subscriberMap[key]:
-				self.subscriberMap[key].remove(process.downlink)
 
 	def dumpSubscribers(self):
 		out = ""

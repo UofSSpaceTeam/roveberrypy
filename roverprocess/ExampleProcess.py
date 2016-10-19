@@ -30,9 +30,6 @@ class ExampleProcess(RoverProcess):
 	def getSubscribed(self):
 		return ["heartbeat"]
 
-	def getPublished(self):
-		return ["example_msg"]
-
 	# This is run once to set up anything you need.
 	# 	Hint: use the self object to store variables global to this process.
 	# 	You can also take any args you need from the main startup as a dictionary:
@@ -46,7 +43,7 @@ class ExampleProcess(RoverProcess):
 	#	will always run at the same time, and will give other processes time to run too!
 	# Use self.setShared() to send some variables to another process or server!
 	def loop(self):
-		self.setShared("TestData", time.time())
+		self.publish("TestData", time.time())
 		time.sleep(1)
 
 	# This runs every time a new message comes in.
@@ -60,4 +57,14 @@ class ExampleProcess(RoverProcess):
 	# This runs once at the end when the program shuts down.
 	#	You can use this to do something like stop motors clean up open files
 	def cleanup(self):
+		# If you override this method, you must call RoverProcess.cleanup(self)
 		RoverProcess.cleanup(self)
+
+	# Whenever the "heartbeat" message is produced, the function "on_heartbeat"
+	# is called. This is an alternative to using large if/else structures in
+	# messageTrigger. In this function, message is the contents of the message,
+	# not the dictionary that contains multiple keys like in messageTrigger.
+	def on_heartbeat(self, message):
+		print("From callback got: " + str(messsage))
+
+

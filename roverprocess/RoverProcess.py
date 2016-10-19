@@ -33,7 +33,8 @@ class RoverProcess(Process):
 					if hasattr(self._parent, "on_" + key):
 						#call trigger method
 						getattr(self._parent, "on_" + key)(data[key])
-				self._parent.messageTrigger(data)
+					else:
+						self._parent.messageTrigger(data)
 
 	def __init__(self, **kwargs):
 		Process.__init__(self)
@@ -43,11 +44,10 @@ class RoverProcess(Process):
 		self._args = kwargs
 		self.load = True
 		self.quit = False
-		self.subscriptions = ["quit"]
 		self.receiver = RoverProcess.ReceiverThread(self.downlink, self)
 
 	def getSubscribed(self):
-		return self.subscriptions
+		return ["quit"]
 
 	def run(self):
 		self.receiver.start()
@@ -70,25 +70,14 @@ class RoverProcess(Process):
 		pass
 
 	def messageTrigger(self, message):
-		# if "quit" in message:
-		# 	self.cleanup()
-		# 	sys.exit(0)
 		pass
 
 	def on_quit(self, message):
 		self.cleanup()
 		sys.exit(0)
 
-
-	def getPublished(self, key):
-		pass
-
-	def setShared(self, key, value):
+	def publish(self, key, value):
 		self.uplink.put({key:value})
-
-	def subscribe(self, key):
-		self.subscriptions.append(key)
-		self.manager.addSubscriber(key, self);
 
 	def cleanup(self):
 		if self.receiver != threading.current_thread():
