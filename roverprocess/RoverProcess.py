@@ -11,16 +11,16 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-from multiprocessing import Process, BoundedSemaphore
-import threading, sys
+from multiprocessing import Process, BoundedSemaphore, Queue
+import threading
+import sys
+import time
 
 class RoverProcess(Process):
 	class ReceiverThread(threading.Thread):
-		def __init__(self, downlink, state, sem, parent):
+		def __init__(self, downlink, parent):
 			threading.Thread.__init__(self)
 			self.downlink = downlink
-			self._state = state
-			self._stateSem = sem
 			self._parent = parent
 			self.quit = False
 			self.daemon = True
@@ -29,33 +29,36 @@ class RoverProcess(Process):
 			while not self.quit:
 				data = self.downlink.get()
 				assert isinstance(data, dict)
-				with self._stateSem:
-					self._state.update(data)
-				self._parent.messageTrigger(data)
+				for key in data.keys():
+					if hasattr(self._parent, "on_" + key):
+						#call trigger method
+						getattr(self._parent, "on_" + key)(data[key])
+					else:
+						self._parent.messageTrigger(data)
 
 	def __init__(self, **kwargs):
 		Process.__init__(self)
-		self.uplink = kwargs["uplink"]
-		self.downlink = kwargs["downlink"]
-		self._state = dict()
-		self._stateSem = BoundedSemaphore()
+		self.manager = kwargs["manager"]
+		self.uplink = self.manager.getUplink()
+		self.downlink = Queue()
 		self._args = kwargs
 		self.load = True
-		self.receiver = RoverProcess.ReceiverThread(
-			self.downlink, self._state, self._stateSem, self)
+		self.quit = False
+		self.receiver = RoverProcess.ReceiverThread(self.downlink, self)
 
 	def getSubscribed(self):
-		pass
+		return ["quit"]
 
 	def run(self):
 		self.receiver.start()
 		try:
 			self.setup(self._args)
-			while True:
-				self.loop()
-		except KeyboardInterrupt:
+			while not self.quit:
+				try:
+					self.loop()
+				except KeyboardInterrupt:
+					pass
 			self.cleanup()
-			sys.exit(0)
 		except:
 			self.cleanup()
 			raise
@@ -67,24 +70,20 @@ class RoverProcess(Process):
 		pass
 
 	def messageTrigger(self, message):
-		if "quit" in message:
-			print("Got cleanup")
-			self.cleanup()
-			sys.exit(0)
+		pass
 
-	def getShared(self, key):
-		with self._stateSem:
-			if key in self._state:
-				return self._state[key]
-			else:
-				return None
+	def on_quit(self, message):
+		self.cleanup()
+		sys.exit(0)
 
-	def setShared(self, key, value):
-		with self._stateSem:
-			self._state.update({key:value})
+	def publish(self, key, value):
 		self.uplink.put({key:value})
 
 	def cleanup(self):
-		self.receiver.quit = True
-		self.receiver.join(0.25)  # receiver is blocked by call to queue.get()
+		if self.receiver != threading.current_thread():
+			print(self.__class__.__name__ + " shutting down")
+			self.receiver.quit = True
+			self.receiver.join(0.25)  # receiver is blocked by call to queue.get()
+		else: # cleanup was called from a message: cannot join current_thread
+			self.quit = True
 

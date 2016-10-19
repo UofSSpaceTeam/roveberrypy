@@ -18,32 +18,17 @@ import time
 
 
 class ExampleProcess(RoverProcess):
-
-
-
-
-
 	# Some blank space to write functions, classes, threads - whatever you need.
 	# There are no restrictions - this is your own process!
 
 	# See the tutorials on the wiki for things like basic threads and custom libraries.
 	# 	< TO DO: INSTERT LINK TO THAT WIKI AND WRITE IT >
-
-
-
-
-
 	# This is a tool to communicate with the main state manager at startup.
 	# 	It returns a dictionary of lists for all the incoming (self) and outgoing (server) messages
 	#	so that the StateManager knows who gets what message.
 	# Just put the name of the message in the relevant list.
 	def getSubscribed(self):
-		return {
-				"self" : ["heartbeat"],
-				"json" : ["TestData"],
-				"can" : [],
-				"web" : []
-				}
+		return ["heartbeat"]
 
 	# This is run once to set up anything you need.
 	# 	Hint: use the self object to store variables global to this process.
@@ -58,7 +43,7 @@ class ExampleProcess(RoverProcess):
 	#	will always run at the same time, and will give other processes time to run too!
 	# Use self.setShared() to send some variables to another process or server!
 	def loop(self):
-		self.setShared("TestData", time.time())
+		self.publish("TestData", time.time())
 		time.sleep(1)
 
 	# This runs every time a new message comes in.
@@ -72,4 +57,14 @@ class ExampleProcess(RoverProcess):
 	# This runs once at the end when the program shuts down.
 	#	You can use this to do something like stop motors clean up open files
 	def cleanup(self):
+		# If you override this method, you must call RoverProcess.cleanup(self)
 		RoverProcess.cleanup(self)
+
+	# Whenever the "heartbeat" message is produced, the function "on_heartbeat"
+	# is called. This is an alternative to using large if/else structures in
+	# messageTrigger. In this function, message is the contents of the message,
+	# not the dictionary that contains multiple keys like in messageTrigger.
+	def on_heartbeat(self, message):
+		print("From callback got: " + str(messsage))
+
+
