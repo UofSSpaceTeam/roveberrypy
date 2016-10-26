@@ -27,7 +27,10 @@ class RoverServer(RoverProcess):
 			self.daemon = True
 
 		def run(self):
-			self.function(**self.kwargs)
+			try:
+				self.function(**self.kwargs)
+			except KeyboardInterrupt:
+				pass
 
 	def __init__(self, **kwargs):
 		RoverProcess.__init__(self, manager=kwargs["manager"])
@@ -42,8 +45,8 @@ class RoverServer(RoverProcess):
 		RoverProcess.cleanup(self)
 		self.quit = True
 		for thread in self.workers:
-			# print(thread)
-			# if thread.is_alive():
-				#force kill thread
-			thread.join(0.25)
+			try:
+				thread.join(0.25)
+			except KeyboardInterrupt:
+				pass
 

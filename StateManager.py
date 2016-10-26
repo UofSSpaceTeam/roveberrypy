@@ -41,12 +41,13 @@ class StateManager:
 	def __init__(self):
 		self.stateSem = BoundedSemaphore()
 		self.subscriberMap = dict() # maps message names to
-		self.downlinks = []
+		self.subscribers = []
 
 	def terminateState(self):
-		for queue in self.downlinks:
-			queue.put({"quit":"True"})
-		self.downlinks = []
+		for subscriber in self.subscribers:
+			subscriber.downlink.put({"quit":"True"})
+			# subscriber.cleanup()
+		self.subscribers = []
 
 	def getUplink(self):
 		uplink = Queue()
@@ -62,8 +63,8 @@ class StateManager:
 				self.subscriberMap[key] = list()
 			if process.downlink not in self.subscriberMap[key]:
 				self.subscriberMap[key].append(process.downlink)
-			if process.downlink not in self.downlinks:
-				self.downlinks.append(process.downlink)
+			if process not in self.subscribers:
+				self.subscribers.append(process)
 
 	def dumpSubscribers(self):
 		out = ""

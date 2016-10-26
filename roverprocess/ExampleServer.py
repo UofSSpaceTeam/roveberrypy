@@ -29,8 +29,11 @@ class ExampleServer(RoverServer):
     # NEVER USE "while True"; USE "while not self.quit".
     def workerFunction(self, **kwargs):
         while not self.quit:
-            print("Testing server threading " + str(kwargs["name"]))
-            time.sleep(2)
+            try:
+                print("Testing server threading " + str(kwargs["name"]))
+                time.sleep(1)
+            except KeyboardInterrupt:
+                self.quit = True
         print(str(kwargs["name"]) + " done")
 
     # regular RoverProcess stuff
