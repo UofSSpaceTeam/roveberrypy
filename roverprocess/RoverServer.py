@@ -46,7 +46,7 @@ class RoverServer(RoverProcess):
 		self.quit = True
 		for thread in self.workers:
 			try:
-				thread.join(0.25)
+				thread.join(0.1)
 			except KeyboardInterrupt:
 				pass
 

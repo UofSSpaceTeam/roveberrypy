@@ -70,7 +70,10 @@ class RoverProcess(Process):
 		pass
 
 	def loop(self):
-		pass
+		try:
+			time.sleep(1)
+		except KeyboardInterrupt:
+			pass
 
 	def messageTrigger(self, message):
 		pass
@@ -83,10 +86,13 @@ class RoverProcess(Process):
 		self.uplink.put({key:value})
 
 	def cleanup(self):
-		if self.receiver != threading.current_thread():
-			print(self.__class__.__name__ + " shutting down")
-			self.receiver.quit = True
-			self.receiver.join(0.01)  # receiver is blocked by call to queue.get()
-		else: # cleanup was called from a message: cannot join current_thread
-			self.quit = True
+		try:
+			if self.receiver != threading.current_thread():
+				print(self.__class__.__name__ + " shutting down")
+				self.receiver.quit = True
+				self.receiver.join(0.01)  # receiver is blocked by call to queue.get()
+			else: # cleanup was called from a message: cannot join current_thread
+				self.quit = True
+		except KeyboardInterrupt:
+			pass
 
