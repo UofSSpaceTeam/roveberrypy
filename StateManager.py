@@ -17,72 +17,59 @@ from multiprocessing import Queue
 class StateManager:
 	class WorkerThread(Thread):
 		## threading module automatically initializes and runs worker
-		def __init__(self, uplink, state, observerMap, sem):
+		def __init__(self, uplink, parent):
 			Thread.__init__(self)
 			self.uplink = uplink
-			self.state = state
-			self.observerMap = observerMap
-			self.stateSem = sem
+			self.parent = parent
 
 		def run(self):
 			while True:
-				data = self.uplink.get()
-				assert isinstance(data, dict)
-				with self.stateSem:
-					self.state.update(data)
-					for key in data:
-						self.notifyObservers(key)
+				message = self.uplink.get()
+				assert isinstance(message, dict)
+				with self.parent.stateSem:
+					for key in message:
+						self.notifySubscribers(key, message)
 
 		## Helper to send data to the registered observers defined in main.py
-		def notifyObservers(self, key):
-			if key in self.observerMap:
-				for downlink in self.observerMap[key]:
-					downlink.put({key:self.state[key]})
+		def notifySubscribers(self, key, message):
+			if key in self.parent.subscriberMap:
+				for downlink in self.parent.subscriberMap[key]:
+					downlink.put(message)
 
 
 	## Main state management functions
 	def __init__(self):
 		self.stateSem = BoundedSemaphore()
-		self.state = dict()
-		self.observerMap = dict()
-		self.downlinks = []
+		self.subscriberMap = dict() # maps message names to
+		self.subscribers = []
 
 	def terminateState(self):
-		for queue in self.downlinks:
-			queue.put({"quit":"True"})
-		self.downlinks = []
-
-	def dumpState(self):
-		out = ""
-		with self.stateSem:
-			for key in self.state:
-				out += str(key) + ":" + str(self.state[key]) + "\n"
-		return out
+		for subscriber in self.subscribers:
+			subscriber.downlink.put({"quit":"True"})
+			# subscriber.cleanup()
+		self.subscribers = []
 
 	def getUplink(self):
 		uplink = Queue()
 		worker = StateManager.WorkerThread(
-			uplink, self.state, self.observerMap, self.stateSem)
+			uplink, self)
 		worker.daemon = True
 		worker.start()
 		return uplink
 
-	def getDownlink(self):
-		downlink = Queue()
-		self.downlinks.append(downlink)
-		return Queue()
-
-	def addObserver(self, key, downlink):
+	def addSubscriber(self, key, process):
 		with self.stateSem:
-			if key not in self.observerMap:
-				self.observerMap[key] = list()
-			if downlink not in self.observerMap[key]:
-				self.observerMap[key].append(downlink)
+			if key not in self.subscriberMap:
+				self.subscriberMap[key] = list()
+			if process.downlink not in self.subscriberMap[key]:
+				self.subscriberMap[key].append(process.downlink)
+			if process not in self.subscribers:
+				self.subscribers.append(process)
 
-	def dumpObservers(self):
+	def dumpSubscribers(self):
 		out = ""
 		with self.stateSem:
-			for key in self.observerMap:
+			for key in self.subscriberMap:
 				out += str(key) + ":"
-				out += str(len(self.observerMap[key])) + "\n"
+				out += str(len(self.subscriberMap[key])) + "\n"
 		return out

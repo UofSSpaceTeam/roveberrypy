@@ -11,90 +11,69 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-import os, sys
-sys.dont_write_bytecode = True
+from StateManager import StateManager
+import os
+import sys
+sys.dont_write_bytecode = True #prevent generation of .pyc files on imports
 import time
-import multiprocessing
+import inspect # for dynamic imports
+import importlib #for dynamic imports
 
 # Check for hardware and load required modules
+# Add the class name of a module to modulesLis to enable it
 if(os.name == "nt"): # Windows test
 	modulesList = []
 
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
-	signal(SIGPIPE,SIG_DFL)
-	modulesList = ["Example"]
+	signal(SIGPIPE, SIG_DFL)
+	modulesList = ["ExampleProcess", "ExampleServer"]
 
 else: # Rover! :D
 	print("Detected Rover hardware! Full config mode\n")
 	from signal import signal, SIGPIPE, SIG_DFL
-	signal(SIGPIPE,SIG_DFL)
+	signal(SIGPIPE, SIG_DFL)
 	modulesList = []
 
+print("Enabled modules:")
 print(modulesList)
 
-# Import modules
-from StateManager import StateManager
-if "JsonServer" in modulesList: from roverprocess.JsonServer import JsonServer
-if "Example" in modulesList: from roverprocess.ExampleProcess import ExampleProcess
-if "WebServer" in modulesList: from roverprocess.WebServer import WebServer
-if "CanServer" in modulesList: from roverprocess.CanServer import CanServer
 
-# system configuration
-localPort = 34567
-remotePort = 34568
+# Dynamically import all modules in the modulesList
+modules = []
+for name in modulesList:
+	try:
+		modules.append(importlib.import_module("roverprocess." + name))
+	except (ImportError):
+		print("\nERROR: Could not import " + name)
+
+# module_classes is a list of lists where each list
+# contains tuples for every class in the module, and each
+# tuple contains a class name and a class object
+module_classes = [inspect.getmembers(module, inspect.isclass) for module in modules]
+
+# rover_classes is a list of classes to be instantiated.
+rover_classes = []
+for _list in module_classes:
+	for _tuple in _list:
+		if _tuple[0] in modulesList:
+			rover_classes.append(_tuple[1])
+
 
 # build and run the system
 if __name__ == "__main__":
+
 	system = StateManager()
 	processes = []
-	jsonSubs = []
-	canSubs = []
-	webSubs = []
-
-	i2cSem = multiprocessing.Semaphore(1)
-
-	# macro for configuring threads
-	def subDelegate(module):
-		for sub in module.getSubscribed()["self"]:
-			system.addObserver(sub, module.downlink)
-		jsonSubs.extend(module.getSubscribed()["json"])
-		canSubs.extend(module.getSubscribed()["can"])
-		webSubs.extend(module.getSubscribed()["web"])
-		processes.append(module)
-
 	print("\nBUILD: Registering process subsribers...\n")
-
-	# modules
-	if "Example" in modulesList:
-		process = ExampleProcess(
-			downlink = system.getDownlink(), uplink = system.getUplink())
-		subDelegate(process)
-
-	# servers
-	if "CanServer" in modulesList:
-		process = CanServer(
-			downlink = system.getDownlink(), uplink=system.getUplink(), sendPeriod = 0.01)
-		for sub in canSubs:
-			system.addObserver(sub, process.downlink)
-		processes.append(process)
-
-	if "JsonServer" in modulesList:
-		process = JsonServer(
-			downlink = system.getDownlink(), uplink = system.getUplink(),
-			local = localPort, remote = remotePort, sendPeriod = 0.1)
-		for sub in jsonSubs:
-			system.addObserver(sub, process.downlink)
-		processes.append(process)
-
-	if "WebServer" in modulesList:
-		process = WebServer(
-			downlink = system.getDownlink(), uplink = system.getUplink())
-		for sub in webSubs:
-			print(sub)
-			system.addObserver(sub, process.downlink)
-		processes.append(process)
-
+	for _class in rover_classes:
+		# if _class was enabled, instantiate it,
+		# and hook it up to the messaging system
+		if _class.__name__ in modulesList:
+			instance = _class(manager=system)
+			for msg_key in instance.getSubscribed():
+				system.addSubscriber(msg_key, instance)
+			processes.append(instance)
 
 	# start everything
 	print("\nSTARTING: " + str([type(p).__name__ for p in processes]) + "\n")
