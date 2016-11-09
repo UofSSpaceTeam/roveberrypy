@@ -9,10 +9,9 @@ class USBServer(RoverProcess):
 	DeviceList = {"test": None}
 	InList ={"test":"TestIn"}
 	OutList = {"test": "TestOut"}
-	
+
 	def getSubscribed(self):
-		return ["TestIn", "TestOut"]
-		
+		return ["TestIn", "TestOut","Wheel1","Whee2","Wheel3","Wheel4","Wheel5","Wheel6"]
 	def setup(self, args):
 		ports = list_ports.comports()
 		for port in ports:
@@ -22,8 +21,8 @@ class USBServer(RoverProcess):
 				print(s)
 				if s in IDList.keys():
 					DeviceList[s] = port.device
-	
-	
+
+
 	def loop(self):
 		for key, value in DeviceList.items():
 			with serial.Serial(value, timeout = 1) as ser:
