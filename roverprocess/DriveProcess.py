@@ -65,4 +65,12 @@ class DriveProcess(RoverProcess):
 	def on_heartbeat(self, message):
 		print("From callback got: " + str(messsage))
 
+	# 
+	# message contains list with x and y axies
+	def printJoystickData(self, message):
+		x_axis = message[0]
+		y_axis = message[1]
+		print(x_axis + " " + y_axis)
+
+
 
