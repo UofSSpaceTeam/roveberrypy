@@ -7,7 +7,8 @@ import time
 class USBServer(RoverProcess):
 
 	def getSubscribed(self):
-		return ["TestIn", "TestOut","Wheel1","Whee2","Wheel3","Wheel4","Wheel5","Wheel6"]
+		return ["TestIn", "TestOut", "wheel1", "whee2",
+				"wheel3", "wheel4", "wheel5", "wheel6"]
 
 
 	def setup(self, args):
@@ -38,3 +39,25 @@ class USBServer(RoverProcess):
 		with serial.Serial(port, timeout = 1) as ser:
 			print(message)
 			ser.write(message)
+
+	def messageTrigger(self, message):
+		RoverProcess.messageTrigger(message)
+		if "wheel1" in message:
+			#forwared to appropriate device
+			pass
+		elif "wheel2" in message:
+			#forwared to appropriate device
+			pass
+		elif "wheel3" in message:
+			#forwared to appropriate device
+			pass
+		elif "wheel4" in message:
+			#forwared to appropriate device
+			pass
+		elif "wheel5" in message:
+			#forwared to appropriate device
+			pass
+		elif "wheel6" in message:
+			#forwared to appropriate device
+			pass
+
