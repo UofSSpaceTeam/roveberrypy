@@ -26,7 +26,7 @@ class DriveProcess(RoverProcess):
 	#	so that the StateManager knows who gets what message.
 	# Just put the name of the message in the relevant list.
 	def getSubscribed(self):
-		return ["heartbeat"]
+		return ["joystick1", "joystick2"]
 
 	# This is run once to set up anything you need.
 	# 	Hint: use the self object to store variables global to this process.
@@ -65,12 +65,43 @@ class DriveProcess(RoverProcess):
 	def on_heartbeat(self, message):
 		print("From callback got: " + str(messsage))
 
-	# 
-	# message contains list with x and y axies
-	def printJoystickData(self, message):
+
+	# Function that grabs the x and y axis values in message, then formats the data
+	#  and prints the result to stdout.
+	# Returns the newly formated x and y axis values in a new list
+	def on_joystick1(self, message):
 		x_axis = message[0]
 		y_axis = message[1]
-		print(x_axis + " " + y_axis)
+		x_axis = (x_axis * 255)
+		y_axis = (y_axis * 255)
+		newMessage = [x_axis, y_axis]
+		print(newMessage)
+		self.publish("wheel1", newMessage)
+		self.publish("wheel2", newMessage)
+		self.publish("wheel3", newMessage)
+
+
+	# Function that grabs the x and y axis values in message, then formats the data
+	#  and prints the result to stdout.
+	# Returns the newly formated x and y axis values in a new list
+	def on_joystick2(self, message):
+		x_axis = message[0]
+		y_axis = message[1]
+		x_axis = (x_axis * 255)
+		y_axis = (y_axis * 255)
+		newMessage = [x_axis, y_axis]
+		print(newMessage)
+		self.publish("wheel4", newMessage)
+		self.publish("wheel5", newMessage)
+		self.publish("wheel6", newMessage)
+
+
+
+
+
+
+
+
 
 
 
