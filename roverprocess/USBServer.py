@@ -7,41 +7,49 @@ import time
 class USBServer(RoverProcess):
 
 	def getSubscribed(self):
-		return ["TestIn", "TestOut", "wheel1", "whee2",
+		return ["TestIn", "TestOut", "wheel1", "wheel2",
 				"wheel3", "wheel4", "wheel5", "wheel6"]
 
 
 	def setup(self, args):
-		self.IDList = {b"100": "test"}
-		self.DeviceList = {"test": None}
+		self.IDList = {b'\x01': "test"}
+		self.DeviceList = {}
 		self.InList ={"test":"TestIn"}
-		self.OutList = {"test": "TestOut"}
+		self.OutList = {b'\x01': "TestOut"}
 		ports = list_ports.comports()
 		for port in ports:
-			with serial.Serial(port.device, timeout=1) as ser:
+			if port.device == '/dev/ttyS0':
+				continue
+			with serial.Serial(port.device) as ser:
 				ser.write(b'ID')
-				s = ser.read(100)
-				print(s)
+				s = ser.read(1)
+				print("got Id: ", s)
 				if s in self.IDList.keys():
 					self.DeviceList[s] = port.device
 
 
 	def loop(self):
 		for key, value in self.DeviceList.items():
-			with serial.Serial(value, timeout = 1) as ser:
-				ser.write(b'test')
-				s = ser.read(100)
-				self.publish(self.OutList[key], s)
-				print(s)
+			try:
+				with serial.Serial(value) as ser:
+					ser.write(b'req')
+					num_bytes = ser.read(1)
+					print(num_bytes)
+					s = ser.read(int.from_bytes(num_bytes, byteorder='little'))
+					self.publish(self.OutList[key], s)
+					print("published: ", s)
+			except Exception:
+				raise
+		time.sleep(1)
 
 	def on_TestIn(self, message):
 		port = self.DeviceList["test"]
-		with serial.Serial(port, timeout = 1) as ser:
+		with serial.Serial(port, timeout=1) as ser:
 			print(message)
 			ser.write(message)
 
 	def messageTrigger(self, message):
-		RoverProcess.messageTrigger(message)
+		RoverProcess.messageTrigger(self, message)
 		if "wheel1" in message:
 			#forwared to appropriate device
 			pass
