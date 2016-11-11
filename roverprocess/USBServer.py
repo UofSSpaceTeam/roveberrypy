@@ -27,6 +27,11 @@ def makeVESCPacket(payload, len):
 	# print(b_msg)
 	return b_msg
 
+def parseVESCPacket(packet):
+	msg = packet[2:2+packet[1]].decode("utf-8")
+	return msg
+
+
 class USBServer(RoverProcess):
 
 	def getSubscribed(self):
@@ -52,8 +57,7 @@ class USBServer(RoverProcess):
 		for port in ports:
 			if port.device == "/dev/ttyS0":
 				continue
-			with serial.Serial(port.device, timeout = 1) as ser:
-				self.drive(ser, 15000)
+			# self.drive(port.device, 15000)
 		# for port in self.DeviceList:
 		# 	try:
 		# 		with serial.Serial(port) as ser:
@@ -65,7 +69,7 @@ class USBServer(RoverProcess):
 		# 			print("published: ", s)
 		# 	except Exception:
 		# 		raise
-		time.sleep(0.05)
+		time.sleep(1)
 
 	def on_TestIn(self, message):
 		port = self.DeviceList["test"]
@@ -75,9 +79,12 @@ class USBServer(RoverProcess):
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
+		print(self.IDList)
 		if "wheel1" in message:
-			#forwared to appropriate device
-			pass
+			if "wheel1" in self.IDList:
+				for device in self.IDList["wheel1"]:
+					self.drive(device, message["wheel1"])
+					# pass
 		elif "wheel2" in message:
 			#forwared to appropriate device
 			pass
@@ -96,21 +103,22 @@ class USBServer(RoverProcess):
 
 	def reqSubscription(self, port):
 		with serial.Serial(port.device, timeout=1) as ser:
-			ser.write(b'subs')
-			num_bytes = ser.read(1)
-			s = ser.read(int.from_bytes(num_bytes, byteorder='little'))
-			print("got sub: ", s)
+
+			payload = [36]
+			msg = makeVESCPacket(payload, len(payload))
+			ser.write(msg)
+
+			s = parseVESCPacket(ser.readline())
 			if s not in self.IDList:
 				self.IDList[s] = []
 			self.IDList[s].append(port.device)
 			self.DeviceList.append(port.device)
 
-	def drive(self, ser, speed):
-		b_cycle = pyint32tobytes(speed)
-		payload = [8]
-		payload.extend(b_cycle)
-		msg = makeVESCPacket(payload, len(payload))
-		ser.write(msg)
-		ser.readline()
-		#ser.write(SendPacket([4],1))
-		data = ser.readline()
+	#TODO move to DriveProcess?
+	def drive(self, device, speed):
+		with serial.Serial(device, timeout = 1) as ser:
+			b_cycle = pyint32tobytes(speed)
+			payload = [8]
+			payload.extend(b_cycle)
+			msg = makeVESCPacket(payload, len(payload))
+			ser.write(msg)
