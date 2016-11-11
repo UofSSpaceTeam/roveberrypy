@@ -28,7 +28,7 @@ def SendPacket(payload, len):
 
 
 
-cycle = 40
+cycle = -10000
 while(True):
 	ports = list_ports.comports()
 	for port in ports:	
@@ -39,8 +39,7 @@ while(True):
 		with serial.Serial(port.device, timeout = 1) as ser:
 			msg = SendPacket(payload, len(payload))
 			ser.write(msg)
-			ser.write(SendPacket([4],1))
+			ser.readline()
+			#ser.write(SendPacket([4],1))
 			data = ser.readline()
-			if len(data) > 30:
-				print("duty cycle:",data[24],data[25])
-				print("rpm:",data[26],data[27],data[28],data[29])
+			print(data)
