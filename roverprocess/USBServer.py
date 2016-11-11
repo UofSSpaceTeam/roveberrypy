@@ -3,7 +3,7 @@ from .RoverProcess import RoverProcess
 from serial.tools import list_ports
 import serial
 import time
-from motor.interface import *
+from .motor.interface import *
 from ctypes import *
 
 def makeVESCPacket(payload, len):
@@ -44,35 +44,16 @@ class USBServer(RoverProcess):
 			if port.device == '/dev/ttyS0':
 				#ignore first linux serial port
 				continue
-			with serial.Serial(port.device, timeout=1) as ser:
-				ser.write(b'subs')
-				num_bytes = ser.read(1)
-				s = ser.read(int.from_bytes(num_bytes, byteorder='little'))
-				print("got sub: ", s)
-				if s not in self.IDList:
-					self.IDList[s] = []
-				self.IDList[s].append(port.device)
-				self.DeviceList.append(port.device)
-				# if s in self.IDList.keys():
-				# 	self.DeviceList[s] = port.device
+			self.reqSubscription(port)
 
 
 	def loop(self):
-		speed = 20000
 		ports = list_ports.comports()
 		for port in ports:
-			b_cycle = pyint32tobytes(speed)
-			payload = [8]
-			payload.extend(b_cycle)
-
 			if port.device == "/dev/ttyS0":
 				continue
 			with serial.Serial(port.device, timeout = 1) as ser:
-				msg = makeVESCPacket(payload, len(payload))
-				ser.write(msg)
-				ser.readline()
-				#ser.write(SendPacket([4],1))
-				data = ser.readline()
+				self.drive(ser, 15000)
 		# for port in self.DeviceList:
 		# 	try:
 		# 		with serial.Serial(port) as ser:
@@ -113,3 +94,23 @@ class USBServer(RoverProcess):
 			#forwared to appropriate device
 			pass
 
+	def reqSubscription(self, port):
+		with serial.Serial(port.device, timeout=1) as ser:
+			ser.write(b'subs')
+			num_bytes = ser.read(1)
+			s = ser.read(int.from_bytes(num_bytes, byteorder='little'))
+			print("got sub: ", s)
+			if s not in self.IDList:
+				self.IDList[s] = []
+			self.IDList[s].append(port.device)
+			self.DeviceList.append(port.device)
+
+	def drive(self, ser, speed):
+		b_cycle = pyint32tobytes(speed)
+		payload = [8]
+		payload.extend(b_cycle)
+		msg = makeVESCPacket(payload, len(payload))
+		ser.write(msg)
+		ser.readline()
+		#ser.write(SendPacket([4],1))
+		data = ser.readline()
