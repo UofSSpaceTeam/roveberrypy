@@ -12,31 +12,37 @@ class USBServer(RoverProcess):
 
 
 	def setup(self, args):
-		self.IDList = {b'\x01': "test"}
-		self.DeviceList = {}
+		self.IDList = {}
+		self.DeviceList = []
 		self.InList ={"test":"TestIn"}
 		self.OutList = {b'\x01': "TestOut"}
 		ports = list_ports.comports()
 		for port in ports:
 			if port.device == '/dev/ttyS0':
+				#ignore first linux serial port
 				continue
 			with serial.Serial(port.device) as ser:
-				ser.write(b'ID')
-				s = ser.read(1)
-				print("got Id: ", s)
-				if s in self.IDList.keys():
-					self.DeviceList[s] = port.device
+				ser.write(b'subs')
+				num_bytes = ser.read(1)
+				s = ser.read(int.from_bytes(num_bytes, byteorder='little'))
+				print("got sub: ", s)
+				if s not in self.IDList:
+					self.IDList[s] = []
+				self.IDList[s].append(port.device)
+				self.DeviceList.append(port.device)
+				# if s in self.IDList.keys():
+				# 	self.DeviceList[s] = port.device
 
 
 	def loop(self):
-		for key, value in self.DeviceList.items():
+		for port in self.DeviceList:
 			try:
-				with serial.Serial(value) as ser:
+				with serial.Serial(port) as ser:
 					ser.write(b'req')
 					num_bytes = ser.read(1)
 					print(num_bytes)
 					s = ser.read(int.from_bytes(num_bytes, byteorder='little'))
-					self.publish(self.OutList[key], s)
+					# self.publish(self.OutList[key], s)
 					print("published: ", s)
 			except Exception:
 				raise
