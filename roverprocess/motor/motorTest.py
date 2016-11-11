@@ -16,9 +16,9 @@ def SendPacket(payload, len):
 		msg.append(int(len/(2**8)))
 		msg.append(len&0xFF)
 	msg.extend(payload)
-	
+
 	msg.append(int(crc.value/(2**8)))
-	
+
 	msg.append(crc.value&0xFF)
 	msg.append(3)
 	print(msg)
@@ -28,14 +28,16 @@ def SendPacket(payload, len):
 
 
 
-cycle = -10000
+cycle = 15000
 while(True):
 	ports = list_ports.comports()
-	for port in ports:	
+	for port in ports:
 		b_cycle = pyint32tobytes(cycle)
 		payload = [8]
 		payload.extend(b_cycle)
-		
+
+		if port.device == "/dev/ttyS0":
+			continue
 		with serial.Serial(port.device, timeout = 1) as ser:
 			msg = SendPacket(payload, len(payload))
 			ser.write(msg)

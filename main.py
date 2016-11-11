@@ -46,6 +46,7 @@ for name in modulesList:
 		modules.append(importlib.import_module("roverprocess." + name))
 	except (ImportError):
 		print("\nERROR: Could not import " + name)
+		raise
 
 # module_classes is a list of lists where each list
 # contains tuples for every class in the module, and each
