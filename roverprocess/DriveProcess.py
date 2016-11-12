@@ -24,27 +24,31 @@ class DriveProcess(RoverProcess):
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list
 	def on_joystick1(self, message):
-		x_axis = message[0]
 		y_axis = message[1]
-		x_axis = (x_axis * 255)
-		y_axis = (y_axis * 255)
-		newMessage = [x_axis, y_axis]
-		#print(newMessage)
+		y_axis = (y_axis * 40000)
+		if y_axis > 11000 or y_axis < -11000:
+			newMessage = y_axis
+		else:
+			newMessage = 0
+
+		print(newMessage)
 		self.publish("wheel1", newMessage)
 		self.publish("wheel2", newMessage)
 		self.publish("wheel3", newMessage)
+
 
 
 	# Function that grabs the x and y axis values in message, then formats the data
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list
 	def on_joystick2(self, message):
-		x_axis = message[0]
 		y_axis = message[1]
-		x_axis = (x_axis * 255)
-		y_axis = (y_axis * 255)
-		newMessage = [x_axis, y_axis]
-		#print(newMessage)
+		y_axis = (y_axis * 40000)
+		if y_axis > 11000 or y_axis < -11000:
+			newMessage = y_axis
+		else:
+			newMessage = 0
+		print(newMessage)
 		self.publish("wheel4", newMessage)
 		self.publish("wheel5", newMessage)
 		self.publish("wheel6", newMessage)

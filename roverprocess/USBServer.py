@@ -86,20 +86,25 @@ class USBServer(RoverProcess):
 					self.drive(device, message["wheel1"])
 					# pass
 		elif "wheel2" in message:
-			#forwared to appropriate device
-			pass
+			if "wheel2" in self.IDList:
+				for device in self.IDList["wheel2"]:
+					self.drive(device, message["wheel2"])
 		elif "wheel3" in message:
-			#forwared to appropriate device
-			pass
+			if "wheel3" in self.IDList:
+				for device in self.IDList["wheel3"]:
+					self.drive(device, message["wheel3"])
 		elif "wheel4" in message:
-			#forwared to appropriate device
-			pass
+			if "wheel4" in self.IDList:
+				for device in self.IDList["wheel4"]:
+					self.drive(device, message["wheel4"])
 		elif "wheel5" in message:
-			#forwared to appropriate device
-			pass
+			if "wheel5" in self.IDList:
+				for device in self.IDList["wheel5"]:
+					self.drive(device, message["wheel5"])
 		elif "wheel6" in message:
-			#forwared to appropriate device
-			pass
+			if "wheel6" in self.IDList:
+				for device in self.IDList["wheel6"]:
+					self.drive(device, message["wheel6"])
 
 	def reqSubscription(self, port):
 		with serial.Serial(port.device, timeout=1) as ser:
