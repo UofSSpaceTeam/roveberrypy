@@ -79,6 +79,10 @@ Thumbs.db
 .Spotlight-V100
 .Trashes
 ehthumbs.db
+.README.md.swp
+.vs/
+*.pyproj
+*.sln
 
 ###
 ### Specific Files
