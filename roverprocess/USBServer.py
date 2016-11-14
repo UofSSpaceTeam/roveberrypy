@@ -74,7 +74,7 @@ class USBServer(RoverServer):
 			ser.write(message)
 
 	def messageTrigger(self, message):
-		RoverProcess.messageTrigger(self, message)
+		# RoverProcess.messageTrigger(self, message)
 		# print(self.IDList)
 		if "wheel1" in message:
 			if "wheel1" in self.IDList:
