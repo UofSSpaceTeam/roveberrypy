@@ -11,13 +11,13 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-from StateManager import StateManager
 import os
 import sys
 sys.dont_write_bytecode = True #prevent generation of .pyc files on imports
 import time
 import inspect # for dynamic imports
 import importlib #for dynamic imports
+from StateManager import StateManager
 
 # Check for hardware and load required modules
 # Add the class name of a module to modulesLis to enable it
