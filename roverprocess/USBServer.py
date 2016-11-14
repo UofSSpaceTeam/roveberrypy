@@ -46,7 +46,7 @@ class USBServer(RoverServer):
 		self.OutList = {b'\x01': "TestOut"}
 		ports = list_ports.comports()
 		for port in ports:
-			if port.device == '/dev/ttyS0':
+			if port.device == '/dev/ttyS0' or port.device == '/dev/ttyAMA0':
 				#ignore first linux serial port
 				continue
 			self.reqSubscription(port)
