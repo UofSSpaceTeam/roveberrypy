@@ -11,13 +11,13 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-from StateManager import StateManager
 import os
 import sys
 sys.dont_write_bytecode = True #prevent generation of .pyc files on imports
 import time
 import inspect # for dynamic imports
 import importlib #for dynamic imports
+from StateManager import StateManager
 
 # Check for hardware and load required modules
 # Add the class name of a module to modulesLis to enable it
@@ -27,7 +27,7 @@ if(os.name == "nt"): # Windows test
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE, SIG_DFL)
-	modulesList = ["ExampleProcess", "DriveProcess"]
+	modulesList = ["ExampleProcess", "USBServer", "DriveProcess", "WebServer"]
 
 else: # Rover! :D
 	print("Detected Rover hardware! Full config mode\n")
@@ -46,6 +46,7 @@ for name in modulesList:
 		modules.append(importlib.import_module("roverprocess." + name))
 	except (ImportError):
 		print("\nERROR: Could not import " + name)
+		raise
 
 # module_classes is a list of lists where each list
 # contains tuples for every class in the module, and each

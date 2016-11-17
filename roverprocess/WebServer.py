@@ -69,7 +69,7 @@ class WebServer(RoverProcess):
 		bottle.TEMPLATE_PATH = ['./WebUI/views']
 		print("Web Templates Loaded From:", bottle.TEMPLATE_PATH)
 
-		self.server = self.RoverWSGIServer(host='localhost', port=80)
+		self.server = self.RoverWSGIServer(host='localhost', port=8080)
 		Thread(target = self.startBottleServer).start()
 
 	def loop(self):
