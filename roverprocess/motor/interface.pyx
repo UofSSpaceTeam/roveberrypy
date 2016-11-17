@@ -43,7 +43,7 @@ def pyint32tobytes(i):
     buffer.append(int32tobytes3(i))
     buffer.append(int32tobytes4(i))
     # print(buffer)
-    buffer_get_int32(bytes(buffer),0)
+    # buffer_get_int32(bytes(buffer),0)
 
     return buffer
 
