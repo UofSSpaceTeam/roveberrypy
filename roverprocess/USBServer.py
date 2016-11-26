@@ -5,6 +5,7 @@ import serial
 import time
 from .motor.interface import *
 from ctypes import *
+import serial.threaded
 
 def makeVESCPacket(payload, len):
 	crc = pycrc16(payload, len)
@@ -22,15 +23,24 @@ def makeVESCPacket(payload, len):
 
 	msg.append(crc.value&0xFF)
 	msg.append(3)
-	# print(msg)
 	b_msg = bytes(msg)
-	# print(b_msg)
 	return b_msg
 
 def parseVESCPacket(packet):
 	msg = packet[2:2+packet[1]].decode("utf-8")
 	return msg
 
+class Output(serial.threaded.Protocol):
+    def connection_made(self, transport):
+        self.transport = transport
+
+    def data_received(self, data):
+        print('data received: ', repr(data))
+        if b'\n' in data:
+            self.transport.close()
+
+    def connection_lost(self, exc):
+        self.transport = None
 
 class USBServer(RoverServer):
 
@@ -42,6 +52,7 @@ class USBServer(RoverServer):
 	def setup(self, args):
 		self.IDList = {}
 		self.DeviceList = []
+		self.semList = []
 		self.InList ={"test":"TestIn"}
 		self.OutList = {b'\x01': "TestOut"}
 		ports = list_ports.comports()
@@ -114,12 +125,28 @@ class USBServer(RoverServer):
 				self.IDList[s] = []
 			self.IDList[s].append(port.device)
 			self.DeviceList.append(port.device)
+			self.semList[port.device] = BoundedSemaphore()
+			self.spawnThread(self.ListenToDevice, port=port.device)
 
 	#TODO move to DriveProcess?
 	def drive(self, **kwargs):
+		self.semList[kwargs["port"]].acquire()
 		with serial.Serial(kwargs["port"], baudrate=115200, timeout = 0.1) as ser:
 			b_cycle = pyint32tobytes(kwargs["speed"])
 			payload = [8]
 			payload.extend(b_cycle)
 			msg = makeVESCPacket(payload, len(payload))
 			ser.write(msg)
+		self.semList[kwargs["port"]].release()
+
+	def ListenToDevice(self, **kwargs):
+		while not self.quit:
+            try:
+				self.semList[kwargs["port"]].acquire()
+				ser = serial.Serial(kwargs["port"])
+				with ReaderThread(ser, Output) as protocol:
+					time.sleep(0.1)
+				self.semList[kwargs["port"]].release()
+				time.sleep(2)
+            except KeyboardInterrupt:
+                self.quit = True
