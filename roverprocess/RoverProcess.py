@@ -11,12 +11,25 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-from multiprocessing import Process, BoundedSemaphore, Queue
+from multiprocessing import Process, BoundedSemaphore, Queue, Manager
 import threading
 import sys
 import time
 
 class RoverProcess(Process):
+	class SubscriberThread(threading.Thread):
+		def __init__(self, subscriber, parent):
+			threading.Thread.__init__(self)
+			self.subscriber = subscriber
+			self._parent = parent
+			self.quit = False
+			self.daemon = True
+
+		def run(self):
+			while not self.quit:
+				data = self.subscriber.get()
+				self._parent.addSubscriber(data[0],data[1])
+						
 	class ReceiverThread(threading.Thread):
 		def __init__(self, downlink, parent):
 			threading.Thread.__init__(self)
@@ -26,7 +39,7 @@ class RoverProcess(Process):
 			self.daemon = True
 
 		def run(self):
-			while not self.quit:
+			while not self.quit:				
 				data = self.downlink.get()
 				assert isinstance(data, dict)
 				for key in data.keys():
@@ -38,21 +51,32 @@ class RoverProcess(Process):
 
 	def __init__(self, **kwargs):
 		Process.__init__(self)
-		self.manager = kwargs["manager"]
-		self.uplink = self.manager.getUplink()
-		self.downlink = Queue()
+		if kwargs["ProcessName"] is "StateManager":
+			self.stateSem = BoundedSemaphore()
+			self.subscriberMap = dict() # maps message names to
+		self.uplink = kwargs["uplink"]
+		self.downlink = kwargs["downlink"]
+		self.name = kwargs["ProcessName"]
+		self.subQueue = kwargs["subQueue"]	
 		self._args = kwargs
 		self.load = True
 		self.quit = False
 		self.receiver = RoverProcess.ReceiverThread(self.downlink, self)
-
+		if kwargs["ProcessName"] is "StateManager":
+			self.subscriber = RoverProcess.SubscriberThread(self.subQueue, self)
+		else:
+			self.subscriber = None
 	def getSubscribed(self):
 		return ["quit"]
 
 	def run(self):
+		
 		self.receiver.start()
 		try:
 			self.setup(self._args)
+			
+			if self.subscriber is not None:
+				self.subscriber.start()
 			while not self.quit:
 				try:
 					self.loop()
@@ -67,7 +91,8 @@ class RoverProcess(Process):
 			raise
 
 	def setup(self, args):
-		pass
+		for msg_key in self.getSubscribed():
+			self.subQueue.put([msg_key, self.name])
 
 	def loop(self):
 		try:

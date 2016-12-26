@@ -17,17 +17,19 @@ sys.dont_write_bytecode = True #prevent generation of .pyc files on imports
 import time
 import inspect # for dynamic imports
 import importlib #for dynamic imports
-from StateManager import StateManager
+from multiprocessing import Queue,Event
+from roverprocess.StateManager import StateManager
+import threading
 
 # Check for hardware and load required modules
 # Add the class name of a module to modulesLis to enable it
 if(os.name == "nt"): # Windows test
-	modulesList = []
+	modulesList = ["ExampleProcess"]
 
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE, SIG_DFL)
-	modulesList = ["ExampleProcess", "USBServer", "DriveProcess", "WebServer"]
+	modulesList = ["ExampleProcess","StateManagerTestProcess1","StateManagerTestProcess2","StateManagerTestProcess3"]
 
 else: # Rover! :D
 	print("Detected Rover hardware! Full config mode\n")
@@ -63,24 +65,28 @@ for _list in module_classes:
 
 # build and run the system
 if __name__ == "__main__":
-
-	system = StateManager()
+	queue = Queue()
+	subscriberQueue = Queue()
+	sysUplink = dict()
+	
 	processes = []
 	print("\nBUILD: Registering process subsribers...\n")
 	for _class in rover_classes:
 		# if _class was enabled, instantiate it,
 		# and hook it up to the messaging system
 		if _class.__name__ in modulesList:
-			instance = _class(manager=system)
-			for msg_key in instance.getSubscribed():
-				system.addSubscriber(msg_key, instance)
+			downlink = Queue()
+			sysUplink[_class.__name__] = downlink
+			instance = _class(subQueue = subscriberQueue,downlink = downlink,uplink=queue, ProcessName = str(_class.__name__))
+			
 			processes.append(instance)
-
+		system = StateManager(subQueue = subscriberQueue, downlink=queue,uplink = sysUplink, ProcessName = "StateManager")
+	
 	# start everything
 	print("\nSTARTING: " + str([type(p).__name__ for p in processes]) + "\n")
+	system.start()
 	for process in processes:
 		process.start()
-
 	# wait until ctrl-C or error
 	try:
 		while True:
