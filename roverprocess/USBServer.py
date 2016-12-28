@@ -5,7 +5,8 @@ import serial
 import time
 from .motor.interface import *
 from ctypes import *
-import serial.threaded
+from serial.threaded import *
+from  multiprocessing import BoundedSemaphore
 
 def makeVESCPacket(payload, len):
 	crc = pycrc16(payload, len)
@@ -45,14 +46,14 @@ class Output(serial.threaded.Protocol):
 class USBServer(RoverServer):
 
 	def getSubscribed(self):
-		return ["TestIn", "TestOut", "wheel1", "wheel2",
+		return ["test", "TestIn", "TestOut", "wheel1", "wheel2",
 				"wheel3", "wheel4", "wheel5", "wheel6"]
 
 
 	def setup(self, args):
 		self.IDList = {}
 		self.DeviceList = []
-		self.semList = []
+		self.semList = {}
 		self.InList ={"test":"TestIn"}
 		self.OutList = {b'\x01': "TestOut"}
 		ports = list_ports.comports()
@@ -112,6 +113,10 @@ class USBServer(RoverServer):
 			if "wheel6" in self.IDList:
 				for device in self.IDList["wheel6"]:
 					self.spawnThread(self.drive, port=device, speed=message["wheel6"])
+		elif "test" in message:
+			if "test" in self.IDList:
+				for device in self.IDList["test"]:
+					self.spawnThread(self.blink, port=device, value=message["test"])
 
 	def reqSubscription(self, port):
 		with serial.Serial(port.device, timeout=1) as ser:
@@ -126,7 +131,17 @@ class USBServer(RoverServer):
 			self.IDList[s].append(port.device)
 			self.DeviceList.append(port.device)
 			self.semList[port.device] = BoundedSemaphore()
-			self.spawnThread(self.ListenToDevice, port=port.device)
+			# self.spawnThread(self.ListenToDevice, port=port.device)
+
+	def blink(self, **kwargs):
+		self.semList[kwargs["port"]].acquire()
+		with serial.Serial(kwargs["port"], baudrate=115200, timeout = 0.1) as ser:
+			payload = [1]
+			payload.append(kwargs["value"])
+			msg = makeVESCPacket(payload, len(payload))
+			ser.write(msg)
+		self.semList[kwargs["port"]].release()
+
 
 	#TODO move to DriveProcess?
 	def drive(self, **kwargs):
@@ -141,12 +156,12 @@ class USBServer(RoverServer):
 
 	def ListenToDevice(self, **kwargs):
 		while not self.quit:
-            try:
+			try:
 				self.semList[kwargs["port"]].acquire()
 				ser = serial.Serial(kwargs["port"])
 				with ReaderThread(ser, Output) as protocol:
-					time.sleep(0.1)
+					time.sleep(0.01)
 				self.semList[kwargs["port"]].release()
 				time.sleep(2)
-            except KeyboardInterrupt:
-                self.quit = True
+			except KeyboardInterrupt:
+				self.quit = True

@@ -43,8 +43,10 @@ class ExampleProcess(RoverProcess):
 	#	will always run at the same time, and will give other processes time to run too!
 	# Use self.setShared() to send some variables to another process or server!
 	def loop(self):
-		# self.publish("joystick1", [0.01, 0.5])
-		time.sleep(0.1)
+		self.publish("test", 1)
+		time.sleep(1)
+		self.publish("test", 0)
+		time.sleep(1)
 
 	# This runs every time a new message comes in.
 	#	It is often handy to have an if statement for every type of message you expect
