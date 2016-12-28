@@ -116,6 +116,9 @@ class RoverProcess(Process):
 				print(self.__class__.__name__ + " shutting down")
 				self.receiver.quit = True
 				self.receiver.join(0.01)  # receiver is blocked by call to queue.get()
+			if self.name is "StateManager" and self.subscriber != threading.current_thread():
+				self.subscriber.quit = True
+				self.subscriber.join(0.01)  # receiver is blocked by call to queue.get()
 			else: # cleanup was called from a message: cannot join current_thread
 				self.quit = True
 		except KeyboardInterrupt:

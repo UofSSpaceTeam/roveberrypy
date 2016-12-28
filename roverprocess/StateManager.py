@@ -32,7 +32,7 @@ class StateManager(RoverProcess):
 		for pname in self.uplink:
 			self.uplink[pname].put({"quit":"True"})
 			# subscriber.cleanup()
-		self.uplink = Dict()
+		self.uplink = dict()
 	
 	def dumpSubscribers(self):
 		out = ""
