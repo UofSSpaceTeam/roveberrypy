@@ -131,7 +131,7 @@ class USBServer(RoverServer):
 			self.IDList[s].append(port.device)
 			self.DeviceList.append(port.device)
 			self.semList[port.device] = BoundedSemaphore()
-			# self.spawnThread(self.ListenToDevice, port=port.device)
+			self.spawnThread(self.ListenToDevice, port=port.device)
 
 	def blink(self, **kwargs):
 		self.semList[kwargs["port"]].acquire()
@@ -160,7 +160,7 @@ class USBServer(RoverServer):
 				self.semList[kwargs["port"]].acquire()
 				ser = serial.Serial(kwargs["port"])
 				with ReaderThread(ser, Output) as protocol:
-					time.sleep(0.01)
+					time.sleep(0.1)
 				self.semList[kwargs["port"]].release()
 				time.sleep(2)
 			except KeyboardInterrupt:
