@@ -27,28 +27,30 @@ def makeVESCPacket(payload, len):
 	b_msg = bytes(msg)
 	return b_msg
 
+
 def parseVESCPacket(packet):
 	msg = packet[2:2+packet[1]].decode("utf-8")
 	return msg
 
+
 class Output(serial.threaded.Protocol):
-    def connection_made(self, transport):
-        self.transport = transport
+	def connection_made(self, transport):
+		self.transport = transport
 
-    def data_received(self, data):
-        print('data received: ', repr(data))
-        if b'\n' in data:
-            self.transport.close()
+	def data_received(self, data):
+		print('data received: ', repr(data))
+		if b'\n' in data:
+			self.transport.close()
 
-    def connection_lost(self, exc):
-        self.transport = None
+	def connection_lost(self, exc):
+		self.transport = None
+
 
 class USBServer(RoverServer):
 
 	def getSubscribed(self):
 		return ["test", "TestIn", "TestOut", "wheel1", "wheel2",
 				"wheel3", "wheel4", "wheel5", "wheel6"]
-
 
 	def setup(self, args):
 		self.IDList = {}
@@ -62,7 +64,6 @@ class USBServer(RoverServer):
 				#ignore first linux serial port
 				continue
 			self.reqSubscription(port)
-
 
 	def loop(self):
 		print(self.DeviceList)
@@ -131,7 +132,7 @@ class USBServer(RoverServer):
 			self.IDList[s].append(port.device)
 			self.DeviceList.append(port.device)
 			self.semList[port.device] = BoundedSemaphore()
-			self.spawnThread(self.ListenToDevice, port=port.device)
+			self.spawnThread(self.listenToDevice, port=port.device)
 
 	def blink(self, **kwargs):
 		self.semList[kwargs["port"]].acquire()
@@ -154,7 +155,7 @@ class USBServer(RoverServer):
 			ser.write(msg)
 		self.semList[kwargs["port"]].release()
 
-	def ListenToDevice(self, **kwargs):
+	def listenToDevice(self, **kwargs):
 		while not self.quit:
 			try:
 				self.semList[kwargs["port"]].acquire()
