@@ -33,19 +33,6 @@ def parseVESCPacket(packet):
 	return msg
 
 
-class Output(serial.threaded.Protocol):
-	def connection_made(self, transport):
-		self.transport = transport
-
-	def data_received(self, data):
-		print('data received: ', repr(data))
-		if b'\n' in data:
-			self.transport.close()
-
-	def connection_lost(self, exc):
-		self.transport = None
-
-
 class USBServer(RoverServer):
 
 	def getSubscribed(self):
@@ -132,6 +119,7 @@ class USBServer(RoverServer):
 			self.IDList[s].append(port.device)
 			self.DeviceList.append(port.device)
 			self.semList[port.device] = BoundedSemaphore()
+			ser.reset_input_buffer()
 			self.spawnThread(self.listenToDevice, port=port.device)
 
 	def blink(self, **kwargs):
@@ -156,13 +144,10 @@ class USBServer(RoverServer):
 		self.semList[kwargs["port"]].release()
 
 	def listenToDevice(self, **kwargs):
-		while not self.quit:
-			try:
+		with serial.Serial(kwargs["port"], baudrate=115200, timeout = 0.1) as ser:
+			while not self.quit:
 				self.semList[kwargs["port"]].acquire()
-				ser = serial.Serial(kwargs["port"])
-				with ReaderThread(ser, Output) as protocol:
-					time.sleep(0.1)
+				if ser.in_waiting > 0:
+					print(ser.readline())
 				self.semList[kwargs["port"]].release()
-				time.sleep(2)
-			except KeyboardInterrupt:
-				self.quit = True
+				time.sleep(0.005)
