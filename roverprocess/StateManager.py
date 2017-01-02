@@ -33,6 +33,27 @@ class StateManager(RoverProcess):
 			self.uplink[pname].put({"quit":"True"})
 			# subscriber.cleanup()
 		self.uplink = dict()
+		self.downlink.put({"quit":"True"})
+	
+	def cleanup(self):
+		try:
+			quitReceiver = False
+			quitSubscriber = False
+			print(self.__class__.__name__ + " shutting down")
+			while(not quitReceiver or not quitSubscriber):
+				if (not quitReceiver) and self.receiver != threading.current_thread():
+					quitReceiver = True
+					self.receiver.quit = True
+					self.receiver.join(0.01)  # receiver is blocked by call to queue.get()
+				if (not quitSubscriber) and self.subscriber != threading.current_thread():
+					quitSubscriber = True
+					self.subscriber.quit = True
+					self.subscriber.join(0.01)  # receiver is blocked by call to queue.get()
+				else: # cleanup was called from a message: cannot join current_thread
+					self.quit = True
+			print(self.__class__.__name__ + " shut down success!")
+		except KeyboardInterrupt:
+			pass
 	
 	def dumpSubscribers(self):
 		out = ""
