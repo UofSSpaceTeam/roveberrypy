@@ -8,6 +8,8 @@ from ctypes import *
 from serial.threaded import *
 from  multiprocessing import BoundedSemaphore
 
+BAUDRATE = 115200
+
 def makeVESCPacket(payload, len):
 	crc = pycrc16(payload, len)
 	msg = []
@@ -107,7 +109,7 @@ class USBServer(RoverServer):
 					self.spawnThread(self.blink, port=device, value=message["test"])
 
 	def reqSubscription(self, port):
-		with serial.Serial(port.device, timeout=1) as ser:
+		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=1) as ser:
 
 			payload = [36]
 			msg = makeVESCPacket(payload, len(payload))
@@ -124,7 +126,7 @@ class USBServer(RoverServer):
 
 	def blink(self, **kwargs):
 		self.semList[kwargs["port"]].acquire()
-		with serial.Serial(kwargs["port"], baudrate=115200, timeout = 0.1) as ser:
+		with serial.Serial(kwargs["port"], baudrate=BAUDRATE, timeout = 0.1) as ser:
 			payload = [1]
 			payload.append(kwargs["value"])
 			msg = makeVESCPacket(payload, len(payload))
@@ -135,7 +137,7 @@ class USBServer(RoverServer):
 	#TODO move to DriveProcess?
 	def drive(self, **kwargs):
 		self.semList[kwargs["port"]].acquire()
-		with serial.Serial(kwargs["port"], baudrate=115200, timeout = 0.1) as ser:
+		with serial.Serial(kwargs["port"], baudrate=BAUDRATE, timeout = 0.1) as ser:
 			b_cycle = pyint32tobytes(kwargs["speed"])
 			payload = [8]
 			payload.extend(b_cycle)
@@ -144,7 +146,7 @@ class USBServer(RoverServer):
 		self.semList[kwargs["port"]].release()
 
 	def listenToDevice(self, **kwargs):
-		with serial.Serial(kwargs["port"], baudrate=115200, timeout = 0.1) as ser:
+		with serial.Serial(kwargs["port"], baudrate=BAUDRATE, timeout = 0.1) as ser:
 			while not self.quit:
 				self.semList[kwargs["port"]].acquire()
 				if ser.in_waiting > 0:
