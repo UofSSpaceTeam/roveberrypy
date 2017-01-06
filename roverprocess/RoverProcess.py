@@ -40,13 +40,12 @@ class RoverProcess(Process):
 		Process.__init__(self)
 		self.uplink = kwargs["uplink"]
 		self.downlink = kwargs["downlink"]
+		self.subscriptions = ["quit"]
 		self._args = kwargs
 		self.load = True
 		self.quit = False
 		self.receiver = RoverProcess.ReceiverThread(self.downlink, self)
 
-	def getSubscribed(self):
-		return ["quit"]
 
 	def run(self):
 		self.receiver.start()
@@ -67,7 +66,7 @@ class RoverProcess(Process):
 			raise
 
 	def setup(self, args):
-		for msg_key in self.getSubscribed():
+		for msg_key in self.subscriptions:
 			self.subscribe(msg_key)
 
 	def loop(self):
@@ -98,9 +97,13 @@ class RoverProcess(Process):
 			pass
 
 	def subscribe(self, key):
+		if key not in self.subscriptions:
+			self.subscriptions.append(key)
 		self.publish("subscribe", [key, self.__class__.__name__])
 
 	def unsubscribe(self, key):
+		if key in self.subscriptions:
+			self.subscriptions.remove(key)
 		self.publish("unsubscribe", [key, self.__class__.__name__])
 
 

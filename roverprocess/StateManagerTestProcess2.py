@@ -5,8 +5,8 @@ import time
 
 
 class StateManagerTestProcess2(RoverProcess):
-	def getSubscribed(self):
-		return ["Test"]
+	def setup(self, args):
+		self.subscribe("Test")
 	
 	def messageTrigger(self, message):
 		

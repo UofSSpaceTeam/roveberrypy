@@ -5,15 +5,13 @@ import time
 
 
 class StateManagerTestProcess3(RoverProcess):
-	def getSubscribed(self):
-		return ["Test"]
-
 	def setup(self, args):
+		sublist = ["Test"]
 		time.sleep(5)
-		for msg_key in self.getSubscribed():
+		for msg_key in sublist:
 			self.subscribe(msg_key)
 		time.sleep(5)
-		for msg_key in self.getSubscribed():
+		for msg_key in sublist:
 			self.unsubscribe(msg_key)
 
 	def messageTrigger(self, message):
