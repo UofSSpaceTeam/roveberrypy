@@ -100,4 +100,7 @@ class RoverProcess(Process):
 	def subscribe(self, key):
 		self.publish("subscribe", [key, self.__class__.__name__])
 
+	def unsubscribe(self, key):
+		self.publish("unsubscribe", [key, self.__class__.__name__])
+
 

@@ -12,6 +12,9 @@ class StateManagerTestProcess3(RoverProcess):
 		time.sleep(5)
 		for msg_key in self.getSubscribed():
 			self.subscribe(msg_key)
+		time.sleep(5)
+		for msg_key in self.getSubscribed():
+			self.unsubscribe(msg_key)
 
 	def messageTrigger(self, message):
 

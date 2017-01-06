@@ -29,6 +29,12 @@ class StateManager(RoverProcess):
 			if pname not in self.subscriberMap[key]:
 				self.subscriberMap[key].append(pname)
 
+	def removeSubscriber(self, key, pname):
+		with self.stateSem:
+			if key in self.subscriberMap:
+				if pname in self.subscriberMap[key]:
+					self.subscriberMap[key].remove(pname)
+
 	def terminateState(self):
 		for pname in self.uplink:
 			self.uplink[pname].put({"quit":"True"})
@@ -62,6 +68,8 @@ class StateManager(RoverProcess):
 		for key in message:
 			if key == "subscribe":
 				self.addSubscriber(message["subscribe"][0], message["subscribe"][1])
+			elif key == "unsubscribe":
+				self.removeSubscriber(message["unsubscribe"][0], message["unsubscribe"][1])
 			elif key in self.subscriberMap:
 				for pname in self.subscriberMap[key]:
 					if pname in self.uplink:
