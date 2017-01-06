@@ -17,44 +17,39 @@ from .RoverProcess import RoverProcess
 import threading
 
 class StateManager(RoverProcess):
-	
+
 	def setup(self, args):
-		pass
-	
+		self.stateSem = BoundedSemaphore()
+		self.subscriberMap = dict() # maps message names to list of processes
+
 	def addSubscriber(self, key, pname):
 		with self.stateSem:
 			if key not in self.subscriberMap:
 				self.subscriberMap[key] = list()
 			if pname not in self.subscriberMap[key]:
 				self.subscriberMap[key].append(pname)
-	
+
 	def terminateState(self):
 		for pname in self.uplink:
 			self.uplink[pname].put({"quit":"True"})
-			# subscriber.cleanup()
 		self.uplink = dict()
 		self.downlink.put({"quit":"True"})
-	
+
 	def cleanup(self):
 		try:
 			quitReceiver = False
-			quitSubscriber = False
 			print(self.__class__.__name__ + " shutting down")
-			while(not quitReceiver or not quitSubscriber):
+			while(not quitReceiver):
 				if (not quitReceiver) and self.receiver != threading.current_thread():
 					quitReceiver = True
 					self.receiver.quit = True
 					self.receiver.join(0.01)  # receiver is blocked by call to queue.get()
-				if (not quitSubscriber) and self.subscriber != threading.current_thread():
-					quitSubscriber = True
-					self.subscriber.quit = True
-					self.subscriber.join(0.01)  # receiver is blocked by call to queue.get()
 				else: # cleanup was called from a message: cannot join current_thread
 					self.quit = True
 			print(self.__class__.__name__ + " shut down success!")
 		except KeyboardInterrupt:
 			pass
-	
+
 	def dumpSubscribers(self):
 		out = ""
 		with self.stateSem:
@@ -62,12 +57,14 @@ class StateManager(RoverProcess):
 				out += str(key) + ":"
 				out += str(len(self.subscriberMap[key])) + "\n"
 		return out
-	
+
 	def messageTrigger(self, message):
 		for key in message:
-			if key in self.subscriberMap:
+			if key == "subscribe":
+				self.addSubscriber(message["subscribe"][0], message["subscribe"][1])
+			elif key in self.subscriberMap:
 				for pname in self.subscriberMap[key]:
 					if pname in self.uplink:
 						self.uplink[pname].put(message)
-		
-		
+
+

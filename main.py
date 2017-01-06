@@ -66,9 +66,8 @@ for _list in module_classes:
 # build and run the system
 if __name__ == "__main__":
 	queue = Queue()
-	subscriberQueue = Queue()
 	sysUplink = dict()
-	
+
 	processes = []
 	print("\nBUILD: Registering process subsribers...\n")
 	for _class in rover_classes:
@@ -77,11 +76,11 @@ if __name__ == "__main__":
 		if _class.__name__ in modulesList:
 			downlink = Queue()
 			sysUplink[_class.__name__] = downlink
-			instance = _class(subQueue = subscriberQueue,downlink = downlink,uplink=queue, ProcessName = str(_class.__name__))
-			
+			instance = _class(downlink = downlink,uplink=queue)
 			processes.append(instance)
-		system = StateManager(subQueue = subscriberQueue, downlink=queue,uplink = sysUplink, ProcessName = "StateManager")
-	
+
+		system = StateManager(downlink=queue,uplink=sysUplink)
+
 	# start everything
 	print("\nSTARTING: " + str([type(p).__name__ for p in processes]) + "\n")
 	system.start()

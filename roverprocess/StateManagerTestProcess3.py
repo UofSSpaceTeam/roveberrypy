@@ -9,16 +9,13 @@ class StateManagerTestProcess3(RoverProcess):
 		return ["Test"]
 
 	def setup(self, args):
-		time.sleep(10)
+		time.sleep(5)
 		for msg_key in self.getSubscribed():
-			self.subQueue.put([msg_key, self.name])
-		
-	
-		
-	
+			self.subscribe(msg_key)
+
 	def messageTrigger(self, message):
-		
+
 		if "Test" in message:
 			print("Process 3 got: " + str(message["Test"]))
-	
-	
+
+
