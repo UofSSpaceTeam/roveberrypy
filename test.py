@@ -27,7 +27,7 @@ if(os.name == "nt"): # Windows test
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE, SIG_DFL)
-	modulesList = ["ExampleProcess", "USBServer", "DriveProcess", "WebServer"]
+	modulesList = ["ExampleProcess"]
 
 else: # Rover! :D
 	print("Detected Rover hardware! Full config mode\n")
@@ -38,12 +38,14 @@ else: # Rover! :D
 print("Enabled modules:")
 print(modulesList)
 
+testmodules = ["test_"+ module for module in modulesList]
 
 # Dynamically import all modules in the modulesList
 modules = []
 for name in modulesList:
 	try:
 		modules.append(importlib.import_module("roverprocess." + name))
+		modules.append(importlib.import_module("testprocess." + "test_"+ name))
 	except (ImportError):
 		print("\nERROR: Could not import " + name)
 		raise
@@ -57,7 +59,7 @@ module_classes = [inspect.getmembers(module, inspect.isclass) for module in modu
 rover_classes = []
 for _list in module_classes:
 	for _tuple in _list:
-		if _tuple[0] in modulesList:
+		if _tuple[0] in modulesList or _tuple[0] in testmodules:
 			rover_classes.append(_tuple[1])
 
 
@@ -70,7 +72,7 @@ if __name__ == "__main__":
 	for _class in rover_classes:
 		# if _class was enabled, instantiate it,
 		# and hook it up to the messaging system
-		if _class.__name__ in modulesList:
+		if _class.__name__ in modulesList or _class.__name__ in testmodules:
 			instance = _class(manager=system)
 			for msg_key in instance.getSubscribed():
 				system.addSubscriber(msg_key, instance)

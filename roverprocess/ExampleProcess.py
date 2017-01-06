@@ -28,7 +28,7 @@ class ExampleProcess(RoverProcess):
 	#	so that the StateManager knows who gets what message.
 	# Just put the name of the message in the relevant list.
 	def getSubscribed(self):
-		return ["heartbeat"]
+		return ["heartbeat", "respondTrue"]
 
 	# This is run once to set up anything you need.
 	# 	Hint: use the self object to store variables global to this process.
@@ -43,8 +43,8 @@ class ExampleProcess(RoverProcess):
 	#	will always run at the same time, and will give other processes time to run too!
 	# Use self.setShared() to send some variables to another process or server!
 	def loop(self):
-		self.publish("TestData", time.time())
-		time.sleep(1)
+		# self.publish("joystick1", [0.01, 0.5])
+		time.sleep(0.1)
 
 	# This runs every time a new message comes in.
 	#	It is often handy to have an if statement for every type of message you expect
@@ -66,5 +66,11 @@ class ExampleProcess(RoverProcess):
 	# not the dictionary that contains multiple keys like in messageTrigger.
 	def on_heartbeat(self, message):
 		print("From callback got: " + str(messsage))
+
+	# This method demonstrates the testing framework. if test_ExampleProcess
+	# is running, it will send the "respondTrue" message with a value of False
+	# This module must respond True to pass the test
+	def on_respondTrue(self, message):
+		self.publish("response", not message)
 
 
