@@ -5,9 +5,9 @@ import time
 
 
 class StateManagerTestProcess1(RoverProcess):
-	
+
 	def loop(self):
 		self.publish("Test", "StateManagerTest")
 		time.sleep(1)
-	
-	
+
+
