@@ -50,6 +50,10 @@ class USBServer(RoverServer):
 
 
 	def setup(self, args):
+		sublist = ["TestIn", "TestOut", "wheel1", "wheel2",
+				"wheel3", "wheel4", "wheel5", "wheel6"]
+		for key in sublist:
+			self.subscribe(key)
 		self.IDList = {}
 		self.DeviceList = []
 		self.semList = []
@@ -141,12 +145,12 @@ class USBServer(RoverServer):
 
 	def ListenToDevice(self, **kwargs):
 		while not self.quit:
-            try:
+			try:
 				self.semList[kwargs["port"]].acquire()
 				ser = serial.Serial(kwargs["port"])
 				with ReaderThread(ser, Output) as protocol:
 					time.sleep(0.1)
 				self.semList[kwargs["port"]].release()
 				time.sleep(2)
-            except KeyboardInterrupt:
-                self.quit = True
+			except KeyboardInterrupt:
+				self.quit = True
