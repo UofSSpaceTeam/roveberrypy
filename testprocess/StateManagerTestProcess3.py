@@ -1,4 +1,4 @@
-from .RoverProcess import RoverProcess
+from roverprocess.RoverProcess import RoverProcess
 
 # Any libraries you need can be imported here. You almost always need time!
 import time
