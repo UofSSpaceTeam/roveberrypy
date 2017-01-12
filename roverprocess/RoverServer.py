@@ -33,7 +33,8 @@ class RoverServer(RoverProcess):
 				pass
 
 	def __init__(self, **kwargs):
-		RoverProcess.__init__(self, manager=kwargs["manager"])
+		RoverProcess.__init__(self, downlink=kwargs["downlink"],
+				uplink=kwargs["uplink"])
 		self.workers = []
 
 	def spawnThread(self, function, **kwargs):
