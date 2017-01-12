@@ -37,11 +37,12 @@ def parseVESCPacket(packet):
 
 class USBServer(RoverServer):
 
-	def getSubscribed(self):
-		return ["test", "TestIn", "TestOut", "wheel1", "wheel2",
-				"wheel3", "wheel4", "wheel5", "wheel6"]
 
 	def setup(self, args):
+		sublist = ["TestIn", "TestOut", "wheel1", "wheel2",
+				"wheel3", "wheel4", "wheel5", "wheel6"]
+		for key in sublist:
+			self.subscribe(key)
 		self.IDList = {}
 		self.DeviceList = []
 		self.semList = {}

@@ -20,6 +20,10 @@ class DriveProcess(RoverProcess):
 	def getSubscribed(self):
 		return ["joystick1", "joystick2"]
 
+	def setup(self, args):
+		for key in ["joystick1", "joystick2"]:
+			self.subscribe(key)
+
 	# Function that grabs the x and y axis values in message, then formats the data
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list

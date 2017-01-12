@@ -24,12 +24,12 @@ import threading
 # Check for hardware and load required modules
 # Add the class name of a module to modulesLis to enable it
 if(os.name == "nt"): # Windows test
-	modulesList = ["ExampleProcess"]
+	modulesList = []
 
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE, SIG_DFL)
-	modulesList = ["ExampleProcess", "DriveProcess", "USBServer", "WebServer"]
+	modulesList = ["ExampleProcess","StateManagerTestProcess1","StateManagerTestProcess2","StateManagerTestProcess3"]
 
 else: # Rover! :D
 	print("Detected Rover hardware! Full config mode\n")
@@ -40,15 +40,20 @@ else: # Rover! :D
 print("Enabled modules:")
 print(modulesList)
 
+testmodules = ["test_"+ module for module in modulesList]
 
 # Dynamically import all modules in the modulesList
 modules = []
 for name in modulesList:
 	try:
 		modules.append(importlib.import_module("roverprocess." + name))
+		modules.append(importlib.import_module("testprocess." + "test_"+ name))
 	except (ImportError):
-		print("\nERROR: Could not import " + name)
-		raise
+		try:
+			modules.append(importlib.import_module("testprocess." + name))
+		except (ImportError):
+			print("\nERROR: Could not import " + name)
+			raise
 
 # module_classes is a list of lists where each list
 # contains tuples for every class in the module, and each
@@ -59,7 +64,7 @@ module_classes = [inspect.getmembers(module, inspect.isclass) for module in modu
 rover_classes = []
 for _list in module_classes:
 	for _tuple in _list:
-		if _tuple[0] in modulesList:
+		if _tuple[0] in modulesList or _tuple[0] in testmodules:
 			rover_classes.append(_tuple[1])
 
 

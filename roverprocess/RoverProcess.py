@@ -11,7 +11,7 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-from multiprocessing import Process, BoundedSemaphore, Queue
+from multiprocessing import Process, BoundedSemaphore, Queue, Manager
 import threading
 import sys
 import time
@@ -38,21 +38,20 @@ class RoverProcess(Process):
 
 	def __init__(self, **kwargs):
 		Process.__init__(self)
-		self.manager = kwargs["manager"]
-		self.uplink = self.manager.getUplink()
-		self.downlink = Queue()
+		self.uplink = kwargs["uplink"]
+		self.downlink = kwargs["downlink"]
+		self.subscriptions = ["quit"]
 		self._args = kwargs
 		self.load = True
 		self.quit = False
 		self.receiver = RoverProcess.ReceiverThread(self.downlink, self)
 
-	def getSubscribed(self):
-		return ["quit"]
 
 	def run(self):
 		self.receiver.start()
 		try:
 			self.setup(self._args)
+
 			while not self.quit:
 				try:
 					self.loop()
@@ -67,7 +66,8 @@ class RoverProcess(Process):
 			raise
 
 	def setup(self, args):
-		pass
+		for msg_key in self.subscriptions:
+			self.subscribe(msg_key)
 
 	def loop(self):
 		try:
@@ -95,4 +95,15 @@ class RoverProcess(Process):
 				self.quit = True
 		except KeyboardInterrupt:
 			pass
+
+	def subscribe(self, key):
+		if key not in self.subscriptions:
+			self.subscriptions.append(key)
+		self.publish("subscribe", [key, self.__class__.__name__])
+
+	def unsubscribe(self, key):
+		if key in self.subscriptions:
+			self.subscriptions.remove(key)
+		self.publish("unsubscribe", [key, self.__class__.__name__])
+
 
