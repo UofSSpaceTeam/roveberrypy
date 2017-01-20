@@ -21,8 +21,10 @@ class DriveProcess(RoverProcess):
 		return ["joystick1", "joystick2"]
 
 	def setup(self, args):
+		self.right_brake = False
+		self.left_brake = False
 		self.braking = False
-		for key in ["joystick1", "joystick2"]:
+		for key in ["joystick1", "joystick2", "trigger1", "trigger2"]:
 			self.subscribe(key)
 
 	# Function that grabs the x and y axis values in message, then formats the data
@@ -31,7 +33,7 @@ class DriveProcess(RoverProcess):
 	def on_joystick1(self, message):
 		y_axis = message[1]
 		y_axis = (y_axis * 40000/2) # half power for testing
-		if y_axis > 11000 or y_axis < -11000:
+		if y_axis > 11000 or y_axis < -11000 and not self.right_brake:
 			newMessage = y_axis
 			self.publish("wheel1", y_axis)
 			self.publish("wheel2", y_axis)
@@ -48,12 +50,33 @@ class DriveProcess(RoverProcess):
 	def on_joystick2(self, message):
 		y_axis = message[1]
 		y_axis = (y_axis * 40000/2)
-		if y_axis > 11000 or y_axis < -11000:
+		if y_axis > 11000 or y_axis < -11000 and not self.left_brake:
 			self.publish("wheel4", y_axis)
 			self.publish("wheel5", y_axis)
 			self.publish("wheel6", y_axis)
 		else:
 			newMessage = 0
+
+	def on_trigger1(self, message):
+		trigger = message
+		if 0 < message <= 1:
+			self.right_brake = True
+			self.publish("wheel1", 0)
+			self.publish("wheel2", 0)
+			self.publish("wheel3", 0)
+		else:
+			self.right_brake = False
+
+	def on_trigger2(self, message):
+		trigger = message
+		if 0 < message <= 1:
+			self.left_brake = True
+			self.publish("wheel4", 0)
+			self.publish("wheel5", 0)
+			self.publish("wheel6", 0)
+		else:
+			self.left_brake = False
+
 
 
 
