@@ -21,6 +21,7 @@ class DriveProcess(RoverProcess):
 		return ["joystick1", "joystick2"]
 
 	def setup(self, args):
+		self.braking = False
 		for key in ["joystick1", "joystick2"]:
 			self.subscribe(key)
 
@@ -32,13 +33,12 @@ class DriveProcess(RoverProcess):
 		y_axis = (y_axis * 40000/2) # half power for testing
 		if y_axis > 11000 or y_axis < -11000:
 			newMessage = y_axis
+			self.publish("wheel1", y_axis)
+			self.publish("wheel2", y_axis)
+			self.publish("wheel3", y_axis)
 		else:
 			newMessage = 0
 
-		# print(newMessage)
-		self.publish("wheel1", newMessage)
-		self.publish("wheel2", newMessage)
-		self.publish("wheel3", newMessage)
 
 
 
@@ -49,14 +49,11 @@ class DriveProcess(RoverProcess):
 		y_axis = message[1]
 		y_axis = (y_axis * 40000/2)
 		if y_axis > 11000 or y_axis < -11000:
-			newMessage = y_axis
+			self.publish("wheel4", y_axis)
+			self.publish("wheel5", y_axis)
+			self.publish("wheel6", y_axis)
 		else:
 			newMessage = 0
-		# print(newMessage)
-		self.publish("wheel4", newMessage)
-		self.publish("wheel5", newMessage)
-		self.publish("wheel6", newMessage)
-
 
 
 
