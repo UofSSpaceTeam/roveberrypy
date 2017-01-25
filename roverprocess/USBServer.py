@@ -7,6 +7,7 @@ from .motor.interface import *
 from ctypes import *
 from serial.threaded import *
 from  multiprocessing import BoundedSemaphore
+import roverprocess.vesc.packet.codec as vesc_codec
 
 BAUDRATE = 115200
 
@@ -37,17 +38,10 @@ def parseVESCPacket(packet):
 
 class USBServer(RoverServer):
 
-
 	def setup(self, args):
-		sublist = ["TestIn", "TestOut", "wheel1", "wheel2",
-				"wheel3", "wheel4", "wheel5", "wheel6"]
-		for key in sublist:
-			self.subscribe(key)
 		self.IDList = {}
 		self.DeviceList = []
 		self.semList = {}
-		self.InList ={"test":"TestIn"}
-		self.OutList = {b'\x01': "TestOut"}
 		ports = list_ports.comports()
 		for port in ports:
 			if port.device == '/dev/ttyS0' or port.device == '/dev/ttyAMA0':
@@ -56,59 +50,45 @@ class USBServer(RoverServer):
 			self.reqSubscription(port)
 
 	def loop(self):
-		print(self.DeviceList)
-		# for port in self.DeviceList:
-		# 	try:
-		# 		with serial.Serial(port) as ser:
-		# 			ser.write(b'req')
-		# 			num_bytes = ser.read(1)
-		# 			print(num_bytes)
-		# 			s = ser.read(int.from_bytes(num_bytes, byteorder='little'))
-		# 			# self.publish(self.OutList[key], s)
-		# 			print("published: ", s)
-		# 	except Exception:
-		# 		raise
+		print(self.IDList)
 		time.sleep(1)
-
-	def on_TestIn(self, message):
-		port = self.DeviceList["test"]
-		with serial.Serial(port, timeout=1) as ser:
-			# print(message)
-			ser.write(message)
 
 	def messageTrigger(self, message):
 		# RoverProcess.messageTrigger(self, message)
 		# print(self.IDList)
-		if "wheel1" in message:
-			if "wheel1" in self.IDList:
-				for device in self.IDList["wheel1"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel1"])
-					# pass
-		elif "wheel2" in message:
-			if "wheel2" in self.IDList:
-				for device in self.IDList["wheel2"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel2"])
-		elif "wheel3" in message:
-			if "wheel3" in self.IDList:
-				for device in self.IDList["wheel3"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel3"])
-		elif "wheel4" in message:
-			if "wheel4" in self.IDList:
-				for device in self.IDList["wheel4"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel4"])
-		elif "wheel5" in message:
-			if "wheel5" in self.IDList:
-				for device in self.IDList["wheel5"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel5"])
-		elif "wheel6" in message:
-			if "wheel6" in self.IDList:
-				for device in self.IDList["wheel6"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel6"])
-		elif "test" in message:
-			if "test" in self.IDList:
-				for device in self.IDList["test"]:
-					self.spawnThread(self.blink, port=device, value=message["test"])
+		print(message)
+		if list(message.keys())[0] in self.IDList:
+			for device in self.IDList[list(message.keys())[0]]:
+				with serial.Serial(device, baudrate=BAUDRATE, timeout=1) as ser:
+					print(vesc_codec.encode(message[list(message.keys())[0]]))
+					ser.write(vesc_codec.encode(message[list(message.keys())[0]]))
+					# ser.write(message[list(message.keys())[0]])
 
+		# if "wheel1" in message:
+		# 	if "wheel1" in self.IDList:
+		# 		for device in self.IDList["wheel1"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel1"])
+		# elif "wheel2" in message:
+		# 	if "wheel2" in self.IDList:
+		# 		for device in self.IDList["wheel2"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel2"])
+		# elif "wheel3" in message:
+		# 	if "wheel3" in self.IDList:
+		# 		for device in self.IDList["wheel3"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel3"])
+		# elif "wheel4" in message:
+		# 	if "wheel4" in self.IDList:
+		# 		for device in self.IDList["wheel4"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel4"])
+		# elif "wheel5" in message:
+		# 	if "wheel5" in self.IDList:
+		# 		for device in self.IDList["wheel5"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel5"])
+		# elif "wheel6" in message:
+		# 	if "wheel6" in self.IDList:
+		# 		for device in self.IDList["wheel6"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel6"])
+        #
 	def reqSubscription(self, port):
 		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=1) as ser:
 
@@ -119,6 +99,7 @@ class USBServer(RoverServer):
 			s = parseVESCPacket(ser.readline())
 			if s not in self.IDList:
 				self.IDList[s] = []
+				self.subscribe(s)
 			self.IDList[s].append(port.device)
 			self.DeviceList.append(port.device)
 			self.semList[port.device] = BoundedSemaphore()
