@@ -12,8 +12,8 @@
 # permissions and limitations under the License.
 
 from .RoverProcess import RoverProcess
-import roverprocess.vesc as vesc
-from roverprocess.vesc.messages.pwm import Pwm
+from roverprocess.vesc.messages.pwm import RPM
+from roverprocess.vesc.messages.base import VESCMessage
 
 
 class DriveProcess(RoverProcess):
@@ -37,10 +37,9 @@ class DriveProcess(RoverProcess):
 		else:
 			newMessage = 0
 
-		# print(newMessage)
-		self.publish("wheel1", vesc.messages.base.VESCMessage.encode(Pwm(newMessage)))
-		self.publish("wheel2", vesc.messages.base.VESCMessage.encode(Pwm(newMessage)))
-		self.publish("wheel3", vesc.messages.base.VESCMessage.encode(Pwm(newMessage)))
+		self.publish("wheel1", VESCMessage.encode(RPM(newMessage)))
+		self.publish("wheel2", VESCMessage.encode(RPM(newMessage)))
+		self.publish("wheel3", VESCMessage.encode(RPM(newMessage)))
 
 
 
@@ -49,15 +48,15 @@ class DriveProcess(RoverProcess):
 	# Returns the newly formated x and y axis values in a new list
 	def on_joystick2(self, message):
 		y_axis = message[1]
+		print(y_axis)
 		y_axis = (y_axis * 40000/2)
 		if y_axis > 11000 or y_axis < -11000:
 			newMessage = int(y_axis)
 		else:
 			newMessage = 0
-		# print(newMessage)
-		self.publish("wheel4", vesc.messages.base.VESCMessage.encode(Pwm(newMessage)))
-		self.publish("wheel5", vesc.messages.base.VESCMessage.encode(Pwm(newMessage)))
-		self.publish("wheel6", vesc.messages.base.VESCMessage.encode(Pwm(newMessage)))
+		self.publish("wheel4", VESCMessage.encode(RPM(newMessage)))
+		self.publish("wheel5", VESCMessage.encode(RPM(newMessage)))
+		self.publish("wheel6", VESCMessage.encode(RPM(newMessage)))
 
 
 
