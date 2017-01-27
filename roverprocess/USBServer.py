@@ -5,6 +5,10 @@ import serial
 import time
 from .motor.interface import *
 from ctypes import *
+from serial.threaded import *
+from  multiprocessing import BoundedSemaphore
+
+BAUDRATE = 115200
 
 def makeVESCPacket(payload, len):
 	crc = pycrc16(payload, len)
@@ -22,10 +26,9 @@ def makeVESCPacket(payload, len):
 
 	msg.append(crc.value&0xFF)
 	msg.append(3)
-	# print(msg)
 	b_msg = bytes(msg)
-	# print(b_msg)
 	return b_msg
+
 
 def parseVESCPacket(packet):
 	msg = packet[2:2+packet[1]].decode("utf-8")
@@ -34,14 +37,15 @@ def parseVESCPacket(packet):
 
 class USBServer(RoverServer):
 
-	def getSubscribed(self):
-		return ["TestIn", "TestOut", "wheel1", "wheel2",
-				"wheel3", "wheel4", "wheel5", "wheel6"]
-
 
 	def setup(self, args):
+		sublist = ["TestIn", "TestOut", "wheel1", "wheel2",
+				"wheel3", "wheel4", "wheel5", "wheel6"]
+		for key in sublist:
+			self.subscribe(key)
 		self.IDList = {}
 		self.DeviceList = []
+		self.semList = {}
 		self.InList ={"test":"TestIn"}
 		self.OutList = {b'\x01': "TestOut"}
 		ports = list_ports.comports()
@@ -50,7 +54,6 @@ class USBServer(RoverServer):
 				#ignore first linux serial port
 				continue
 			self.reqSubscription(port)
-
 
 	def loop(self):
 		print(self.DeviceList)
@@ -101,9 +104,13 @@ class USBServer(RoverServer):
 			if "wheel6" in self.IDList:
 				for device in self.IDList["wheel6"]:
 					self.spawnThread(self.drive, port=device, speed=message["wheel6"])
+		elif "test" in message:
+			if "test" in self.IDList:
+				for device in self.IDList["test"]:
+					self.spawnThread(self.blink, port=device, value=message["test"])
 
 	def reqSubscription(self, port):
-		with serial.Serial(port.device, timeout=1) as ser:
+		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=1) as ser:
 
 			payload = [36]
 			msg = makeVESCPacket(payload, len(payload))
@@ -114,12 +121,36 @@ class USBServer(RoverServer):
 				self.IDList[s] = []
 			self.IDList[s].append(port.device)
 			self.DeviceList.append(port.device)
+			self.semList[port.device] = BoundedSemaphore()
+			ser.reset_input_buffer()
+			self.spawnThread(self.listenToDevice, port=port.device)
+
+	def blink(self, **kwargs):
+		self.semList[kwargs["port"]].acquire()
+		with serial.Serial(kwargs["port"], baudrate=BAUDRATE, timeout = 0.1) as ser:
+			payload = [1]
+			payload.append(kwargs["value"])
+			msg = makeVESCPacket(payload, len(payload))
+			ser.write(msg)
+		self.semList[kwargs["port"]].release()
+
 
 	#TODO move to DriveProcess?
 	def drive(self, **kwargs):
-		with serial.Serial(kwargs["port"], baudrate=115200, timeout = 0.1) as ser:
+		self.semList[kwargs["port"]].acquire()
+		with serial.Serial(kwargs["port"], baudrate=BAUDRATE, timeout = 0.1) as ser:
 			b_cycle = pyint32tobytes(kwargs["speed"])
 			payload = [8]
 			payload.extend(b_cycle)
 			msg = makeVESCPacket(payload, len(payload))
 			ser.write(msg)
+		self.semList[kwargs["port"]].release()
+
+	def listenToDevice(self, **kwargs):
+		with serial.Serial(kwargs["port"], baudrate=BAUDRATE, timeout = 0.1) as ser:
+			while not self.quit:
+				self.semList[kwargs["port"]].acquire()
+				if ser.in_waiting > 0:
+					print(ser.readline())
+				self.semList[kwargs["port"]].release()
+				time.sleep(0.005)

@@ -17,7 +17,9 @@ sys.dont_write_bytecode = True #prevent generation of .pyc files on imports
 import time
 import inspect # for dynamic imports
 import importlib #for dynamic imports
-from StateManager import StateManager
+from multiprocessing import Queue,Event
+from roverprocess.StateManager import StateManager
+import threading
 import logging
 
 logging.basicConfig(filename = 'log.log',
@@ -36,7 +38,7 @@ if(os.name == "nt"): # Windows test
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE, SIG_DFL)
-	modulesList = ["ExampleProcess"]
+	modulesList = ["ExampleProcess","StateManagerTestProcess1","StateManagerTestProcess2","StateManagerTestProcess3"]
 
 else: # Rover! :D
 	logging.info("Rover hardware detected. Full config mode")
@@ -56,8 +58,11 @@ for name in modulesList:
 		modules.append(importlib.import_module("roverprocess." + name))
 		modules.append(importlib.import_module("testprocess." + "test_"+ name))
 	except (ImportError):
-		logging.error("Could not import " + name)
-		raise
+		try:
+			modules.append(importlib.import_module("testprocess." + name))
+		except (ImportError):
+			logging.error("Could not import " + name)
+			raise
 
 # module_classes is a list of lists where each list
 # contains tuples for every class in the module, and each
@@ -74,24 +79,27 @@ for _list in module_classes:
 
 # build and run the system
 if __name__ == "__main__":
+	queue = Queue()
+	sysUplink = dict()
 
-	system = StateManager()
 	processes = []
 	logging.info("Registering process subscribers...")
 	for _class in rover_classes:
 		# if _class was enabled, instantiate it,
 		# and hook it up to the messaging system
-		if _class.__name__ in modulesList or _class.__name__ in testmodules:
-			instance = _class(manager=system)
-			for msg_key in instance.getSubscribed():
-				system.addSubscriber(msg_key, instance)
+		if _class.__name__ in modulesList:
+			downlink = Queue()
+			sysUplink[_class.__name__] = downlink
+			instance = _class(downlink = downlink,uplink=queue)
 			processes.append(instance)
+
+		system = StateManager(downlink=queue,uplink=sysUplink)
 
 	# start everything
 	logging.info("STARTING: " + str([type(p).__name__ for p in processes]) )
+	system.start()
 	for process in processes:
 		process.start()
-
 	# wait until ctrl-C or error
 	try:
 		while True:
