@@ -20,7 +20,13 @@ import inspect # for dynamic imports
 import importlib #for dynamic imports
 from StateManager import StateManager
 
-logging.basicConfig(filename = 'main.log', filemode = 'w', level = logging.DEBUG) #creates new log each time it's run
+logging.basicConfig(filename = 'log.log',
+		format='%(name)-20s: %(levelname)-8s %(message)s',
+		filemode = 'w', level = logging.DEBUG) #creates new log each time it's run
+console_log = logging.StreamHandler()
+formatter = logging.Formatter('%(name)-20s: %(levelname)-8s %(message)s')
+console_log.setFormatter(formatter)
+logging.getLogger('').addHandler(console_log)
 
 # Check for hardware and load required modules
 # Add the class name of a module to modulesLis to enable it
@@ -33,14 +39,11 @@ elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	modulesList = ["ExampleProcess", "USBServer", "DriveProcess", "WebServer"]
 
 else: # Rover! :D
-	print("Detected Rover hardware! Full config mode\n")
 	logging.info("Rover hardware detected. Full config mode") 
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE, SIG_DFL)
 	modulesList = []
 
-print("Enabled modules:")
-print(modulesList)
 logging.info("Enabled modules:")
 logging.info(modulesList)
 
@@ -51,7 +54,6 @@ for name in modulesList:
 	try:
 		modules.append(importlib.import_module("roverprocess." + name))
 	except (ImportError):
-		print("\nERROR: Could not import " + name)
 		logging.error("Could not import " + name)
 		raise
 
@@ -73,7 +75,6 @@ if __name__ == "__main__":
 
 	system = StateManager()
 	processes = []
-	print("\nBUILD: Registering process subsribers...\n")
 	logging.info("Registering process subscribers...")
 	for _class in rover_classes:
 		# if _class was enabled, instantiate it,
@@ -85,7 +86,6 @@ if __name__ == "__main__":
 			processes.append(instance)
 
 	# start everything
-	print("\nSTARTING: " + str([type(p).__name__ for p in processes]) + "\n")
 	logging.info("STARTING: " + str([type(p).__name__ for p in processes]) )
 	
 	for process in processes:
@@ -96,7 +96,6 @@ if __name__ == "__main__":
 		while True:
 			time.sleep(60)
 	except KeyboardInterrupt:
-		print("\nSTOP: " + str([type(p).__name__ for p in processes]) + "\n")
 		logging.info("STOP: " + str([type(p).__name__ for p in processes]) )
 	finally:
 		system.terminateState()
