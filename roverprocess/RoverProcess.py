@@ -15,6 +15,7 @@ from multiprocessing import Process, BoundedSemaphore, Queue
 import threading
 import sys
 import time
+import logging
 
 class RoverProcess(Process):
 	class ReceiverThread(threading.Thread):
@@ -38,6 +39,7 @@ class RoverProcess(Process):
 
 	def __init__(self, **kwargs):
 		Process.__init__(self)
+		self.log = logging.getLogger(self.__name__) #self.__class__.__name__
 		self.manager = kwargs["manager"]
 		self.uplink = self.manager.getUplink()
 		self.downlink = Queue()
@@ -95,4 +97,5 @@ class RoverProcess(Process):
 				self.quit = True
 		except KeyboardInterrupt:
 			pass
-
+	def log(self, message, level):
+		self.logging.level(message)
