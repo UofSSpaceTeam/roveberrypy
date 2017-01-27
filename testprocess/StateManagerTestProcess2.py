@@ -11,6 +11,6 @@ class StateManagerTestProcess2(RoverProcess):
 	def messageTrigger(self, message):
 
 		if "Test" in message:
-			print("Process 2 got: " + str(message["Test"]))
+			self.log("Process 2 got: " + str(message["Test"]))
 
 

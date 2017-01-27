@@ -88,7 +88,7 @@ if __name__ == "__main__":
 			instance = _class(downlink = downlink,uplink=queue)
 			processes.append(instance)
 
-		system = StateManager(downlink=queue,uplink=sysUplink)
+	system = StateManager(downlink=queue,uplink=sysUplink)
 
 	# start everything
 	logging.info("STARTING: " + str([type(p).__name__ for p in processes]) )

@@ -37,7 +37,6 @@ class test_ExampleProcess(RoverProcess):
 		if message:
 			self.log("Got response", "DEBUG")
 		else:
-			print("Receiver did not respond correctly")
 			self.log("Receiver did not respond correctly", "ERROR")
 
 

@@ -56,7 +56,7 @@ class USBServer(RoverServer):
 			self.reqSubscription(port)
 
 	def loop(self):
-		print(self.DeviceList)
+		self.log(self.DeviceList)
 		# for port in self.DeviceList:
 		# 	try:
 		# 		with serial.Serial(port) as ser:
@@ -151,6 +151,6 @@ class USBServer(RoverServer):
 			while not self.quit:
 				self.semList[kwargs["port"]].acquire()
 				if ser.in_waiting > 0:
-					print(ser.readline())
+					self.log(ser.readline())
 				self.semList[kwargs["port"]].release()
 				time.sleep(0.005)

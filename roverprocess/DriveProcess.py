@@ -35,7 +35,7 @@ class DriveProcess(RoverProcess):
 		else:
 			newMessage = 0
 
-		# print(newMessage)
+		self.log(newMessage, "DEBUG")
 		self.publish("wheel1", newMessage)
 		self.publish("wheel2", newMessage)
 		self.publish("wheel3", newMessage)
@@ -52,7 +52,7 @@ class DriveProcess(RoverProcess):
 			newMessage = y_axis
 		else:
 			newMessage = 0
-		# print(newMessage)
+		self.log(newMessage, "DEBUG")
 		self.publish("wheel4", newMessage)
 		self.publish("wheel5", newMessage)
 		self.publish("wheel6", newMessage)

@@ -30,11 +30,11 @@ class ExampleServer(RoverServer):
     def workerFunction(self, **kwargs):
         while not self.quit:
             try:
-                print("Testing server threading " + str(kwargs["name"]))
+                self.log("Testing server threading " + str(kwargs["name"]))
                 time.sleep(1)
             except KeyboardInterrupt:
                 self.quit = True
-        print(str(kwargs["name"]) + " done")
+        self.log(str(kwargs["name"]) + " done")
 
     # regular RoverProcess stuff
     def getSubscribed(self):
