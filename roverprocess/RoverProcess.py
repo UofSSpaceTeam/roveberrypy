@@ -16,6 +16,14 @@ import threading
 import sys
 import time
 import logging
+from collections import namedtuple
+
+# RoverMessage is a named tuple with key and data fields.
+# msg = RoverMessage('test', [1, 2, 3])
+# msg[0] == msg.key
+# msg[1] == msg.data
+RoverMessage = namedtuple('RoverMessage', ['key', 'data'])
+
 
 class RoverProcess(Process):
 	class ReceiverThread(threading.Thread):
@@ -28,14 +36,13 @@ class RoverProcess(Process):
 
 		def run(self):
 			while not self.quit:
-				data = self.downlink.get()
-				assert isinstance(data, dict)
-				for key in data.keys():
-					if hasattr(self._parent, "on_" + key):
-						#call trigger method
-						getattr(self._parent, "on_" + key)(data[key])
-					else:
-						self._parent.messageTrigger(data)
+				message = self.downlink.get()
+				assert isinstance(message, RoverMessage)
+				if hasattr(self._parent, "on_" + message.key):
+					#call trigger method
+					getattr(self._parent, "on_" + message.key)(message.data)
+				else:
+					self._parent.messageTrigger(message)
 
 	def __init__(self, **kwargs):
 		Process.__init__(self)
@@ -85,7 +92,7 @@ class RoverProcess(Process):
 		sys.exit(0)
 
 	def publish(self, key, value):
-		self.uplink.put({key:value})
+		self.uplink.put(RoverMessage(key, value))
 
 	def cleanup(self):
 		try:

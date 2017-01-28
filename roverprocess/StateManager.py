@@ -13,7 +13,7 @@
 
 from threading import Thread, BoundedSemaphore
 from multiprocessing import Process, Queue
-from .RoverProcess import RoverProcess
+from .RoverProcess import RoverProcess, RoverMessage
 import threading
 
 class StateManager(RoverProcess):
@@ -37,9 +37,9 @@ class StateManager(RoverProcess):
 
 	def terminateState(self):
 		for pname in self.uplink:
-			self.uplink[pname].put({"quit":"True"})
+			self.uplink[pname].put(RoverMessage("quit","True"))
 		self.uplink = dict()
-		self.downlink.put({"quit":"True"})
+		self.downlink.put(RoverMessage("quit","True"))
 
 	def cleanup(self):
 		try:
@@ -65,14 +65,13 @@ class StateManager(RoverProcess):
 		return out
 
 	def messageTrigger(self, message):
-		for key in message:
-			if key == "subscribe":
-				self.addSubscriber(message["subscribe"][0], message["subscribe"][1])
-			elif key == "unsubscribe":
-				self.removeSubscriber(message["unsubscribe"][0], message["unsubscribe"][1])
-			elif key in self.subscriberMap:
-				for pname in self.subscriberMap[key]:
-					if pname in self.uplink:
-						self.uplink[pname].put(message)
+		if message.key == 'subscribe':
+			self.addSubscriber(message.data[0], message.data[1])
+		elif message.key == 'unsubscribe':
+			self.removeSubscriber(message.data[0], message.data[1])
+		elif message.key in self.subscriberMap:
+			for pname in self.subscriberMap[message.key]:
+				if pname in self.uplink:
+					self.uplink[pname].put(message)
 
 
