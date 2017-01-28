@@ -52,7 +52,7 @@ class ExampleProcess(RoverProcess):
 		RoverProcess.messageTrigger(self, message)
 
 		if "heartbeat" in message:
-			print("got: " + str(message["heartbeat"]))
+			self.log("got: " + str(message["heartbeat"]))
 
 	# This runs once at the end when the program shuts down.
 	# You can use this to do something like stop motors, clean up open files, etc.
@@ -65,7 +65,7 @@ class ExampleProcess(RoverProcess):
 	# messageTrigger. In this function, message is the contents of the message,
 	# not the dictionary that contains multiple keys like in messageTrigger.
 	def on_heartbeat(self, message):
-		print("From callback got: " + str(messsage))
+		self.log("From callback got: " + str(messsage))
 
 	# This method demonstrates the testing framework. If test_ExampleProcess
 	# is running, it will send the "respondTrue" message with a value of False

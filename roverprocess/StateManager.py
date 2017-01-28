@@ -44,7 +44,7 @@ class StateManager(RoverProcess):
 	def cleanup(self):
 		try:
 			quitReceiver = False
-			print(self.__class__.__name__ + " shutting down")
+			self.log(self.__class__.__name__ + " shutting down")
 			while(not quitReceiver):
 				if (not quitReceiver) and self.receiver != threading.current_thread():
 					quitReceiver = True
@@ -52,7 +52,7 @@ class StateManager(RoverProcess):
 					self.receiver.join(0.01)  # receiver is blocked by call to queue.get()
 				else: # cleanup was called from a message: cannot join current_thread
 					self.quit = True
-			print(self.__class__.__name__ + " shut down success!")
+			self.log(self.__class__.__name__ + " shut down success!")
 		except KeyboardInterrupt:
 			pass
 

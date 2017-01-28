@@ -15,6 +15,7 @@ from multiprocessing import Process, BoundedSemaphore, Queue, Manager
 import threading
 import sys
 import time
+import logging
 
 class RoverProcess(Process):
 	class ReceiverThread(threading.Thread):
@@ -38,6 +39,7 @@ class RoverProcess(Process):
 
 	def __init__(self, **kwargs):
 		Process.__init__(self)
+		self._log = logging.getLogger(self.__class__.__name__)
 		self.uplink = kwargs["uplink"]
 		self.downlink = kwargs["downlink"]
 		self.subscriptions = ["quit"]
@@ -88,13 +90,18 @@ class RoverProcess(Process):
 	def cleanup(self):
 		try:
 			if self.receiver != threading.current_thread():
-				print(self.__class__.__name__ + " shutting down")
+				logging.info(self.__class__.__name__ + " shutting down")
 				self.receiver.quit = True
 				self.receiver.join(0.01)  # receiver is blocked by call to queue.get()
 			else: # cleanup was called from a message: cannot join current_thread
 				self.quit = True
 		except KeyboardInterrupt:
 			pass
+
+	def log(self, message, level="INFO"):
+		level_lut = {"NOTSET":0, "DEBUG":10, "INFO":20,
+				"WARNING":30, "ERROR":40, "CRITICAL":50}
+		self._log.log(level_lut[level], message)
 
 	def subscribe(self, key):
 		if key not in self.subscriptions:
