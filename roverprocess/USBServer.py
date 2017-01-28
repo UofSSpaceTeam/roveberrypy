@@ -40,7 +40,7 @@ class USBServer(RoverServer):
 
 	def setup(self, args):
 		sublist = ["TestIn", "TestOut", "wheel1", "wheel2",
-				"wheel3", "wheel4", "wheel5", "wheel6"]
+				"wheel3", "wheel4", "wheel5", "wheel6", "armBase"]
 		for key in sublist:
 			self.subscribe(key)
 		self.IDList = {}
@@ -56,7 +56,7 @@ class USBServer(RoverServer):
 			self.reqSubscription(port)
 
 	def loop(self):
-		self.log(self.DeviceList)
+		self.log(self.IDList)
 		# for port in self.DeviceList:
 		# 	try:
 		# 		with serial.Serial(port) as ser:
@@ -78,36 +78,39 @@ class USBServer(RoverServer):
 
 	def messageTrigger(self, message):
 		# RoverProcess.messageTrigger(self, message)
-		# print(self.IDList)
-		if "wheel1" in message:
-			if "wheel1" in self.IDList:
-				for device in self.IDList["wheel1"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel1"])
-					# pass
-		elif "wheel2" in message:
-			if "wheel2" in self.IDList:
-				for device in self.IDList["wheel2"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel2"])
-		elif "wheel3" in message:
-			if "wheel3" in self.IDList:
-				for device in self.IDList["wheel3"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel3"])
-		elif "wheel4" in message:
-			if "wheel4" in self.IDList:
-				for device in self.IDList["wheel4"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel4"])
-		elif "wheel5" in message:
-			if "wheel5" in self.IDList:
-				for device in self.IDList["wheel5"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel5"])
-		elif "wheel6" in message:
-			if "wheel6" in self.IDList:
-				for device in self.IDList["wheel6"]:
-					self.spawnThread(self.drive, port=device, speed=message["wheel6"])
-		elif "test" in message:
-			if "test" in self.IDList:
-				for device in self.IDList["test"]:
-					self.spawnThread(self.blink, port=device, value=message["test"])
+		if message.key == "armBase":
+			if message.key in self.IDList:
+				for device in self.IDList["armBase"]:
+					self.spawnThread(self.drive, port=device, speed=message.data)
+		# if "wheel1" in message:
+		# 	if "wheel1" in self.IDList:
+		# 		for device in self.IDList["wheel1"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel1"])
+		# 			# pass
+		# elif "wheel2" in message:
+		# 	if "wheel2" in self.IDList:
+		# 		for device in self.IDList["wheel2"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel2"])
+		# elif "wheel3" in message:
+		# 	if "wheel3" in self.IDList:
+		# 		for device in self.IDList["wheel3"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel3"])
+		# elif "wheel4" in message:
+		# 	if "wheel4" in self.IDList:
+		# 		for device in self.IDList["wheel4"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel4"])
+		# elif "wheel5" in message:
+		# 	if "wheel5" in self.IDList:
+		# 		for device in self.IDList["wheel5"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel5"])
+		# elif "wheel6" in message:
+		# 	if "wheel6" in self.IDList:
+		# 		for device in self.IDList["wheel6"]:
+		# 			self.spawnThread(self.drive, port=device, speed=message["wheel6"])
+		# elif "test" in message:
+		# 	if "test" in self.IDList:
+		# 		for device in self.IDList["test"]:
+		# 			self.spawnThread(self.blink, port=device, value=message["test"])
 
 	def reqSubscription(self, port):
 		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=1) as ser:
