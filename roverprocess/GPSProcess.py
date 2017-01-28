@@ -13,13 +13,13 @@ class GPSProcess(RoverProcess):
 	class PiksiThread(Thread):
 		def __init__(self, parent):
 			Thread.__init__(self)
-			
+
 			self._parent = parent
 			self.serial = "/dev/ttyS5"
 			self.baud = 1000000
 			self.addr = None
 			self.port = None
-			
+
 		def run(self):
 			#with Piksi(self.serial, self.baud, recv_addr=(self.addr, self.port)) as self.piksi:
 			with Piksi(self.serial, self.baud) as self.piksi:
@@ -35,10 +35,10 @@ class GPSProcess(RoverProcess):
 							pos_msg = "lat:" + str(msg.lat) + ",lon:" + str(msg.lon)
 							print(pos_msg)
 							self._parent.messageTrigger({"pos":pos_msg})
-							
+
 					time.sleep(1)
-	
+
 	def setup(self, args):
-		receiver = GPSProcess.PiksiThread(self)	
+		receiver = GPSProcess.PiksiThread(self)
 		receiver.daemon = True
 		receiver.start()
