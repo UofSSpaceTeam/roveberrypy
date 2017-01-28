@@ -12,8 +12,8 @@
 # permissions and limitations under the License.
 
 from .RoverProcess import RoverProcess
-from roverprocess.vesc.messages.pwm import RPM
-from roverprocess.vesc.messages.base import VESCMessage
+from pyvesc.messages.setters import SetRPM
+import pyvesc
 
 
 class DriveProcess(RoverProcess):
@@ -36,10 +36,9 @@ class DriveProcess(RoverProcess):
 			newMessage = int(y_axis)
 		else:
 			newMessage = 0
-
-		self.publish("wheel1", VESCMessage.encode(RPM(newMessage)))
-		self.publish("wheel2", VESCMessage.encode(RPM(newMessage)))
-		self.publish("wheel3", VESCMessage.encode(RPM(newMessage)))
+		self.publish("wheel1", SetRPM(newMessage))
+		self.publish("wheel2", SetRPM(newMessage))
+		self.publish("wheel3", SetRPM(newMessage))
 
 
 
@@ -54,9 +53,10 @@ class DriveProcess(RoverProcess):
 			newMessage = int(y_axis)
 		else:
 			newMessage = 0
-		self.publish("wheel4", VESCMessage.encode(RPM(newMessage)))
-		self.publish("wheel5", VESCMessage.encode(RPM(newMessage)))
-		self.publish("wheel6", VESCMessage.encode(RPM(newMessage)))
+		print(newMessage)
+		self.publish("wheel4", SetRPM(newMessage))
+		self.publish("wheel5", SetRPM(newMessage))
+		self.publish("wheel6", SetRPM(newMessage))
 
 
 

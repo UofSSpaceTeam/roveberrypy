@@ -7,7 +7,7 @@ from .motor.interface import *
 from ctypes import *
 from serial.threaded import *
 from  multiprocessing import BoundedSemaphore
-import roverprocess.vesc.packet.codec as vesc_codec
+import pyvesc
 
 BAUDRATE = 115200
 
@@ -60,8 +60,7 @@ class USBServer(RoverServer):
 		if list(message.keys())[0] in self.IDList:
 			for device in self.IDList[list(message.keys())[0]]:
 				with serial.Serial(device, baudrate=BAUDRATE, timeout=1) as ser:
-					print(vesc_codec.encode(message[list(message.keys())[0]]))
-					ser.write(vesc_codec.encode(message[list(message.keys())[0]]))
+					ser.write(pyvesc.encode(message[list(message.keys())[0]]))
 
 	def reqSubscription(self, port):
 		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=1) as ser:
