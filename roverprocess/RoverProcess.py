@@ -29,19 +29,19 @@ class RoverProcess(Process):
 	class ReceiverThread(threading.Thread):
 		def __init__(self, downlink, parent):
 			threading.Thread.__init__(self)
-			self.downlink = downlink
-			self._parent = parent
+			self.downlink = downlink # MultiProcessing Queue.
+			self._parent = parent # RoverProcess instance.
 			self.quit = False
 			self.daemon = True
 
 		def run(self):
 			while not self.quit:
-				message = self.downlink.get()
-				assert isinstance(message, RoverMessage)
-				if hasattr(self._parent, "on_" + message.key):
-					#call trigger method
-					getattr(self._parent, "on_" + message.key)(message.data)
-				else:
+				message = self.downlink.get() # Get subscribed message from multiprocessing queue.
+				assert isinstance(message, RoverMessage) # Checking if the "message" is of type RoverMessage.
+				if hasattr(self._parent, "on_" + message.key): # If message key has a function called on_*key*() in its RoverProcess instance...
+					#...call trigger method, execute function.
+					getattr(self._parent, "on_" + message.key)(message.data) 
+				else: #... Otherwise call its message trigger.
 					self._parent.messageTrigger(message)
 
 	def __init__(self, **kwargs):
