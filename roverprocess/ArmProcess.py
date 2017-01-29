@@ -30,20 +30,20 @@ class ArmProcess(RoverProcess):
 	# self.something = args["something"]
 	# This can be handy for sharing semaphores with other processes!
     
-    # Subscribe ArmProcess to joystick keys for multiprocessing.
-    def setup(self, args):
-        for key in ["joystick1", "joystick2"]: # Add the keys to the subscription of the multiprocessor.
-            self.subscribe(key)
+	# Subscribe ArmProcess to joystick keys for multiprocessing.
+	def setup(self, args):
+		for key in ["joystick1", "joystick2"]: # Add the keys to the subscription of the multiprocessor.
+			self.subscribe(key)
 
 	# Function that grabs the x and y axis values in message, then formats the data
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list
-    def on_joystick1(self, data):
-        x_axis = data[0] # Get data for x-axis.
-        x_axis = (x_axis * 40000/2) # Conversion factor to make it easy to interpret input.
-        if x_axis > 11000 or x_axis < -11000: # If out of dead-zone.
-            armBaseSpeed = x_axis
-        else:
-            armBaseSpeed = 0
-        self.log(armBaseSpeed, "DEBUG") # Print the status of this process.
-        self.publish("armBase", armBaseSpeed) # Publish the process to the multiprocessor.
+	def on_joystick1(self, data):
+		x_axis = data[0] # Get data for x-axis.
+		x_axis = (x_axis * 40000/2) # Conversion factor to make it easy to interpret input.
+		if x_axis > 11000 or x_axis < -11000: # If out of dead-zone.
+			armBaseSpeed = x_axis
+		else:
+			armBaseSpeed = 0
+		self.log(armBaseSpeed, "DEBUG") # Print the status of this process.
+		self.publish("armBase", armBaseSpeed) # Publish the process to the multiprocessor.
