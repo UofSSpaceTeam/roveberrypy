@@ -15,7 +15,6 @@ from .RoverProcess import RoverProcess
 
 # Any libraries you need can be imported here. You almost always need time!
 import time
-import multiprocessing # Trying to import the class BoundedSemaphore but it won't! Gestionnaire of of proceesing conflicts.
 
 
 class ArmProcess(RoverProcess):
@@ -35,7 +34,7 @@ class ArmProcess(RoverProcess):
     def setup(self, args):
         for key in ["joystick1", "joystick2"]: # Add the keys to the subscription of the multiprocessor.
             self.subscribe(key)
-    
+
 	# Function that grabs the x and y axis values in message, then formats the data
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list
