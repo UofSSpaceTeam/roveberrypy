@@ -15,7 +15,7 @@ from .RoverProcess import RoverProcess
 
 # Any libraries you need can be imported here. You almost always need time!
 import time
-import multiprocessing # BoundedSemaphore class not found. Looking to import BoundedSemaphore class.
+from multiprocessing.synchronize import BoundedSemaphore # BoundedSemaphore class used to block extra commands from conflicting with actual commands in operation.
 
 class ArmProcess(RoverProcess):
 	# Some blank space to write functions, classes, threads - whatever you need.
