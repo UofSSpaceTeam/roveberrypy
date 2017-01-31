@@ -16,9 +16,9 @@ from .RoverProcess import RoverProcess
 
 class DrillProcess(RoverProcess):
 
-    # Subscribed to joystick1 and joystick2.
+    # Subscribed to button1 and button2.
 	def getSubscribed(self):
-		return ["button1", "button2"]
+		return ["button1", "button2"] 
 
 	def setup(self, args):
 		for key in ["button1", "button2"]:
@@ -54,7 +54,7 @@ class DrillProcess(RoverProcess):
 		else:
 			newMessage = 0
 		"""
-		
+
 		self.log(newMessage, "DEBUG")
 		self.publish("motor1", newMessage) #assuming that drill has 3 motors
 		self.publish("motor2", newMessage)
