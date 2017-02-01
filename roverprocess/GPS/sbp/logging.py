@@ -18,7 +18,7 @@ Logging and debugging messages from the device.
 from construct import *
 import json
 from .msg import SBP, SENDER_ID
-from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
+from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize#, greedy_string
 
 # Automatically generated from piksi/yaml/swiftnav/sbp/logging.yaml with generate.py.
 # Please do not hand edit!
@@ -51,8 +51,8 @@ ERROR, WARNING, DEBUG, INFO logging levels.
 
   """
   _parser = Struct("MsgLog",
-                   ULInt8('level'),
-                   greedy_string('text'),)
+                   ('level') / Int8ul,
+                   GreedyString('text'),)
   __slots__ = [
                'level',
                'text',
@@ -214,7 +214,7 @@ class MsgPrintDep(SBP):
 
   """
   _parser = Struct("MsgPrintDep",
-                   greedy_string('text'),)
+                   GreedyString('text'),)
   __slots__ = [
                'text',
               ]

@@ -17,7 +17,7 @@ Satellite observation messages from the device.
 from construct import *
 import json
 from .msg import SBP, SENDER_ID
-from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
+from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize#, greedy_string
 from .gnss_signal import *
 
 # Automatically generated from piksi/yaml/swiftnav/sbp/observation.yaml with generate.py.
@@ -41,8 +41,8 @@ transition.
 
   """
   _parser = Embedded(Struct("ObsGPSTime",
-                     ULInt32('tow'),
-                     ULInt16('wn'),))
+                     ('tow') / Int32ul,
+                     ('wn') / Int16ul,))
   __slots__ = [
                'tow',
                'wn',
@@ -84,8 +84,8 @@ cycles and 8-bits of fractional cycles.
 
   """
   _parser = Embedded(Struct("CarrierPhase",
-                     SLInt32('i'),
-                     ULInt8('f'),))
+                     ('i') / Int32sl,
+                     ('f') / Int8ul,))
   __slots__ = [
                'i',
                'f',
@@ -128,7 +128,7 @@ counter (ith packet of n)
   """
   _parser = Embedded(Struct("ObservationHeader",
                      Struct('t', ObsGPSTime._parser),
-                     ULInt8('n_obs'),))
+                     ('n_obs') / Int8ul,))
   __slots__ = [
                't',
                'n_obs',
@@ -178,10 +178,10 @@ carrier phase ambiguity may have changed.
 
   """
   _parser = Embedded(Struct("PackedObsContent",
-                     ULInt32('P'),
+                     ('P') / Int32ul,
                      Struct('L', CarrierPhase._parser),
-                     ULInt8('cn0'),
-                     ULInt16('lock'),
+                     ('cn0') / Int8ul,
+                     ('lock') / Int16ul,
                      Struct('sid', GnssSignal._parser),))
   __slots__ = [
                'P',
@@ -236,11 +236,11 @@ carrier phase ambiguity may have changed.
 
   """
   _parser = Embedded(Struct("PackedObsContentDepA",
-                     ULInt32('P'),
+                     ('P') / Int32ul,
                      Struct('L', CarrierPhase._parser),
-                     ULInt8('cn0'),
-                     ULInt16('lock'),
-                     ULInt8('prn'),))
+                     ('cn0') / Int8ul,
+                     ('lock') / Int16ul,
+                     ('prn') / Int8ul,))
   __slots__ = [
                'P',
                'L',
@@ -303,7 +303,7 @@ satellite being tracked.
   """
   _parser = Struct("MsgObs",
                    Struct('header', ObservationHeader._parser),
-                   OptionalGreedyRange(Struct('obs', PackedObsContent._parser)),)
+                   GreedyRange(Struct('obs', PackedObsContent._parser)),)
   __slots__ = [
                'header',
                'obs',
@@ -394,9 +394,9 @@ error in the pseudo-absolute position output.
 
   """
   _parser = Struct("MsgBasePosLLH",
-                   LFloat64('lat'),
-                   LFloat64('lon'),
-                   LFloat64('height'),)
+                   ('lat') / Float64l,
+                   ('lon') / Float64l,
+                   ('height') / Float64l,)
   __slots__ = [
                'lat',
                'lon',
@@ -490,9 +490,9 @@ pseudo-absolute position output.
 
   """
   _parser = Struct("MsgBasePosECEF",
-                   LFloat64('x'),
-                   LFloat64('y'),
-                   LFloat64('z'),)
+                   ('x') / Float64l,
+                   ('y') / Float64l,
+                   ('z') / Float64l,)
   __slots__ = [
                'x',
                'y',
@@ -637,35 +637,35 @@ Space Segment/Navigation user interfaces (ICD-GPS-200, Table
 
   """
   _parser = Struct("MsgEphemeris",
-                   LFloat64('tgd'),
-                   LFloat64('c_rs'),
-                   LFloat64('c_rc'),
-                   LFloat64('c_uc'),
-                   LFloat64('c_us'),
-                   LFloat64('c_ic'),
-                   LFloat64('c_is'),
-                   LFloat64('dn'),
-                   LFloat64('m0'),
-                   LFloat64('ecc'),
-                   LFloat64('sqrta'),
-                   LFloat64('omega0'),
-                   LFloat64('omegadot'),
-                   LFloat64('w'),
-                   LFloat64('inc'),
-                   LFloat64('inc_dot'),
-                   LFloat64('af0'),
-                   LFloat64('af1'),
-                   LFloat64('af2'),
-                   LFloat64('toe_tow'),
-                   ULInt16('toe_wn'),
-                   LFloat64('toc_tow'),
-                   ULInt16('toc_wn'),
-                   ULInt8('valid'),
-                   ULInt8('healthy'),
+                   ('tgd') / Float64l,
+                   ('c_rs') / Float64l,
+                   ('c_rc') / Float64l,
+                   ('c_uc') / Float64l,
+                   ('c_us') / Float64l,
+                   ('c_ic') / Float64l,
+                   ('c_is') / Float64l,
+                   ('dn') / Float64l,
+                   ('m0') / Float64l,
+                   ('ecc') / Float64l,
+                   ('sqrta') / Float64l,
+                   ('omega0') / Float64l,
+                   ('omegadot') / Float64l,
+                   ('w') / Float64l,
+                   ('inc') / Float64l,
+                   ('inc_dot') / Float64l,
+                   ('af0') / Float64l,
+                   ('af1') / Float64l,
+                   ('af2') / Float64l,
+                   ('toe_tow') / Float64l,
+                   ('toe_wn') / Int16ul,
+                   ('toc_tow') / Float64l,
+                   ('toc_wn') / Int16ul,
+                   ('valid') / Int8ul,
+                   ('healthy') / Int8ul,
                    Struct('sid', GnssSignal._parser),
-                   ULInt8('iode'),
-                   ULInt16('iodc'),
-                   ULInt32('reserved'),)
+                   ('iode') / Int8ul,
+                   ('iodc') / Int16ul,
+                   ('reserved') / Int32ul,)
   __slots__ = [
                'tgd',
                'c_rs',
@@ -851,32 +851,32 @@ class MsgEphemerisDepA(SBP):
 
   """
   _parser = Struct("MsgEphemerisDepA",
-                   LFloat64('tgd'),
-                   LFloat64('c_rs'),
-                   LFloat64('c_rc'),
-                   LFloat64('c_uc'),
-                   LFloat64('c_us'),
-                   LFloat64('c_ic'),
-                   LFloat64('c_is'),
-                   LFloat64('dn'),
-                   LFloat64('m0'),
-                   LFloat64('ecc'),
-                   LFloat64('sqrta'),
-                   LFloat64('omega0'),
-                   LFloat64('omegadot'),
-                   LFloat64('w'),
-                   LFloat64('inc'),
-                   LFloat64('inc_dot'),
-                   LFloat64('af0'),
-                   LFloat64('af1'),
-                   LFloat64('af2'),
-                   LFloat64('toe_tow'),
-                   ULInt16('toe_wn'),
-                   LFloat64('toc_tow'),
-                   ULInt16('toc_wn'),
-                   ULInt8('valid'),
-                   ULInt8('healthy'),
-                   ULInt8('prn'),)
+                   ('tgd') / Float64l,
+                   ('c_rs') / Float64l,
+                   ('c_rc') / Float64l,
+                   ('c_uc') / Float64l,
+                   ('c_us') / Float64l,
+                   ('c_ic') / Float64l,
+                   ('c_is') / Float64l,
+                   ('dn') / Float64l,
+                   ('m0') / Float64l,
+                   ('ecc') / Float64l,
+                   ('sqrta') / Float64l,
+                   ('omega0') / Float64l,
+                   ('omegadot') / Float64l,
+                   ('w') / Float64l,
+                   ('inc') / Float64l,
+                   ('inc_dot') / Float64l,
+                   ('af0') / Float64l,
+                   ('af1') / Float64l,
+                   ('af2') / Float64l,
+                   ('toe_tow') / Float64l,
+                   ('toe_wn') / Int16ul,
+                   ('toc_tow') / Float64l,
+                   ('toc_wn') / Int16ul,
+                   ('valid') / Int8ul,
+                   ('healthy') / Int8ul,
+                   ('prn') / Int8ul,)
   __slots__ = [
                'tgd',
                'c_rs',
@@ -1058,33 +1058,33 @@ class MsgEphemerisDepB(SBP):
 
   """
   _parser = Struct("MsgEphemerisDepB",
-                   LFloat64('tgd'),
-                   LFloat64('c_rs'),
-                   LFloat64('c_rc'),
-                   LFloat64('c_uc'),
-                   LFloat64('c_us'),
-                   LFloat64('c_ic'),
-                   LFloat64('c_is'),
-                   LFloat64('dn'),
-                   LFloat64('m0'),
-                   LFloat64('ecc'),
-                   LFloat64('sqrta'),
-                   LFloat64('omega0'),
-                   LFloat64('omegadot'),
-                   LFloat64('w'),
-                   LFloat64('inc'),
-                   LFloat64('inc_dot'),
-                   LFloat64('af0'),
-                   LFloat64('af1'),
-                   LFloat64('af2'),
-                   LFloat64('toe_tow'),
-                   ULInt16('toe_wn'),
-                   LFloat64('toc_tow'),
-                   ULInt16('toc_wn'),
-                   ULInt8('valid'),
-                   ULInt8('healthy'),
-                   ULInt8('prn'),
-                   ULInt8('iode'),)
+                   ('tgd') / Float64l,
+                   ('c_rs') / Float64l,
+                   ('c_rc') / Float64l,
+                   ('c_uc') / Float64l,
+                   ('c_us') / Float64l,
+                   ('c_ic') / Float64l,
+                   ('c_is') / Float64l,
+                   ('dn') / Float64l,
+                   ('m0') / Float64l,
+                   ('ecc') / Float64l,
+                   ('sqrta') / Float64l,
+                   ('omega0') / Float64l,
+                   ('omegadot') / Float64l,
+                   ('w') / Float64l,
+                   ('inc') / Float64l,
+                   ('inc_dot') / Float64l,
+                   ('af0') / Float64l,
+                   ('af1') / Float64l,
+                   ('af2') / Float64l,
+                   ('toe_tow') / Float64l,
+                   ('toe_wn') / Int16ul,
+                   ('toc_tow') / Float64l,
+                   ('toc_wn') / Int16ul,
+                   ('valid') / Int8ul,
+                   ('healthy') / Int8ul,
+                   ('prn') / Int8ul,
+                   ('iode') / Int8ul,)
   __slots__ = [
                'tgd',
                'c_rs',
@@ -1221,7 +1221,7 @@ satellite being tracked.
   """
   _parser = Struct("MsgObsDepA",
                    Struct('header', ObservationHeader._parser),
-                   OptionalGreedyRange(Struct('obs', PackedObsContentDepA._parser)),)
+                   GreedyRange(Struct('obs', PackedObsContentDepA._parser)),)
   __slots__ = [
                'header',
                'obs',

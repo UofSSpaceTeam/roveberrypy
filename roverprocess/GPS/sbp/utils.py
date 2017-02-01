@@ -15,7 +15,7 @@
 
 EXCLUDE = ['sender', 'msg_type', 'crc', 'length', 'preamble', 'payload']
 
-from construct import Container, Field, OptionalGreedyRange, Rename, StringAdapter
+from construct import Container, Bytes, GreedyRange#, Rename, StringAdapter
 
 
 def exclude_fields(obj, exclude=EXCLUDE):
@@ -77,8 +77,8 @@ def fmt_repr(obj):
 
 # TODO: Once https://github.com/construct/construct/pull/59 is published
 #       to pypi, remove this in favor of construct.GreedyString
-def greedy_string(name):
-  """
-  Variable-length string field.
-  """
-  return Rename(name, StringAdapter(OptionalGreedyRange(Field(None, 1))))
+# def greedy_string(name):
+#   """
+#   Variable-length string field.
+#   """
+#   return Rename(name, StringAdapter(GreedyRange(Byte(None, 1))))

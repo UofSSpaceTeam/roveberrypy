@@ -15,7 +15,7 @@ class GPSProcess(RoverProcess):
 			Thread.__init__(self)
 
 			self._parent = parent
-			self.serial = "/dev/ttyS5"
+			self.serial = "/dev/ttyUSB0"
 			self.baud = 1000000
 			self.addr = None
 			self.port = None

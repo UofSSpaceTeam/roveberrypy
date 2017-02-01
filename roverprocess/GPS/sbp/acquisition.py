@@ -17,7 +17,7 @@ Satellite acquisition messages from the device.
 from construct import *
 import json
 from .msg import SBP, SENDER_ID
-from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
+from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize#, greedy_string
 from .gnss_signal import *
 
 # Automatically generated from piksi/yaml/swiftnav/sbp/acquisition.yaml with generate.py.
@@ -59,9 +59,9 @@ be in units of dB Hz in a later revision of this message.
 
   """
   _parser = Struct("MsgAcqResult",
-                   LFloat32('snr'),
-                   LFloat32('cp'),
-                   LFloat32('cf'),
+                   ('snr') / Float32l,
+                   ('cp') / Float32l,
+                   ('cf') / Float32l,
                    Struct('sid', GnssSignal._parser),)
   __slots__ = [
                'snr',
@@ -158,10 +158,10 @@ acquisition was attempted
 
   """
   _parser = Struct("MsgAcqResultDepA",
-                   LFloat32('snr'),
-                   LFloat32('cp'),
-                   LFloat32('cf'),
-                   ULInt8('prn'),)
+                   ('snr') / Float32l,
+                   ('cp') / Float32l,
+                   ('cf') / Float32l,
+                   ('prn') / Int8ul,)
   __slots__ = [
                'snr',
                'cp',
