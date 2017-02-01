@@ -34,10 +34,10 @@ class USBServer(RoverServer):
 		time.sleep(1)
 
 	def messageTrigger(self, message):
-		if list(message.keys())[0] in self.IDList:
-			for device in self.IDList[list(message.keys())[0]]:
+		if message.key in self.IDList:
+			for device in self.IDList[message.key]:
 				with serial.Serial(device, baudrate=BAUDRATE, timeout=1) as ser:
-					ser.write(pyvesc.encode(message[list(message.keys())[0]]))
+					ser.write(pyvesc.encode(message.data))
 
 	def reqSubscription(self, port):
 		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=1) as ser:
@@ -55,7 +55,7 @@ class USBServer(RoverServer):
 					break # parseVESCPacket didn't fail
 				except:
 					errors += 1 # got another bad packet
-					print("Got bad packet")
+					self.log("Got bad packet", "WARNING")
 			if not s:
 				return # failed to get a good packet, abort
 			if s not in self.IDList:
