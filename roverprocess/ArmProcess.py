@@ -40,7 +40,7 @@ class ArmProcess(RoverProcess):
 	# Returns the newly formated x and y axis values in a new list
 	def on_joystick1(self, data):
 		x_axis = data[0] # Get data for x-axis.
-		x_axis = (x_axis * 40000/2) # Conversion factor to make it easy to interpret input.
+		x_axis = (x_axis * 40000/2) # Conversion factor to make it easy to interpret input, half power for testing.
 		if x_axis > 11000 or x_axis < -11000: # If out of dead-zone.
 			armBaseSpeed = x_axis
 		else:
