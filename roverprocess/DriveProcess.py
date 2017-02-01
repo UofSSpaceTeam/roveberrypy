@@ -12,7 +12,7 @@
 # permissions and limitations under the License.
 
 from .RoverProcess import RoverProcess
-from pyvesc.messages.setters import SetRPM
+from pyvesc import SetRPM
 import pyvesc
 
 

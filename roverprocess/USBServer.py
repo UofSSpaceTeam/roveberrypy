@@ -11,26 +11,6 @@ import pyvesc
 
 BAUDRATE = 115200
 
-def makeVESCPacket(payload, len):
-	crc = pycrc16(payload, len)
-	msg = []
-	if len <= 256:
-		msg.append(2)
-		msg.append(len)
-	else:
-		msg.append(3)
-		msg.append(int(len/(2**8)))
-		msg.append(len&0xFF)
-	msg.extend(payload)
-
-	msg.append(int(crc.value/(2**8)))
-
-	msg.append(crc.value&0xFF)
-	msg.append(3)
-	b_msg = bytes(msg)
-	return b_msg
-
-
 def parseVESCPacket(packet):
 	msg = packet[2:2+packet[1]].decode("utf-8")
 	return msg
@@ -54,9 +34,6 @@ class USBServer(RoverServer):
 		time.sleep(1)
 
 	def messageTrigger(self, message):
-		# RoverProcess.messageTrigger(self, message)
-		# print(self.IDList)
-		print(message)
 		if list(message.keys())[0] in self.IDList:
 			for device in self.IDList[list(message.keys())[0]]:
 				with serial.Serial(device, baudrate=BAUDRATE, timeout=1) as ser:
@@ -64,10 +41,8 @@ class USBServer(RoverServer):
 
 	def reqSubscription(self, port):
 		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=1) as ser:
-
-			payload = [36]
-			msg = makeVESCPacket(payload, len(payload))
-			ser.write(msg)
+			req = pyvesc.ReqSubscription()
+			ser.write(pyvesc.encode(req))
 
 			s = parseVESCPacket(ser.readline())
 			if s not in self.IDList:
