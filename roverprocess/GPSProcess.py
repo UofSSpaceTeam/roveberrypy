@@ -15,28 +15,31 @@ class GPSProcess(RoverProcess):
 			Thread.__init__(self)
 
 			self._parent = parent
-			self.serial = "/dev/ttyS5"
+			self.serial = "/dev/ttyUSB0"
 			self.baud = 1000000
 			self.addr = None
 			self.port = None
 
 		def run(self):
 			#with Piksi(self.serial, self.baud, recv_addr=(self.addr, self.port)) as self.piksi:
-			with Piksi(self.serial, self.baud) as self.piksi:
-				while True:
-					connected = self.piksi.connected()
-					if not connected:
-						print("Rover piksi is not connected properly")
-					else:
-						print("Rover piksi is connected")
-						msg = self.piksi.poll(0x0201)
-						if msg is not None:
-							print("location")
-							pos_msg = "lat:" + str(msg.lat) + ",lon:" + str(msg.lon)
-							print(pos_msg)
-							self._parent.messageTrigger({"pos":pos_msg})
+			try:
+				with Piksi(self.serial, self.baud) as self.piksi:
+					while True:
+						connected = self.piksi.connected()
+						if not connected:
+							print("Rover piksi is not connected properly")
+						else:
+							print("Rover piksi is connected")
+							msg = self.piksi.poll(0x0201)
+							if msg is not None:
+								print("location")
+								pos_msg = "lat:" + str(msg.lat) + ",lon:" + str(msg.lon)
+								print(pos_msg)
+								self._parent.messageTrigger({"pos":pos_msg})
 
-					time.sleep(1)
+						time.sleep(1)
+			except:
+				print("Bad serial port")
 
 	def setup(self, args):
 		receiver = GPSProcess.PiksiThread(self)
