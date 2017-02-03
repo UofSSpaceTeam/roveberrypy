@@ -15,29 +15,38 @@ from multiprocessing import Process, BoundedSemaphore, Queue, Manager
 import threading
 import sys
 import time
+import logging
+from collections import namedtuple
+
+# RoverMessage is a named tuple with key and data fields.
+# msg = RoverMessage('test', [1, 2, 3])
+# msg[0] == msg.key
+# msg[1] == msg.data
+RoverMessage = namedtuple('RoverMessage', ['key', 'data'])
+
 
 class RoverProcess(Process):
 	class ReceiverThread(threading.Thread):
 		def __init__(self, downlink, parent):
 			threading.Thread.__init__(self)
-			self.downlink = downlink
-			self._parent = parent
+			self.downlink = downlink # MultiProcessing Queue.
+			self._parent = parent # RoverProcess instance.
 			self.quit = False
 			self.daemon = True
 
 		def run(self):
 			while not self.quit:
-				data = self.downlink.get()
-				assert isinstance(data, dict)
-				for key in data.keys():
-					if hasattr(self._parent, "on_" + key):
-						#call trigger method
-						getattr(self._parent, "on_" + key)(data[key])
-					else:
-						self._parent.messageTrigger(data)
+				message = self.downlink.get() # Get subscribed message from multiprocessing queue.
+				assert isinstance(message, RoverMessage) # Checking if the "message" is of type RoverMessage.
+				if hasattr(self._parent, "on_" + message.key): # If message key has a function called on_*key*() in its RoverProcess instance...
+					#...call trigger method, execute function.
+					getattr(self._parent, "on_" + message.key)(message.data) 
+				else: #... Otherwise call its message trigger.
+					self._parent.messageTrigger(message)
 
 	def __init__(self, **kwargs):
 		Process.__init__(self)
+		self._log = logging.getLogger(self.__class__.__name__)
 		self.uplink = kwargs["uplink"]
 		self.downlink = kwargs["downlink"]
 		self.subscriptions = ["quit"]
@@ -83,18 +92,23 @@ class RoverProcess(Process):
 		sys.exit(0)
 
 	def publish(self, key, value):
-		self.uplink.put({key:value})
+		self.uplink.put(RoverMessage(key, value))
 
 	def cleanup(self):
 		try:
 			if self.receiver != threading.current_thread():
-				print(self.__class__.__name__ + " shutting down")
+				logging.info(self.__class__.__name__ + " shutting down")
 				self.receiver.quit = True
 				self.receiver.join(0.01)  # receiver is blocked by call to queue.get()
 			else: # cleanup was called from a message: cannot join current_thread
 				self.quit = True
 		except KeyboardInterrupt:
 			pass
+
+	def log(self, message, level="INFO"):
+		level_lut = {"NOTSET":0, "DEBUG":10, "INFO":20,
+				"WARNING":30, "ERROR":40, "CRITICAL":50}
+		self._log.log(level_lut[level], message)
 
 	def subscribe(self, key):
 		if key not in self.subscriptions:

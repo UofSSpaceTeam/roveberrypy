@@ -34,7 +34,7 @@ class ExampleProcess(RoverProcess):
 		# which is a list of messages it is currently subscribed to.
 		# You can read from this list, but please do not modify it,
 		# as that will mess things up. Use subscribe() and unsubscribe().
-		for key in ["Test", "respondTrue"]:
+		for key in ["Test", "respondTrue", "heartbeat"]:
 			self.subscribe(key)
 		self.someVariable = 42
 
@@ -51,8 +51,8 @@ class ExampleProcess(RoverProcess):
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
 
-		if "heartbeat" in message:
-			print("got: " + str(message["heartbeat"]))
+		if message.key == 'Test':
+			self.log("got: " + str(message.data))
 
 	# This runs once at the end when the program shuts down.
 	# You can use this to do something like stop motors, clean up open files, etc.
@@ -62,15 +62,14 @@ class ExampleProcess(RoverProcess):
 
 	# Whenever the "heartbeat" message is produced, the callback function "on_heartbeat"
 	# is called. This is an alternative to using large if/else structures in
-	# messageTrigger. In this function, message is the contents of the message,
-	# not the dictionary that contains multiple keys like in messageTrigger.
-	def on_heartbeat(self, message):
-		print("From callback got: " + str(messsage))
+	# messageTrigger.
+	def on_heartbeat(self, data):
+		self.log("From callback got: " + str(data))
 
 	# This method demonstrates the testing framework. If test_ExampleProcess
 	# is running, it will send the "respondTrue" message with a value of False
 	# This module must respond True to pass the test
-	def on_respondTrue(self, message):
-		self.publish("response", not message)
+	def on_respondTrue(self, data):
+		self.publish("response", not data)
 
 
