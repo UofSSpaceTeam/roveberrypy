@@ -69,6 +69,9 @@ class USBServer(RoverServer):
 			while not self.quit:
 				self.semList[kwargs["port"]].acquire()
 				if ser.in_waiting > 0:
-					self.log(ser.readline())
+					buff = ser.readline()
+					(msg, _) = pyvesc.decode(buff)
+					self.log(msg, "DEBUG")
+					self.publish(msg.__class__.__name__, msg)
 				self.semList[kwargs["port"]].release()
 				time.sleep(0.005)
