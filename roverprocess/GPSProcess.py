@@ -27,18 +27,17 @@ class GPSProcess(RoverProcess):
 					while True:
 						connected = self.piksi.connected()
 						if not connected:
-							print("Rover piksi is not connected properly")
+							self._parent.log("Rover piksi is not connected properly")
 						else:
-							print("Rover piksi is connected")
+							self._parent.log("Rover piksi is connected", "WARNING")
 							msg = self.piksi.poll(0x0201)
 							if msg is not None:
-								print("location")
 								pos_msg = "lat:" + str(msg.lat) + ",lon:" + str(msg.lon)
-								print(pos_msg)
+								self._parent.log(pos_msg, "DEBUG")
 								self._parent.publish('singlePointGPS', (msg.lat, msg.lon))
 						time.sleep(1)
 			except:
-				print("Bad serial port")
+				self._parent.log("Bad serial port", "ERROR")
 
 	def setup(self, args):
 		receiver = GPSProcess.PiksiThread(self)
