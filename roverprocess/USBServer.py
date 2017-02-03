@@ -48,7 +48,7 @@ class USBServer(RoverServer):
 					buff = ser.readline()
 					self.log(buff, "DEBUG")
 					(msg, _) = pyvesc.decode(buff)
-					s = msg.f1
+					s = msg.subscription
 					break # parseVESCPacket didn't fail
 				except:
 					errors += 1 # got another bad packet
@@ -69,9 +69,12 @@ class USBServer(RoverServer):
 			while not self.quit:
 				self.semList[kwargs["port"]].acquire()
 				if ser.in_waiting > 0:
-					buff = ser.readline()
-					(msg, _) = pyvesc.decode(buff)
-					self.log(msg, "DEBUG")
-					self.publish(msg.__class__.__name__, msg)
+					try:
+						buff = ser.readline()
+						(msg, _) = pyvesc.decode(buff)
+						self.log(msg, "DEBUG")
+						self.publish(msg.__class__.__name__, msg)
+					except:
+						self.log("Failed to parse message", "ERROR")
 				self.semList[kwargs["port"]].release()
 				time.sleep(0.005)
