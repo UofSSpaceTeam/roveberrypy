@@ -11,11 +11,6 @@ import pyvesc
 
 BAUDRATE = 115200
 
-def parseVESCPacket(packet):
-	msg = packet[2:2+packet[1]].decode("utf-8")
-	return msg
-
-
 class USBServer(RoverServer):
 
 	def setup(self, args):
