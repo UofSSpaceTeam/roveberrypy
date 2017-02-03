@@ -41,7 +41,7 @@ class USBServer(RoverServer):
 
 	def reqSubscription(self, port):
 		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=1) as ser:
-			req = pyvesc.ReqSubscription()
+			req = pyvesc.ReqSubscription('t')
 			ser.write(pyvesc.encode(req))
 
 			errors = 0
@@ -51,11 +51,13 @@ class USBServer(RoverServer):
 					#      same packet format when it prints messages back
 					#      (no packet id or checksum as far as I can tell)
 					buff = ser.readline()
-					s = parseVESCPacket(buff)
+					print(buff)
+					(msg, _) = pyvesc.decode(buff)
 					break # parseVESCPacket didn't fail
 				except:
 					errors += 1 # got another bad packet
 					self.log("Got bad packet", "WARNING")
+			s = msg.f1
 			if not s:
 				return # failed to get a good packet, abort
 			if s not in self.IDList:
