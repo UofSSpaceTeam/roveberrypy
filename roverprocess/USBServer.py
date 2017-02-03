@@ -40,24 +40,24 @@ class USBServer(RoverServer):
 					ser.write(pyvesc.encode(message.data))
 
 	def reqSubscription(self, port):
-		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=1) as ser:
-			req = pyvesc.ReqSubscription('t')
-			ser.write(pyvesc.encode(req))
-
+		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=0.5) as ser:
+			s = None
 			errors = 0
 			while errors <= 4: # try reading 4 times
 				try:
 					#TODO, vesc firmware seems to not use quite the
 					#      same packet format when it prints messages back
 					#      (no packet id or checksum as far as I can tell)
+					req = pyvesc.ReqSubscription('t')
+					ser.write(pyvesc.encode(req))
 					buff = ser.readline()
-					print(buff)
+					self.log(buff, "DEBUG")
 					(msg, _) = pyvesc.decode(buff)
+					s = msg.f1
 					break # parseVESCPacket didn't fail
 				except:
 					errors += 1 # got another bad packet
 					self.log("Got bad packet", "WARNING")
-			s = msg.f1
 			if not s:
 				return # failed to get a good packet, abort
 			if s not in self.IDList:
