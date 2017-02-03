@@ -35,8 +35,7 @@ class GPSProcess(RoverProcess):
 								print("location")
 								pos_msg = "lat:" + str(msg.lat) + ",lon:" + str(msg.lon)
 								print(pos_msg)
-								self._parent.messageTrigger({"pos":pos_msg})
-
+								self._parent.publish('singlePointGPS', (msg.lat, msg.lon))
 						time.sleep(1)
 			except:
 				print("Bad serial port")
