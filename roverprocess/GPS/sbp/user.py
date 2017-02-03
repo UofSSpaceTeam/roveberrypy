@@ -18,7 +18,7 @@ Messages reserved for use by the user.
 from construct import *
 import json
 from .msg import SBP, SENDER_ID
-from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize#, greedy_string
+from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
 
 # Automatically generated from piksi/yaml/swiftnav/sbp/user.yaml with generate.py.
 # Please do not hand edit!
@@ -48,7 +48,7 @@ maximum length of 255 bytes per message.
 
   """
   _parser = Struct("MsgUserData",
-                   GreedyRange(('contents') / Int8ul),)
+                   OptionalGreedyRange(ULInt8('contents')),)
   __slots__ = [
                'contents',
               ]

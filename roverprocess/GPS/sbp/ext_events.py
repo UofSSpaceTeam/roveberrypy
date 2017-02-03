@@ -19,7 +19,7 @@ e.g. camera shutter time.
 from construct import *
 import json
 from .msg import SBP, SENDER_ID
-from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize#, greedy_string
+from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
 
 # Automatically generated from piksi/yaml/swiftnav/sbp/ext_events.yaml with generate.py.
 # Please do not hand edit!
@@ -59,11 +59,11 @@ from -500000 to 500000)
 
   """
   _parser = Struct("MsgExtEvent",
-                   ('wn') / Int16ul,
-                   ('tow') / Int32ul,
-                   ('ns') / Int32sl,
-                   ('flags') / Int8ul,
-                   ('pin') / Int8ul,)
+                   ULInt16('wn'),
+                   ULInt32('tow'),
+                   SLInt32('ns'),
+                   ULInt8('flags'),
+                   ULInt8('pin'),)
   __slots__ = [
                'wn',
                'tow',

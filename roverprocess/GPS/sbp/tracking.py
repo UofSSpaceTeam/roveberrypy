@@ -18,7 +18,7 @@ Satellite code and carrier-phase tracking messages from the device.
 from construct import *
 import json
 from .msg import SBP, SENDER_ID
-from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize#, greedy_string
+from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
 from .gnss_signal import *
 
 # Automatically generated from piksi/yaml/swiftnav/sbp/tracking.yaml with generate.py.
@@ -43,9 +43,9 @@ measured signal power.
 
   """
   _parser = Embedded(Struct("TrackingChannelState",
-                     ('state') / Int8ul,
+                     ULInt8('state'),
                      Struct('sid', GnssSignal._parser),
-                     ('cn0') / Float32l,))
+                     LFloat32('cn0'),))
   __slots__ = [
                'state',
                'sid',
@@ -87,8 +87,8 @@ class TrackingChannelCorrelation(object):
 
   """
   _parser = Embedded(Struct("TrackingChannelCorrelation",
-                     ('I') / Int32sl,
-                     ('Q') / Int32sl,))
+                     SLInt32('I'),
+                     SLInt32('Q'),))
   __slots__ = [
                'I',
                'Q',
@@ -129,9 +129,9 @@ class TrackingChannelStateDepA(object):
 
   """
   _parser = Embedded(Struct("TrackingChannelStateDepA",
-                     ('state') / Int8ul,
-                     ('prn') / Int8ul,
-                     ('cn0') / Float32l,))
+                     ULInt8('state'),
+                     ULInt8('prn'),
+                     LFloat32('cn0'),))
   __slots__ = [
                'state',
                'prn',
@@ -183,7 +183,7 @@ measurements for all tracked satellites.
 
   """
   _parser = Struct("MsgTrackingState",
-                   GreedyRange(Struct('states', TrackingChannelState._parser)),)
+                   OptionalGreedyRange(Struct('states', TrackingChannelState._parser)),)
   __slots__ = [
                'states',
               ]
@@ -269,7 +269,7 @@ update interval.
 
   """
   _parser = Struct("MsgTrackingIq",
-                   ('channel') / Int8ul,
+                   ULInt8('channel'),
                    Struct('sid', GnssSignal._parser),
                    Struct('corrs', Array(3, Struct('corrs', TrackingChannelCorrelation._parser))),)
   __slots__ = [
@@ -355,7 +355,7 @@ class MsgTrackingStateDepA(SBP):
 
   """
   _parser = Struct("MsgTrackingStateDepA",
-                   GreedyRange(Struct('states', TrackingChannelStateDepA._parser)),)
+                   OptionalGreedyRange(Struct('states', TrackingChannelStateDepA._parser)),)
   __slots__ = [
                'states',
               ]

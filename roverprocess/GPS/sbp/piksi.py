@@ -20,7 +20,7 @@ may no longer be used.
 from construct import *
 import json
 from .msg import SBP, SENDER_ID
-from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize#, greedy_string
+from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
 from .gnss_signal import *
 
 # Automatically generated from piksi/yaml/swiftnav/sbp/piksi.yaml with generate.py.
@@ -56,12 +56,12 @@ be normalized.
 
   """
   _parser = Embedded(Struct("UARTChannel",
-                     ('tx_throughput') / Float32l,
-                     ('rx_throughput') / Float32l,
-                     ('crc_error_count') / Int16ul,
-                     ('io_error_count') / Int16ul,
-                     ('tx_buffer_level') / Int8ul,
-                     ('rx_buffer_level') / Int8ul,))
+                     LFloat32('tx_throughput'),
+                     LFloat32('rx_throughput'),
+                     ULInt16('crc_error_count'),
+                     ULInt16('io_error_count'),
+                     ULInt8('tx_buffer_level'),
+                     ULInt8('rx_buffer_level'),))
   __slots__ = [
                'tx_throughput',
                'rx_throughput',
@@ -117,10 +117,10 @@ communication latency in the system.
 
   """
   _parser = Embedded(Struct("Latency",
-                     ('avg') / Int32sl,
-                     ('lmin') / Int32sl,
-                     ('lmax') / Int32sl,
-                     ('current') / Int32sl,))
+                     SLInt32('avg'),
+                     SLInt32('lmin'),
+                     SLInt32('lmax'),
+                     SLInt32('current'),))
   __slots__ = [
                'avg',
                'lmin',
@@ -405,7 +405,7 @@ Ambiguity Resolution (IAR) process.
 
   """
   _parser = Struct("MsgResetFilters",
-                   ('filter') / Int8ul,)
+                   ULInt8('filter'),)
   __slots__ = [
                'filter',
               ]
@@ -544,8 +544,8 @@ thread. The reported percentage values must be normalized.
   """
   _parser = Struct("MsgThreadState",
                    String('name', 20),
-                   ('cpu') / Int16ul,
-                   ('stack_free') / Int32ul,)
+                   ULInt16('cpu'),
+                   ULInt32('stack_free'),)
   __slots__ = [
                'name',
                'cpu',
@@ -733,7 +733,7 @@ from satellite observations.
 
   """
   _parser = Struct("MsgIarState",
-                   ('num_hyps') / Int32ul,)
+                   ULInt32('num_hyps'),)
   __slots__ = [
                'num_hyps',
               ]
@@ -817,7 +817,7 @@ from being used in various Piksi subsystems.
 
   """
   _parser = Struct("MsgMaskSatellite",
-                   ('mask') / Int8ul,
+                   ULInt8('mask'),
                    Struct('sid', GnssSignal._parser),)
   __slots__ = [
                'mask',

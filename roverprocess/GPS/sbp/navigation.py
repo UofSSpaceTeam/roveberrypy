@@ -28,7 +28,7 @@ and the RTK solution in tandem.
 from construct import *
 import json
 from .msg import SBP, SENDER_ID
-from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize#, greedy_string
+from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
 
 # Automatically generated from piksi/yaml/swiftnav/sbp/navigation.yaml with generate.py.
 # Please do not hand edit!
@@ -77,10 +77,10 @@ from -500000 to 500000)
 
   """
   _parser = Struct("MsgGPSTime",
-                   ('wn') / Int16ul,
-                   ('tow') / Int32ul,
-                   ('ns') / Int32sl,
-                   ('flags') / Int8ul,)
+                   ULInt16('wn'),
+                   ULInt32('tow'),
+                   SLInt32('ns'),
+                   ULInt8('flags'),)
   __slots__ = [
                'wn',
                'tow',
@@ -179,12 +179,12 @@ precision.
 
   """
   _parser = Struct("MsgDops",
-                   ('tow') / Int32ul,
-                   ('gdop') / Int16ul,
-                   ('pdop') / Int16ul,
-                   ('tdop') / Int16ul,
-                   ('hdop') / Int16ul,
-                   ('vdop') / Int16ul,)
+                   ULInt32('tow'),
+                   ULInt16('gdop'),
+                   ULInt16('pdop'),
+                   ULInt16('tdop'),
+                   ULInt16('hdop'),
+                   ULInt16('vdop'),)
   __slots__ = [
                'tow',
                'gdop',
@@ -296,13 +296,13 @@ to 0.
 
   """
   _parser = Struct("MsgPosECEF",
-                   ('tow') / Int32ul,
-                   ('x') / Float64l,
-                   ('y') / Float64l,
-                   ('z') / Float64l,
-                   ('accuracy') / Int16ul,
-                   ('n_sats') / Int8ul,
-                   ('flags') / Int8ul,)
+                   ULInt32('tow'),
+                   LFloat64('x'),
+                   LFloat64('y'),
+                   LFloat64('z'),
+                   ULInt16('accuracy'),
+                   ULInt8('n_sats'),
+                   ULInt8('flags'),)
   __slots__ = [
                'tow',
                'x',
@@ -420,14 +420,14 @@ implemented). Defaults to 0.
 
   """
   _parser = Struct("MsgPosLLH",
-                   ('tow') / Int32ul,
-                   ('lat') / Float64l,
-                   ('lon') / Float64l,
-                   ('height') / Float64l,
-                   ('h_accuracy') / Int16ul,
-                   ('v_accuracy') / Int16ul,
-                   ('n_sats') / Int8ul,
-                   ('flags') / Int8ul,)
+                   ULInt32('tow'),
+                   LFloat64('lat'),
+                   LFloat64('lon'),
+                   LFloat64('height'),
+                   ULInt16('h_accuracy'),
+                   ULInt16('v_accuracy'),
+                   ULInt8('n_sats'),
+                   ULInt8('flags'),)
   __slots__ = [
                'tow',
                'lat',
@@ -540,13 +540,13 @@ to 0.
 
   """
   _parser = Struct("MsgBaselineECEF",
-                   ('tow') / Int32ul,
-                   ('x') / Int32ul,
-                   ('y') / Int32ul,
-                   ('z') / Int32ul,
-                   ('accuracy') / Int16ul,
-                   ('n_sats') / Int8ul,
-                   ('flags') / Int8ul,)
+                   ULInt32('tow'),
+                   SLInt32('x'),
+                   SLInt32('y'),
+                   SLInt32('z'),
+                   ULInt16('accuracy'),
+                   ULInt8('n_sats'),
+                   ULInt8('flags'),)
   __slots__ = [
                'tow',
                'x',
@@ -662,14 +662,14 @@ implemented). Defaults to 0.
 
   """
   _parser = Struct("MsgBaselineNED",
-                   ('tow') / Int32ul,
-                   ('n') / Int32sl,
-                   ('e') / Int32sl,
-                   ('d') / Int32sl,
-                   ('h_accuracy') / Int16ul,
-                   ('v_accuracy') / Int16ul,
-                   ('n_sats') / Int8ul,
-                   ('flags') / Int8ul,)
+                   ULInt32('tow'),
+                   SLInt32('n'),
+                   SLInt32('e'),
+                   SLInt32('d'),
+                   ULInt16('h_accuracy'),
+                   ULInt16('v_accuracy'),
+                   ULInt8('n_sats'),
+                   ULInt8('flags'),)
   __slots__ = [
                'tow',
                'n',
@@ -780,13 +780,13 @@ to 0.
 
   """
   _parser = Struct("MsgVelECEF",
-                   ('tow') / Int32ul,
-                   ('x') / Int32sl,
-                   ('y') / Int32sl,
-                   ('z') / Int32sl,
-                   ('accuracy') / Int16ul,
-                   ('n_sats') / Int8ul,
-                   ('flags') / Int8ul,)
+                   ULInt32('tow'),
+                   SLInt32('x'),
+                   SLInt32('y'),
+                   SLInt32('z'),
+                   ULInt16('accuracy'),
+                   ULInt8('n_sats'),
+                   ULInt8('flags'),)
   __slots__ = [
                'tow',
                'x',
@@ -900,14 +900,14 @@ implemented). Defaults to 0.
 
   """
   _parser = Struct("MsgVelNED",
-                   ('tow') / Int32ul,
-                   ('n') / Int32sl,
-                   ('e') / Int32sl,
-                   ('d') / Int32sl,
-                   ('h_accuracy') / Int16ul,
-                   ('v_accuracy') / Int16ul,
-                   ('n_sats') / Int8ul,
-                   ('flags') / Int8ul,)
+                   ULInt32('tow'),
+                   SLInt32('n'),
+                   SLInt32('e'),
+                   SLInt32('d'),
+                   ULInt16('h_accuracy'),
+                   ULInt16('v_accuracy'),
+                   ULInt8('n_sats'),
+                   ULInt8('flags'),)
   __slots__ = [
                'tow',
                'n',
@@ -1010,10 +1010,10 @@ preceding MSG_GPS_TIME with the matching time-of-week (tow).
 
   """
   _parser = Struct("MsgBaselineHeading",
-                   ('tow') / Int32ul,
-                   ('heading') / Int32ul,
-                   ('n_sats') / Int8ul,
-                   ('flags') / Int8ul,)
+                   ULInt32('tow'),
+                   ULInt32('heading'),
+                   ULInt8('n_sats'),
+                   ULInt8('flags'),)
   __slots__ = [
                'tow',
                'heading',

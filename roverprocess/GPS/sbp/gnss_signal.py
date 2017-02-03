@@ -17,7 +17,7 @@ Struct to represent a signal (constellation, band, satellite identifier)
 from construct import *
 import json
 from .msg import SBP, SENDER_ID
-from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize#, greedy_string
+from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
 
 # Automatically generated from piksi/yaml/swiftnav/sbp/gnss_signal.yaml with generate.py.
 # Please do not hand edit!
@@ -40,9 +40,9 @@ class GnssSignal(object):
 
   """
   _parser = Embedded(Struct("GnssSignal",
-                     ('sat') / Int16ul,
-                     ('code') / Int8ul,
-                     ('reserved') / Int8ul,))
+                     ULInt16('sat'),
+                     ULInt8('code'),
+                     ULInt8('reserved'),))
   __slots__ = [
                'sat',
                'code',

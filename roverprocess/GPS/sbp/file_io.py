@@ -25,7 +25,7 @@ host request and the device response.
 from construct import *
 import json
 from .msg import SBP, SENDER_ID
-from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize#, greedy_string
+from .utils import fmt_repr, exclude_fields, walk_json_dict, containerize, greedy_string
 
 # Automatically generated from piksi/yaml/swiftnav/sbp/file_io.yaml with generate.py.
 # Please do not hand edit!
@@ -67,10 +67,10 @@ to this message when it is received from sender ID 0x42.
 
   """
   _parser = Struct("MsgFileioReadReq",
-                   ('sequence') / Int32ul,
-                   ('offset') / Int32ul,
-                   ('chunk_size') / Int8ul,
-                   GreedyString('filename'),)
+                   ULInt32('sequence'),
+                   ULInt32('offset'),
+                   ULInt8('chunk_size'),
+                   greedy_string('filename'),)
   __slots__ = [
                'sequence',
                'offset',
@@ -163,8 +163,8 @@ preserved from the request.
 
   """
   _parser = Struct("MsgFileioReadResp",
-                   ('sequence') / Int32ul,
-                   GreedyRange(('contents') / Int8ul),)
+                   ULInt32('sequence'),
+                   OptionalGreedyRange(ULInt8('contents')),)
   __slots__ = [
                'sequence',
                'contents',
@@ -261,9 +261,9 @@ from sender ID 0x42.
 
   """
   _parser = Struct("MsgFileioReadDirReq",
-                   ('sequence') / Int32ul,
-                   ('offset') / Int32ul,
-                   GreedyString('dirname'),)
+                   ULInt32('sequence'),
+                   ULInt32('offset'),
+                   greedy_string('dirname'),)
   __slots__ = [
                'sequence',
                'offset',
@@ -355,8 +355,8 @@ the response is preserved from the request.
 
   """
   _parser = Struct("MsgFileioReadDirResp",
-                   ('sequence') / Int32ul,
-                   GreedyRange(('contents') / Int8ul),)
+                   ULInt32('sequence'),
+                   OptionalGreedyRange(ULInt8('contents')),)
   __slots__ = [
                'sequence',
                'contents',
@@ -442,7 +442,7 @@ process this message when it is received from sender ID 0x42.
 
   """
   _parser = Struct("MsgFileioRemove",
-                   GreedyString('filename'),)
+                   greedy_string('filename'),)
   __slots__ = [
                'filename',
               ]
@@ -536,10 +536,10 @@ only  process this message when it is received from sender ID
 
   """
   _parser = Struct("MsgFileioWriteReq",
-                   ('sequence') / Int32ul,
-                   ('offset') / Int32ul,
-                   GreedyString('filename'),
-                   GreedyRange(('data') / Int8ul),)
+                   ULInt32('sequence'),
+                   ULInt32('offset'),
+                   greedy_string('filename'),
+                   OptionalGreedyRange(ULInt8('data')),)
   __slots__ = [
                'sequence',
                'offset',
@@ -630,7 +630,7 @@ request.
 
   """
   _parser = Struct("MsgFileioWriteResp",
-                   ('sequence') / Int32ul,)
+                   ULInt32('sequence'),)
   __slots__ = [
                'sequence',
               ]
