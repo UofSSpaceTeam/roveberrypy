@@ -38,7 +38,7 @@ if(os.name == "nt"): # Windows test
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE, SIG_DFL)
-	modulesList = ["ExampleProcess","StateManagerTestProcess1","StateManagerTestProcess2","StateManagerTestProcess3"]
+	modulesList = ["USBServer", "test_USBServer"]
 
 else: # Rover! :D
 	logging.info("Rover hardware detected. Full config mode")
