@@ -32,7 +32,9 @@ class USBServer(RoverServer):
 		if message.key in self.IDList:
 			for device in self.IDList[message.key]:
 				with serial.Serial(device, baudrate=BAUDRATE, timeout=1) as ser:
-					ser.write(pyvesc.encode(message.data))
+					buff = pyvesc.encode(message.data)
+					self.log(buff)
+					ser.write(buff)
 
 	def reqSubscription(self, port):
 		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=0.5) as ser:
@@ -40,9 +42,6 @@ class USBServer(RoverServer):
 			errors = 0
 			while errors <= 4: # try reading 4 times
 				try:
-					#TODO, vesc firmware seems to not use quite the
-					#      same packet format when it prints messages back
-					#      (no packet id or checksum as far as I can tell)
 					req = pyvesc.ReqSubscription('t')
 					ser.write(pyvesc.encode(req))
 					buff = ser.readline()
@@ -72,7 +71,7 @@ class USBServer(RoverServer):
 					try:
 						buff = ser.readline()
 						(msg, _) = pyvesc.decode(buff)
-						self.log(msg, "DEBUG")
+						self.log(buff, "DEBUG")
 						self.publish(msg.__class__.__name__, msg)
 					except:
 						self.log("Failed to parse message", "ERROR")
