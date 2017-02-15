@@ -12,6 +12,8 @@
 # permissions and limitations under the License.
 
 from .RoverProcess import RoverProcess
+from pyvesc import SetRPM
+import pyvesc
 
 
 class DriveProcess(RoverProcess):
@@ -30,9 +32,10 @@ class DriveProcess(RoverProcess):
 	# Function that grabs the x and y axis values in message, then formats the data
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list
-	def on_joystick1(self, message):
-		y_axis = message[1]
+	def on_joystick1(self, data):
+		y_axis = data[1]
 		y_axis = (y_axis * 40000/2) # half power for testing
+<<<<<<< HEAD
 		if y_axis > 11000 or y_axis < -11000 and not self.right_brake:
 			newMessage = y_axis
 			self.publish("wheel1", y_axis)
@@ -47,9 +50,10 @@ class DriveProcess(RoverProcess):
 	# Function that grabs the x and y axis values in message, then formats the data
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list
-	def on_joystick2(self, message):
-		y_axis = message[1]
+	def on_joystick2(self, data):
+		y_axis = data[1]
 		y_axis = (y_axis * 40000/2)
+<<<<<<< HEAD
 		if y_axis > 11000 or y_axis < -11000 and not self.left_brake:
 			self.publish("wheel4", y_axis)
 			self.publish("wheel5", y_axis)
