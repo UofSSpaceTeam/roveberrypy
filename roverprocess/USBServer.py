@@ -33,7 +33,7 @@ class USBServer(RoverServer):
 			for device in self.IDList[message.key]:
 				with serial.Serial(device, baudrate=BAUDRATE, timeout=1) as ser:
 					buff = pyvesc.encode(message.data)
-					self.log(buff)
+					self.log(buff, "DEBUG")
 					ser.write(buff)
 
 	def reqSubscription(self, port):
