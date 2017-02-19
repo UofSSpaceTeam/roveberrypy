@@ -31,13 +31,15 @@ class Watchdog(Thread):
 		while(True):
 			self.log('Watchdog: Timer {} Guarding {}'.format(self.counter, self.state), level="DEBUG")
 
-			if(self.counter == self.timeout):
-				self.log('Watchdog timed out due to hung process: {}'.format(
-				(process for process,running in self.state.items() if running==False).next()
-				),
-				level="CRITICAL")
-			elif all(running == True for running in self.state.values()):
+			if all(running == True for running in self.state.values()):
+				self.state =  {process:False for process in self.state}
 				self.counter = 0
+
+			elif(self.counter == self.timeout):
+				self.log('Watchdog timed out due to hung process: {}'.format(
+				self.getHanging()),
+				level="CRITICAL")
+
 			else:
 				self.counter = self.counter + 1
 
@@ -51,7 +53,13 @@ class Watchdog(Thread):
 
 	def patrol(self, timeout, processName):
 		self.timeout = timeout
-		self.log('Watchdog extended to {}s by process: {}'.format(timeout, processName))
+		self.log('Watchdog set to {}s by process: {}'.format(timeout, processName))
+
+	def getHanging(self):
+		try:
+			return [process for process, running in self.state.items() if running == False]
+		except:
+			return "Unknown Process"
 
 class StateManager(RoverProcess):
 
@@ -79,7 +87,7 @@ class StateManager(RoverProcess):
 	def terminateState(self):
 		for pname in self.uplink:
 			self.uplink[pname].put(RoverMessage("quit","True"))
- 		self.uplink = dict()
+		self.uplink = dict()
 		self.downlink.put(RoverMessage("quit","True"))
 
 	def cleanup(self):

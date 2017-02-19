@@ -37,7 +37,7 @@ class ExampleProcess(RoverProcess):
 		for key in ["Test", "respondTrue", "heartbeat"]:
 			self.subscribe(key)
 		self.someVariable = 42
-		self.extendWatchdog(10)
+		self.extendWatchdog(3)
 
 	# This automatically loops forever.
 	# It is best to put a time.sleep(x) at the end. This makes sure that it
@@ -45,8 +45,7 @@ class ExampleProcess(RoverProcess):
 	# The default behavior is to sleep for 1 second.
 	# Use self.publish() to send some variables to another process or server!
 	def loop(self):
-		self.pet()
-		time.sleep(0.5)
+		time.sleep(12)
 
 	# This runs every time a new message comes in.
 	# It is often handy to have an if statement for every type of message you expect

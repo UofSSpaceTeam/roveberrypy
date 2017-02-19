@@ -63,8 +63,9 @@ class RoverProcess(Process):
 
 			while not self.quit:
 				try:
-					#self.pet() why does it not work here?
 					self.loop()
+					if(self.__class__.__name__ is not 'StateManager'):
+						self.pet()
 				except KeyboardInterrupt:
 					self.quit = True
 			self.cleanup()
