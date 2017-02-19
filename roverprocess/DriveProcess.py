@@ -37,9 +37,9 @@ class DriveProcess(RoverProcess):
 		else:
 			newMessage = 0
 		self.log(newMessage, "DEBUG")
-		self.publish("wheel1", SetRPM(newMessage))
-		self.publish("wheel2", SetRPM(newMessage))
-		self.publish("wheel3", SetRPM(newMessage))
+		self.publish("wheelRF", SetRPM(newMessage))
+		self.publish("wheelRM", SetRPM(newMessage))
+		self.publish("wheelRB", SetRPM(newMessage))
 
 
 
@@ -54,9 +54,9 @@ class DriveProcess(RoverProcess):
 		else:
 			newMessage = 0
 		self.log(newMessage, "DEBUG")
-		self.publish("wheel4", SetRPM(newMessage))
-		self.publish("wheel5", SetRPM(newMessage))
-		self.publish("wheel6", SetRPM(newMessage))
+		self.publish("wheelLF", SetRPM(newMessage))
+		self.publish("wheelLM", SetRPM(newMessage))
+		self.publish("wheelLB", SetRPM(newMessage))
 
 
 

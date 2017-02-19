@@ -15,6 +15,7 @@ from .RoverProcess import RoverProcess
 
 # Any libraries you need can be imported here. You almost always need time!
 import time
+from pyvesc import BlinkLed
 
 
 class ExampleProcess(RoverProcess):
@@ -44,6 +45,11 @@ class ExampleProcess(RoverProcess):
 	# The default behavior is to sleep for 1 second.
 	# Use self.publish() to send some variables to another process or server!
 	def loop(self):
+		self.publish("blink", BlinkLed(1))
+		self.log("blink on")
+		time.sleep(0.5)
+		self.publish("blink", BlinkLed(0))
+		self.log("blink off")
 		time.sleep(0.5)
 
 	# This runs every time a new message comes in.
