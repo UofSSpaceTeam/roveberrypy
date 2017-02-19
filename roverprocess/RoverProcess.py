@@ -40,7 +40,7 @@ class RoverProcess(Process):
 				assert isinstance(message, RoverMessage) # Checking if the "message" is of type RoverMessage.
 				if hasattr(self._parent, "on_" + message.key): # If message key has a function called on_*key*() in its RoverProcess instance...
 					#...call trigger method, execute function.
-					getattr(self._parent, "on_" + message.key)(message.data) 
+					getattr(self._parent, "on_" + message.key)(message.data)
 				else: #... Otherwise call its message trigger.
 					self._parent.messageTrigger(message)
 
@@ -63,6 +63,7 @@ class RoverProcess(Process):
 
 			while not self.quit:
 				try:
+					#self.pet() why does it not work here?
 					self.loop()
 				except KeyboardInterrupt:
 					self.quit = True
@@ -110,6 +111,12 @@ class RoverProcess(Process):
 				"WARNING":30, "ERROR":40, "CRITICAL":50}
 		self._log.log(level_lut[level], message)
 
+	def pet(self):
+		self.publish('wd_pet', self.__class__.__name__)
+
+	def extendWatchdog(self, timeout):
+		self.publish('wd_extend', [timeout, self.__class__.__name__ ])
+
 	def subscribe(self, key):
 		if key not in self.subscriptions:
 			self.subscriptions.append(key)
@@ -119,5 +126,3 @@ class RoverProcess(Process):
 		if key in self.subscriptions:
 			self.subscriptions.remove(key)
 		self.publish("unsubscribe", [key, self.__class__.__name__])
-
-

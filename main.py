@@ -38,10 +38,10 @@ if(os.name == "nt"): # Windows test
 elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE, SIG_DFL)
-	modulesList = ["ExampleProcess", "DriveProcess", "WebServer", "USBServer"]
+	modulesList = ["ExampleProcess"]
 
 else: # Rover! :D
-	logging.info("Rover hardware detected. Full config mode") 
+	logging.info("Rover hardware detected. Full config mode")
 	from signal import signal, SIGPIPE, SIG_DFL
 	signal(SIGPIPE, SIG_DFL)
 	modulesList = []
@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
 	# start everything
 	logging.info("STARTING: " + str([type(p).__name__ for p in processes]) )
-	
+
 	system.start()
 	for process in processes:
 		process.start()
