@@ -18,12 +18,8 @@ import time
 import logging
 from collections import namedtuple
 
-''' RoverMessage is a named tuple with key and data fields.
-	msg = RoverMessage('test', [1, 2, 3])
-	msg[0] == msg.key
-	msg[1] == msg.data
-'''
 RoverMessage = namedtuple('RoverMessage', ['key', 'data'])
+''' RoverMessage is a named tuple with key and data fields.  '''
 
 
 class RoverProcess(Process):
@@ -36,9 +32,11 @@ class RoverProcess(Process):
 	class ReceiverThread(threading.Thread):
 		""" ReceiverThread listens for incoming messages."""
 		def __init__(self, downlink, parent):
-			""" Constructor. Required parameters:
-				downlink - The incomming message (multiprocessing) queue of the parent rover process.
-				parent   - instance of the RoverProcess
+			""" Constructor.
+
+				Args:
+					downlink (multiprocessing.Queue): The incomming message (multiprocessing) queue of the parent rover process.
+					parent (RoverProcess): instance of the RoverProcess
 			"""
 			threading.Thread.__init__(self)
 			self.downlink = downlink
@@ -64,8 +62,10 @@ class RoverProcess(Process):
 
 	def __init__(self, **kwargs):
 		""" Constructor, called in main.py automatically, don't override this through inheritance. Required parameters:
-			uplink   - queue for outgoing messages
-			downlink - queue for incomming messages
+
+			Args:
+				uplink (multiprocessing.Queue): queue for outgoing messages
+				downlink (multiprocessing.Queue): queue for incomming messages
 		"""
 		Process.__init__(self)
 		self._log = logging.getLogger(self.__class__.__name__)
@@ -120,6 +120,9 @@ class RoverProcess(Process):
 		""" Generic message handler.
 			Typically, you want to use an if/else statement on the
 			message key and do different things depending on the key.
+
+			Args:
+				message (RoverMessage): A single rovermessage that was received.
 		"""
 		pass
 
@@ -132,8 +135,10 @@ class RoverProcess(Process):
 
 	def publish(self, key, value):
 		""" Publishes a new RoverMessage to the rover system.
-			key - A string that serves as an identifier for the message.
-			value - The actual contents/data of the message.
+
+			Args:
+				key (str): An identifier for the message.
+				value: The actual contents/data of the message.
 		"""
 		self.uplink.put(RoverMessage(key, value))
 
@@ -156,9 +161,11 @@ class RoverProcess(Process):
 		''' Logs a message.
 			Messages are logged to the console and a file, depending how things
 			are setup in main.py.
-			message - A string to log, can also be an integer, float etc.
-			level - A string representing the log level as defined in the standard python logging module.
-					Can be one of: "NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+
+			Args:
+				message: A string to log, can also be an integer, float etc.
+				level (str): A string representing the log level as defined in the standard python logging module.\
+						Can be one of: "NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 		'''
 		level_lut = {"NOTSET":0, "DEBUG":10, "INFO":20,
 				"WARNING":30, "ERROR":40, "CRITICAL":50}
@@ -166,7 +173,9 @@ class RoverProcess(Process):
 
 	def subscribe(self, key):
 		""" Subscribe this RoverProcess to messages identified by <key>
-			key - A string identifier
+
+			Args:
+				key (str): An identifier for the key you want to subscribe to.
 		"""
 		if key not in self.subscriptions:
 			self.subscriptions.append(key)
@@ -174,7 +183,9 @@ class RoverProcess(Process):
 
 	def unsubscribe(self, key):
 		""" Un-subscribe this RoverProcess to messages identified by <key>
-			key - A string identifier
+
+			Args:
+				key (str): An identifier for the key you want to un-subscribe from.
 		"""
 		if key in self.subscriptions:
 			self.subscriptions.remove(key)
