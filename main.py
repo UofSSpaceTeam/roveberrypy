@@ -22,7 +22,9 @@ from multiprocessing import Queue,Event
 from roverprocess.StateManager import StateManager
 import threading
 
-if __name__ == "__main__":
+def init_logging():
+	""" Setup logging; Set logfile name, set debug level, set format.
+	"""
 	logging.basicConfig(filename = 'log.log',
 			format='%(name)-20s: %(levelname)-8s %(message)s',
 			filemode = 'w', level = logging.DEBUG) #creates new log each time it's run
@@ -31,27 +33,32 @@ if __name__ == "__main__":
 	console_log.setFormatter(formatter)
 	logging.getLogger('').addHandler(console_log)
 
-	# Check for hardware and load required modules
-	# Add the class name of a module to modulesLis to enable it
+def init_modulesList(*args):
+	""" Check for hardware and populate modulesList
+		Call with the names of the RoverProcesses you want enabled.
+		Returns: the modulesList
+	"""
 	if(os.name == "nt"): # Windows test
-		modulesList = ["ExampleProcess"]
+		modulesList = args
 
 	elif(os.uname()[4] != "armv6l"): # Regular Linux/OSX test
 		from signal import signal, SIGPIPE, SIG_DFL
 		signal(SIGPIPE, SIG_DFL)
-		modulesList = ["ExampleProcess", "DriveProcess", "WebServer", "USBServer"]
+		modulesList = args
 
 	else: # Rover! :D
-		logging.info("Rover hardware detected. Full config mode") 
+		logging.info("Rover hardware detected. Full config mode")
 		from signal import signal, SIGPIPE, SIG_DFL
 		signal(SIGPIPE, SIG_DFL)
-		modulesList = []
+		modulesList = args
 
 	logging.info("Enabled modules:")
 	logging.info(modulesList)
+	return modulesList
 
-
-	# Dynamically import all modules in the modulesList
+def init_rover_classes(modulesList):
+	""" Automatically import all classes from the modules specified in modulesList.
+	"""
 	modules = []
 	for name in modulesList:
 		try:
@@ -71,37 +78,49 @@ if __name__ == "__main__":
 		for _tuple in _list:
 			if _tuple[0] in modulesList:
 				rover_classes.append(_tuple[1])
+	return rover_classes
 
+
+
+
+def main():
+	init_logging()
+
+	modulesList = init_modulesList("DriveProcess", "WebServer", "USBServer")
+
+	rover_classes = init_rover_classes(modulesList)
 
 	# build and run the system
-	if __name__ == "__main__":
-		queue = Queue()
-		sysUplink = dict()
+	queue = Queue()
+	sysUplink = dict()
 
-		processes = []
-		logging.info("Registering process subscribers...")
-		for _class in rover_classes:
-			# if _class was enabled, instantiate it,
-			# and hook it up to the messaging system
-			if _class.__name__ in modulesList:
-				downlink = Queue()
-				sysUplink[_class.__name__] = downlink
-				instance = _class(downlink = downlink,uplink=queue)
-				processes.append(instance)
+	processes = []
+	logging.info("Registering process subscribers...")
+	for _class in rover_classes:
+		# if _class was enabled, instantiate it,
+		# and hook it up to the messaging system
+		if _class.__name__ in modulesList:
+			downlink = Queue()
+			sysUplink[_class.__name__] = downlink
+			instance = _class(downlink = downlink,uplink=queue)
+			processes.append(instance)
 
-		system = StateManager(downlink=queue,uplink=sysUplink)
+	system = StateManager(downlink=queue,uplink=sysUplink)
 
-		# start everything
-		logging.info("STARTING: " + str([type(p).__name__ for p in processes]) )
-		
-		system.start()
-		for process in processes:
-			process.start()
-		# wait until ctrl-C or error
-		try:
-			while True:
-				time.sleep(60)
-		except KeyboardInterrupt:
-			logging.info("STOP: " + str([type(p).__name__ for p in processes]) )
-		finally:
-			system.terminateState()
+	# start everything
+	logging.info("STARTING: " + str([type(p).__name__ for p in processes]) )
+
+	system.start()
+	for process in processes:
+		process.start()
+	# wait until ctrl-C or error
+	try:
+		while True:
+			time.sleep(60)
+	except KeyboardInterrupt:
+		logging.info("STOP: " + str([type(p).__name__ for p in processes]) )
+	finally:
+		system.terminateState()
+
+if __name__ == '__main__':
+	main()
