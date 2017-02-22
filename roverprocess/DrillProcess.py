@@ -12,56 +12,35 @@
 # permissions and limitations under the License.
 
 from .RoverProcess import RoverProcess
-
+from pyvesc import SetRPM
+import pyvesc
 
 class DrillProcess(RoverProcess):
 
     # Subscribed to button1 and button2.
 	def getSubscribed(self):
-		return ["button1", "button2"] 
+		return ["joystick1"] 
 
 	def setup(self, args):
-		for key in ["button1", "button2"]:
+		for key in ["joystick1"]:
 			self.subscribe(key)
 
 	# Function that grabs the x and y axis values in message, then formats the data
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list
-	def on_button1(self, message):
-		"""
-		y_axis = message[1]
-		y_axis = (y_axis * 40000/2)
-		if y_axis > 11000 or y_axis < -11000:
-			newMessage = y_axis
-		else:
-			newMessage = 0
-		"""
-		self.log(newMessage, "DEBUG")
-		self.publish("motor1", newMessage)
-		self.publish("motor2", newMessage)
-		self.publish("motor3", newMessage)
-
-
-	# Function that grabs the x and y axis values in message, then formats the data
-	#  and prints the result to stdout.
-	# Returns the newly formated x and y axis values in a new list
-	def on_button2(self, message):
-		"""
-		y_axis = message[2]
+	def on_joystick1(self, data):
+		y_axis = data[1]
 		y_axis = (y_axis * 40000/2) # half power for testing
 		if y_axis > 11000 or y_axis < -11000:
-			newMessage = y_axis
+			newMessage = int(y_axis)
 		else:
 			newMessage = 0
-		"""
 
 		self.log(newMessage, "DEBUG")
-		self.publish("motor1", newMessage) #assuming that drill has 3 motors
-		self.publish("motor2", newMessage)
-		self.publish("motor3", newMessage)
+		self.publish("motor1", SetDutyCycle(newMessage))
+		self.publish("motor2", SetDutyCycle(newMessage))
 
-
-
+# add max/min speed parameters, as well as if spinning for button1
 
 
 
