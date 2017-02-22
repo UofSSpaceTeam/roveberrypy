@@ -16,26 +16,33 @@ import threading
 import sys
 import time
 import logging
+from collections import namedtuple
+
+# RoverMessage is a named tuple with key and data fields.
+# msg = RoverMessage('test', [1, 2, 3])
+# msg[0] == msg.key
+# msg[1] == msg.data
+RoverMessage = namedtuple('RoverMessage', ['key', 'data'])
+
 
 class RoverProcess(Process):
 	class ReceiverThread(threading.Thread):
 		def __init__(self, downlink, parent):
 			threading.Thread.__init__(self)
-			self.downlink = downlink
-			self._parent = parent
+			self.downlink = downlink # MultiProcessing Queue.
+			self._parent = parent # RoverProcess instance.
 			self.quit = False
 			self.daemon = True
 
 		def run(self):
 			while not self.quit:
-				data = self.downlink.get()
-				assert isinstance(data, dict)
-				for key in data.keys():
-					if hasattr(self._parent, "on_" + key):
-						#call trigger method
-						getattr(self._parent, "on_" + key)(data[key])
-					else:
-						self._parent.messageTrigger(data)
+				message = self.downlink.get() # Get subscribed message from multiprocessing queue.
+				assert isinstance(message, RoverMessage) # Checking if the "message" is of type RoverMessage.
+				if hasattr(self._parent, "on_" + message.key): # If message key has a function called on_*key*() in its RoverProcess instance...
+					#...call trigger method, execute function.
+					getattr(self._parent, "on_" + message.key)(message.data) 
+				else: #... Otherwise call its message trigger.
+					self._parent.messageTrigger(message)
 
 	def __init__(self, **kwargs):
 		Process.__init__(self)
@@ -85,7 +92,7 @@ class RoverProcess(Process):
 		sys.exit(0)
 
 	def publish(self, key, value):
-		self.uplink.put({key:value})
+		self.uplink.put(RoverMessage(key, value))
 
 	def cleanup(self):
 		try:
