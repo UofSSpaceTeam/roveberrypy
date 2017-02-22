@@ -44,7 +44,7 @@ class ExampleProcess(RoverProcess):
 	# The default behavior is to sleep for 1 second.
 	# Use self.publish() to send some variables to another process or server!
 	def loop(self):
-		self.publish("joystick1", [0.85, 0.5])
+		self.publish("test1", [0.85, 0.5])
 		time.sleep(0.1)
 
 	# This runs every time a new message comes in.
