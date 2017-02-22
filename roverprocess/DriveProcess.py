@@ -17,8 +17,8 @@ import pyvesc
 
 max_rpm = 40000
 min_rpm = 10000
-max_current = 4
-min_current = 0.5
+max_current = 0.5
+min_current = 0.2
 
 class DriveProcess(RoverProcess):
 
@@ -35,19 +35,22 @@ class DriveProcess(RoverProcess):
 	def on_joystick1(self, data):
 		y_axis = data[1]
 		if self.drive_mode == "rpm":
+			self.log("rpm")
 			speed = (y_axis * max_rpm/2) # half power for testing
-			if -min_rpm < y_axis < min_rpm:
+			if -min_rpm < speed < min_rpm:
 				speed = 0
-			self.publish("wheel1", SetRPM(speed))
-			self.publish("wheel2", SetRPM(speed))
-			self.publish("wheel3", SetRPM(speed))
+			self.publish("wheelLF", SetRPM(int(speed)))
+			self.publish("wheelLM", SetRPM(int(speed)))
+			self.publish("wheelLB", SetRPM(int(speed)))
+			self.log(speed)
 		elif self.drive_mode == "current" and not self.left_brake:
 			current = (y_axis * max_current)
 			if -min_current < current < min_current:
 				current = 0
-			self.publish("wheel1", SetCurrent(current))
-			self.publish("wheel2", SetCurrent(current))
-			self.publish("wheel3", SetCurrent(current))
+			self.publish("wheelLF", SetCurrent(current))
+			self.publish("wheelLM", SetCurrent(current))
+			self.publish("wheelLB", SetCurrent(current))
+			self.log(current)
 
 
 	# Function that grabs the x and y axis values in message, then formats the data
@@ -57,18 +60,20 @@ class DriveProcess(RoverProcess):
 		y_axis = data[1]
 		if self.drive_mode == "rpm":
 			speed = (y_axis * max_rpm/2) # half power for testing
-			if -min_rpm < y_axis < min_rpm:
+			if -min_rpm < speed < min_rpm:
 				speed = 0
-			self.publish("wheel4", SetRPM(speed))
-			self.publish("wheel5", SetRPM(speed))
-			self.publish("wheel6", SetRPM(speed))
+			self.publish("wheelRF", SetRPM(int(speed)))
+			self.publish("wheelRM", SetRPM(int(speed)))
+			self.publish("wheelRB", SetRPM(int(speed)))
+			self.log(speed)
 		elif self.drive_mode == "current" and not self.right_brake:
 			current = (y_axis * max_current)
 			if -min_current < current < min_current:
 				current = 0
-			self.publish("wheel4", SetCurrent(current))
-			self.publish("wheel5", SetCurrent(current))
-			self.publish("wheel6", SetCurrent(current))
+			self.publish("wheelRF", SetCurrent(current))
+			self.publish("wheelRM", SetCurrent(current))
+			self.publish("wheelRB", SetCurrent(current))
+			self.log(current)
 
 	def on_Ltrigger(self, trigger):
 		if 0 < trigger <= 1 and self.drive_mode == "current":
@@ -80,7 +85,7 @@ class DriveProcess(RoverProcess):
 			self.left_brake = False
 
 	def on_Rtrigger(self, trigger):
-		if 0 < message <= 1 and self.drive_mode == "current":
+		if 0 < trigger <= 1 and self.drive_mode == "current":
 			self.right_brake = True
 			self.publish("wheel4", SetCurrentBrake(max_current))
 			self.publish("wheel5", SetCurrentBrake(max_current))
