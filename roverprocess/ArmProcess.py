@@ -13,6 +13,7 @@
 
 from .RoverProcess import RoverProcess
 import pyvesc
+from pyvesc import SetDutyCycle, SetRPM
 
 # Any libraries you need can be imported here. You almost always need time!
 import time
@@ -21,9 +22,9 @@ from multiprocessing.synchronize import BoundedSemaphore # BoundedSemaphore clas
 base_max_speed = 40000
 base_min_speed = 11000
 shoulder_max_speed = 255
-shoulder_min_speed = -255
+shoulder_min_speed = 50
 elbow_max_speed = 255
-elbow_min_speed = -255
+elbow_min_speed = 50
 
 class ArmProcess(RoverProcess):
     
@@ -42,12 +43,12 @@ class ArmProcess(RoverProcess):
 	def on_joystick1(self, data):
 		y_axis = data[1]
 		y_axis = (y_axis * shoulder_max_speed/2) # half power for testing
-		if y_axis > shoulder_max_speed or shoulder_min_speed < -11000:
+		if y_axis > shoulder_min_speed or y_axis < -shoulder_min_speed:
 			armShoulderSpeed = int(y_axis)
 		else:
 			armShoulderSpeed = 0
-		self.log(armShoulderSpeed, "DEBUG")
-		self.publish("shoulder", SetDutyCycle(armShoulderMessage))
+		self.log("shoulder: " + str(armShoulderSpeed), "DEBUG")
+		self.publish("wheelLB", SetDutyCycle(armShoulderSpeed))
 
 	def on_joystick2(self, data): #y-axis vertical motion of elbow, x-axis joint along the length of the elbow
 		y_axis = data[1]
@@ -56,18 +57,18 @@ class ArmProcess(RoverProcess):
 		x_axis = data[0]
 		x_axis = (x_axis * elbow_max_speed/2)
 
-		if y_axis > elbow_max_speed or y_axis < elbow_min_speed:
+		if y_axis > elbow_min_speed or y_axis < -elbow_min_speed:
 			armY_ElbowSpeed = int(y_axis)
 		else:
 			armY_ElbowSpeed = 0
 
-		if x_axis > elbow_max_speed or x_axis < elbow_min_speed:
+		if x_axis > elbow_min_speed or x_axis < -elbow_min_speed:
 			armX_ElbowSpeed = int(x_axis)
 		else:
 			armX_ElbowSpeed = 0
 
-		self.log(armY_ElbowSpeed, "DEBUG")
-		self.publish("elbowY", SetDutyCycle(armY_ElbowSpeed))
+		self.log("elbow: " + str(armY_ElbowSpeed), "DEBUG")
+		self.publish("wheelLF", SetDutyCycle(armY_ElbowSpeed))
 		self.log(armX_ElbowSpeed, "DEBUG")
 		self.publish("elbowX", SetDutyCycle(armX_ElbowSpeed))
 
@@ -82,7 +83,7 @@ class ArmProcess(RoverProcess):
 			else:
 				self.base_direction = "right"
 			self.log(armBaseSpeed, "DEBUG")
-			self.publish("armBase", pyvesc.SetRPM(armBaseSpeed)) # Publish the process to the multiprocessor.
+			self.publish("wheelLM", pyvesc.SetRPM(int(armBaseSpeed))) # Publish the process to the multiprocessor.
 
 
 	def on_Ltrigger(self, trigger):
@@ -95,7 +96,7 @@ class ArmProcess(RoverProcess):
 			else:
 				self.base_direction = "left"
 			self.log(armBaseSpeed, "DEBUG")
-			self.publish("armBase", pyvesc.SetRPM(armBaseSpeed)) # Publish the process to the multiprocessor.
+			self.publish("wheelLM", pyvesc.SetRPM(int(armBaseSpeed))) # Publish the process to the multiprocessor.
 
 
 
