@@ -21,7 +21,7 @@ from collections import namedtuple
 # RoverMessage is a named tuple with key and data fields.
 # msg = RoverMessage('test', [1, 2, 3])
 # msg[0] == msg.key
-# msg[1] == msg.data
+# msg[1] == msg.data/
 RoverMessage = namedtuple('RoverMessage', ['key', 'data'])
 
 

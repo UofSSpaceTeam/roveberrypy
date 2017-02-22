@@ -20,27 +20,57 @@ from multiprocessing.synchronize import BoundedSemaphore # BoundedSemaphore clas
 
 base_max_speed = 40000
 base_min_speed = 11000
+shoulder_max_speed = 255
+shoulder_min_speed = -255
+elbow_max_speed = 255
+elbow_min_speed = -255
 
 class ArmProcess(RoverProcess):
     
 	# Subscribe ArmProcess to joystick keys for multiprocessing.
 	def setup(self, args):
-		for key in ["joystick1", "joystick2", "Rtrigger"]: # Add the keys to the subscription of the multiprocessor.
+		for key in ["joystick1", "joystick2", "Rtrigger", "Ltrigger"]: # Add the keys to the subscription of the multiprocessor.
 			self.subscribe(key)
 		self.base_direction = None
+		self.shoulder_direction = None
+		self.elbow_direction = None
 
 	# Function that grabs the x and y axis values in message, then formats the data
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list
+
 	def on_joystick1(self, data):
-		x_axis = data[0] # Get data for x-axis.
-		x_axis = (x_axis * base_max_speed/2) # Conversion factor to make it easy to interpret input, half power for testing.
-		if x_axis > base_min_speed or x_axis < -11000: # If out of dead-zone.
-			armBaseSpeed = x_axis
+		y_axis = data[1]
+		y_axis = (y_axis * shoulder_max_speed/2) # half power for testing
+		if y_axis > shoulder_max_speed or shoulder_min_speed < -11000:
+			armShoulderSpeed = int(y_axis)
 		else:
-			armBaseSpeed = 0
-		self.log(armBaseSpeed, "DEBUG") # Print the status of this process.
-		self.publish("armBase", armBaseSpeed) # Publish the process to the multiprocessor.
+			armShoulderSpeed = 0
+		self.log(armShoulderSpeed, "DEBUG")
+		self.publish("shoulder", SetDutyCycle(armShoulderMessage))
+
+	def on_joystick2(self, data): #y-axis vertical motion of elbow, x-axis joint along the length of the elbow
+		y_axis = data[1]
+		y_axis = (y_axis * elbow_max_speed/2)
+
+		x_axis = data[0]
+		x_axis = (x_axis * elbow_max_speed/2)
+
+		if y_axis > elbow_max_speed or y_axis < elbow_min_speed:
+			armY_ElbowSpeed = int(y_axis)
+		else:
+			armY_ElbowSpeed = 0
+
+		if x_axis > elbow_max_speed or x_axis < elbow_min_speed:
+			armX_ElbowSpeed = int(x_axis)
+		else:
+			armX_ElbowSpeed = 0
+
+		self.log(armY_ElbowSpeed, "DEBUG")
+		self.publish("elbowY", SetDutyCycle(armY_ElbowSpeed))
+		self.log(armX_ElbowSpeed, "DEBUG")
+		self.publish("elbowX", SetDutyCycle(armX_ElbowSpeed))
+
 
 	def on_Rtrigger(self, trigger):
 		trigger = -1*(trigger + 1)/2
