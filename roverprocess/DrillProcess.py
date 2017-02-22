@@ -12,7 +12,7 @@
 # permissions and limitations under the License.
 
 from .RoverProcess import RoverProcess
-from pyvesc import SetRPM
+from pyvesc import SetDutyCycle
 import pyvesc
 
 class DrillProcess(RoverProcess):
@@ -22,7 +22,7 @@ class DrillProcess(RoverProcess):
 		return ["joystick1"] 
 
 	def setup(self, args):
-		for key in ["joystick1"]:
+		for key in ["joystick1", "joystick2"]:
 			self.subscribe(key)
 
 	# Function that grabs the x and y axis values in message, then formats the data
@@ -30,15 +30,24 @@ class DrillProcess(RoverProcess):
 	# Returns the newly formated x and y axis values in a new list
 	def on_joystick1(self, data):
 		y_axis = data[1]
-		y_axis = (y_axis * 40000/2) # half power for testing
-		if y_axis > 11000 or y_axis < -11000:
+		y_axis = (y_axis * 255) # half power for testing
+		if y_axis > 50 or y_axis < -50:
 			newMessage = int(y_axis)
 		else:
 			newMessage = 0
 
 		self.log(newMessage, "DEBUG")
-		self.publish("motor1", SetDutyCycle(newMessage))
-		self.publish("motor2", SetDutyCycle(newMessage))
+		self.publish("wheelLB", SetDutyCycle(newMessage))
+
+	def on_joystick2(self, data):
+		x_axis = data[0]
+		x_axis = (x_axis * 255)
+		if x_axis > 50 or x_axis < -50:
+			duty = int(x_axis)
+		else:
+			duty = 0
+		self.log("spin" + str(duty), "DEBUG")
+		self.publish("wheelLF", SetDutyCycle(duty))
 
 # add max/min speed parameters, as well as if spinning for button1
 
