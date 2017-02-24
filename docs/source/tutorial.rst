@@ -171,6 +171,86 @@ This may be useful if the rover crashes or something. Hopefully in the future
 we can have different log levels for the file and the console.
 
 
+Rover messaging system
+----------------------
+Probably the most interesting part of the rover system is the mechanism for processes
+to communicate with each other.
+The system uses a publisher/subscriber scheme, also known as the observer design pattern.
+The concept is simple: There are two types of entities, ones that produce or publish
+data, and ones that "subscribe to" or consume data.
+In the rover system, we allow RoverProcesses to be both publishers and subscribers.
+You can be subscribed to as many messages as you can want, and can publish
+any message that you want, but be careful not to conflict with other processes.
+Maybe the issue of conflicts can be fixed in the future.
+
+One key thing to remember about our publisher/subscriber system, is that each
+process has *no idea* where a message comes from when it receives one,
+or where a message is going when it sends one.
+The StateManager makes sure all messages end up in the right place.
+This may seem restrictive at first, but it allows the system to be highly
+modular, and in most cases is self configuring.
+
+I will use the term "message" quite often from now on, so now is a good time
+to explain what I mean by that. From the source code:
+
+.. automodule:: roverprocess.RoverProcess
+    :members: RoverMessage
+    :noindex:
+
+A message is just a key-value pair, where the key is like a name or label
+identifying what the data represents, and the value can be any data you want.
+If you aren't familiar with named tuples in python, take a look at the
+documentation on `Python NamedTuples`_ for examples on how to use them.
+
+Create two new minmal RoverProcesses, one called Generator and the other
+called Printer or something like that.
+Enable them and make sure they run.
+
+Now, in the Printer process, add a setup method and call ``self.subscribe()``
+to subscribe to some message::
+
+
+    def setup(self, args):
+        self.subscribe("test")
+
+The Printer process is now subscribed to the message "test".
+Now we need the other process to produce the "test" message.
+Add a loop to the Generator process that publishes the "test" message with some value::
+
+    def loop(self):
+        self.publish("test", 42)
+        time.sleep(1)
+
+If you run this now, nothing will happen because we haven't told the
+Printer process what to do when we receive the "test" message.
+This can be done with the ``messageTrigger`` method.
+For now, lets just log out the value of the message::
+
+    def messageTrigger(self, message):
+        self.log(message.data)
+
+The output should look like this::
+
+    root                : INFO     Enabled modules:
+    root                : INFO     ('Generator', 'Printer')
+    root                : INFO     Registering process subscribers...
+    root                : INFO     STARTING: ['Generator', 'Printer']
+    Printer             : INFO     42
+    Printer             : INFO     42
+    Printer             : INFO     42
+    Printer             : INFO     42
+    Printer             : INFO     42
+    ^Croot                : INFO     Generator shutting down
+    root                : INFO     STOP: ['Generator', 'Printer']
+    StateManager        : INFO     StateManager shutting down
+    root                : INFO     Printer shutting down
+    StateManager        : INFO     StateManager shutting down
+    StateManager        : INFO     StateManager shut down success!
+
+
+
+
 __ main.html
 
 .. _Python Logging: https://docs.python.org/3.5/library/logging.html
+.. _Python NamedTuples: https://docs.python.org/3.5/library/collections.html#collections.namedtuple

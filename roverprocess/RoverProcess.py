@@ -36,7 +36,7 @@ class RoverProcess(Process):
 
 				Args:
 					downlink (multiprocessing.Queue): The incomming message (multiprocessing) queue of the parent rover process.
-					parent (RoverProcess): instance of the RoverProcess
+					parent (roverprocess.RoverProcess.RoverProcess): instance of the RoverProcess
 			"""
 			threading.Thread.__init__(self)
 			self.downlink = downlink
