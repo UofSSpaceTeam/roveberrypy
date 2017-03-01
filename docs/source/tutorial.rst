@@ -1,8 +1,10 @@
 Tutorial
 ========
-**IN PROGRESS**
 
 This page will describe how the rover system works and how to get going with creating a new RoverProcess.
+While following this tutorial, please don't commit any new files
+or changes you make to the git repository, or we'll have a mess of useless files :) .
+Use a new branch if you have to.
 
 A RoverProcess is essentially a program that is in charge of one
 component of the rover's behaviour, and/or hardware.
@@ -36,7 +38,7 @@ To enable the process, open up ``main.py`` and find the line in the
 ``main`` function where the ``init_modulesList`` is called.
 The parameters should be names of RoverProcesses you want enabed.
 Change the line to be::
-    
+
     modulesList = init_modulesList("MinimalProcess")
 
 Now run the main script as `described in its documentation`__.
@@ -61,7 +63,7 @@ The StateManager is another RoverProcess that manages the IPC mechanism.
 You can ignore it for the most part, unless you plan on adding features
 to the whole rover process system its self.
 
-At this point, if you don't know Python, you should probably learn it ;).
+At this point, if you don't know Python, you should probably learn it ;) .
 There are plenty of tutorials on the internet and Youtube, though the
 official Python documentation has a decent tutorial as well.
 Don't worry about becoming fluent, just learn up to and including
@@ -178,6 +180,7 @@ to communicate with each other.
 The system uses a publisher/subscriber scheme, also known as the observer design pattern.
 The concept is simple: There are two types of entities, ones that produce or publish
 data, and ones that "subscribe to" or consume data.
+Data from publishers are automatically pushed to all subscribers.
 In the rover system, we allow RoverProcesses to be both publishers and subscribers.
 You can be subscribed to as many messages as you can want, and can publish
 any message that you want, but be careful not to conflict with other processes.
@@ -202,7 +205,7 @@ identifying what the data represents, and the value can be any data you want.
 If you aren't familiar with named tuples in python, take a look at the
 documentation on `Python NamedTuples`_ for examples on how to use them.
 
-Create two new minmal RoverProcesses, one called Generator and the other
+Create two new minimal RoverProcesses, one called Generator and the other
 called Printer or something like that.
 Enable them and make sure they run.
 
@@ -247,8 +250,81 @@ The output should look like this::
     StateManager        : INFO     StateManager shutting down
     StateManager        : INFO     StateManager shut down success!
 
+Now let's add some more messages to deal with.
+In the Generator's loop method make it publish the string "<Your name here>"
+under the key "name", right after it publishes the "test" message.
+
+Then change the body of the Printer process's ``messageTrigger`` method
+to use an if/else statement on the message's key::
 
 
+    def messageTrigger(self, message):
+        if message.key == "test":
+            self.log(message.data*2, "DEBUG")
+        elif message.key == "msg":
+            self.log("Hello " + message.data)
+        else:
+            self.log(message.data)
+
+You can of course do what ever you want in each condition.
+I chose to double the value of the "test" message and log it as a debug message,
+say hello to what ever "name" comes in, and just log other messages.
+Remember to subscribe the Printer to the "name" message!
+
+Running this should give the following output::
+
+    root                : INFO     Enabled modules:
+    root                : INFO     ('Printer', 'Generator')
+    root                : INFO     Registering process subscribers...
+    root                : INFO     STARTING: ['Printer', 'Generator']
+    Printer             : DEBUG    84
+    Printer             : INFO     Hello Rover
+    Printer             : DEBUG    84
+    Printer             : INFO     Hello Rover
+    Printer             : DEBUG    84
+    Printer             : INFO     Hello Rover
+    Printer             : DEBUG    84
+    Printer             : INFO     Hello Rover
+    ^Croot                : INFO     Generator shutting down
+    root                : INFO     STOP: ['Printer', 'Generator']
+    StateManager        : INFO     StateManager shutting down
+    root                : INFO     Printer shutting down
+    StateManager        : INFO     StateManager shutting down
+    StateManager        : INFO     StateManager shut down success!
+
+
+If a process is subscribed to many messages, the if/else statement
+in the ``messageTrigger`` method could get quite messy.
+To avoid this, there is an alternative way to process an incoming
+message; callback functions.
+Callback functions are just functions that are called whenever a
+certain event happens, in our case when a particular message comes in.
+
+You can register a callback for a message by declaring a method
+called ``on_<key>(self, data)`` where ``<key>`` is the key of the message.
+It takes in one (in addition to self) parameter that is the data component
+of the message.
+
+Try this out by moving the condition for the "name" message to a callback::
+
+    def messageTrigger(self, message):
+        if message.key == "test":
+            self.log(message.data*2, "DEBUG")
+        else:
+            self.log(message.data)
+
+    def on_name(self, name):
+        self.log("Hello " + name)
+
+Note how you can change the name of the callbacks "data" parameter to
+something more descriptive.
+This code should run the same as before.
+
+--------
+
+That is the basics of how to use the Roveberrypy framework.
+Look around the auto generated docs for individual modules to learn how they
+work, and stay tuned for more tutorials soon.
 
 __ main.html
 
