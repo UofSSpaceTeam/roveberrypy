@@ -11,15 +11,16 @@ Welcome to Roveberrypy's documentation!
    :caption: Contents:
 
    tutorial
+   doc_tutorial
    main
    roverprocess
 
 
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. Indices and tables
+.. ==================
+..
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`

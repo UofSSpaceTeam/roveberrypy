@@ -61,7 +61,7 @@ class RoverProcess(Process):
 					self._parent.messageTrigger(message)
 
 	def __init__(self, **kwargs):
-		""" Constructor, called in main.py automatically, don't override this through inheritance. Required parameters:
+		""" Constructor, called in main.py automatically, don't override this through inheritance.
 
 			Args:
 				uplink (multiprocessing.Queue): queue for outgoing messages
