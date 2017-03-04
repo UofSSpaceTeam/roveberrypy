@@ -18,16 +18,30 @@ import sys
 from threading import Thread
 
 class RoverServer(RoverProcess):
+	"""Just a RoverProcess that adds an easy way to run a method in a new thread.
+
+	This just prevents you from having to create a new class
+	that inherits from Thread for every new thread you want to make.
+	"""
 
 	class WorkerThread(Thread):
+		"""New thread that runs a given method/funciton."""
 		def __init__(self, function, **kwargs):
+			"""Initialize a thread to run a function.
+
+				Args:
+					function: The function to run.
+					kwargs: arguments to the function.
+			"""
 			Thread.__init__(self)
 			self.kwargs = kwargs
 			self.function = function
 			self.daemon = True
 
 		def run(self):
+			""" Run the thread, called by Thread.start()"""
 			try:
+				# Just call the function we were initialized with
 				self.function(**self.kwargs)
 			except KeyboardInterrupt:
 				pass
@@ -38,6 +52,20 @@ class RoverServer(RoverProcess):
 		self.workers = []
 
 	def spawnThread(self, function, **kwargs):
+		"""Spawns a new thread with the given function.
+
+
+		Functions need the following prototype::
+
+			def func(**kwargs):
+				...
+
+		including ``self`` if necessary.
+
+		Args:
+			function: The function/method to run in a new thread
+			kwargs: The arguments to pass into the function. (This is a multi parameter call)
+		"""
 		new_thread = RoverServer.WorkerThread(function, **kwargs)
 		self.workers.append(new_thread)
 		new_thread.start()
