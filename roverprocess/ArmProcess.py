@@ -20,7 +20,7 @@ import time
 from multiprocessing.synchronize import BoundedSemaphore # BoundedSemaphore class used to block extra commands from conflicting with actual commands in operation.
 
 base_max_speed = 40000
-base_min_speed = 11000
+base_min_speed = 5000
 shoulder_max_speed = 100000
 shoulder_min_speed = 10100
 elbow_max_speed = 100000
