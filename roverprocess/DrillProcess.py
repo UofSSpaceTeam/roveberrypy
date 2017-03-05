@@ -42,6 +42,8 @@ class DrillProcess(RoverProcess):
 		self.log(newMessage, "DEBUG")
 		self.publish("wheelLB", SetDutyCycle(newMessage))
 
+
+
 	def on_joystick2(self, data):
 		x_axis = data[0]
 		x_axis = (x_axis * max_speed)
