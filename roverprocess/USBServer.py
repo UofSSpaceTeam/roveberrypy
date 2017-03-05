@@ -3,7 +3,7 @@ from .RoverServer import RoverServer
 from serial.tools import list_ports
 import serial
 import time
-from .motor.interface import *
+#from .motor.interface import *
 from ctypes import *
 from serial.threaded import *
 from  multiprocessing import BoundedSemaphore
