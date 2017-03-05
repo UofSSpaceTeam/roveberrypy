@@ -19,7 +19,7 @@ import time
 from multiprocessing.synchronize import BoundedSemaphore 
 
 max_speed = 100000
-min_speed = 50
+min_speed = 10000
 
 
 class DrillProcess(RoverProcess):
