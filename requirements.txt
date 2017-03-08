@@ -1,1 +1,2 @@
-PyVESC >= 1.0
+-e git+http://github.com/UofSSpaceDesignTeam/PyVESC.git#egg=PyVESC
+pyserial
