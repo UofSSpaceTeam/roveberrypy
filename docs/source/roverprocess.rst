@@ -1,16 +1,17 @@
 roverprocess package
 ====================
 
-roverprocess.CanServer module
------------------------------
-
-.. automodule:: roverprocess.CanServer
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. roverprocess.CanServer module
+.. -----------------------------
+..
+.. .. automodule:: roverprocess.CanServer
+..     :members:
+..     :undoc-members:
+..     :show-inheritance:
 
 roverprocess.DriveProcess module
 --------------------------------
+Will update docs once feature branch is merged.
 
 .. automodule:: roverprocess.DriveProcess
     :members:
