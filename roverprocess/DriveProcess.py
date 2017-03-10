@@ -20,6 +20,29 @@ min_rpm = 10000
 max_current = 0.5
 min_current = 0.2
 
+def rpm_curve(f):
+	""" Takes a float and maps it to an rpm value.
+
+			Args:
+				f (float): value between -1 and 1, typically from the joysticks.
+
+			Returns:
+				(float) representing the rotations per minute.
+		"""
+	return f**2 * (max_rpm)
+
+def current_curve(f):
+	""" Takes a float and maps it to a current value (returns current value).
+
+			Args:
+				f (float): value between -1 and 1, typically from the joysticks.
+
+			Returns:
+				(float) representing the current to drive the motor.
+	"""
+	return f**2 * (max_current)
+
+
 class DriveProcess(RoverProcess):
 	"""Handles driving the rover.
 
@@ -40,15 +63,15 @@ class DriveProcess(RoverProcess):
 		y_axis = data[1]
 		if self.drive_mode == "rpm":
 			self.log("rpm")
-			speed = (y_axis * max_rpm/2) # half power for testing
-			if -min_rpm < speed < min_rpm:
+			speed = rpm_curve(y_axis/2) # half power for testing
+			if -min_rpm < speed < min_rpm: # deadzone
 				speed = 0
 			self.publish("wheelLF", SetRPM(int(speed)))
 			self.publish("wheelLM", SetRPM(int(speed)))
 			self.publish("wheelLB", SetRPM(int(speed)))
 			self.log(speed)
 		elif self.drive_mode == "current" and not self.left_brake:
-			current = (y_axis * max_current)
+			current = current_curve(y_axis)
 			if -min_current < current < min_current:
 				current = 0
 			self.publish("wheelLF", SetCurrent(current))
@@ -61,15 +84,15 @@ class DriveProcess(RoverProcess):
 		""" Handles the right wheels for manual control. """
 		y_axis = data[1]
 		if self.drive_mode == "rpm":
-			speed = (y_axis * max_rpm/2) # half power for testing
-			if -min_rpm < speed < min_rpm:
+			speed = rpm_curve(y_axis/2) # half power for testing
+			if -min_rpm < speed < min_rpm: # deadzone
 				speed = 0
 			self.publish("wheelRF", SetRPM(int(speed)))
 			self.publish("wheelRM", SetRPM(int(speed)))
 			self.publish("wheelRB", SetRPM(int(speed)))
 			self.log(speed)
 		elif self.drive_mode == "current" and not self.right_brake:
-			current = (y_axis * max_current)
+			current = current_curve(y_axis)
 			if -min_current < current < min_current:
 				current = 0
 			self.publish("wheelRF", SetCurrent(current))
