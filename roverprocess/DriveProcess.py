@@ -21,18 +21,22 @@ max_current = 0.5
 min_current = 0.2
 
 class DriveProcess(RoverProcess):
+	"""Handles driving the rover.
+
+	Takes joystick input from the web ui and
+	commands the wheels to move. Uses RPM and current control modes.
+	"""
 
 	def setup(self, args):
+		""" Initialize drive mode (default=current)."""
 		self.right_brake = False
 		self.left_brake = False
 		self.drive_mode = "current"
 		for key in ["joystick1", "joystick2", "Ltrigger", "Rtrigger"]:
 			self.subscribe(key)
 
-	# Function that grabs the x and y axis values in message, then formats the data
-	#  and prints the result to stdout.
-	# Returns the newly formated x and y axis values in a new list
 	def on_joystick1(self, data):
+		""" Handles the left wheels for manual control. """
 		y_axis = data[1]
 		if self.drive_mode == "rpm":
 			self.log("rpm")
@@ -53,10 +57,8 @@ class DriveProcess(RoverProcess):
 			self.log(current)
 
 
-	# Function that grabs the x and y axis values in message, then formats the data
-	#  and prints the result to stdout.
-	# Returns the newly formated x and y axis values in a new list
 	def on_joystick2(self, data):
+		""" Handles the right wheels for manual control. """
 		y_axis = data[1]
 		if self.drive_mode == "rpm":
 			speed = (y_axis * max_rpm/2) # half power for testing
@@ -76,6 +78,7 @@ class DriveProcess(RoverProcess):
 			self.log(current)
 
 	def on_Ltrigger(self, trigger):
+		""" Handles left wheel braking (requires current mode)"""
 		if 0 < trigger <= 1 and self.drive_mode == "current":
 			self.left_brake = True
 			self.publish("wheel1", SetCurrentBrake(max_current))
@@ -85,6 +88,7 @@ class DriveProcess(RoverProcess):
 			self.left_brake = False
 
 	def on_Rtrigger(self, trigger):
+		""" Handles right wheel braking (requires current mode)"""
 		if 0 < trigger <= 1 and self.drive_mode == "current":
 			self.right_brake = True
 			self.publish("wheel4", SetCurrentBrake(max_current))
