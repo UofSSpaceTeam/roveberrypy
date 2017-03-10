@@ -31,6 +31,7 @@ lib64/
 parts/
 sdist/
 var/
+/src
 *.egg-info/
 .installed.cfg
 *.egg
@@ -67,6 +68,11 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Compressed files
+*.tar.gz
+*.zip
+*.tar
 
 
 ###
