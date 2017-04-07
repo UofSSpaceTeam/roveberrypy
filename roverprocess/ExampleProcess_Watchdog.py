@@ -17,7 +17,7 @@ from .RoverProcess import RoverProcess
 import time
 
 
-class ExampleProcess(RoverProcess):
+class ExampleProcess_Watchdog(RoverProcess):
 	# Some blank space to write functions, classes, threads - whatever you need.
 	# There are no restrictions - this is your own process!
 
@@ -37,14 +37,41 @@ class ExampleProcess(RoverProcess):
 		for key in ["Test", "respondTrue", "heartbeat"]:
 			self.subscribe(key)
 		self.someVariable = 42
+		self.loopcounter = 0
+		self.log("This is the setup of the watchdog test!")
 
 	# This automatically loops forever.
 	# It is best to put a time.sleep(x) at the end. This makes sure that it
 	# will always run at the same time, and will give other processes time to run too!
 	# The default behavior is to sleep for 1 second.
 	# Use self.publish() to send some variables to another process or server!
+	#
+	# To Demonstrate watchdog functionality, see below
 	def loop(self):
-		time.sleep(0.1)
+		if(self.loopcounter < 2):
+			self.log("Process Normal Operation")
+			time.sleep(4)
+		elif(self.loopcounter < 4):
+			self.log("Process Temporary Extend Watchdog")
+			self.watchdogExtend(10)
+			time.sleep(8)
+			self.watchdogExtend('PREVIOUS')
+		elif(self.loopcounter < 6):
+			self.log("Process Manual Pet Watchdog in Loop")
+			time.sleep(4)
+			self.watchdogPet()
+			time.sleep(4)
+		elif(self.loopcounter < 8):
+			self.log("Process Manual Watchdog State Clear")
+			time.sleep(4)
+			self.watchdogReset()
+			time.sleep(4)
+		elif(self.loopcounter < 10):
+			self.log("Process Hang")
+			time.sleep(12)
+
+		self.loopcounter = self.loopcounter + 1
+
 
 	# This runs every time a new message comes in.
 	# It is often handy to have an if statement for every type of message you expect

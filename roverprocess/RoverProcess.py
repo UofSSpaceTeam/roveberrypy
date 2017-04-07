@@ -63,9 +63,11 @@ class RoverProcess(Process):
 
 			while not self.quit:
 				try:
-					self.loop()
+					# For any process that is not the state manager, make sure to
+					# send an notification that it is running at the start of each loop
 					if(self.__class__.__name__ is not 'StateManager'):
-						self.pet()
+						self.watchdogPet()
+					self.loop()
 				except KeyboardInterrupt:
 					self.quit = True
 			self.cleanup()
@@ -112,12 +114,6 @@ class RoverProcess(Process):
 				"WARNING":30, "ERROR":40, "CRITICAL":50}
 		self._log.log(level_lut[level], message)
 
-	def pet(self):
-		self.publish('wd_pet', self.__class__.__name__)
-
-	def extendWatchdog(self, timeout):
-		self.publish('wd_extend', [timeout, self.__class__.__name__ ])
-
 	def subscribe(self, key):
 		if key not in self.subscriptions:
 			self.subscriptions.append(key)
@@ -127,3 +123,13 @@ class RoverProcess(Process):
 		if key in self.subscriptions:
 			self.subscriptions.remove(key)
 		self.publish("unsubscribe", [key, self.__class__.__name__])
+
+	# Watchdog Functions
+	def watchdogPet(self):
+		self.publish('wd_pet', self.__class__.__name__)
+
+	def watchdogExtend(self, timeout):
+		self.publish('wd_extend', [timeout, self.__class__.__name__ ])
+
+	def watchdogReset(self):
+		self.publish('wd_reset', [self.__class__.__name__ ])
