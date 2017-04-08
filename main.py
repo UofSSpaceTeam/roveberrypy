@@ -22,7 +22,6 @@ from multiprocessing import Queue,Event,active_children
 from roverprocess.StateManager import StateManager
 import threading
 
-<<<<<<< HEAD
 def init_logging():
 	""" Setup logging; Set logfile name, set debug level, set format.
 	"""

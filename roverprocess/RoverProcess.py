@@ -53,7 +53,6 @@ class RoverProcess(Process):
 				messageTrigger method is called with the message as a parameter.
 			"""
 			while not self.quit:
-<<<<<<< HEAD
 				message = self.downlink.get() # BLOCKING: Get subscribed message from multiprocessing queue.
 				assert isinstance(message, RoverMessage) # Ensure message is a RoverMessasge
 				if hasattr(self._parent, "on_" + message.key): # If the RoverProcess instance  has a function called on_<key>()...
