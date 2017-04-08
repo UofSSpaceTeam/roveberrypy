@@ -53,6 +53,7 @@ class RoverProcess(Process):
 				messageTrigger method is called with the message as a parameter.
 			"""
 			while not self.quit:
+<<<<<<< HEAD
 				message = self.downlink.get() # BLOCKING: Get subscribed message from multiprocessing queue.
 				assert isinstance(message, RoverMessage) # Ensure message is a RoverMessasge
 				if hasattr(self._parent, "on_" + message.key): # If the RoverProcess instance  has a function called on_<key>()...
@@ -89,6 +90,10 @@ class RoverProcess(Process):
 
 			while not self.quit:
 				try:
+					# For any process that is not the state manager, make sure to
+					# send an notification that it is running at the start of each loop
+					if(self.__class__.__name__ is not 'StateManager'):
+						self.watchdogPet()
 					self.loop()
 				except KeyboardInterrupt:
 					self.quit = True
@@ -191,4 +196,12 @@ class RoverProcess(Process):
 			self.subscriptions.remove(key)
 		self.publish("unsubscribe", [key, self.__class__.__name__])
 
+	# Watchdog Functions
+	def watchdogPet(self):
+		self.publish('wd_pet', self.__class__.__name__)
 
+	def watchdogExtend(self, timeout):
+		self.publish('wd_extend', [timeout, self.__class__.__name__ ])
+
+	def watchdogReset(self):
+		self.publish('wd_reset', [self.__class__.__name__ ])

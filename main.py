@@ -18,10 +18,11 @@ import time
 import logging
 import inspect # for dynamic imports
 import importlib #for dynamic imports
-from multiprocessing import Queue,Event
+from multiprocessing import Queue,Event,active_children
 from roverprocess.StateManager import StateManager
 import threading
 
+<<<<<<< HEAD
 def init_logging():
 	""" Setup logging; Set logfile name, set debug level, set format.
 	"""
@@ -92,6 +93,7 @@ def main():
 
 	# build and run the system
 	queue = Queue()
+	watchdog = Queue()
 	sysUplink = dict()
 
 	processes = []
@@ -105,7 +107,7 @@ def main():
 			instance = _class(downlink = downlink,uplink=queue)
 			processes.append(instance)
 
-	system = StateManager(downlink=queue,uplink=sysUplink)
+	system = StateManager(downlink=queue,uplink=sysUplink,hanging=watchdog)
 
 	# start everything
 	logging.info("STARTING: " + str([type(p).__name__ for p in processes]) )
@@ -115,8 +117,27 @@ def main():
 		process.start()
 	# wait until ctrl-C or error
 	try:
+		logging.info("WATCHDOG: Monitoring for hanging RoverRrocess instances")
 		while True:
-			time.sleep(60)
+			hanging = watchdog.get(block=True)
+			try:
+				# Goes through each process to check if it is the list of hanging processes
+				# 	The index of that process instance is found, terminated, and restarted by name
+				for process in processes:
+					if process.name.split('-')[0] in hanging:
+						restartIdx = processes.index(process)
+						processes[restartIdx].terminate()
+						processes.pop(restartIdx)
+						for _class in rover_classes:
+							if _class.__name__ in hanging:
+								downlink = Queue()
+								sysUplink[_class.__name__] = downlink
+								instance = _class(downlink = downlink,uplink=queue)
+								processes.append(instance)
+								instance.start()
+			except:
+				pass
+
 	except KeyboardInterrupt:
 		logging.info("STOP: " + str([type(p).__name__ for p in processes]) )
 	finally:
