@@ -50,6 +50,23 @@ class RoverServer(RoverProcess):
 		RoverProcess.__init__(self, downlink=kwargs["downlink"],
 				uplink=kwargs["uplink"])
 		self.workers = []
+		self.subscriberMap = {}
+
+	def messageTrigger(self, message):
+		if message.key in self.subscriberMap:
+			for device in self.subscriberMap[message.key]:
+				self.send_cmd(message, device)
+
+	def send_cmd(self, message, device):
+		""" Function for sending a message to a device.
+			Override this method to implement proper sending
+			of data over whatever standard you are using.
+
+			Args:
+				message: The rover message to send
+				device: The device instance to send it to.
+		"""
+		pass
 
 	def spawnThread(self, function, **kwargs):
 		"""Spawns a new thread with the given function.

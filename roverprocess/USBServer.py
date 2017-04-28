@@ -25,7 +25,7 @@ class USBServer(RoverServer):
 
 	def setup(self, args):
 		""" Initialize subscription maps and find what messages devices are susbribed to."""
-		self.IDList = {}
+		self.subscriberMap = {}
 		self.DeviceList = []
 		self.semList = {}
 		ports = list_ports.comports()
@@ -37,17 +37,14 @@ class USBServer(RoverServer):
 
 	def loop(self):
 		""" Just print out the subscriptions."""
-		self.log(self.IDList)
+		self.log(self.subscriberMap)
 		time.sleep(1)
 
-	def messageTrigger(self, message):
-		""" Forwards messages to USB devices."""
-		if message.key in self.IDList:
-			for device in self.IDList[message.key]:
-				with serial.Serial(device, baudrate=BAUDRATE, timeout=1) as ser:
-					buff = pyvesc.encode(message.data)
-					self.log(buff, "DEBUG")
-					ser.write(buff)
+	def send_cmd(self, message, device):
+		with serial.Serial(device, baudrate=BAUDRATE, timeout=1) as ser:
+			buff = pyvesc.encode(message.data)
+			self.log(buff, "DEBUG")
+			ser.write(buff)
 
 	def reqSubscription(self, port):
 		""" Request susbscriptions from a device.
@@ -74,10 +71,10 @@ class USBServer(RoverServer):
 					self.log("Got bad packet", "WARNING")
 			if not s:
 				return # failed to get a good packet, abort
-			if s not in self.IDList:
-				self.IDList[s] = []
+			if s not in self.subscriberMap:
+				self.subscriberMap[s] = []
 				self.subscribe(s)
-			self.IDList[s].append(port.device)
+			self.subscriberMap[s].append(port.device)
 			self.DeviceList.append(port.device)
 			self.semList[port.device] = BoundedSemaphore()
 			ser.reset_input_buffer()
