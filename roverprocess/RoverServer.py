@@ -52,6 +52,7 @@ class RoverServer(RoverProcess):
 		self.workers = []
 		self.subscriberMap = {}
 		self.semList = {}
+		
 
 	def messageTrigger(self, message):
 		if message.key in self.subscriberMap:
@@ -111,6 +112,29 @@ class RoverServer(RoverProcess):
 		new_thread = RoverServer.WorkerThread(function, **kwargs)
 		self.workers.append(new_thread)
 		new_thread.start()
+	
+	def getSubscription(self, port):
+		pass
+	
+	
+	def reqSubscription(self, port):
+		""" Request susbscriptions from a device.
+
+		Subscribe to the message if we're not subscribed already.
+		Also store the device for later. Finally, spin up a thread
+		to listen for incomming messages from the device.
+		"""
+		s = self.getSubscription(port)
+		if not s:
+			return # failed to get a good packet, abort
+		if s not in self.subscriberMap:
+			self.subscriberMap[s] = []
+			self.subscribe(s)
+		self.subscriberMap[s].append(port.device)
+		self.DeviceList.append(port.device)
+		#self.semList[port.device] = BoundedSemaphore()
+		
+		self.spawnThread(self.listenToDevice, port=port.device)
 
 	def cleanup(self):
 		RoverProcess.cleanup(self)

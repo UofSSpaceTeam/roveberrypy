@@ -54,16 +54,10 @@ class USBServer(RoverServer):
 			else:
 				return None
 
-	def reqSubscription(self, port):
-		""" Request susbscriptions from a device.
-
-		If we get an invalid response, try again up to 4 times.
-		Subscribe to the message if we're not subscribed already.
-		Also store the device for later. Finally, spin up a thread
-		to listen for incomming messages from the device.
-		"""
+	def getSubscription(self, port):
+		s = None
 		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=0.5) as ser:
-			s = None
+			
 			errors = 0
 			while errors < 4: # try reading 4 times
 				try:
@@ -77,14 +71,6 @@ class USBServer(RoverServer):
 				except:
 					errors += 1 # got another bad packet
 					self.log("Got bad packet", "WARNING")
-			if not s:
-				return # failed to get a good packet, abort
-			if s not in self.subscriberMap:
-				self.subscriberMap[s] = []
-				self.subscribe(s)
-			self.subscriberMap[s].append(port.device)
-			self.DeviceList.append(port.device)
-			self.semList[port.device] = BoundedSemaphore()
-			ser.reset_input_buffer()
-			self.spawnThread(self.listenToDevice, port=port.device)
+				ser.reset_input_buffer()
+		return s
 
