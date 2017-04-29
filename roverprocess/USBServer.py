@@ -25,9 +25,7 @@ class USBServer(RoverServer):
 
 	def setup(self, args):
 		""" Initialize subscription maps and find what messages devices are susbribed to."""
-		self.subscriberMap = {}
 		self.DeviceList = []
-		self.semList = {}
 		ports = list_ports.comports()
 		for port in ports:
 			if port.device == '/dev/ttyS0' or port.device == '/dev/ttyAMA0':
@@ -45,6 +43,16 @@ class USBServer(RoverServer):
 			buff = pyvesc.encode(message.data)
 			self.log(buff, "DEBUG")
 			ser.write(buff)
+
+	def read_cmd(self, device):
+		with serial.Serial(device, baudrate=BAUDRATE, timeout=0.1) as ser:
+			if ser.in_waiting > 0:
+				buff = ser.readline()
+				(msg, _) = pyvesc.decode(buff)
+				self.log(buff, "DEBUG")
+				return (msg.__class__.__name__, msg)
+			else:
+				return None
 
 	def reqSubscription(self, port):
 		""" Request susbscriptions from a device.
@@ -80,20 +88,3 @@ class USBServer(RoverServer):
 			ser.reset_input_buffer()
 			self.spawnThread(self.listenToDevice, port=port.device)
 
-	def listenToDevice(self, **kwargs):
-		""" If the device sends a message,
-		parse it with pyvesc and publish it using the vesc message name as a key.
-		"""
-		with serial.Serial(kwargs["port"], baudrate=BAUDRATE, timeout = 0.1) as ser:
-			while not self.quit:
-				self.semList[kwargs["port"]].acquire()
-				if ser.in_waiting > 0:
-					try:
-						buff = ser.readline()
-						(msg, _) = pyvesc.decode(buff)
-						self.log(buff, "DEBUG")
-						self.publish(msg.__class__.__name__, msg)
-					except:
-						self.log("Failed to parse message", "ERROR")
-				self.semList[kwargs["port"]].release()
-				time.sleep(0.005)

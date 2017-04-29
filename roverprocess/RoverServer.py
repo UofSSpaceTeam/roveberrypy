@@ -51,6 +51,7 @@ class RoverServer(RoverProcess):
 				uplink=kwargs["uplink"])
 		self.workers = []
 		self.subscriberMap = {}
+		self.semList = {}
 
 	def messageTrigger(self, message):
 		if message.key in self.subscriberMap:
@@ -67,6 +68,30 @@ class RoverServer(RoverProcess):
 				device: The device instance to send it to.
 		"""
 		pass
+
+	def read_cmd(self, device):
+		""" Function for reading messages from a device.
+			Override this method to implement proper sending
+			of data over whatever standard you are using.
+			
+			Args:
+				device: name of which device to read from.
+				in your overriden version, use this in a with statement.
+		"""
+		pass
+
+	def listenToDevice(self, **kwargs):
+		while not self.quit:
+			try:
+				msg = self.read_cmd(kwargs['port'])
+				if msg is not None:
+					self.log(msg[0], "DEBUG")
+					self.publish(msg[0], msg[1])
+			except:
+				# failed to open port
+				self.log("Read fail", "DEBUG")
+				pass
+			time.sleep(0.005)
 
 	def spawnThread(self, function, **kwargs):
 		"""Spawns a new thread with the given function.
