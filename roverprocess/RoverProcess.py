@@ -80,12 +80,12 @@ class RoverProcess(Process):
 
 	def run(self):
 		""" This is method is what runs in a new process.
-		First the receiver thread is started, then the setup method is
-		called, and finally the loop method is run in an infinite while loop.
+		First the setup method is called, then the receiver thread is started,
+		and finally the loop method is run in an infinite while loop.
 		"""
-		self.receiver.start()
 		try:
 			self.setup(self._args)
+			self.receiver.start()
 
 			while not self.quit:
 				try:
