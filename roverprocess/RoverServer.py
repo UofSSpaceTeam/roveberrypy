@@ -84,6 +84,7 @@ class RoverServer(RoverProcess):
 		""" Returns a device instance of a port name
 			Override this method to handle the particular
 			device communication standard you are using.
+
 			Args:
 				port (str): Path to a particular instance of a device
 		"""
@@ -139,13 +140,12 @@ class RoverServer(RoverProcess):
 
 	def reqSubscription(self, port):
 		""" Request susbscriptions from a device.
-
 		Subscribe to the message if we're not subscribed already.
 		Also store the device for later. Finally, spin up a thread
 		to listen for incomming messages from the device.
 
-			Args:
-				port (str): Path to a particular instance of a device
+		Args:
+			port (str): Path to a particular instance of a device
 		"""
 		with self.getDevice(port) as device:
 			s = self.getSubscription(device)
