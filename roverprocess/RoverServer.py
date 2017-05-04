@@ -52,47 +52,71 @@ class RoverServer(RoverProcess):
 		self.workers = []
 		self.subscriberMap = {}
 		self.semList = {}
-		
+
 
 	def messageTrigger(self, message):
 		if message.key in self.subscriberMap:
-			for device in self.subscriberMap[message.key]:
-				self.send_cmd(message, device)
+			for port in self.subscriberMap[message.key]:
+				self.send_cmd(message, port)
 
-	def send_cmd(self, message, device):
+	def send_cmd(self, message, port):
 		""" Function for sending a message to a device.
-			Override this method to implement proper sending
-			of data over whatever standard you are using.
+			Override this method to handle the particular
+			device communication standard you are using.
 
 			Args:
 				message: The rover message to send
-				device: The device instance to send it to.
+				port (str): The port name device instance to send it to.
 		"""
 		pass
 
-	def read_cmd(self, device):
+	def read_cmd(self, port):
 		""" Function for reading messages from a device.
-			Override this method to implement proper sending
-			of data over whatever standard you are using.
-			
+			Override this method to handle the particular
+			device communication standard you are using.
+
 			Args:
-				device: name of which device to read from.
-				in your overriden version, use this in a with statement.
+				port (str): Name of which device to read from.
+		"""
+		pass
+
+	def getDevice(self, port):
+		""" Returns a device instance of a port name
+			Override this method to handle the particular
+			device communication standard you are using.
+			Args:
+				port (str): Path to a particular instance of a device
+		"""
+		pass
+
+	def getSubscription(self, port):
+		""" Get the subscription(s) of a device.
+			Override this method to handle the particular
+			device communication standard you are using.
+
+			Args:
+				port (str): Path to a particular instance of a device
 		"""
 		pass
 
 	def listenToDevice(self, **kwargs):
-		while not self.quit:
-			try:
-				msg = self.read_cmd(kwargs['port'])
-				if msg is not None:
-					self.log(msg[0], "DEBUG")
-					self.publish(msg[0], msg[1])
-			except:
-				# failed to open port
-				self.log("Read fail", "DEBUG")
-				pass
-			time.sleep(0.005)
+		""" Continualy read from a device and publish any received messages.
+
+			Args:
+				port (str): Path to a particular instance of a device
+		"""
+		with self.getDevice(kwargs['port']) as device:
+			while not self.quit:
+				try:
+					msg = self.read_cmd(device)
+					if msg is not None:
+						self.log(msg[0], "DEBUG")
+						self.publish(msg[0], msg[1])
+				except:
+					# failed to open port
+					self.log("Read fail", "DEBUG")
+					pass
+				time.sleep(0.005)
 
 	def spawnThread(self, function, **kwargs):
 		"""Spawns a new thread with the given function.
@@ -112,29 +136,29 @@ class RoverServer(RoverProcess):
 		new_thread = RoverServer.WorkerThread(function, **kwargs)
 		self.workers.append(new_thread)
 		new_thread.start()
-	
-	def getSubscription(self, port):
-		pass
-	
-	
+
 	def reqSubscription(self, port):
 		""" Request susbscriptions from a device.
 
 		Subscribe to the message if we're not subscribed already.
 		Also store the device for later. Finally, spin up a thread
 		to listen for incomming messages from the device.
+
+			Args:
+				port (str): Path to a particular instance of a device
 		"""
-		s = self.getSubscription(port)
-		if not s:
-			return # failed to get a good packet, abort
-		if s not in self.subscriberMap:
-			self.subscriberMap[s] = []
-			self.subscribe(s)
-		self.subscriberMap[s].append(port.device)
-		self.DeviceList.append(port.device)
-		#self.semList[port.device] = BoundedSemaphore()
-		
-		self.spawnThread(self.listenToDevice, port=port.device)
+		with self.getDevice(port) as device:
+			s = self.getSubscription(device)
+			if not s:
+				return # failed to get a good packet, abort
+			if s not in self.subscriberMap:
+				self.subscriberMap[s] = []
+				self.subscribe(s)
+			self.subscriberMap[s].append(port)
+			self.DeviceList.append(port)
+			#self.semList[port.device] = BoundedSemaphore()
+
+			self.spawnThread(self.listenToDevice, port=port)
 
 	def cleanup(self):
 		RoverProcess.cleanup(self)

@@ -31,7 +31,8 @@ class USBServer(RoverServer):
 			if port.device == '/dev/ttyS0' or port.device == '/dev/ttyAMA0':
 				#ignore first linux serial port
 				continue
-			self.reqSubscription(port)
+			# In pyserial, port.device is a string of the path to the device
+			self.reqSubscription(port.device)
 
 	def loop(self):
 		""" Just print out the subscriptions."""
@@ -45,32 +46,32 @@ class USBServer(RoverServer):
 			ser.write(buff)
 
 	def read_cmd(self, device):
-		with serial.Serial(device, baudrate=BAUDRATE, timeout=0.1) as ser:
-			if ser.in_waiting > 0:
-				buff = ser.readline()
-				(msg, _) = pyvesc.decode(buff)
-				self.log(buff, "DEBUG")
-				return (msg.__class__.__name__, msg)
-			else:
-				return None
+		if device.in_waiting > 0:
+			buff = device.readline()
+			(msg, _) = pyvesc.decode(buff)
+			self.log(buff, "DEBUG")
+			return (msg.__class__.__name__, msg)
+		else:
+			return None
 
-	def getSubscription(self, port):
+	def getSubscription(self, device):
 		s = None
-		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=0.5) as ser:
-			
-			errors = 0
-			while errors < 4: # try reading 4 times
-				try:
-					req = pyvesc.ReqSubscription('t')
-					ser.write(pyvesc.encode(req))
-					buff = ser.readline()
-					self.log(buff, "DEBUG")
-					(msg, _) = pyvesc.decode(buff)
-					s = msg.subscription
-					break # parseVESCPacket didn't fail
-				except:
-					errors += 1 # got another bad packet
-					self.log("Got bad packet", "WARNING")
-				ser.reset_input_buffer()
+		errors = 0
+		while errors < 4: # try reading 4 times
+			try:
+				req = pyvesc.ReqSubscription('t')
+				device.write(pyvesc.encode(req))
+				buff = device.readline()
+				self.log(buff, "DEBUG")
+				(msg, _) = pyvesc.decode(buff)
+				s = msg.subscription
+				break # parseVESCPacket didn't fail
+			except:
+				errors += 1 # got another bad packet
+				self.log("Got bad packet", "WARNING")
+			device.reset_input_buffer()
 		return s
+
+	def getDevice(self, port):
+		return serial.Serial(port, baudrate=BAUDRATE, timeout=1)
 
