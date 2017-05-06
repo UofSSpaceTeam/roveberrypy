@@ -16,6 +16,7 @@ from .RoverProcess import RoverProcess
 import time
 import sys
 from threading import Thread
+from  multiprocessing import BoundedSemaphore
 
 class RoverServer(RoverProcess):
 	"""Just a RoverProcess that adds an easy way to run a method in a new thread.
@@ -52,12 +53,14 @@ class RoverServer(RoverProcess):
 		self.workers = []
 		self.subscriberMap = {}
 		self.semList = {}
+		self.DeviceList = []
 
 
 	def messageTrigger(self, message):
 		if message.key in self.subscriberMap:
 			for port in self.subscriberMap[message.key]:
-				self.send_cmd(message, port)
+				with self.semList[port]:
+					self.send_cmd(message, port)
 
 	def send_cmd(self, message, port):
 		""" Function for sending a message to a device.
@@ -108,8 +111,10 @@ class RoverServer(RoverProcess):
 		"""
 		with self.getDevice(kwargs['port']) as device:
 			while not self.quit:
+				msg = None
 				try:
-					msg = self.read_cmd(device)
+					with self.semList[kwargs['port']]:
+						msg = self.read_cmd(device)
 					if msg is not None:
 						self.log(msg[0], "DEBUG")
 						self.publish(msg[0], msg[1])
@@ -156,8 +161,7 @@ class RoverServer(RoverProcess):
 				self.subscribe(s)
 			self.subscriberMap[s].append(port)
 			self.DeviceList.append(port)
-			#self.semList[port.device] = BoundedSemaphore()
-
+			self.semList[port] = BoundedSemaphore()
 			self.spawnThread(self.listenToDevice, port=port)
 
 	def cleanup(self):

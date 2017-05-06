@@ -5,7 +5,6 @@ import serial
 import time
 from ctypes import *
 from serial.threaded import *
-from  multiprocessing import BoundedSemaphore
 import pyvesc
 
 BAUDRATE = 115200
@@ -25,7 +24,6 @@ class USBServer(RoverServer):
 
 	def setup(self, args):
 		""" Initialize subscription maps and find what messages devices are susbribed to."""
-		self.DeviceList = []
 		ports = list_ports.comports()
 		for port in ports:
 			if port.device == '/dev/ttyS0' or port.device == '/dev/ttyAMA0':

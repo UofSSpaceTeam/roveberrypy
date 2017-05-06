@@ -16,6 +16,7 @@ from .RoverProcess import RoverProcess
 # Any libraries you need can be imported here. You almost always need time!
 import time
 from pyvesc import BlinkLed
+import pyvesc
 
 
 class ExampleProcess(RoverProcess):
@@ -35,7 +36,7 @@ class ExampleProcess(RoverProcess):
 		# which is a list of messages it is currently subscribed to.
 		# You can read from this list, but please do not modify it,
 		# as that will mess things up. Use subscribe() and unsubscribe().
-		for key in ["Test", "respondTrue", "heartbeat"]:
+		for key in ["Test", "respondTrue", "heartbeat", "ExampleSendMessage"]:
 			self.subscribe(key)
 		self.someVariable = 42
 
@@ -59,6 +60,9 @@ class ExampleProcess(RoverProcess):
 
 		if message.key == 'Test':
 			self.log("got: " + str(message.data))
+		elif message.key == 'ExampleSendMessage':
+			# message.data should be a PyVESC ExampleSendMessage
+			self.log("got: "+ str(message.data.string))
 
 	# This runs once at the end when the program shuts down.
 	# You can use this to do something like stop motors, clean up open files, etc.
