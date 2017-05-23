@@ -12,10 +12,11 @@
 # permissions and limitations under the License.
 
 from roverprocess import RoverProcess
+from multiprocessing.synchronize import BoundedSemaphore
 from pyvesc import SetRPM
 import pyvesc
 
-class JoystickProcess(RoverProcess):
+class GamepadProcess(RoverProcess):
 
     #Setup generic subscriptions for the joystick process.
     def setup(self, args):

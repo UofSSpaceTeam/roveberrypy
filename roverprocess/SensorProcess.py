@@ -12,10 +12,11 @@
 # permissions and limitations under the License.
 
 from .RoverProcess import RoverProcess
+from multiprocessing.synchronize import BoundedSemaphore
 # from pyvesc import SetRPM
 import pyvesc
 
-class LoopProcess(RoverProcess):
+class SensorProcess(RoverProcess):
 
     def setup(self, args):
         None
