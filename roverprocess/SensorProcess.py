@@ -18,8 +18,10 @@ import pyvesc
 
 class SensorProcess(RoverProcess):
 
+    # This function sets up subscriptions, constants, etc. for the class.
     def setup(self, args):
-        None
+        raise NotImplementedError
 
+    # This is the function where all the sensor operations go.
     def loop(self):
-        None
+        raise NotImplementedError

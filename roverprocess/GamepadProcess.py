@@ -18,7 +18,10 @@ import pyvesc
 
 class GamepadProcess(RoverProcess):
 
-    #Setup generic subscriptions for the joystick process.
+    # Setup generic subscriptions for the gamepad processes.
+    # If you are extendimg this class and overwriting this function,
+    # make sure you call GamepadProcess.setup(self) in the setup of the extended class
+    # (similar as to overwriting RoverProcess.cleanup()).
     def setup(self, args):
         for key in ["joystick1", "joystick2", "Rtrigger", "Ltrigger"]:
             self.subscribe(key)
@@ -27,38 +30,16 @@ class GamepadProcess(RoverProcess):
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list
     def on_joystick1(self, data):
-        newMessage = self.createMessageJoystick1(data)
-        self.publishMessageJoystick(newMessage)
+        raise NotImplementedError
         
     # Function that grabs the x and y axis values in message, then formats the data
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list
     def on_joystick2(self, data):
-        newMessage = self.createMessageJoystick2(data)
-        self.publishMessageJoysitck(newMessage)
+        raise NotImplementedError
 
     def on_Rtrigger(self, trigger):
-        newMessage = self.createMessageTriggerR(trigger)
-        self.publishMessageTrigger(newMessage)
+        raise NotImplementedError
 
     def on_Ltrigger(self, trigger):
-        newMessage = self.createMessageTriggerL(trigger)
-        self.publishMessageTrigger(newMessage)
-
-    def publishMessageJoystick(self, message):
-        None
-
-    def publishMessageTrigger(self, message):
-        None
-
-    def createMessageJoystick1(self, input):
-        None
-
-    def createMessageJoystick2(self, input):
-        None
-
-    def createMessageTriggerL(self, input):
-        None
-
-    def createMessageTriggerR(self, input):
-        None
+        raise NotImplementedError
