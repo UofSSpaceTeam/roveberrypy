@@ -11,7 +11,7 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-from roverprocess import RoverProcess
+from .RoverProcess import RoverProcess
 from multiprocessing.synchronize import BoundedSemaphore
 from pyvesc import SetRPM
 import pyvesc
