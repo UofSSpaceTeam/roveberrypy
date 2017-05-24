@@ -58,7 +58,7 @@ class DriveProcess(RoverProcess):
 		""" Initialize drive mode (default=current)."""
 		self.right_brake = False
 		self.left_brake = False
-		self.drive_mode = "current"
+		self.drive_mode = "rpm"
 		for key in ["joystick1", "joystick2", "Ltrigger", "Rtrigger"]:
 			self.subscribe(key)
 
@@ -88,7 +88,7 @@ class DriveProcess(RoverProcess):
 		""" Handles the right wheels for manual control. """
 		y_axis = data[1]
 		if self.drive_mode == "rpm":
-			speed = rpm_curve(y_axis/2) # half power for testing
+			speed = rpm_curve(y_axis) 
 			if -min_rpm < speed < min_rpm: # deadzone
 				speed = 0
 			self.publish("wheelRF", SetRPM(int(speed)))
