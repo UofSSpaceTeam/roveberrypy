@@ -47,7 +47,7 @@ class USBServer(RoverServer):
 		if device.in_waiting > 0:
 			buff = device.readline()
 			(msg, _) = pyvesc.decode(buff)
-			self.log(buff, "DEBUG")
+			self.log("Got: "+str(buff), "DEBUG")
 			return (msg.__class__.__name__, msg)
 		else:
 			return None
