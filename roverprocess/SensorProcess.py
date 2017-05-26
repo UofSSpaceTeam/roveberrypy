@@ -18,6 +18,9 @@ import pyvesc
 
 class SensorProcess(RoverProcess):
 
+    def __init__(self, **kwargs):
+        RoverProcess.__init__(self, kwargs)
+        
     # This function sets up subscriptions, constants, etc. for this class.
     # You do not need to call this method in a class that extends this one since sensors publish their own subscriptions
     # and use their own constants.

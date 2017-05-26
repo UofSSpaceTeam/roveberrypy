@@ -17,20 +17,32 @@ from pyvesc import SetRPM
 import pyvesc
 
 class GamepadProcess(RoverProcess):
+    
+    # Initialize the gamepad process.
+    def __init__(self, **kwargs):
+        """Initialize the gamepad process."""
+        RoverProcess.__init__(self, kwargs)
+        for key in ["joystick1", "joystick2", "Rtrigger", "Ltrigger"]:
+            self.subscribe(key)
 
     # Setup generic subscriptions for the gamepad processes.
     # If you are extendimg this class and overwriting this function,
     # make sure you call GamepadProcess.setup(self) in the setup of the extended class
     # (similar as to overwriting RoverProcess.cleanup()).
+    #
+    # THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+    # block (Python's TRY-CATCH block) when using this method.
     def setup(self, args):
         """
-        Setup generic subscriptions for the gamepad processes.
+        Setup generic constants for the gamepad processes.
         If you are extendimg this class and overwriting this function,
         make sure you call GamepadProcess.setup(self) in the setup of the extended class
         (similar as to overwriting RoverProcess.cleanup()).
+
+        THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+        block (Python's TRY-CATCH block) when using this method.
         """
-        for key in ["joystick1", "joystick2", "Rtrigger", "Ltrigger"]:
-            self.subscribe(key)
+        raise NotImplementedError
     
     # The operations of joystick 1 are implmented with this function.
     # This method should be implemented with another itentical function in a class that extends this one.
