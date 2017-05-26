@@ -18,10 +18,36 @@ import pyvesc
 
 class SensorProcess(RoverProcess):
 
-    # This function sets up subscriptions, constants, etc. for the class.
+    # This function sets up subscriptions, constants, etc. for this class.
+    # You do not need to call this method in a class that extends this one since sensors publish their own subscriptions
+    # and use their own constants.
+    # 
+    # THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+    # block (Python's TRY-CATCH block) when using this method.
     def setup(self, args):
+        """
+        This function sets up subscriptions, constants, etc. for this class.
+        You do not need to call this method in a class that extends this one since sensors publish their own subscriptions
+        and use their own constants.
+
+        THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+        block (Python's TRY-CATCH block) when using this method.
+        """
         raise NotImplementedError
 
     # This is the function where all the sensor operations go.
+    # This method should be implemented with another itentical function in a class that extends this one.
+    # This will then allow for polymorphism.
+    # 
+    # THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+    # block (Python's TRY-CATCH block) when using this method.
     def loop(self):
+        """
+        This is the function where all the sensor operations go.
+        This method should be implemented with another itentical function in a class that extends this one.
+        This will then allow for polymorphism.
+
+        THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+        block (Python's TRY-CATCH block) when using this method.
+        """
         raise NotImplementedError

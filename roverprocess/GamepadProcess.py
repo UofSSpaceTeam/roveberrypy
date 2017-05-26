@@ -23,23 +23,79 @@ class GamepadProcess(RoverProcess):
     # make sure you call GamepadProcess.setup(self) in the setup of the extended class
     # (similar as to overwriting RoverProcess.cleanup()).
     def setup(self, args):
+        """
+        Setup generic subscriptions for the gamepad processes.
+        If you are extendimg this class and overwriting this function,
+        make sure you call GamepadProcess.setup(self) in the setup of the extended class
+        (similar as to overwriting RoverProcess.cleanup()).
+        """
         for key in ["joystick1", "joystick2", "Rtrigger", "Ltrigger"]:
             self.subscribe(key)
-
-    # Function that grabs the x and y axis values in message, then formats the data
-	#  and prints the result to stdout.
-	# Returns the newly formated x and y axis values in a new list
+    
+    # The operations of joystick 1 are implmented with this function.
+    # This method should be implemented with another itentical function in a class that extends this one.
+    # This will then allow for polymorphism.
+    # 
+    # THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+    # block (Python's TRY-CATCH block) when using this method.
     def on_joystick1(self, data):
+        """
+        The operations of joystick 1 are implmented with this function.
+        This method should be implemented with another itentical function in a class that extends this one.
+        This will then allow for polymorphism.
+
+        THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+        block (Python's TRY-CATCH block) when using this method.
+        """
         raise NotImplementedError
         
-    # Function that grabs the x and y axis values in message, then formats the data
-	#  and prints the result to stdout.
-	# Returns the newly formated x and y axis values in a new list
+    # The operations of joystick 2 are implmented with this function.
+    # This method should be implemented with another itentical function in a class that extends this one.
+    # This will then allow for polymorphism.
+    # 
+    # THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+    # block (Python's TRY-CATCH block) when using this method.
     def on_joystick2(self, data):
+        """
+        The operations of joystick 2 are implmented with this function.
+        This method should be implemented with another itentical function in a class that extends this one.
+        This will then allow for polymorphism.
+
+        THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+        block (Python's TRY-CATCH block) when using this method.
+        """
         raise NotImplementedError
 
-    def on_Rtrigger(self, trigger):
-        raise NotImplementedError
-
+    # The operations of the left trigger are implmented with this function.
+    # This method should be implemented with another itentical function in a class that extends this one.
+    # This will then allow for polymorphism.
+    # 
+    # THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+    # block (Python's TRY-CATCH block) when using this method.
     def on_Ltrigger(self, trigger):
+        """
+        The operations of the left trigger are implmented with this function.
+        This method should be implemented with another itentical function in a class that extends this one.
+        This will then allow for polymorphism.
+
+        THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+        block (Python's TRY-CATCH block) when using this method.
+        """
+        raise NotImplementedError
+
+    # The operations of the right trigger are implmented with this function.
+    # This method should be implemented with another itentical function in a class that extends this one.
+    # This will then allow for polymorphism.
+    # 
+    # THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+    # block (Python's TRY-CATCH block) when using this method.
+    def on_Rtrigger(self, trigger):
+        """
+        The operations of the right trigger are implmented with this function.
+        This method should be implemented with another itentical function in a class that extends this one.
+        This will then allow for polymorphism.
+
+        THROWS: NotImplementedError exception, thus it is highly recommended to use a TRY-EXCEPT
+        block (Python's TRY-CATCH block) when using this method.
+        """
         raise NotImplementedError
