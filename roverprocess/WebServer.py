@@ -33,6 +33,7 @@ class WebServer(RoverProcess):
 	## Replaces the stock WSGI server with one that we can control within
 	##	the context of the rover software
 	class RoverWSGIServer(ServerAdapter):
+		quiet = True # comment this out for verbose logging
 
 		def run(self, app):  # pragma: no cover
 			from wsgiref.simple_server import make_server

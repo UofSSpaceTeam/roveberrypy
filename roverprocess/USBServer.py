@@ -3,78 +3,73 @@ from .RoverServer import RoverServer
 from serial.tools import list_ports
 import serial
 import time
-#from .motor.interface import *
 from ctypes import *
 from serial.threaded import *
-from  multiprocessing import BoundedSemaphore
 import pyvesc
 
 BAUDRATE = 115200
+""" The baudrate to use for serial communication."""
 
 class USBServer(RoverServer):
+	""" Forwards RoverMessages to devices connected to USB.
+
+	The USBServer first polls all connected devices to see what messages
+	they are subscribed to. The server then subscribes to those messages.
+	When those messages are published by other processes, the USBServer
+	will forward it to the appropriate device.
+
+	The USBServer also listens for incomming messages from each device,
+	and publishes them to the rest of the system for other processes.
+	"""
 
 	def setup(self, args):
-		self.IDList = {}
-		self.DeviceList = []
-		self.semList = {}
+		""" Initialize subscription maps and find what messages devices are susbribed to."""
 		ports = list_ports.comports()
 		for port in ports:
 			if port.device == '/dev/ttyS0' or port.device == '/dev/ttyAMA0':
 				#ignore first linux serial port
 				continue
-			self.reqSubscription(port)
+			# In pyserial, port.device is a string of the path to the device
+			self.reqSubscription(port.device)
 
 	def loop(self):
-		self.log(self.IDList)
+		""" Just print out the subscriptions."""
+		self.log(self.subscriberMap)
 		time.sleep(1)
 
-	def messageTrigger(self, message):
-		if message.key in self.IDList:
-			for device in self.IDList[message.key]:
-				with serial.Serial(device, baudrate=BAUDRATE, timeout=1) as ser:
-					ser.write(pyvesc.encode(message.data))
+	def send_cmd(self, message, device):
+		with serial.Serial(device, baudrate=BAUDRATE, timeout=1) as ser:
+			buff = pyvesc.encode(message.data)
+			self.log(buff, "DEBUG")
+			ser.write(buff)
 
-	def reqSubscription(self, port):
-		with serial.Serial(port.device, baudrate=BAUDRATE, timeout=0.5) as ser:
-			s = None
-			errors = 0
-			while errors <= 4: # try reading 4 times
-				try:
-					#TODO, vesc firmware seems to not use quite the
-					#      same packet format when it prints messages back
-					#      (no packet id or checksum as far as I can tell)
-					req = pyvesc.ReqSubscription('t')
-					ser.write(pyvesc.encode(req))
-					buff = ser.readline()
-					self.log(buff, "DEBUG")
-					(msg, _) = pyvesc.decode(buff)
-					s = msg.subscription
-					break # parseVESCPacket didn't fail
-				except:
-					errors += 1 # got another bad packet
-					self.log("Got bad packet", "WARNING")
-			if not s:
-				return # failed to get a good packet, abort
-			if s not in self.IDList:
-				self.IDList[s] = []
-				self.subscribe(s)
-			self.IDList[s].append(port.device)
-			self.DeviceList.append(port.device)
-			self.semList[port.device] = BoundedSemaphore()
-			ser.reset_input_buffer()
-			self.spawnThread(self.listenToDevice, port=port.device)
+	def read_cmd(self, device):
+		if device.in_waiting > 0:
+			buff = device.readline()
+			(msg, _) = pyvesc.decode(buff)
+			self.log(buff, "DEBUG")
+			return (msg.__class__.__name__, msg)
+		else:
+			return None
 
-	def listenToDevice(self, **kwargs):
-		with serial.Serial(kwargs["port"], baudrate=BAUDRATE, timeout = 0.1) as ser:
-			while not self.quit:
-				self.semList[kwargs["port"]].acquire()
-				if ser.in_waiting > 0:
-					try:
-						buff = ser.readline()
-						(msg, _) = pyvesc.decode(buff)
-						self.log(msg, "DEBUG")
-						self.publish(msg.__class__.__name__, msg)
-					except:
-						self.log("Failed to parse message", "ERROR")
-				self.semList[kwargs["port"]].release()
-				time.sleep(0.005)
+	def getSubscription(self, device):
+		s = None
+		errors = 0
+		while errors < 4: # try reading 4 times
+			try:
+				req = pyvesc.ReqSubscription('t')
+				device.write(pyvesc.encode(req))
+				buff = device.readline()
+				self.log(buff, "DEBUG")
+				(msg, _) = pyvesc.decode(buff)
+				s = msg.subscription
+				break # parseVESCPacket didn't fail
+			except:
+				errors += 1 # got another bad packet
+				self.log("Got bad packet", "WARNING")
+			device.reset_input_buffer()
+		return s
+
+	def getDevice(self, port):
+		return serial.Serial(port, baudrate=BAUDRATE, timeout=1)
+
