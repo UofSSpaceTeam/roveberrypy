@@ -14,6 +14,7 @@
 from .RoverProcess import RoverProcess
 from pyvesc import SetRPM, SetCurrent, SetCurrentBrake
 import pyvesc
+from math import expm1 # e**x - 1  for rpm/current curves
 
 max_rpm = 40000
 min_rpm = 10000
@@ -21,30 +22,25 @@ max_current = 0.5
 min_current = 0.2
 
 def rpm_curve(f):
-	e = 2.718281828459045235
 	if f > 0:
-		rpm = 8000 + 32000*((e**(2*f)-1)/(e**(2)-1))
+		rpm = (1/5)*max_rpm + (4/5)*max_rpm*((expm1(2*f))/(expm1(2)))
 	elif f < 0:
 		f = -1*f
-		rpm = 8000 + 32000*((e**(2*f)-1)/(e**(2)-1))
+		rpm = (1/5)*max_rpm + (4/5)*max_rpm*((expm1(2*f))/(expm1(2)))
 		rpm = -1*rpm
 	else:
 		rpm = 0
-	
 	return rpm
 
 def current_curve(f):
-	e = 2.718281828459045235
-
 	if f > 0:
-		current = 0.1 + 0.4*((e**(2*f)-1)/(e**(2)-1))
+		current = (1/5)*max_current + (4/5)*max_current*((expm1(2*f))/(expm1(2)))
 	elif f < 0:
 		f = -1*f
-		current = 0.1 + 0.4*((e**(2*f)-1)/(e**(2)-1))
+		current = (1/5)*max_current + (4/5)*max_current*((expm1(2*f))/(expm1(2)))
 		current = -1*current
 	else:
 		current = 0
-	
 	return current
 
 class DriveProcess(RoverProcess):
@@ -67,7 +63,7 @@ class DriveProcess(RoverProcess):
 		y_axis = data[1]
 		if self.drive_mode == "rpm":
 			self.log("rpm")
-			speed = rpm_curve(y_axis) 
+			speed = rpm_curve(y_axis)
 			if -min_rpm < speed < min_rpm: # deadzone
 				speed = 0
 			self.publish("wheelLF", SetRPM(int(speed)))
@@ -88,7 +84,7 @@ class DriveProcess(RoverProcess):
 		""" Handles the right wheels for manual control. """
 		y_axis = data[1]
 		if self.drive_mode == "rpm":
-			speed = rpm_curve(y_axis) 
+			speed = rpm_curve(y_axis)
 			if -min_rpm < speed < min_rpm: # deadzone
 				speed = 0
 			self.publish("wheelRF", SetRPM(int(speed)))
