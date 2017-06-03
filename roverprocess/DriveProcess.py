@@ -15,33 +15,48 @@ from .RoverProcess import RoverProcess
 from pyvesc import SetRPM, SetCurrent, SetCurrentBrake
 import pyvesc
 from math import expm1 # e**x - 1  for rpm/current curves
+from math import exp
 
 max_rpm = 40000
-min_rpm = 10000
+min_rpm = 2000
 max_current = 0.5
 min_current = 0.2
+curve_val = 5
 
 def rpm_curve(f):
 	if f > 0:
-		rpm = (1/5)*max_rpm + (4/5)*max_rpm*((expm1(2*f))/(expm1(2)))
+		rpm = (1/5)*max_rpm + (4/5)*max_rpm*((expm1(2*f))/(expm1(4)))
 	elif f < 0:
 		f = -1*f
-		rpm = (1/5)*max_rpm + (4/5)*max_rpm*((expm1(2*f))/(expm1(2)))
+		rpm = (1/5)*max_rpm + (4/5)*max_rpm*((expm1(2*f))/(expm1(4)))
 		rpm = -1*rpm
 	else:
 		rpm = 0
+
+	#print(rpm)
 	return rpm
 
 def current_curve(f):
 	if f > 0:
-		current = (1/5)*max_current + (4/5)*max_current*((expm1(2*f))/(expm1(2)))
+		current = (1/5)*max_current + (4/5)*max_current*((expm1(2*f))/(expm1(4)))
 	elif f < 0:
 		f = -1*f
-		current = (1/5)*max_current + (4/5)*max_current*((expm1(2*f))/(expm1(2)))
+		current = (1/5)*max_current + (4/5)*max_current*((expm1(2*f))/(expm1(4)))
 		current = -1*current
 	else:
 		current = 0
 	return current
+
+def austin_rpm_curve(f):
+
+	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
+	
+	if f > 0:
+		#print(a*40000)
+		return a*max_rpm
+	else:
+		#print(-a*40000)
+		return -a*max_rpm
 
 class DriveProcess(RoverProcess):
 	"""Handles driving the rover.
@@ -61,9 +76,12 @@ class DriveProcess(RoverProcess):
 	def on_joystick1(self, data):
 		""" Handles the left wheels for manual control. """
 		y_axis = data[1]
+		if y_axis is None:
+			#print("got None for left side")
+			return
 		if self.drive_mode == "rpm":
 			self.log("rpm")
-			speed = rpm_curve(y_axis)
+			speed = austin_rpm_curve(y_axis)
 			if -min_rpm < speed < min_rpm: # deadzone
 				speed = 0
 			self.publish("wheelLF", SetRPM(int(speed)))
@@ -82,9 +100,13 @@ class DriveProcess(RoverProcess):
 
 	def on_joystick2(self, data):
 		""" Handles the right wheels for manual control. """
-		y_axis = data[1]
+		print("RIGHT SIDE!! {}".format(data))
+		y_axis = data[0]
+		if y_axis is None:
+			#print("got None for Right side")
+			return
 		if self.drive_mode == "rpm":
-			speed = rpm_curve(y_axis)
+			speed = austin_rpm_curve(y_axis)
 			if -min_rpm < speed < min_rpm: # deadzone
 				speed = 0
 			self.publish("wheelRF", SetRPM(int(speed)))
