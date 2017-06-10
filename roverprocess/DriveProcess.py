@@ -20,7 +20,7 @@ from math import exp
 max_rpm = 40000
 min_rpm = 2000
 max_current = 0.5
-min_current = 0.2
+min_current = 0.1
 curve_val = 5
 
 def rpm_curve(f):
@@ -31,16 +31,11 @@ def rpm_curve(f):
 		return -a*max_rpm
 
 def current_curve(f):
+	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
 	if f > 0:
-		current = (1/5)*max_current + (4/5)*max_current*((expm1(2*f))/(expm1(4)))
-	elif f < 0:
-		f = -1*f
-		current = (1/5)*max_current + (4/5)*max_current*((expm1(2*f))/(expm1(4)))
-		current = -1*current
+		return a*max_current
 	else:
-		current = 0
-	return current
-
+		return -a*max_current
 
 class DriveProcess(RoverProcess):
 	"""Handles driving the rover.
@@ -50,11 +45,11 @@ class DriveProcess(RoverProcess):
 	"""
 
 	def setup(self, args):
-		""" Initialize drive mode (default=current)."""
+		""" Initialize drive mode (default=rpm)."""
 		self.right_brake = False
 		self.left_brake = False
 		self.drive_mode = "rpm"
-		for key in ["joystick1", "joystick2", "Ltrigger", "Rtrigger"]:
+		for key in ["joystick1", "joystick2", "triggerL", "triggerR"]:
 			self.subscribe(key)
 
 	def on_joystick1(self, data):
@@ -70,7 +65,7 @@ class DriveProcess(RoverProcess):
 			self.publish("wheelLF", SetRPM(int(speed)))
 			self.publish("wheelLM", SetRPM(int(speed)))
 			self.publish("wheelLB", SetRPM(int(speed)))
-			self.log(speed)
+			self.log("left: {}".format(speed))
 		elif self.drive_mode == "current" and not self.left_brake:
 			current = current_curve(y_axis)
 			if -min_current < current < min_current:
@@ -78,7 +73,7 @@ class DriveProcess(RoverProcess):
 			self.publish("wheelLF", SetCurrent(current))
 			self.publish("wheelLM", SetCurrent(current))
 			self.publish("wheelLB", SetCurrent(current))
-			self.log(current)
+			self.log("left: {}".format(current))
 
 
 	def on_joystick2(self, data):
@@ -93,7 +88,7 @@ class DriveProcess(RoverProcess):
 			self.publish("wheelRF", SetRPM(int(speed)))
 			self.publish("wheelRM", SetRPM(int(speed)))
 			self.publish("wheelRB", SetRPM(int(speed)))
-			self.log(speed)
+			self.log("right: {}".format(speed))
 		elif self.drive_mode == "current" and not self.right_brake:
 			current = current_curve(y_axis)
 			if -min_current < current < min_current:
@@ -101,25 +96,29 @@ class DriveProcess(RoverProcess):
 			self.publish("wheelRF", SetCurrent(current))
 			self.publish("wheelRM", SetCurrent(current))
 			self.publish("wheelRB", SetCurrent(current))
-			self.log(current)
+			self.log("right: {}".format(current))
 
-	def on_Ltrigger(self, trigger):
+	def on_triggerL(self, trigger):
 		""" Handles left wheel braking (requires current mode)"""
+		if trigger is None:
+			return
 		if 0 < trigger <= 1 and self.drive_mode == "current":
 			self.left_brake = True
-			self.publish("wheel1", SetCurrentBrake(max_current))
-			self.publish("wheel2", SetCurrentBrake(max_current))
-			self.publish("wheel3", SetCurrentBrake(max_current))
+			self.publish("wheel1", SetCurrentBrake(trigger*max_current))
+			self.publish("wheel2", SetCurrentBrake(trigger*max_current))
+			self.publish("wheel3", SetCurrentBrake(trigger*max_current))
 		else:
 			self.left_brake = False
 
-	def on_Rtrigger(self, trigger):
+	def on_triggerR(self, trigger):
 		""" Handles right wheel braking (requires current mode)"""
+		if trigger is None:
+			return
 		if 0 < trigger <= 1 and self.drive_mode == "current":
 			self.right_brake = True
-			self.publish("wheel4", SetCurrentBrake(max_current))
-			self.publish("wheel5", SetCurrentBrake(max_current))
-			self.publish("wheel6", SetCurrentBrake(max_current))
+			self.publish("wheel4", SetCurrentBrake(trigger*max_current))
+			self.publish("wheel5", SetCurrentBrake(trigger*max_current))
+			self.publish("wheel6", SetCurrentBrake(trigger*max_current))
 		else:
 			self.right_brake = False
 
