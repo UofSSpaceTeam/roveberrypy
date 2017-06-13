@@ -5,32 +5,10 @@ from pyvesc import SetRPM
 
 from .RoverProcess import RoverProcess
 
-# Haversine function
-hav = lambda z: (1 - cos(z)) / 2
-
-# Inverse haversine function
-ahav = lambda z: 2 * asin(sqrt(z))
-
-# Earth's radius in metres
-EARTH_RADIUS = 6371008.8
-
-# Maximum allowable distance for a target from current position in metres
-MAXIMUM_TARGET_DISTANCE = 10
-
-# Distance to consider target reached
-TARGET_CLOSE_DISTANCE = 1
-
-# TODO: Bearing error, what unit should this be in?
-BEARING_ERROR = 360
-
-# TODO: not sure where this number comes from but, it is min_rpm in
-# DriveProcess.py
-MOTOR_RPM = 2000
-
-# Delay for loop
-LOOP_DELAY_MS = 100
-
 class GPSPosition:
+    # Earth's radius in metres
+    RADIUS = 6371008.8
+
     def __init__(self, lat, lon):
         # lat an lon are assumed to be in radians
         self.lat = lat
@@ -38,13 +16,16 @@ class GPSPosition:
 
     def distance(self, them):
         ''' Returns the distance to another GPSPositions on earth'''
+        hav = lambda z: (1 - cos(z)) / 2   # haversine
+        ahav = lambda z: 2 * asin(sqrt(z)) # inverse haversine
+
         d_lat = them.lat - self.lat
         d_lon = them.lon - self.lon
 
-        z = hav(d_lat)
-            + cos(self.lat) * cos(them.lat) * hav(d_lon)
+        z = (hav(d_lat)
+             + cos(self.lat) * cos(them.lat) * hav(d_lon))
 
-        return EARTH_RADIUS * ahav(z)
+        return GPSPosition.RADIUS * ahav(z)
 
     def bearing(self, them):
         ''' Returns the bearing to another GPSPositions on earth'''
@@ -52,31 +33,39 @@ class GPSPosition:
         d_lon = them.lon - self.lon
 
         y = sin(d_lon) * cos(them.lat)
-        x = cos(self.lat) * sin(them.lat)
-            - sin(self.lat) * cos(them.lat) * cos(d_lat)
+        x = (cos(self.lat) * sin(them.lat)
+             - sin(self.lat) * cos(them.lat) * cos(d_lat))
 
         return atan2(y, x)
 
 class GPSDriveProcess(RoverProcess):
     '''
     '''
-
     def setup(self, args):
-        self.target = None
-
         self.position = None
         self.position_last = None
 
         self.heading = None
         self.heading_last = None
 
+        self.bearing_error = 360 # TODO: What unit is this in?
         self._rotating = False
+
+        self.target = None
+        self.target_reached_distance = 1  # metres
+        self.target_maximum_distance = 10 # metres
+
+        # Delay for loop in miliseconds
+        self.loop_delay = 100
+
+        # TODO: Why is this 2000, I found it in DriveProcess.py as min_rpm?
+        self.motor_rpm = 2000
 
         for m in ['targetGPS', 'singlePointGPS', 'CompassDataMessage']:
             self.subscribe(m)
 
     def loop(self):
-        sleep(LOOP_DELAY_MS / 1000.0)
+        sleep(self.loop_delay / 1000.0)
 
         if self.target is None:
             return
@@ -84,12 +73,12 @@ class GPSDriveProcess(RoverProcess):
         distance = self.position.distance(self.target)
         bearing = self.position.bearing(self.target)
 
-        if distance < CLOSE_DISTANCE:
+        if distance < self.target_reached_distance:
             self.target = None
             self._stop()
             return
 
-        if abs(bearing) < CLOSE_BEARING and self._rotating:
+        if abs(bearing) < self.bearing_error and self._rotating:
             self.rotating = False
             self.forward()
         else:
@@ -135,7 +124,7 @@ class GPSDriveProcess(RoverProcess):
         '''Targets a new GPS coordinate'''
         target = GPSPosition(radians(pos[0]), radians(pos[1]))
 
-        if target.distance(self.position) <= MAXIMUM_TARGET_DISTANCE:
+        if target.distance(self.position) <= self.maximum_target_distance:
             self.target = target
 
     def on_CompassDataMessage(self, compass):
