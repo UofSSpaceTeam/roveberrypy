@@ -1,6 +1,6 @@
 Roveberrypy 
 ===========
-[![Documentation Status](https://readthedocs.org/projects/roveberrypy/badge/?version=latest)](http://roveberrypy.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/roveberrypy/badge/?version=dev)](http://roveberrypy.readthedocs.io/en/dev/?badge=dev)
 
 About
 -----
