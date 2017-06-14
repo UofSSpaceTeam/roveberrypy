@@ -61,30 +61,30 @@ class Limits(collections.namedtuple('Limits', 'lower upper')):
     :measurement: Limit is measured value (ie relative to longitudinal axis of previous section)
     """
 
-    def is_valid(self, pos, duty):
+    def is_valid(self, pos, speed):
         """ Check if the given parameters satisfy this joints limit.
 
         :param pos: Position of joint [radians]
-        :param duty: Duty of the joint[radians/s]
-        :return: True if duty is valid.
+        :param speed: Speed of the joint[radians/s]
+        :return: True if speed is valid.
         """
         if self.lower < pos and pos < self.upper:
             return True
-        elif pos < self.lower and duty > 0:
+        elif pos < self.lower and speed > 0:
             return True
-        elif pos > self.upper and duty < 0:
+        elif pos > self.upper and speed < 0:
             return True
         else:
             return False
 
     @staticmethod
-    def enforce(limits, pos, duty):
-        adjusted = [0] * len(duty)
+    def enforce(limits, pos, speed):
+        adjusted = [0] * len(speed)
         for i in range(len(limits)):
-            if limits[i] and not limits[i].is_valid(pos[i], duty[i]):
+            if limits[i] and not limits[i].is_valid(pos[i], speed[i]):
                 adjusted[i] = 0
             else:
-                adjusted[i] = duty[i]
+                adjusted[i] = speed[i]
         return tuple(adjusted)
 
 
@@ -144,7 +144,7 @@ class Geometry:
     def hold_radius(self):
         """ Used to move along the vertical axis.
 
-        :return: Duty ratio's such that radius is constant.
+        :return: Speed ratio's such that radius is constant.
         """
         delta_phi0 = -self.dr[1] / self.dr[0]
         delta_phi1 = 1
@@ -156,7 +156,7 @@ class Geometry:
     def hold_altitude(self):
         """ Used to move along the horizontal axis.
 
-        :return: Duty ratio's such that altitude is constant.
+        :return: Speed ratio's such that altitude is constant.
         """
         delta_phi0 = -self.dz[1] / self.dz[0]
         delta_phi1 = 1
@@ -168,9 +168,9 @@ class Geometry:
     def maintain_wrist_pitch(self, d_shoulder, d_elbow):
         """ Used to hold the wrist pitch constant during a planar movement.
 
-        :param d_shoulder: Duty of the shoulder [radians/s]
-        :param d_elbow: Duty of the elbow [radians/s]
-        :return: Duty of the wrist_pitch [radians/s]
+        :param d_shoulder: Speed of the shoulder [radians/s]
+        :param d_elbow: Speed of the elbow [radians/s]
+        :return: Speed of the wrist_pitch [radians/s]
         """
         return -d_shoulder - d_elbow
 
@@ -182,14 +182,14 @@ class ControlMode:
 
 class ManualControl:
     def __call__(self, config, joints, geometry, base, shoulder, elbow, wrist_pitch, wrist_roll, gripper):
-        duty = Joints(
+        speed = Joints(
             *tuple_x_tuple(
                 config.max_angular_velocity,
                 (base, shoulder, elbow, wrist_pitch, wrist_roll, gripper)
             )
         )
-        duty = Limits.enforce(config.joint_limits, joints, duty)
-        return duty
+        speed = Limits.enforce(config.joint_limits, joints, speed)
+        return speed
 
 
 class PlanarControl:
@@ -202,24 +202,24 @@ class PlanarControl:
         if abs(wrist_pitch) > 1:
             wrist_pitch = wrist_pitch / abs(wrist_pitch)
         shoulder, elbow, wrist_pitch = make_max_1((shoulder, elbow, wrist_pitch))
-        duty = Joints(
+        speed = Joints(
             *tuple_x_tuple(
                 config.max_angular_velocity,
                 (base, shoulder, elbow, wrist_pitch, wrist_roll, gripper)
             )
         )
-        duty = Limits.enforce(config.joint_limits, joints, duty)
+        speed = Limits.enforce(config.joint_limits, joints, speed)
 
         # if shoulder or elbow are at the limit then we want to halt movement
-        if not config.joint_limits.shoulder.is_valid(joints.shoulder, duty[1]):
-            new_duty = list(duty)
-            new_duty[2] = 0 # elbow
-            duty = tuple(new_duty)
-        if not config.joint_limits.elbow.is_valid(joints.elbow, duty[2]):
-            new_duty = list(duty)
-            new_duty[1] = 0 # elbow
-            duty = tuple(new_duty)
-        return duty
+        if not config.joint_limits.shoulder.is_valid(joints.shoulder, speed[1]):
+            new_speed = list(speed)
+            new_speed[2] = 0 # elbow
+            speed = tuple(new_speed)
+        if not config.joint_limits.elbow.is_valid(joints.elbow, speed[2]):
+            new_speed = list(speed)
+            new_speed[1] = 0 # elbow
+            speed = tuple(new_speed)
+        return speed
 
 
 class Controller:
@@ -231,7 +231,7 @@ class Controller:
     _last_control_mode = None
     _user_args = None
     _joint_record = []
-    _duty_record = []
+    _speed_record = []
 
     def __init__(self, config):
         self._config = config
@@ -243,15 +243,15 @@ class Controller:
 
     def update_duties(self, joints):
         geometry = Geometry(self._config.section_lengths, joints)
-        duty = self._control_mode(self._config, joints, geometry, *self._user_args)
-        self.log(joints, geometry, duty)
-        return duty
+        speed = self._control_mode(self._config, joints, geometry, *self._user_args)
+        self.log(joints, geometry, speed)
+        return speed
 
-    def log(self, joints, geometry, duty):
+    def log(self, joints, geometry, speed):
         timestamp = time.time()
         if self._last_control_mode != self._control_mode:
             # make a new record if the control mode changes
-            self._duty_record.append([])
+            self._speed_record.append([])
         # record state
-        self._duty_record[-1].append((*duty, self._control_mode.__class__.__name__, *self._user_args))
+        self._speed_record[-1].append((*speed, self._control_mode.__class__.__name__, *self._user_args))
         self._joint_record.append((*joints, *geometry.position, *geometry.dr, *geometry.dz))
