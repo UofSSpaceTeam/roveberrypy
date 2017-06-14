@@ -17,13 +17,27 @@ import pyvesc
 from math import expm1 # e**x - 1  for rpm/current curves
 from math import exp
 
+# Limits for Electronic RPM.
+# Note this is not the RPM of the wheel, but the
+# speed at which the motor is commutated.
+
 max_rpm = 40000
 min_rpm = 2000
+
+# Limits for current (Amps)
 max_current = 0.5
 min_current = 0.1
+
+# Constant for the rpm/current curves
 curve_val = 5
 
 def rpm_curve(f):
+	''' scales a float to a suitable rpm value
+		Args:
+			f (float): value between -1 and 1.
+		Returns:
+			Float between -max_rpm and max_rpm
+	'''
 	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
 	if f > 0:
 		return a*max_rpm
@@ -31,6 +45,12 @@ def rpm_curve(f):
 		return -a*max_rpm
 
 def current_curve(f):
+	''' scales a float to a suitable current value
+		Args:
+			f (float): value between -1 and 1.
+		Returns:
+			Float between -max_current and max_current
+	'''
 	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
 	if f > 0:
 		return a*max_current
@@ -53,7 +73,10 @@ class DriveProcess(RoverProcess):
 			self.subscribe(key)
 
 	def on_joystick1(self, data):
-		""" Handles the left wheels for manual control. """
+		""" Handles the left wheels for manual control.
+			A joystick1 message contains:
+			[x axis (float -1:1), y axis (float -1:1)]
+		"""
 		y_axis = data[1]
 		if y_axis is None:
 			return
@@ -77,7 +100,10 @@ class DriveProcess(RoverProcess):
 
 
 	def on_joystick2(self, data):
-		""" Handles the right wheels for manual control. """
+		""" Handles the right wheels for manual control.
+			A joystick1 message contains:
+			[x axis (float -1:1), y axis (float -1:1)]
+		"""
 		y_axis = data[0]
 		if y_axis is None:
 			return
@@ -99,7 +125,9 @@ class DriveProcess(RoverProcess):
 			self.log("right: {}".format(current))
 
 	def on_triggerL(self, trigger):
-		""" Handles left wheel braking (requires current mode)"""
+		""" Handles left wheel braking (requires current mode)
+			A triggerL message is a float from -1 to 1.
+		"""
 		if trigger is None:
 			return
 		if 0 < trigger <= 1 and self.drive_mode == "current":
@@ -111,7 +139,9 @@ class DriveProcess(RoverProcess):
 			self.left_brake = False
 
 	def on_triggerR(self, trigger):
-		""" Handles right wheel braking (requires current mode)"""
+		""" Handles right wheel braking (requires current mode)
+			A triggerR message is a float from -1 to 1.
+		"""
 		if trigger is None:
 			return
 		if 0 < trigger <= 1 and self.drive_mode == "current":
