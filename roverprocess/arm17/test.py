@@ -39,7 +39,7 @@ class GeometryTest(unittest.TestCase):
             phi0 = random.random() / 1.5
             phi1 = random.random() / 1.5
             phi2 = 2 * (random.random() - 0.5)
-            joints = Joints(base, phi0, phi1, None, phi2, None, None)
+            joints = Joints(base, phi0, phi1, phi2, None, None)
             geo = Geometry(lengths, joints)
             # check that postition is correct
             r, z = self.get_r_z(phi0, phi1)
@@ -56,7 +56,6 @@ class GeometryTest(unittest.TestCase):
                 base,
                 phi0 + dphi0 * delta,
                 phi1 + dphi1 * delta,
-                None,
                 phi2 + geo.maintain_wrist_pitch(dphi0 * delta, dphi1 *delta),
                 None,
                 None
@@ -74,7 +73,6 @@ class GeometryTest(unittest.TestCase):
                 base,
                 phi0 + dphi0 * delta,
                 phi1 + dphi1 * delta,
-                None,
                 phi2 + delta * (dphi0 + dphi1),
                 None,
                 None
@@ -103,7 +101,6 @@ class ManualControlTest(unittest.TestCase):
             0,
             0.5,
             0.6,
-            -0.3,
             0.1,
             None,
             None
@@ -113,7 +110,6 @@ class ManualControlTest(unittest.TestCase):
         controller = Controller(config)
 
         cmd = Joints(
-            -1,
             -1,
             -1,
             -1,
@@ -144,7 +140,6 @@ class ManualControlTest(unittest.TestCase):
             0.5,
             0.5,
             0.5,
-            0.5,
             0.5
         )
         controller.user_command(ManualControl(), *cmd)
@@ -167,7 +162,6 @@ class ManualControlTest(unittest.TestCase):
             -1,
             -1,
             -1,
-            -1,
             -1
         )
         controller.user_command(ManualControl(), *cmd)
@@ -178,7 +172,6 @@ class ManualControlTest(unittest.TestCase):
         joints = self.step_time(joints, duty, 0.3)
         # turn them all off
         cmd = Joints(
-            0,
             0,
             0,
             0,
@@ -204,13 +197,12 @@ class PlanarControlTest(unittest.TestCase):
         return Joints(*tuple(new_joints))
 
     def test(self):
-        # dr, dz, base, forearm_roll, wrist_pitch, wrist_roll, gripper
+        # dr, dz, base, wrist_pitch, wrist_roll, gripper
         from arm import Joints, Controller, PlanarControl, Config, Geometry
         joints = Joints(
             0,
             0.5,
             0.6,
-            -0.3,
             0.1,
             None,
             None
@@ -224,7 +216,6 @@ class PlanarControlTest(unittest.TestCase):
         cmd = (
             -1,  # decrease radius
             0,
-            -1,
             -1,
             0,
             -1,
@@ -241,7 +232,7 @@ class PlanarControlTest(unittest.TestCase):
             for i in range(len(joints)):
                 if not (joints[i] is None):
                     all_zero &= duty[i] == 0
-            for j in [0, 3, 5, 6]:
+            for j in [0, 4, 5]:
                 if duty[j] != 0:
                     self.assertAlmostEqual(duty[j], -config.max_angular_velocity[j])
             joints = self.step_time(joints, duty, 0.05)

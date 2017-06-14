@@ -9,7 +9,6 @@ Joints = collections.namedtuple('Joints', [
     'base',
     'shoulder',
     'elbow',
-    'forearm_roll',
     'wrist_pitch',
     'wrist_roll',
     'gripper'
@@ -101,7 +100,6 @@ class Config:
             base=Limits(-1, 1),
             shoulder=Limits(-0.1, 0.8),
             elbow=Limits(0.1, 1.2),
-            forearm_roll=Limits(-0.8, 0.8),
             wrist_pitch=Limits(-1, 1),
             wrist_roll=None,
             gripper=None
@@ -111,7 +109,6 @@ class Config:
             base=0.2,
             shoulder=0.2,
             elbow=0.2,
-            forearm_roll=0.2,
             wrist_pitch=0.2,
             wrist_roll=0.2,
             gripper=0.2
@@ -127,7 +124,6 @@ class Geometry:
             joint_positions.base,
             joint_positions.shoulder,
             joint_positions.elbow + joint_positions.shoulder,
-            None,
             joint_positions.wrist_pitch + joint_positions.elbow + joint_positions.shoulder,
             None,
             None
@@ -185,11 +181,11 @@ class ControlMode:
 
 
 class ManualControl:
-    def __call__(self, config, joints, geometry, base, shoulder, elbow, forearm_roll, wrist_pitch, wrist_roll, gripper):
+    def __call__(self, config, joints, geometry, base, shoulder, elbow, wrist_pitch, wrist_roll, gripper):
         duty = Joints(
             *tuple_x_tuple(
                 config.max_angular_velocity,
-                (base, shoulder, elbow, forearm_roll, wrist_pitch, wrist_roll, gripper)
+                (base, shoulder, elbow, wrist_pitch, wrist_roll, gripper)
             )
         )
         duty = Limits.enforce(config.joint_limits, joints, duty)
@@ -197,7 +193,7 @@ class ManualControl:
 
 
 class PlanarControl:
-    def __call__(self, config, joints, geometry, dr, dz, base, forearm_roll, wrist_pitch, wrist_roll, gripper):
+    def __call__(self, config, joints, geometry, dr, dz, base, wrist_pitch, wrist_roll, gripper):
         # calculate planar movement
         drp0, drp1 = geometry.hold_radius() # 1, 0.832
         dzp0, dzp1 = geometry.hold_altitude()
@@ -209,7 +205,7 @@ class PlanarControl:
         duty = Joints(
             *tuple_x_tuple(
                 config.max_angular_velocity,
-                (base, shoulder, elbow, forearm_roll, wrist_pitch, wrist_roll, gripper)
+                (base, shoulder, elbow, wrist_pitch, wrist_roll, gripper)
             )
         )
         duty = Limits.enforce(config.joint_limits, joints, duty)
