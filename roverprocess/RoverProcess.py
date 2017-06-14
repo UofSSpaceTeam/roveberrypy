@@ -197,13 +197,22 @@ class RoverProcess(Process):
 
 	# Watchdog Functions
 	def watchdogPet(self):
-		# TODO: docs?
+		""" Notify the Watchdog that the process is still alive. Should be called
+			once per loop.
+		"""
 		self.publish('wd_pet', self.__class__.__name__)
 
 	def watchdogExtend(self, timeout):
-		# TODO: docs?
+		""" Request to extend the Watchdog timeout.
+
+			Args:
+				timeout (int): The requested timeout in seconds.
+		"""
 		self.publish('wd_extend', [timeout, self.__class__.__name__ ])
 
 	def watchdogReset(self):
-		# TODO: docs?
+		""" Force the Watchdog to reset internal state of hanging or crashed
+			processes; potentially used when a companion process is expected to
+			temporarily hang.
+		"""
 		self.publish('wd_reset', [self.__class__.__name__ ])

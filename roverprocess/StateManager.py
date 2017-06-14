@@ -57,15 +57,31 @@ class Watchdog(Thread):
 			time.sleep(1)
 
 	def pet(self, processName):
-		#TODO: docs?
+		""" Pet the Watchdog; all processes being watched must call this before the timer expires
+			A processe that does not pet the watchdog is considered dead or hung.
+
+			Args:
+				processName (str): Process' own name (in StateManager); the key of Watchdog state to reset.
+		"""
 		self.state[processName] = True
 
 	def watch(self, processName):
-		#TODO: docs?
+		""" Add a process to watch to the Watchdog state.
+
+			Args:
+				processName (str): Process' own name (in StateManager); the name of the process to watch.
+		"""
 		self.state.update({processName:False})
 
 	def extend(self, timeout, processName):
-		#TODO: docs?
+		""" Change the Watchdog timeout period. This can be a permanent change or
+			just set temporaily then reverted with the string "PREVIOUS" once a
+			longer method is completed.
+
+			Args:
+				timeout (int) or (str): Timeout period in seconds as an integer; or str("PREVIOUS") to rever to the last set timeout
+				processName (str): Process' own name (in StateManager); the name of the process to watch.
+		"""
 		if(timeout == 'PREVIOUS'):
 			self.timeout = self.prevtimeout
 			self.log('Watchdog returned to {}s by process: {}'.format(self.timeout, processName))
@@ -75,12 +91,22 @@ class Watchdog(Thread):
 			self.log('Watchdog set to {}s by process: {}'.format(self.timeout, processName))
 
 	def reset(self, processName):
-		#TODO: docs?
+		""" Reset all timeouts in the Watchdog state.
+
+			Args:
+				processName (str): Process' own name (in StateManager) to show in log file.
+		"""
 		self.log('Watchdog state reset by process: {}'.format(processName))
 		self.state = self.state.fromkeys(self.state, True)
 
 	def getHanging(self):
-		#TODO: docs?
+		''' Gets any currently hanging or crashed process names.
+
+			Returns:
+				A [list] of process names that are hanging or crashed. If the
+				internal state is corrupted it returns the string "Unknown Process"
+				NOTE: This should probably raise an exception instead.
+		'''
 		try:
 			return [process for process, running in self.state.items() if running == False]
 		except:

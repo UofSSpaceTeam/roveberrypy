@@ -116,6 +116,15 @@ def main():
 		process.start()
 	# wait until ctrl-C or error
 	try:
+		''' The Watchdog thread in StateManager maintains a list of which processes
+			are hanging or crashed and will request to automatically restart them.
+
+			The processes are accessed by name, so multiple instances of the same
+			class will be killed and restarted together.
+
+			When the program is functioning correctly, this main loop will
+			perform a blocking wait for a message from the RoverProcess Queue.
+		'''
 		logging.info("WATCHDOG: Monitoring for hanging RoverRrocess instances")
 		while True:
 			hanging = watchdog.get(block=True)
