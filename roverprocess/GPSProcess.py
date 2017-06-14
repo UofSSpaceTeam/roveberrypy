@@ -10,11 +10,21 @@ import socket
 import serial
 
 class GPSProcess(RoverProcess):
+	''' Polls a Piksi RTK GPS unit and publishes the
+		GPS coordinate as a list:
+		[latitude (degrees), longtitude (degrees)].
+	'''
+
 	class PiksiThread(Thread):
+		''' Thread that waits on the Piksi GPS unit and
+			publishes the coordinate.
+			TODO: Can this just be put in the process its self?
+		'''
 		def __init__(self, parent):
 			Thread.__init__(self)
 
 			self._parent = parent
+			# TODO: This conflicts with the USBServer...
 			self.serial = "/dev/ttyUSB0"
 			self.baud = 1000000
 			self.addr = None
