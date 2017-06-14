@@ -20,12 +20,14 @@ import time
 import inspect
 
 
-# Watchdog thread maintains a list of all running processes and indicates to
-# 	the parent which RoverProcess instances are frozen or taking too long in their main loop
-# The default time is 5 seconds, but it can be extended, or notified mid loop
-# For advanced applications, the entire watchdog timer state can be reset
-# Watchdog processes are in the format {ProcessName : IsRunnung}
 class Watchdog(Thread):
+	''' Watchdog thread maintains a list of all running processes and indicates
+		to the parent which RoverProcess instances are frozen or taking too
+		long in their main loop.
+		The default time is 5 seconds, but it can be extended, or notified mid loop.
+		For advanced applications, the entire watchdog timer state can be reset
+		Watchdog processes are logged in the format {ProcessName : IsRunnung}
+	'''
 	def __init__(self, log, hanging, timeout=5):
 		threading.Thread.__init__(self)
 		self.state = {}
@@ -55,12 +57,15 @@ class Watchdog(Thread):
 			time.sleep(1)
 
 	def pet(self, processName):
+		#TODO: docs?
 		self.state[processName] = True
 
 	def watch(self, processName):
+		#TODO: docs?
 		self.state.update({processName:False})
 
 	def extend(self, timeout, processName):
+		#TODO: docs?
 		if(timeout == 'PREVIOUS'):
 			self.timeout = self.prevtimeout
 			self.log('Watchdog returned to {}s by process: {}'.format(self.timeout, processName))
@@ -70,10 +75,12 @@ class Watchdog(Thread):
 			self.log('Watchdog set to {}s by process: {}'.format(self.timeout, processName))
 
 	def reset(self, processName):
+		#TODO: docs?
 		self.log('Watchdog state reset by process: {}'.format(processName))
 		self.state = self.state.fromkeys(self.state, True)
 
 	def getHanging(self):
+		#TODO: docs?
 		try:
 			return [process for process, running in self.state.items() if running == False]
 		except:

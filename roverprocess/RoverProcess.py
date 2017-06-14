@@ -197,10 +197,13 @@ class RoverProcess(Process):
 
 	# Watchdog Functions
 	def watchdogPet(self):
+		# TODO: docs?
 		self.publish('wd_pet', self.__class__.__name__)
 
 	def watchdogExtend(self, timeout):
+		# TODO: docs?
 		self.publish('wd_extend', [timeout, self.__class__.__name__ ])
 
 	def watchdogReset(self):
+		# TODO: docs?
 		self.publish('wd_reset', [self.__class__.__name__ ])

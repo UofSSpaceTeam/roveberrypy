@@ -1,47 +1,6 @@
 roverprocess package
 ====================
 
-.. roverprocess.CanServer module
-.. -----------------------------
-..
-.. .. automodule:: roverprocess.CanServer
-..     :members:
-..     :undoc-members:
-..     :show-inheritance:
-
-roverprocess.DriveProcess module
---------------------------------
-Will update docs once feature branch is merged.
-
-.. automodule:: roverprocess.DriveProcess
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-roverprocess.ExampleProcess module
-----------------------------------
-
-.. automodule:: roverprocess.ExampleProcess
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-roverprocess.ExampleServer module
----------------------------------
-
-.. automodule:: roverprocess.ExampleServer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-roverprocess.GPSProcess module
-------------------------------
-
-.. automodule:: roverprocess.GPSProcess
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 roverprocess.RoverProcess module
 --------------------------------
 
@@ -66,6 +25,25 @@ roverprocess.StateManager module
     :undoc-members:
     :show-inheritance:
 
+roverprocess.DriveProcess module
+--------------------------------
+
+.. automodule:: roverprocess.DriveProcess
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+roverprocess.GPSProcess module
+------------------------------
+Will update docs once NavigationProcess branch is merged.
+
+.. automodule:: roverprocess.GPSProcess
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 roverprocess.USBServer module
 -----------------------------
 
@@ -82,3 +60,26 @@ roverprocess.WebServer module
     :undoc-members:
     :show-inheritance:
 
+roverprocess.ExampleProcess module
+----------------------------------
+
+.. automodule:: roverprocess.ExampleProcess
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+roverprocess.ExampleServer module
+---------------------------------
+
+.. automodule:: roverprocess.ExampleServer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. roverprocess.CanServer module
+.. -----------------------------
+..
+.. .. automodule:: roverprocess.CanServer
+..     :members:
+..     :undoc-members:
+..     :show-inheritance:
