@@ -15,11 +15,9 @@ from .RoverProcess import RoverProcess
 
 # Any libraries you need can be imported here. You almost always need time!
 import time
-from pyvesc import BlinkLed
-import pyvesc
 
 
-class ExampleProcess(RoverProcess):
+class ExampleProcess_Watchdog(RoverProcess):
 	# Some blank space to write functions, classes, threads - whatever you need.
 	# There are no restrictions - this is your own process!
 
@@ -36,22 +34,44 @@ class ExampleProcess(RoverProcess):
 		# which is a list of messages it is currently subscribed to.
 		# You can read from this list, but please do not modify it,
 		# as that will mess things up. Use subscribe() and unsubscribe().
-		for key in ["Test", "respondTrue", "heartbeat", "ExampleSendMessage"]:
+		for key in ["Test", "respondTrue", "heartbeat"]:
 			self.subscribe(key)
 		self.someVariable = 42
+		self.loopcounter = 0
+		self.log("This is the setup of the watchdog test!")
 
 	# This automatically loops forever.
 	# It is best to put a time.sleep(x) at the end. This makes sure that it
 	# will always run at the same time, and will give other processes time to run too!
 	# The default behavior is to sleep for 1 second.
 	# Use self.publish() to send some variables to another process or server!
+	#
+	# To Demonstrate watchdog functionality, see below
 	def loop(self):
-		self.publish("blink", BlinkLed(1))
-		self.log("blink on")
-		time.sleep(0.5)
-		self.publish("blink", BlinkLed(0))
-		self.log("blink off")
-		time.sleep(0.5)
+		if(self.loopcounter < 2):
+			self.log("Process Normal Operation")
+			time.sleep(4)
+		elif(self.loopcounter < 4):
+			self.log("Process Temporary Extend Watchdog")
+			self.watchdogExtend(10)
+			time.sleep(8)
+			self.watchdogExtend('PREVIOUS')
+		elif(self.loopcounter < 6):
+			self.log("Process Manual Pet Watchdog in Loop")
+			time.sleep(4)
+			self.watchdogPet()
+			time.sleep(4)
+		elif(self.loopcounter < 8):
+			self.log("Process Manual Watchdog State Clear")
+			time.sleep(4)
+			self.watchdogReset()
+			time.sleep(4)
+		elif(self.loopcounter < 10):
+			self.log("Process Hang")
+			time.sleep(12)
+
+		self.loopcounter = self.loopcounter + 1
+
 
 	# This runs every time a new message comes in.
 	# It is often handy to have an if statement for every type of message you expect
@@ -60,9 +80,6 @@ class ExampleProcess(RoverProcess):
 
 		if message.key == 'Test':
 			self.log("got: " + str(message.data))
-		elif message.key == 'ExampleSendMessage':
-			# message.data should be a PyVESC ExampleSendMessage
-			self.log("got: "+ str(message.data.string))
 
 	# This runs once at the end when the program shuts down.
 	# You can use this to do something like stop motors, clean up open files, etc.
