@@ -18,7 +18,7 @@ import time
 import logging
 import inspect # for dynamic imports
 import importlib #for dynamic imports
-from multiprocessing import Queue,Event,active_children
+from multiprocess import Queue,Event,active_children
 from roverprocess.StateManager import StateManager
 import threading
 

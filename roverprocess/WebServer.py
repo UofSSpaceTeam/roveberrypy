@@ -14,7 +14,7 @@
 # Rover Modules
 from roverprocess.RoverProcess import RoverProcess
 from threading import Thread
-from multiprocessing import BoundedSemaphore
+from multiprocess import BoundedSemaphore
 
 # WebUI Modules
 from WebUI import bottle

@@ -16,7 +16,7 @@ from .RoverProcess import RoverProcess
 import time
 import sys
 from threading import Thread
-from  multiprocessing import BoundedSemaphore
+from  multiprocess import BoundedSemaphore
 
 class RoverServer(RoverProcess):
 	"""Just a RoverProcess that adds an easy way to run a method in a new thread.

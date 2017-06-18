@@ -12,7 +12,7 @@
 # permissions and limitations under the License.
 
 from threading import Thread, BoundedSemaphore
-from multiprocessing import Process, Queue
+from multiprocess import Process, Queue
 from .RoverProcess import RoverProcess, RoverMessage
 import threading
 import time

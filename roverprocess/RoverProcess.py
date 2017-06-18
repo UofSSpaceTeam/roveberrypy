@@ -11,7 +11,7 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-from multiprocessing import Process, BoundedSemaphore, Queue, Manager
+from multiprocess import Process, BoundedSemaphore, Queue, Manager
 import threading
 import sys
 import time
@@ -35,7 +35,7 @@ class RoverProcess(Process):
 			""" Constructor.
 
 				Args:
-					downlink (multiprocessing.Queue): The incomming message (multiprocessing) queue of the parent rover process.
+					downlink (multiprocess.Queue): The incomming message (multiprocess) queue of the parent rover process.
 					parent (roverprocess.RoverProcess.RoverProcess): instance of the RoverProcess
 			"""
 			threading.Thread.__init__(self)
@@ -53,7 +53,7 @@ class RoverProcess(Process):
 				messageTrigger method is called with the message as a parameter.
 			"""
 			while not self.quit:
-				message = self.downlink.get() # BLOCKING: Get subscribed message from multiprocessing queue.
+				message = self.downlink.get() # BLOCKING: Get subscribed message from multiprocess queue.
 				assert isinstance(message, RoverMessage) # Ensure message is a RoverMessasge
 				if hasattr(self._parent, "on_" + message.key): # If the RoverProcess instance  has a function called on_<key>()...
 					getattr(self._parent, "on_" + message.key)(message.data)
@@ -64,8 +64,8 @@ class RoverProcess(Process):
 		""" Constructor, called in main.py automatically, don't override this through inheritance.
 
 			Args:
-				uplink (multiprocessing.Queue): queue for outgoing messages
-				downlink (multiprocessing.Queue): queue for incomming messages
+				uplink (multiprocess.Queue): queue for outgoing messages
+				downlink (multiprocess.Queue): queue for incomming messages
 		"""
 		Process.__init__(self)
 		self._log = logging.getLogger(self.__class__.__name__)

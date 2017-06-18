@@ -15,7 +15,7 @@ from .RoverProcess import RoverProcess
 
 import time
 from threading import Thread
-from multiprocessing import BoundedSemaphore
+from multiprocess import BoundedSemaphore
 from collections import defaultdict
 import can
 

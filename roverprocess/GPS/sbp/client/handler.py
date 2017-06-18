@@ -16,7 +16,7 @@ SBP message handling.
 import collections
 import threading
 import weakref
-from multiprocessing import Queue
+from multiprocess import Queue
 
 class Handler(object):
   """

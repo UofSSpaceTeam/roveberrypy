@@ -17,7 +17,7 @@ sys.dont_write_bytecode = True #prevent generation of .pyc files on imports
 import time
 import inspect # for dynamic imports
 import importlib #for dynamic imports
-from multiprocessing import Queue,Event
+from multiprocess import Queue,Event
 from roverprocess.StateManager import StateManager
 import threading
 import logging
