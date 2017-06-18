@@ -1,3 +1,5 @@
 -e git+http://github.com/UofSSpaceDesignTeam/PyVESC.git#egg=PyVESC
+git+https://github.com/uqfoundation/dill.git
+git+https://github.com/uqfoundation/multiprocess.git
 pyserial
 construct==2.5.1
