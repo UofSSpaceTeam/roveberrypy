@@ -89,30 +89,16 @@ class Limits(collections.namedtuple('Limits', 'lower upper')):
 
 
 class Config:
-    def __init__(self):
-        self.section_lengths = Sections(
-            # measured in meters
-            upper_arm=1,
-            forearm=1,
-            end_effector=0.1
-        )
-        self.joint_limits = Joints(
-            base=Limits(-1, 1),
-            shoulder=Limits(-0.1, 0.8),
-            elbow=Limits(0.1, 1.2),
-            wrist_pitch=Limits(-1, 1),
-            wrist_roll=None,
-            gripper=None
-        )
-        self.max_angular_velocity = Joints(
-            # final, radians/s
-            base=0.2,
-            shoulder=0.2,
-            elbow=0.2,
-            wrist_pitch=0.2,
-            wrist_roll=0.2,
-            gripper=0.2
-        )
+    def __init__(self, section_lengths, joint_limits, max_angular_velocity):
+        ''' Create a new arm configuration.
+            :param section_lengths (Sections): Lengths of each arm section in meters.
+            :param joint_limits (Joints): Rotation limits of each joint in radians.
+            :param max_angular_velocity (Joints): Maximum rotational speed of each joint
+                                                  in radians/second.
+        '''
+        self.section_lengths = section_lengths
+        self.joint_limits = joint_limits
+        self.max_angular_velocity = max_angular_velocity
 
 
 class Geometry:

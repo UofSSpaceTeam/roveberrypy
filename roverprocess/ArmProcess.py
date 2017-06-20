@@ -14,32 +14,50 @@
 from .RoverProcess import RoverProcess
 import pyvesc
 from pyvesc import SetDutyCycle, SetRPM
-from roverprocess.arm17.arm import Joints, Controller, Config, ManualControl
+from roverprocess.arm17.arm import Joints, Controller, Config, ManualControl,Sections,Limits
+from math import pi
 
 # Any libraries you need can be imported here. You almost always need time!
 import time
-from multiprocessing.synchronize import BoundedSemaphore # BoundedSemaphore class used to block extra commands from conflicting with actual commands in operation.
 
-base_max_speed = 40000
-base_min_speed = 5000
-shoulder_max_speed = 100000
-shoulder_min_speed = 10100
-elbow_max_speed = 100000
-elbow_min_speed = 10100
+base_max_speed = 4
+base_min_speed = 0.2
+shoulder_max_speed = 4
+shoulder_min_speed = 0.2
+elbow_max_speed = 4
+elbow_min_speed = 0.2
 
-dt = 1
+dt = 0.5
 
 class ArmProcess(RoverProcess):
 
-	# Subscribe ArmProcess to joystick keys.
 	def setup(self, args):
-		for key in ["joystick1", "joystick2", "Rtrigger", "Ltrigger"]:
+		for key in ["joystick1", "joystick2", "triggerR", "triggerL"]:
 			self.subscribe(key)
 		self.base_direction = None
-		self.joints_pos = Joints(0, 0, 0, 0, 0, 0)
+		self.joints_pos = Joints(0, pi/4, 0, 0, 0, 0)
 		self.speeds = Joints(0,0,0,0,0,0)
-		self.command = [1,0,0,0,0,0]
-		self.config = Config()
+		self.command = [0,0,0,0,0,0]
+		section_lengths = Sections(
+				upper_arm=0.35,
+				forearm=0.42,
+				end_effector=0.1)
+		joint_limits = Joints(
+				# in radians
+				base=Limits(-pi, pi),
+				shoulder=Limits(0, pi/2),
+				elbow=Limits(pi/8, 3*pi/4),
+				wrist_pitch=Limits(-1, 1),
+				wrist_roll=None,
+				gripper=None)
+		max_angular_velocity = Joints(
+				base=0.2,
+				shoulder=0.2,
+				elbow=0.2,
+				wrist_pitch=0.2,
+				wrist_roll=0.2,
+				gripper=0.2)
+		self.config = Config(section_lengths, joint_limits, max_angular_velocity)
 		self.controller = Controller(self.config)
 		self.mode = ManualControl()
 
@@ -51,12 +69,13 @@ class ArmProcess(RoverProcess):
 		for i in range(len(self.speeds)):
 			if new_joints[i] is not None:
 				new_joints[i] = self.joints_pos[i] + self.speeds[i] * dt
-		return Joints(*tuple(new_joints))
+		return Joints(*new_joints)
 
 	def loop(self):
 		self.joints_pos = self.get_positions()
 		self.controller.user_command(self.mode, *Joints(*self.command))
 		self.speeds = self.controller.update_duties(self.joints_pos)
+		#publish speeds/duty cycles here
 		self.log("joints_pos: {}".format(self.joints_pos))
 		self.log("speeds: {}".format(self.speeds))
 		time.sleep(dt)
@@ -64,39 +83,25 @@ class ArmProcess(RoverProcess):
 	def on_joystick1(self, data):
 		''' Shoulder joint'''
 		y_axis = data[1]
-		y_axis = (y_axis * shoulder_max_speed) # half power for testing
+		y_axis = (y_axis * shoulder_max_speed)
 		if y_axis > shoulder_min_speed or y_axis < -shoulder_min_speed:
 			armShoulderSpeed = int(y_axis)
 		else:
 			armShoulderSpeed = 0
-		self.log("shoulder: " + str(armShoulderSpeed), "DEBUG")
-		self.publish("wheelLB", SetDutyCycle(armShoulderSpeed))
+		self.command[1] = armShoulderSpeed
 
 	def on_joystick2(self, data): #y-axis vertical motion of elbow, x-axis joint along the length of the elbow
 		''' Elbow joints.'''
 		y_axis = data[1]
-		y_axis = (y_axis * elbow_max_speed/2)
-
-		x_axis = data[0]
-		x_axis = (x_axis * elbow_max_speed/2)
+		y_axis = (y_axis * elbow_max_speed)
 
 		if y_axis > elbow_min_speed or y_axis < -elbow_min_speed:
 			armY_ElbowSpeed = int(y_axis)
 		else:
 			armY_ElbowSpeed = 0
+		self.command[2] = armY_ElbowSpeed
 
-		if x_axis > elbow_min_speed or x_axis < -elbow_min_speed:
-			armX_ElbowSpeed = int(x_axis)
-		else:
-			armX_ElbowSpeed = 0
-
-		self.log("elbow: " + str(armY_ElbowSpeed), "DEBUG")
-		self.publish("wheelLF", SetDutyCycle(armY_ElbowSpeed))
-		self.log(armX_ElbowSpeed, "DEBUG")
-		self.publish("elbowX", SetDutyCycle(armX_ElbowSpeed))
-
-
-	def on_Rtrigger(self, trigger):
+	def on_triggerR(self, trigger):
 		''' Base rotation right'''
 		trigger = -1*(trigger + 1)/2
 		armBaseSpeed = trigger * base_max_speed/2
@@ -106,11 +111,10 @@ class ArmProcess(RoverProcess):
 				self.base_direction = None
 			else:
 				self.base_direction = "right"
-			self.log(armBaseSpeed, "DEBUG")
-			self.publish("wheelLM", pyvesc.SetRPM(int(armBaseSpeed))) # Publish the process to the multiprocessor.
+			self.command[0] = armBaseSpeed
 
 
-	def on_Ltrigger(self, trigger):
+	def on_triggerL(self, trigger):
 		''' Base rotation left'''
 		trigger = (trigger + 1)/2
 		armBaseSpeed = trigger * base_max_speed/2
@@ -120,8 +124,7 @@ class ArmProcess(RoverProcess):
 				self.base_direction = None
 			else:
 				self.base_direction = "left"
-			self.log(armBaseSpeed, "DEBUG")
-			self.publish("wheelLM", pyvesc.SetRPM(int(armBaseSpeed))) # Publish the process to the multiprocessor.
+			self.command[0] = armBaseSpeed
 
 
 
