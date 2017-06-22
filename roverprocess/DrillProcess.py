@@ -14,18 +14,28 @@
 from .RoverProcess import RoverProcess
 from pyvesc import SetDutyCycle
 import pyvesc
-
+from math import expm1, exp
 import time
 from multiprocessing.synchronize import BoundedSemaphore 
 
 max_speed = 100000
 min_speed = 10000
+drill_speed = 50000 #don't know the actual value
 
+curve_val = 5
+
+def rpm_curve(f):
+	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
+	if f > 0:
+		return a*max_rpm
+	else:
+		return -a*max_rpm	
 
 class DrillProcess(RoverProcess):
 
 	def setup(self, args):
-		for key in ["joystick1", "joystick2"]:
+		self.drill_mode = False
+		for key in ["joystick1", "bumperR"]:
 			self.subscribe(key)
 
 	# Function that grabs the x and y axis values in message, then formats the data
@@ -33,25 +43,23 @@ class DrillProcess(RoverProcess):
 	# Returns the newly formated x and y axis values in a new list
 	def on_joystick1(self, data):
 		y_axis = data[1]
-		y_axis = (y_axis * max_speed) # half power for testing
-		if y_axis > min_speed or y_axis < -min_speed:
-			newMessage = int(y_axis)
+		if y_axis is None:
+			return
+		if self.drill_mode = True:
+			self.log("drill on")
+			speed = rpm_curve(y_axis)
+			if -min_rpm < speed < min_rpm: #deadzone
+				speed = 0
+			self.publish("drillVertical", SetDutyCycle(int(speed)))
+			self.log("drillVertical: {}".format(speed))
+
+	def on_bumperR(self, data):
+		if bumper is None:
+			return
+		if 0 < bumper <= 1 and self.drill_mode == False:
+			self.drill_mode = True
+			self.publish("drillRotate", SetDutyCycle(drill_speed))
 		else:
-			newMessage = 0
-
-		self.log(newMessage, "DEBUG")
-		self.publish("wheelLB", SetDutyCycle(newMessage))
-
-
-
-	def on_joystick2(self, data):
-		x_axis = data[0]
-		x_axis = (x_axis * max_speed)
-		if x_axis > min_speed or x_axis < -min_speed:
-			duty = int(x_axis)
-		else:
-			duty = 0
-		self.log("spin" + str(duty), "DEBUG")
-		self.publish("wheelLF", SetDutyCycle(duty))
+			self.drill_mode == False
 
 # add max/min speed parameters, as well as if spinning for button1
