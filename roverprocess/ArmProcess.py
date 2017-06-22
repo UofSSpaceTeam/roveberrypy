@@ -27,7 +27,7 @@ shoulder_min_speed = 0.2
 elbow_max_speed = 4
 elbow_min_speed = 0.2
 
-dt = 0.5
+dt = 0.1
 
 class ArmProcess(RoverProcess):
 
@@ -44,10 +44,10 @@ class ArmProcess(RoverProcess):
 				end_effector=0.1)
 		joint_limits = Joints(
 				# in radians
-				base=Limits(-pi, pi),
-				shoulder=Limits(0, pi/2),
-				elbow=Limits(pi/8, 3*pi/4),
-				wrist_pitch=Limits(-1, 1),
+				base=None,
+				shoulder=None,
+				elbow=None,
+				wrist_pitch=None,
 				wrist_roll=None,
 				gripper=None)
 		max_angular_velocity = Joints(
@@ -78,6 +78,8 @@ class ArmProcess(RoverProcess):
 		#publish speeds/duty cycles here
 		self.log("joints_pos: {}".format(self.joints_pos))
 		self.log("speeds: {}".format(self.speeds))
+		self.publish("armShoulder", SetDutyCycle(int(100000*self.speeds[1])))
+		self.publish("armElbow", SetDutyCycle(int(100000*self.speeds[2])))
 		time.sleep(dt)
 
 	def on_joystick1(self, data):
