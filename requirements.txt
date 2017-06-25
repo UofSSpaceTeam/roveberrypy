@@ -1,3 +1,5 @@
 -e git+http://github.com/UofSSpaceDesignTeam/PyVESC.git#egg=PyVESC
 pyserial
 construct==2.5.1
+bottle
+bottle-websocket
