@@ -16,6 +16,7 @@ import pyvesc
 from pyvesc import SetDutyCycle, SetRPM, GetRotorPosition, SetRotorPositionMode
 from roverprocess.arm17.arm import Joints, Controller, Config, ManualControl,Sections,Limits
 from math import pi
+import serial
 
 # Any libraries you need can be imported here. You almost always need time!
 import time
@@ -29,7 +30,9 @@ elbow_min_speed = 0.2
 
 device_keys = ["d_armBase", "d_armShoulder", "d_armElbow"]
 
-dt = 0.1
+dt = 0.5
+BAUDRATE = 115200
+SERIAL_TIMEOUT = 0.1
 
 class ArmProcess(RoverProcess):
 
@@ -65,6 +68,8 @@ class ArmProcess(RoverProcess):
 		self.controller = Controller(self.config)
 		self.mode = ManualControl()
 		self.devices = {}
+		# joint_offsets are values in degrees to 'zero' the encoder angle
+		self.joint_offsets = {"d_armShoulder":0, "d_armElbow":0}
 
 
 	def simulate_positions(self):
@@ -75,19 +80,40 @@ class ArmProcess(RoverProcess):
 				new_joints[i] = self.joints_pos[i] + self.speeds[i] * dt
 		return Joints(*new_joints)
 
+	def poll_encoder(self, device):
+		''' Polls each VESC for its encoder position.'''
+		with serial.Serial(self.devices[device], baudrate=BAUDRATE, timeout=SERIAL_TIMEOUT) as ser:
+			ser.write(pyvesc.encode_request(GetRotorPosition))
+			while ser.in_waiting == 0:
+				# Wait for response. TODO: Maybe don't wait forever...
+				pass
+			buffer = ser.readline()
+			try:
+				(response, consumed) = pyvesc.decode(buffer)
+				if response.__class__ == GetRotorPosition:
+					return response.rotor_pos
+			except:
+				self.log("Failed to read rotor position {}".format(device), "ERROR")
+		return None
+
 	def get_positions(self):
-		''' Polls each VESC for their current possition.'''
+		''' Returns an updated Joints object with the current arm positions'''
+		new_joints = list(self.joints_pos)
+		for i, device in enumerate(["d_armShoulder", "d_armElbow"]):
+			if device in self.devices:
+				reading = self.poll_encoder(device) - self.joint_offsets[device]
+				new_joints[i+1] = pi*reading/360 #Convert to radians
+		return Joints(*new_joints)
 
 	def loop(self):
 		self.joints_pos = self.get_positions()
-		self.controller.user_command(self.mode, *Joints(*self.command))
-		self.speeds = self.controller.update_duties(self.joints_pos)
+		# self.controller.user_command(self.mode, *Joints(*self.command))
+		# self.speeds = self.controller.update_duties(self.joints_pos)
 		#publish speeds/duty cycles here
-		# self.log("joints_pos: {}".format(self.joints_pos))
+		self.log("joints_pos: {}".format(self.joints_pos))
 		# self.log("speeds: {}".format(self.speeds))
 		# self.publish("armShoulder", SetDutyCycle(int(100000*self.speeds[1])))
 		# self.publish("armElbow", SetDutyCycle(int(100000*self.speeds[2])))
-		self.log(self.devices)
 		time.sleep(dt)
 
 	def on_joystick1(self, data):
@@ -138,7 +164,13 @@ class ArmProcess(RoverProcess):
 
 	def messageTrigger(self, message):
 		if message.key in device_keys:
+			self.log("Received device: {}".format(message.key), "DEBUG")
 			self.devices[message.key] = message.data
+			with serial.Serial(message.data, baudrate=BAUDRATE, timeout=SERIAL_TIMEOUT) as ser:
+				# Turn on encoder readings for this VESC
+				ser.write(pyvesc.encode(
+					SetRotorPositionMode(
+						SetRotorPositionMode.DISP_POS_MODE_ENCODER )))
 
 
 

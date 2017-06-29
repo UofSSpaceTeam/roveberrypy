@@ -67,7 +67,7 @@ class USBServer(RoverServer):
 				# the messageing server and get delivered
 				# straight to the ArmProcess.
 				if s in ["armBase", "armShoulder", "armElbow"]:
-					self.publish("d_"+s, device)
+					self.publish("d_"+s, device.port)
 					s = None
 				break # parseVESCPacket didn't fail
 			except:
