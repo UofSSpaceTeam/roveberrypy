@@ -30,9 +30,26 @@ elbow_min_speed = 0.2
 
 device_keys = ["d_armBase", "d_armShoulder", "d_armElbow"]
 
-dt = 0.5
+dt = 0.1
 BAUDRATE = 115200
 SERIAL_TIMEOUT = 0.1
+
+max_duty = 100000
+# Constant for the duty curves
+curve_val = 5
+
+def duty_curve(f):
+	''' scales a float to a suitable duty cycle value
+		Args:
+			f (float): value between -1 and 1.
+		Returns:
+			Float between -max_duty and max_duty
+	'''
+	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
+	if f > 0:
+		return a*max_duty
+	else:
+		return -a*max_duty
 
 class ArmProcess(RoverProcess):
 
@@ -101,20 +118,33 @@ class ArmProcess(RoverProcess):
 		new_joints = list(self.joints_pos)
 		for i, device in enumerate(["d_armShoulder", "d_armElbow"]):
 			if device in self.devices:
-				reading = self.poll_encoder(device) - self.joint_offsets[device]
-				new_joints[i+1] = pi*reading/360 #Convert to radians
+				reading = self.poll_encoder(device)
+				if reading is not None:
+					reading += self.joint_offsets[device]
+					new_joints[i+1] = pi*reading/360 #Convert to radians
+				else:
+					self.log("Could not read joint position {}".format(device), "WARNING")
 		return Joints(*new_joints)
 
 	def loop(self):
 		self.joints_pos = self.get_positions()
-		# self.controller.user_command(self.mode, *Joints(*self.command))
-		# self.speeds = self.controller.update_duties(self.joints_pos)
+		self.controller.user_command(self.mode, *Joints(*self.command))
+		self.speeds = self.controller.update_duties(self.joints_pos)
 		#publish speeds/duty cycles here
 		self.log("joints_pos: {}".format(self.joints_pos))
-		# self.log("speeds: {}".format(self.speeds))
-		# self.publish("armShoulder", SetDutyCycle(int(100000*self.speeds[1])))
-		# self.publish("armElbow", SetDutyCycle(int(100000*self.speeds[2])))
+		self.log("speeds: {}".format(self.speeds))
+		self.send_duties()
 		time.sleep(dt)
+
+	def send_duties(self):
+		''' Tell each motor controller to turn on motors'''
+		if "d_armShoulder" in self.devices:
+			with serial.Serial(self.devices["d_armShoulder"], baudrate=BAUDRATE, timeout=SERIAL_TIMEOUT) as ser:
+				ser.write(pyvesc.encode(SetDutyCycle(int(100000*self.speeds[1]))))
+		if "d_armElbow" in self.devices:
+			with serial.Serial(self.devices["d_armElbow"], baudrate=BAUDRATE, timeout=SERIAL_TIMEOUT) as ser:
+				ser.write(pyvesc.encode(SetDutyCycle(int(100000*self.speeds[2]))))
+
 
 	def on_joystick1(self, data):
 		''' Shoulder joint'''
