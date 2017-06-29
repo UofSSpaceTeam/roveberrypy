@@ -63,6 +63,12 @@ class USBServer(RoverServer):
 				self.log(buff, "DEBUG")
 				(msg, _) = pyvesc.decode(buff)
 				s = msg.subscription
+				# Special case, arm motor controllers bypass
+				# the messageing server and get delivered
+				# straight to the ArmProcess.
+				if s in ["armBase", "armShoulder", "armElbow"]:
+					self.publish("d_"+s, device)
+					s = None
 				break # parseVESCPacket didn't fail
 			except:
 				errors += 1 # got another bad packet

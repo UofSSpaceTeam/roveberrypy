@@ -13,7 +13,7 @@
 
 from .RoverProcess import RoverProcess
 import pyvesc
-from pyvesc import SetDutyCycle, SetRPM
+from pyvesc import SetDutyCycle, SetRPM, GetRotorPosition, SetRotorPositionMode
 from roverprocess.arm17.arm import Joints, Controller, Config, ManualControl,Sections,Limits
 from math import pi
 
@@ -27,12 +27,16 @@ shoulder_min_speed = 0.2
 elbow_max_speed = 4
 elbow_min_speed = 0.2
 
+device_keys = ["d_armBase", "d_armShoulder", "d_armElbow"]
+
 dt = 0.1
 
 class ArmProcess(RoverProcess):
 
 	def setup(self, args):
 		for key in ["joystick1", "joystick2", "triggerR", "triggerL"]:
+			self.subscribe(key)
+		for key in device_keys:
 			self.subscribe(key)
 		self.base_direction = None
 		self.joints_pos = Joints(0, pi/4, 0, 0, 0, 0)
@@ -60,26 +64,30 @@ class ArmProcess(RoverProcess):
 		self.config = Config(section_lengths, joint_limits, max_angular_velocity)
 		self.controller = Controller(self.config)
 		self.mode = ManualControl()
+		self.devices = {}
 
 
-	def get_positions(self):
-		''' Polls each VESC for their current possition.
-			Currently just simulated values for testing.'''
+	def simulate_positions(self):
+		''' Updates the positions by calculating new values for testing.'''
 		new_joints = list(self.joints_pos)
 		for i in range(len(self.speeds)):
 			if new_joints[i] is not None:
 				new_joints[i] = self.joints_pos[i] + self.speeds[i] * dt
 		return Joints(*new_joints)
 
+	def get_positions(self):
+		''' Polls each VESC for their current possition.'''
+
 	def loop(self):
 		self.joints_pos = self.get_positions()
 		self.controller.user_command(self.mode, *Joints(*self.command))
 		self.speeds = self.controller.update_duties(self.joints_pos)
 		#publish speeds/duty cycles here
-		self.log("joints_pos: {}".format(self.joints_pos))
-		self.log("speeds: {}".format(self.speeds))
-		self.publish("armShoulder", SetDutyCycle(int(100000*self.speeds[1])))
-		self.publish("armElbow", SetDutyCycle(int(100000*self.speeds[2])))
+		# self.log("joints_pos: {}".format(self.joints_pos))
+		# self.log("speeds: {}".format(self.speeds))
+		# self.publish("armShoulder", SetDutyCycle(int(100000*self.speeds[1])))
+		# self.publish("armElbow", SetDutyCycle(int(100000*self.speeds[2])))
+		self.log(self.devices)
 		time.sleep(dt)
 
 	def on_joystick1(self, data):
@@ -127,6 +135,10 @@ class ArmProcess(RoverProcess):
 			else:
 				self.base_direction = "left"
 			self.command[0] = armBaseSpeed
+
+	def messageTrigger(self, message):
+		if message.key in device_keys:
+			self.devices[message.key] = message.data
 
 
 
