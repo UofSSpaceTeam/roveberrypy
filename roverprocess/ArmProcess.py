@@ -14,8 +14,9 @@
 from .RoverProcess import RoverProcess
 import pyvesc
 from pyvesc import SetDutyCycle, SetRPM, GetRotorPosition, SetRotorPositionMode
-from roverprocess.arm17.arm import Joints, Controller, Config, ManualControl,Sections,Limits
+from roverprocess.arm17.arm import Joints, Controller, Config, ManualControl,Sections,Limits,PlanarControl
 from math import pi
+import math
 import serial
 
 # Any libraries you need can be imported here. You almost always need time!
@@ -28,11 +29,16 @@ shoulder_min_speed = 0.2
 elbow_max_speed = 4
 elbow_min_speed = 0.2
 
+radius_max_speed = 20
+radius_min_speed = 2
+height_max_speed = 20
+height_min_speed = 2
+
 device_keys = ["d_armBase", "d_armShoulder", "d_armElbow"]
 
-dt = 0.1
+dt = 0.01
 BAUDRATE = 115200
-SERIAL_TIMEOUT = 0.1
+SERIAL_TIMEOUT = 0.05
 
 max_duty = 100000
 # Constant for the duty curves
@@ -69,8 +75,8 @@ class ArmProcess(RoverProcess):
 		joint_limits = Joints(
 				# in radians
 				base=None,
-				shoulder=None,
-				elbow=None,
+				shoulder=Limits(-0.052, 0.9),
+				elbow=Limits(1.21, 2.05),
 				wrist_pitch=None,
 				wrist_roll=None,
 				gripper=None)
@@ -86,7 +92,8 @@ class ArmProcess(RoverProcess):
 		self.mode = ManualControl()
 		self.devices = {}
 		# joint_offsets are values in degrees to 'zero' the encoder angle
-		self.joint_offsets = {"d_armShoulder":0, "d_armElbow":0}
+		self.joint_offsets = {"d_armShoulder":-336.9, "d_armElbow":-61.8}
+		# self.joint_offsets = {"d_armShoulder":0, "d_armElbow":0}
 
 
 	def simulate_positions(self):
@@ -107,6 +114,7 @@ class ArmProcess(RoverProcess):
 			buffer = ser.readline()
 			try:
 				(response, consumed) = pyvesc.decode(buffer)
+				self.log(response, "DEBUG")
 				if response.__class__ == GetRotorPosition:
 					return response.rotor_pos
 			except:
@@ -120,19 +128,24 @@ class ArmProcess(RoverProcess):
 			if device in self.devices:
 				reading = self.poll_encoder(device)
 				if reading is not None:
+					if device == "d_armShoulder" and reading < 180:
+						# The shoulder joint's magnet happens to be orientated
+						# that the encoder flips from 360 to 0 partway through
+						# the rotation.
+						reading += 360
 					reading += self.joint_offsets[device]
-					new_joints[i+1] = pi*reading/360 #Convert to radians
+					new_joints[i+1] = math.radians(reading) #Convert to radians
 				else:
 					self.log("Could not read joint position {}".format(device), "WARNING")
 		return Joints(*new_joints)
 
 	def loop(self):
 		self.joints_pos = self.get_positions()
-		self.controller.user_command(self.mode, *Joints(*self.command))
+		self.controller.user_command(self.mode, *self.command)
 		self.speeds = self.controller.update_duties(self.joints_pos)
 		#publish speeds/duty cycles here
 		self.log("joints_pos: {}".format(self.joints_pos))
-		self.log("speeds: {}".format(self.speeds))
+		# self.log("speeds: {}".format(self.speeds))
 		self.send_duties()
 		time.sleep(dt)
 
@@ -147,25 +160,43 @@ class ArmProcess(RoverProcess):
 
 
 	def on_joystick1(self, data):
-		''' Shoulder joint'''
+		''' Shoulder joint, and radius control.'''
 		y_axis = data[1]
-		y_axis = (y_axis * shoulder_max_speed)
-		if y_axis > shoulder_min_speed or y_axis < -shoulder_min_speed:
-			armShoulderSpeed = int(y_axis)
-		else:
-			armShoulderSpeed = 0
-		self.command[1] = armShoulderSpeed
+		if isinstance(self.mode, ManualControl):
+			y_axis = (y_axis * shoulder_max_speed)
+			if y_axis > shoulder_min_speed or y_axis < -shoulder_min_speed:
+				armShoulderSpeed = int(y_axis)
+			else:
+				armShoulderSpeed = 0
+			self.command[1] = armShoulderSpeed
+		elif isinstance(self.mode, PlanarControl):
+			y_axis = (y_axis * radius_max_speed)
+			if y_axis > radius_min_speed or y_axis < -radius_min_speed:
+				radius_speed = int(y_axis)
+			else:
+				radius_speed = 0
+			self.log(radius_speed)
+			self.command[0] = radius_speed
 
-	def on_joystick2(self, data): #y-axis vertical motion of elbow, x-axis joint along the length of the elbow
-		''' Elbow joints.'''
+
+	def on_joystick2(self, data):
+		''' Elbow joints and z/height control'''
 		y_axis = data[1]
-		y_axis = (y_axis * elbow_max_speed)
-
-		if y_axis > elbow_min_speed or y_axis < -elbow_min_speed:
-			armY_ElbowSpeed = int(y_axis)
-		else:
-			armY_ElbowSpeed = 0
-		self.command[2] = armY_ElbowSpeed
+		if isinstance(self.mode, ManualControl):
+			y_axis = (y_axis * elbow_max_speed)
+			if y_axis > elbow_min_speed or y_axis < -elbow_min_speed:
+				armY_ElbowSpeed = int(y_axis)
+			else:
+				armY_ElbowSpeed = 0
+			self.command[2] = armY_ElbowSpeed
+		elif isinstance(self.mode, PlanarControl):
+			y_axis = (y_axis * height_max_speed)
+			if y_axis > height_min_speed or y_axis < -height_min_speed:
+				height_speed = int(y_axis)
+			else:
+				height_speed = 0
+			self.log(height_speed)
+			self.command[1] = height_speed
 
 	def on_triggerR(self, trigger):
 		''' Base rotation right'''
@@ -177,7 +208,7 @@ class ArmProcess(RoverProcess):
 				self.base_direction = None
 			else:
 				self.base_direction = "right"
-			self.command[0] = armBaseSpeed
+			# self.command[0] = armBaseSpeed
 
 
 	def on_triggerL(self, trigger):
@@ -190,7 +221,7 @@ class ArmProcess(RoverProcess):
 				self.base_direction = None
 			else:
 				self.base_direction = "left"
-			self.command[0] = armBaseSpeed
+			# self.command[0] = armBaseSpeed
 
 	def messageTrigger(self, message):
 		if message.key in device_keys:

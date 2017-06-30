@@ -37,8 +37,9 @@ def make_max_1(tup):
     """
     max_value = abs(max(max(tup), -min(tup)))
     normed = [0] * len(tup)
-    for i in range(len(tup)):
-        normed[i] = tup[i] / max_value
+    if max_value != 0:
+        for i in range(len(tup)):
+            normed[i] = tup[i] / max_value
     return tuple(normed)
 
 def tuple_x_tuple(tup1, tup2):
@@ -230,7 +231,7 @@ class Controller:
     def update_duties(self, joints):
         geometry = Geometry(self._config.section_lengths, joints)
         speed = self._control_mode(self._config, joints, geometry, *self._user_args)
-        self.log(joints, geometry, speed)
+        # self.log(joints, geometry, speed)
         return speed
 
     def log(self, joints, geometry, speed):
