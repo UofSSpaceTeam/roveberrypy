@@ -108,13 +108,12 @@ class ArmProcess(RoverProcess):
 		''' Polls each VESC for its encoder position.'''
 		with serial.Serial(self.devices[device], baudrate=BAUDRATE, timeout=SERIAL_TIMEOUT) as ser:
 			ser.write(pyvesc.encode_request(GetRotorPosition))
-			while ser.in_waiting == 0:
-				# Wait for response. TODO: Maybe don't wait forever...
-				pass
-			buffer = ser.readline()
+			# while ser.in_waiting < 9:
+			# 	# Wait for response. TODO: Maybe don't wait forever...
+			# 	pass
+			buffer = ser.read(10) # size of a RotorPosition message
 			try:
 				(response, consumed) = pyvesc.decode(buffer)
-				self.log(response, "DEBUG")
 				if response.__class__ == GetRotorPosition:
 					return response.rotor_pos
 			except:
