@@ -170,20 +170,20 @@ class DriveProcess(RoverProcess):
 		self._setRightWheelSpeed(0)
 
 	def on_DriveForward(self, data):
-		self._setLeftWheelSpeed(MOTOR_RPM)
-		self._setRightWheelSpeed(MOTOR_RPM)
+		self._setLeftWheelSpeed(min_rpm)
+		self._setRightWheelSpeed(min_rpm)
 
 	def on_DriveBackward(self, data):
-		self._setLeftWheelSpeed(-MOTOR_RPM)
-		self._setRightWheelSpeed(-MOTOR_RPM)
+		self._setLeftWheelSpeed(-min_rpm)
+		self._setRightWheelSpeed(-min_rpm)
 
 	def on_DriveTurnRight(self, data):
-		self._setLeftWheelSpeed(MOTOR_RPM)
-		self._setRightWheelSpeed(-MOTOR_RPM)
+		self._setLeftWheelSpeed(min_rpm)
+		self._setRightWheelSpeed(-min_rpm)
 
 	def on_DriveTurnLeft(self, data):
-		self._setLeftWheelSpeed(-MOTOR_RPM)
-		self._setRightWheelSpeed(MOTOR_RPM)
+		self._setLeftWheelSpeed(-min_rpm)
+		self._setRightWheelSpeed(min_rpm)
 
 
 
