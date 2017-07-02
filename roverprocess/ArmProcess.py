@@ -22,40 +22,24 @@ import serial
 # Any libraries you need can be imported here. You almost always need time!
 import time
 
-base_max_speed = 4
-base_min_speed = 0.2
-shoulder_max_speed = 4
-shoulder_min_speed = 0.2
-elbow_max_speed = 4
-elbow_min_speed = 0.2
+base_max_speed = 2
+base_min_speed = 0.1
+shoulder_max_speed = 2
+shoulder_min_speed = 0.1
+elbow_max_speed = 2
+elbow_min_speed = 0.1
 
-radius_max_speed = 20
-radius_min_speed = 2
-height_max_speed = 20
-height_min_speed = 2
+radius_max_speed = 2
+radius_min_speed = 0.2
+height_max_speed = 2
+height_min_speed = 0.2
 
 device_keys = ["d_armBase", "d_armShoulder", "d_armElbow"]
 
 dt = 0.01
 BAUDRATE = 115200
-SERIAL_TIMEOUT = 0.05
+SERIAL_TIMEOUT = 0.02
 
-max_duty = 100000
-# Constant for the duty curves
-curve_val = 5
-
-def duty_curve(f):
-	''' scales a float to a suitable duty cycle value
-		Args:
-			f (float): value between -1 and 1.
-		Returns:
-			Float between -max_duty and max_duty
-	'''
-	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
-	if f > 0:
-		return a*max_duty
-	else:
-		return -a*max_duty
 
 class ArmProcess(RoverProcess):
 
@@ -65,7 +49,7 @@ class ArmProcess(RoverProcess):
 		for key in device_keys:
 			self.subscribe(key)
 		self.base_direction = None
-		self.joints_pos = Joints(0, pi/4, 0, 0, 0, 0)
+		self.joints_pos = Joints(0, 0, pi/4, 0, 0, 0)
 		self.speeds = Joints(0,0,0,0,0,0)
 		self.command = [0,0,0,0,0,0]
 		section_lengths = Sections(
@@ -75,24 +59,24 @@ class ArmProcess(RoverProcess):
 		joint_limits = Joints(
 				# in radians
 				base=None,
-				shoulder=Limits(-0.052, 0.9),
-				elbow=Limits(1.21, 2.05),
+				shoulder=Limits(-0.047, 0.9),
+				elbow=Limits(1.3, 1.95),
 				wrist_pitch=None,
 				wrist_roll=None,
 				gripper=None)
 		max_angular_velocity = Joints(
-				base=0.2,
-				shoulder=0.2,
-				elbow=0.2,
-				wrist_pitch=0.2,
-				wrist_roll=0.2,
-				gripper=0.2)
+				base=0.4,
+				shoulder=0.4,
+				elbow=0.4,
+				wrist_pitch=0.4,
+				wrist_roll=0.4,
+				gripper=0.4)
 		self.config = Config(section_lengths, joint_limits, max_angular_velocity)
 		self.controller = Controller(self.config)
 		self.mode = ManualControl()
 		self.devices = {}
 		# joint_offsets are values in degrees to 'zero' the encoder angle
-		self.joint_offsets = {"d_armShoulder":-336.9, "d_armElbow":-61.8}
+		self.joint_offsets = {"d_armShoulder":-336.26, "d_armElbow":-245.18}
 		# self.joint_offsets = {"d_armShoulder":0, "d_armElbow":0}
 
 
@@ -133,18 +117,19 @@ class ArmProcess(RoverProcess):
 						# the rotation.
 						reading += 360
 					reading += self.joint_offsets[device]
-					new_joints[i+1] = math.radians(reading) #Convert to radians
+					new_joints[i+1] = round(math.radians(reading), 3) #Convert to radians
 				else:
 					self.log("Could not read joint position {}".format(device), "WARNING")
 		return Joints(*new_joints)
 
 	def loop(self):
 		self.joints_pos = self.get_positions()
+		self.log("command: {}".format(self.command))
 		self.controller.user_command(self.mode, *self.command)
 		self.speeds = self.controller.update_duties(self.joints_pos)
 		#publish speeds/duty cycles here
 		self.log("joints_pos: {}".format(self.joints_pos))
-		# self.log("speeds: {}".format(self.speeds))
+		self.log("speeds: {}".format(self.speeds))
 		self.send_duties()
 		time.sleep(dt)
 
@@ -162,36 +147,36 @@ class ArmProcess(RoverProcess):
 		''' Shoulder joint, and radius control.'''
 		y_axis = data[1]
 		if isinstance(self.mode, ManualControl):
-			y_axis = (y_axis * shoulder_max_speed)
+			y_axis *= shoulder_max_speed
 			if y_axis > shoulder_min_speed or y_axis < -shoulder_min_speed:
-				armShoulderSpeed = int(y_axis)
+				armShoulderSpeed = y_axis
 			else:
 				armShoulderSpeed = 0
+			self.log(armShoulderSpeed)
 			self.command[1] = armShoulderSpeed
 		elif isinstance(self.mode, PlanarControl):
 			y_axis = (y_axis * radius_max_speed)
 			if y_axis > radius_min_speed or y_axis < -radius_min_speed:
-				radius_speed = int(y_axis)
+				radius_speed = y_axis
 			else:
 				radius_speed = 0
 			self.log(radius_speed)
 			self.command[0] = radius_speed
 
-
 	def on_joystick2(self, data):
 		''' Elbow joints and z/height control'''
 		y_axis = data[1]
 		if isinstance(self.mode, ManualControl):
-			y_axis = (y_axis * elbow_max_speed)
+			y_axis *= elbow_max_speed
 			if y_axis > elbow_min_speed or y_axis < -elbow_min_speed:
-				armY_ElbowSpeed = int(y_axis)
+				armY_ElbowSpeed = y_axis
 			else:
 				armY_ElbowSpeed = 0
 			self.command[2] = armY_ElbowSpeed
 		elif isinstance(self.mode, PlanarControl):
 			y_axis = (y_axis * height_max_speed)
 			if y_axis > height_min_speed or y_axis < -height_min_speed:
-				height_speed = int(y_axis)
+				height_speed = y_axis
 			else:
 				height_speed = 0
 			self.log(height_speed)
@@ -221,6 +206,12 @@ class ArmProcess(RoverProcess):
 			else:
 				self.base_direction = "left"
 			# self.command[0] = armBaseSpeed
+
+	def on_buttonA_down(self, data):
+		if isinstance(self.mode, ManualControl):
+			self.mode = PlanarControl()
+		else:
+			self.mode = ManualControl()
 
 	def messageTrigger(self, message):
 		if message.key in device_keys:
