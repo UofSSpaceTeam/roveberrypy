@@ -20,12 +20,14 @@ import time
 import inspect
 
 
-# Watchdog thread maintains a list of all running processes and indicates to
-# 	the parent which RoverProcess instances are frozen or taking too long in their main loop
-# The default time is 5 seconds, but it can be extended, or notified mid loop
-# For advanced applications, the entire watchdog timer state can be reset
-# Watchdog processes are in the format {ProcessName : IsRunnung}
 class Watchdog(Thread):
+	''' Watchdog thread maintains a list of all running processes and indicates
+		to the parent which RoverProcess instances are frozen or taking too
+		long in their main loop.
+		The default time is 5 seconds, but it can be extended, or notified mid loop.
+		For advanced applications, the entire watchdog timer state can be reset
+		Watchdog processes are logged in the format {ProcessName : IsRunnung}
+	'''
 	def __init__(self, log, hanging, timeout=5):
 		threading.Thread.__init__(self)
 		self.state = {}
@@ -55,12 +57,31 @@ class Watchdog(Thread):
 			time.sleep(1)
 
 	def pet(self, processName):
+		""" Pet the Watchdog; all processes being watched must call this before the timer expires
+			A processe that does not pet the watchdog is considered dead or hung.
+
+			Args:
+				processName (str): Process' own name (in StateManager); the key of Watchdog state to reset.
+		"""
 		self.state[processName] = True
 
 	def watch(self, processName):
+		""" Add a process to watch to the Watchdog state.
+
+			Args:
+				processName (str): Process' own name (in StateManager); the name of the process to watch.
+		"""
 		self.state.update({processName:False})
 
 	def extend(self, timeout, processName):
+		""" Change the Watchdog timeout period. This can be a permanent change or
+			just set temporaily then reverted with the string "PREVIOUS" once a
+			longer method is completed.
+
+			Args:
+				timeout (int) or (str): Timeout period in seconds as an integer; or str("PREVIOUS") to rever to the last set timeout
+				processName (str): Process' own name (in StateManager); the name of the process to watch.
+		"""
 		if(timeout == 'PREVIOUS'):
 			self.timeout = self.prevtimeout
 			self.log('Watchdog returned to {}s by process: {}'.format(self.timeout, processName))
@@ -70,10 +91,22 @@ class Watchdog(Thread):
 			self.log('Watchdog set to {}s by process: {}'.format(self.timeout, processName))
 
 	def reset(self, processName):
+		""" Reset all timeouts in the Watchdog state.
+
+			Args:
+				processName (str): Process' own name (in StateManager) to show in log file.
+		"""
 		self.log('Watchdog state reset by process: {}'.format(processName))
 		self.state = self.state.fromkeys(self.state, True)
 
 	def getHanging(self):
+		''' Gets any currently hanging or crashed process names.
+
+			Returns:
+				A [list] of process names that are hanging or crashed. If the
+				internal state is corrupted it returns the string "Unknown Process"
+				NOTE: This should probably raise an exception instead.
+		'''
 		try:
 			return [process for process, running in self.state.items() if running == False]
 		except:
