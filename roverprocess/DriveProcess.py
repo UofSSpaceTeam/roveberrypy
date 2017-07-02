@@ -18,12 +18,10 @@ import pyvesc
 
 class DriveProcess(RoverProcess):
 
-    # Subscribed to joystick1 and joystick2.
-	def getSubscribed(self):
-		return ["joystick1", "joystick2"]
-
 	def setup(self, args):
-		for key in ["joystick1", "joystick2"]:
+		for key in ["joystick1", "joystick2", "on_DriveStop",
+					"on_DriveForward", "on_DriveBackward",
+					"on_DriveTurnRight", "on_DriveTurnLeft"]:
 			self.subscribe(key)
 
 	# Function that grabs the x and y axis values in message, then formats the data
@@ -41,8 +39,6 @@ class DriveProcess(RoverProcess):
 		self.publish("wheelRM", SetRPM(newMessage))
 		self.publish("wheelRB", SetRPM(newMessage))
 
-
-
 	# Function that grabs the x and y axis values in message, then formats the data
 	#  and prints the result to stdout.
 	# Returns the newly formated x and y axis values in a new list
@@ -58,7 +54,37 @@ class DriveProcess(RoverProcess):
 		self.publish("wheelLM", SetRPM(newMessage))
 		self.publish("wheelLB", SetRPM(newMessage))
 
+	def _setLeftWheelSpeed(self, rpm):
+		rpm = SetRPM(int(rpm))
+		self.publish("wheelLF", rpm)
+		self.publish("wheelLM", rpm)
+		self.publish("wheelLB", rpm)
 
+	def _setRightWheelSpeed(self, rpm):
+		rpm = SetRPM(int(rpm))
+		self.publish("wheelRF", rpm)
+		self.publish("wheelRM", rpm)
+		self.publish("wheelRB", rpm)
+
+	def on_DriveStop(self, data):
+		self._setLeftWheelSpeed(0)
+		self._setRightWheelSpeed(0)
+
+	def on_DriveForward(self, data):
+		self._setLeftWheelSpeed(MOTOR_RPM)
+		self._setRightWheelSpeed(MOTOR_RPM)
+
+	def on_DriveBackward(self, data):
+		self._setLeftWheelSpeed(-MOTOR_RPM)
+		self._setRightWheelSpeed(-MOTOR_RPM)
+
+	def on_DriveTurnRight(self, data):
+		self._setLeftWheelSpeed(MOTOR_RPM)
+		self._setRightWheelSpeed(-MOTOR_RPM)
+
+	def on_DriveTurnLeft(self, data):
+		self._setLeftWheelSpeed(-MOTOR_RPM)
+		self._setRightWheelSpeed(MOTOR_RPM)
 
 
 
