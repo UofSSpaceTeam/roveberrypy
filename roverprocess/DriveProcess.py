@@ -60,6 +60,10 @@ def current_curve(f):
 class DriveProcess(RoverProcess):
 	"""Handles driving the rover.
 
+	Takes joystick input from the web ui and
+	commands the wheels to move. Uses RPM and current control modes.
+	"""
+
 	def setup(self, args):
 		""" Initialize drive mode (default=rpm)."""
 		self.right_brake = False
