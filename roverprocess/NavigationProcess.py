@@ -1,6 +1,6 @@
 from .RoverProcess import RoverProcess
-from GPSProcess import GPSPosition
-from math import asin, atan2, cos, pi, radians, sin, sqrt
+from .GPSProcess import GPSPosition
+from math import asin, atan2, cos, pi, radians, sin, sqrt, degrees
 import time
 
 class NavigationProcess(RoverProcess):
@@ -88,5 +88,6 @@ class NavigationProcess(RoverProcess):
 
 	def on_singlePointGPS(self, pos):
 		'''Updates GPS position'''
+		self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)))
 		self.position_last = self.position
 		self.position = pos

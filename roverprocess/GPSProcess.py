@@ -9,6 +9,8 @@ import time
 import socket
 import serial
 from math import radians
+from statistics import mean
+
 
 class GPSPosition:
 	# Earth's radius in metres
@@ -49,6 +51,13 @@ class GPSProcess(RoverProcess):
 		[latitude (degrees), longtitude (degrees)].
 	'''
 
+	MSG_POS_LLH = 0x0201 # reports the absolute geodetic coordinate of the rover
+
+	NUM_SAMPLES = 10
+	SAMPLE_RATE = 0.01 # seconds in between samples
+
+	LOOP_PERIOD = 0.5 # How often we pusblish positions
+
 	class PiksiThread(Thread):
 		''' Thread that waits on the Piksi GPS unit and
 			publishes the coordinate.
@@ -61,28 +70,35 @@ class GPSProcess(RoverProcess):
 			# TODO: This conflicts with the USBServer...
 			self.serial = "/dev/ttyUSB0"
 			self.baud = 1000000
-			self.addr = None
-			self.port = None
 
 		def run(self):
-			#with Piksi(self.serial, self.baud, recv_addr=(self.addr, self.port)) as self.piksi:
 			try:
 				with Piksi(self.serial, self.baud) as self.piksi:
 					while True:
 						connected = self.piksi.connected()
 						if not connected:
-							self._parent.log("Rover piksi is not connected properly")
+							self._parent.log("Rover piksi is not connected properly", "ERROR")
 						else:
-							self._parent.log("Rover piksi is connected", "WARNING")
-							msg = self.piksi.poll(0x0201)
-							if msg is not None:
-								pos_msg = "lat:" + str(msg.lat) + ",lon:" + str(msg.lon)
-								self._parent.log(pos_msg, "DEBUG")
+							self._parent.log("Rover piksi is connected", "DEBUG")
+							lats = []
+							longs = []
+							for i in range(GPSProcess.NUM_SAMPLES):
+								# Take average of multiple samples.
+								# Actually doesn't perform that well...
+								msg = self.piksi.poll(GPSProcess.MSG_POS_LLH)
+								if msg is not None:
+									lats.append(msg.lat)
+									longs.append(msg.lon)
+								time.sleep(GPSProcess.SAMPLE_RATE)
+							if len(lats) > 1:
 								self._parent.publish('singlePointGPS',
-										GPSPosition(radians(msg.lat), radians(msg.lon)))
-						time.sleep(1)
+										GPSPosition(radians(mean(lats)), radians(mean(longs))))
+							else:
+								self._parent.log("Failed to take GPS averege", "Warning")
+						time.sleep(GPSProcess.LOOP_PERIOD)
 			except:
-				self._parent.log("Bad serial port", "ERROR")
+				raise
+				self._parent.log("Bad serial port, or other failure", "ERROR")
 
 	def setup(self, args):
 		receiver = GPSProcess.PiksiThread(self)
