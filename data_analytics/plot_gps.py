@@ -5,7 +5,7 @@ import statistics
 
 lats = []
 longs = []
-with open('./gpslogs.csv', 'r') as csvfile:
+with open('./alley_stationary.csv', 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=',')
     for row in spamreader:
         lats.append(float(row[0]))
@@ -37,8 +37,9 @@ print("Filtered Mean: {}, {}".format(avg_lat_filter, avg_long_filter))
 
 plt.plot(
          lats, longs, 'b',
-         point_x, point_y, 'y',
+         # point_x, point_y, 'y',
          avg_lat, avg_long, 'ro',
-         avg_lat_filter, avg_long_filter, 'go'
+         # avg_lat_filter, avg_long_filter, 'go',
+         [avg_lat, avg_lat+dev_lat], [avg_long, avg_long+dev_long], 'g'
         )
 plt.show()

@@ -16,10 +16,11 @@ class GPSPosition:
 	# Earth's radius in metres
 	RADIUS = 6371008.8
 
-	def __init__(self, lat, lon):
+	def __init__(self, lat, lon, mode=0):
 		# lat an lon are assumed to be in radians
 		self.lat = lat
 		self.lon = lon
+		self.mode = mode # 0=SPP, 1=Float RTK, 2=Fixed RTK
 
 	def distance(self, them):
 		''' Returns the distance to another GPSPositions on earth'''
@@ -89,6 +90,7 @@ class GPSProcess(RoverProcess):
 								if msg is not None:
 									lats.append(msg.lat)
 									longs.append(msg.lon)
+									self._parent.log("type: {}".format(msg.flag))
 								time.sleep(GPSProcess.SAMPLE_RATE)
 							if len(lats) > 1:
 								self._parent.publish('singlePointGPS',
