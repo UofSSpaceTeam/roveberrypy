@@ -26,8 +26,9 @@ class USBServer(RoverServer):
 		""" Initialize subscription maps and find what messages devices are susbribed to."""
 		ports = list_ports.comports()
 		for port in ports:
-			if port.device == '/dev/ttyS0' or port.device == '/dev/ttyAMA0':
-				#ignore first linux serial port
+			if port.device == '/dev/ttyS0' or port.device == '/dev/ttyAMA0'\
+						or port.dev == '/dev/ttyUSB0':
+							#ignore first linux serial port and Piksi gps
 				continue
 			# In pyserial, port.device is a string of the path to the device
 			self.reqSubscription(port.device)

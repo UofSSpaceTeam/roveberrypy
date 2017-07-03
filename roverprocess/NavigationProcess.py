@@ -64,9 +64,10 @@ class NavigationProcess(RoverProcess):
 				the length of this beam is the distance.
 			angle (degrees): The angle at which the distance
 				measurement was taken.
+			tilt (degrees): virtical angle the distance was measured at.
 		'''
-		self.log("Dist: "+str(lidarmsg.distance)+
-				 " Angle: "+str(lidarmsg.angle))
+		self.log("Dist: {} Angle: {} Tilt {}".format(lidarmsg.distance,
+			lidarmsg.angle/100, lidarmsg.tilt))
 
 	def on_CompassDataMessage(self, msg):
 		''' CompassDataMessage contains:
