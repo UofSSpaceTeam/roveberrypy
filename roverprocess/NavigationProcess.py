@@ -57,6 +57,17 @@ class NavigationProcess(RoverProcess):
 			else:
 				self.publish("DriveTurnRight")
 
+	def g_h_filter(z, x0, dx, g, h, dt=1.):
+		x_est = x0
+		#prediction step
+		x_pred = x_est + (dx*dt)
+		dx = dx
+		# update step
+		residual = z - x_pred
+		dx = dx    + h * (residual) / dt
+		x_est  = x_pred + g * residual
+		return x_est
+
 	def on_LidarDataMessage(self, lidarmsg):
 		''' LidarDataMessage contains:
 			distance (centimeters): The lidar unit fires a laser
@@ -89,6 +100,8 @@ class NavigationProcess(RoverProcess):
 
 	def on_singlePointGPS(self, pos):
 		'''Updates GPS position'''
-		self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)))
+		pos_pred_lat = g_h_filter(pos.lat, self.position.lat, 0, 0.1, 0.001)
+		pos_pred_lon = g_h_filter(pos.lat, self.position.lon, 0, 0.1, 0.001)
+		self.log("{},{}".format(degrees(pos_pred_lat), degrees(pos_pred_lon)))
 		self.position_last = self.position
-		self.position = pos
+		self.position = GPSPosition(pos_pred_lat, pos_pred_lon)

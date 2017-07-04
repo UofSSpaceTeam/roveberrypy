@@ -69,7 +69,7 @@ class GPSProcess(RoverProcess):
 
 			self._parent = parent
 			# TODO: This conflicts with the USBServer...
-			self.serial = "/dev/ttyUSB0"
+			self.serial = "/dev/ttyUSB1"
 			self.baud = 1000000
 
 		def run(self):
@@ -90,7 +90,7 @@ class GPSProcess(RoverProcess):
 								if msg is not None:
 									lats.append(msg.lat)
 									longs.append(msg.lon)
-									self._parent.log("type: {}".format(msg.flag))
+									self._parent.log("type: {}".format(msg.flags))
 								time.sleep(GPSProcess.SAMPLE_RATE)
 							if len(lats) > 1:
 								self._parent.publish('singlePointGPS',
