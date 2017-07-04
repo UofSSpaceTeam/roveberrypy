@@ -44,11 +44,11 @@ def g_h_filter(data, x0, dx, g, h, dt=1.):
         results.append(x_est)
     return results
 
-filtered_lat = g_h_filter(lats, avg_lat, 0, 0.1, 0.001)
-filtered_lon = g_h_filter(longs, avg_long, 0, 0.1, 0.001)
+filtered_lat = g_h_filter(lats, 1, 0, 0.3, 0.01)
+filtered_lon = g_h_filter(longs, 1, 0, 0.3, 0.01)
 
-avg_lat_filter = (statistics.mean(point_x))
-avg_long_filter = statistics.mean(point_y)
+# avg_lat_filter = (statistics.mean(point_x))
+# avg_long_filter = statistics.mean(point_y)
 # print("Filtered Mean: {}, {}".format(avg_lat_filter, avg_long_filter))
 
 dev_lat_f = statistics.stdev(filtered_lat)
@@ -61,9 +61,9 @@ for x in points:
 
 plt.plot(
          lats, longs, 'b',
-         filtered_lat, filtered_lon, 'y',
+         # filtered_lat, filtered_lon, 'y',
          avg_lat, avg_long, 'ro',
-         avg_lat_filter, avg_long_filter, 'go',
-         [avg_lat, avg_lat+dev_lat], [avg_long, avg_long+dev_long], 'g'
+         # avg_lat_filter, avg_long_filter, 'go',
+         # [avg_lat, avg_lat+dev_lat], [avg_long, avg_long+dev_long], 'g'
         )
 plt.show()

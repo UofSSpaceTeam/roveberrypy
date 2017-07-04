@@ -53,11 +53,12 @@ class GPSProcess(RoverProcess):
 	'''
 
 	MSG_POS_LLH = 0x0201 # reports the absolute geodetic coordinate of the rover
+	MSG_VEL_NED = 0x0205 # velocity in north, east, down coordinates
 
 	NUM_SAMPLES = 10
 	SAMPLE_RATE = 0.01 # seconds in between samples
 
-	LOOP_PERIOD = 0.5 # How often we pusblish positions
+	LOOP_PERIOD = 0.3 # How often we pusblish positions
 
 	class PiksiThread(Thread):
 		''' Thread that waits on the Piksi GPS unit and
@@ -69,7 +70,7 @@ class GPSProcess(RoverProcess):
 
 			self._parent = parent
 			# TODO: This conflicts with the USBServer...
-			self.serial = "/dev/ttyUSB1"
+			self.serial = "/dev/ttyUSB0"
 			self.baud = 1000000
 
 		def run(self):
@@ -90,13 +91,16 @@ class GPSProcess(RoverProcess):
 								if msg is not None:
 									lats.append(msg.lat)
 									longs.append(msg.lon)
-									self._parent.log("type: {}".format(msg.flags))
+									# self._parent.log("type: {}".format(msg.flags))
 								time.sleep(GPSProcess.SAMPLE_RATE)
 							if len(lats) > 1:
 								self._parent.publish('singlePointGPS',
 										GPSPosition(radians(mean(lats)), radians(mean(longs))))
 							else:
-								self._parent.log("Failed to take GPS averege", "Warning")
+								self._parent.log("Failed to take GPS averege", "WARNING")
+							msg = self.piksi.poll(GPSProcess.MSG_VEL_NED)
+							if msg is not None:
+								self._parent.publish("GPSVelocity", [msg.n/1000, msg.e/1000])
 						time.sleep(GPSProcess.LOOP_PERIOD)
 			except:
 				raise

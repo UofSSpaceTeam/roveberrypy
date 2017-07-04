@@ -1,7 +1,8 @@
 from .RoverProcess import RoverProcess
 from .GPSProcess import GPSPosition
-from math import asin, atan2, cos, pi, radians, sin, sqrt, degrees
+from math import asin, atan2, cos, pi, radians, sin, sqrt, degrees, atan
 import time
+from statistics import mean
 
 class NavigationProcess(RoverProcess):
 	''' Aggregates data from GPS, Magnetometer, LIDAR, etc,
@@ -16,6 +17,9 @@ class NavigationProcess(RoverProcess):
 		self.heading = None
 		self.heading_last = None
 
+		self.velocity = [0,0] # m/s, north, east
+		self.accel = [0,0] #m/s^2, north, east
+
 		self.bearing_error = 360 # TODO: What unit is this in?
 		self._rotating = False
 
@@ -29,8 +33,10 @@ class NavigationProcess(RoverProcess):
 		# TODO: Why is this 2000, I found it in DriveProcess.py as min_rpm?
 		self.motor_rpm = 2000
 
+		self.starting_calibration = [[],[]] # list of GPS positions that ar averaged
+
 		for msg in ["LidarDataMessage", "CompassDataMessage",
-					"targetGPS", "singlePointGPS"]:
+					"targetGPS", "singlePointGPS", "GPSVelocity"]:
 			self.subscribe(msg)
 
 	def loop(self):
@@ -57,10 +63,21 @@ class NavigationProcess(RoverProcess):
 			else:
 				self.publish("DriveTurnRight")
 
-	def g_h_filter(z, x0, dx, g, h, dt=1.):
+	def gps_g_h_filter(self, z, x0, dx, g, h, dt=1):
 		x_est = x0
 		#prediction step
-		x_pred = x_est + (dx*dt)
+		x_pred = x_est + atan((dx*dt)/GPSPosition.RADIUS)
+		dx = dx
+		# update step
+		residual = z - x_pred
+		dx = dx    + h * (residual) / dt
+		x_est  = x_pred + g * residual
+		return x_est
+
+	def vel_g_h_filter(self, z, x0, dx, g, h, dt=1):
+		x_est = x0
+		#prediction step
+		x_pred = x_est + dt*dx
 		dx = dx
 		# update step
 		residual = z - x_pred
@@ -100,8 +117,26 @@ class NavigationProcess(RoverProcess):
 
 	def on_singlePointGPS(self, pos):
 		'''Updates GPS position'''
-		pos_pred_lat = g_h_filter(pos.lat, self.position.lat, 0, 0.1, 0.001)
-		pos_pred_lon = g_h_filter(pos.lat, self.position.lon, 0, 0.1, 0.001)
-		self.log("{},{}".format(degrees(pos_pred_lat), degrees(pos_pred_lon)))
-		self.position_last = self.position
-		self.position = GPSPosition(pos_pred_lat, pos_pred_lon)
+		if self.position is not None:
+			pos_pred_lat = self.gps_g_h_filter(pos.lat, self.position.lat, self.velocity[0], 0.25, 0.02, 0.3)
+			pos_pred_lon = self.gps_g_h_filter(pos.lon, self.position.lon, self.velocity[1], 0.25, 0.02, 0.3)
+			self.log("{},{}".format(degrees(pos_pred_lat), degrees(pos_pred_lon)))
+			self.position_last = self.position
+			self.position = GPSPosition(pos_pred_lat, pos_pred_lon)
+		else:
+			if len(self.starting_calibration[0]) < 50:
+				print(len(self.starting_calibration[0]))
+				self.starting_calibration[0].append(pos.lat)
+				self.starting_calibration[1].append(pos.lon)
+			else:
+				self.starting_calibration[0].append(pos.lat)
+				self.starting_calibration[1].append(pos.lon)
+				self.position = GPSPosition(mean(self.starting_calibration[0]), mean(self.starting_calibration[1]))
+				print("Done calibration")
+				self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)))
+
+	def on_GPSVelocity(self, vel):
+		# self.log("{},{}".format(vel[0]/1000, vel[1]/1000))
+		self.velocity[0] = self.vel_g_h_filter(vel[0], self.velocity[0], self.accel[0], 0.4, 0.01, 0.3)
+		self.velocity[1] = self.vel_g_h_filter(vel[1], self.velocity[1], self.accel[1], 0.4, 0.01, 0.3)
+
