@@ -11,6 +11,7 @@ import serial
 from math import radians
 from statistics import mean
 
+LOOP_PERIOD = 0.3 # How often we pusblish positions
 
 class GPSPosition:
 	# Earth's radius in metres
@@ -58,7 +59,6 @@ class GPSProcess(RoverProcess):
 	NUM_SAMPLES = 10
 	SAMPLE_RATE = 0.01 # seconds in between samples
 
-	LOOP_PERIOD = 0.3 # How often we pusblish positions
 
 	class PiksiThread(Thread):
 		''' Thread that waits on the Piksi GPS unit and
@@ -101,7 +101,7 @@ class GPSProcess(RoverProcess):
 							msg = self.piksi.poll(GPSProcess.MSG_VEL_NED)
 							if msg is not None:
 								self._parent.publish("GPSVelocity", [msg.n/1000, msg.e/1000])
-						time.sleep(GPSProcess.LOOP_PERIOD)
+						time.sleep(LOOP_PERIOD)
 			except:
 				raise
 				self._parent.log("Bad serial port, or other failure", "ERROR")
