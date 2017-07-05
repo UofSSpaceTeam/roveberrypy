@@ -21,12 +21,12 @@ for i in range(len(lats)-1):
 
 dev_lat = statistics.stdev(lats)
 dev_long = statistics.stdev(longs)
-# print("raw stddev: {}, {}".format(dev_lat, dev_long))
+print("raw stddev: {}, {}".format(dev_lat, dev_long))
 
 
 avg_lat = (statistics.mean(lats))
 avg_long = statistics.mean(longs)
-# print("Raw Mean: {}, {}".format(avg_lat, avg_long))
+print("Raw Mean: {}, {}".format(avg_lat, avg_long))
 
 
 def g_h_filter(data, x0, dx, g, h, dt=1.):
@@ -57,7 +57,8 @@ dev_long_f = statistics.stdev(filtered_lon)
 
 points = zip(filtered_lat, filtered_lon)
 for x in points:
-    print("{},{}".format(x[0], x[1]))
+    # print("{},{}".format(x[0], x[1]))
+    pass
 
 plt.plot(
          lats, longs, 'b',

@@ -27,7 +27,7 @@ class USBServer(RoverServer):
 		ports = list_ports.comports()
 		for port in ports:
 			if port.device == '/dev/ttyS0' or port.device == '/dev/ttyAMA0'\
-						or port.dev == '/dev/ttyUSB0':
+						or port.device == '/dev/ttyUSB0':
 							#ignore first linux serial port and Piksi gps
 				continue
 			# In pyserial, port.device is a string of the path to the device

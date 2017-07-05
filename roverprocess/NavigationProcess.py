@@ -3,6 +3,10 @@ from .GPSProcess import GPSPosition
 from math import asin, atan2, cos, pi, radians, sin, sqrt, degrees, atan
 import time
 from statistics import mean
+from .differential_drive_lib import diff_drive_fk, inverse_kinematics_drive
+
+WHEEL_RADIUS = 14.5 # cm
+MIN_WHEEL_RPM = 4.385095 # ERPM = 1000
 
 class NavigationProcess(RoverProcess):
 	''' Aggregates data from GPS, Magnetometer, LIDAR, etc,
@@ -20,8 +24,10 @@ class NavigationProcess(RoverProcess):
 		self.velocity = [0,0] # m/s, north, east
 		self.accel = [0,0] #m/s^2, north, east
 
-		self.bearing_error = 360 # TODO: What unit is this in?
+		self.bearing_error = 5 # TODO: What unit is this in?
 		self._rotating = False
+
+		self.stopped = True
 
 		self.target = None
 		self.target_reached_distance = 1  # metres
@@ -32,36 +38,54 @@ class NavigationProcess(RoverProcess):
 
 		# TODO: Why is this 2000, I found it in DriveProcess.py as min_rpm?
 		self.motor_rpm = 2000
+		self.right_rpm = 0 # wheel RPMs
+		self.left_rpm = 0 # wheel RPMs
+		self.right_speed = 0 # velocity of right wheel from axel
+		self.left_speed = 0 # velocity of left wheel from axel
 
 		self.starting_calibration = [[],[]] # list of GPS positions that ar averaged
 
 		for msg in ["LidarDataMessage", "CompassDataMessage",
-					"targetGPS", "singlePointGPS", "GPSVelocity"]:
+					"targetGPS", "singlePointGPS", "GPSVelocity",
+					"updateLeftWheelRPM", "updateRightWheelRPM"
+					]:
 			self.subscribe(msg)
 
 	def loop(self):
 		time.sleep(self.loop_delay / 1000.0)
 
 		if self.target is None:
-			return
+			self.stopped = True
 
-		distance = self.position.distance(self.target)
-		bearing = self.position.bearing(self.target)
+		if self.position is not None and not self.stopped:
+			distance = self.position.distance(self.target)
+			bearing = self.position.bearing(self.target)
 
-		if distance < self.target_reached_distance:
-			self.target = None
-			self.publish("DriveStop")
-			return
+			if distance < self.target_reached_distance:
+				self.target = None
+				self.publish("DriveStop")
+				self.stopped = True
 
-		if abs(bearing) < self.bearing_error and self._rotating:
-			self.rotating = False
-			self.forward()
-		else:
-			self.rotating = True
-			if bearing < 0:
-				self.publish("DriveTurnLeft")
+			if abs(bearing) < self.bearing_error and self._rotating:
+				self.rotating = False
+				self.publish("DriveForward", MIN_WHEEL_RPM)
+				self.left_rpm = MIN_WHEEL_RPM
+				self.right_rpm = MIN_WHEEL_RPM
 			else:
-				self.publish("DriveTurnRight")
+				self.rotating = True
+				if bearing < 0:
+					self.publish("DriveRotateLeft", MIN_WHEEL_RPM)
+					self.left_rpm = -MIN_WHEEL_RPM
+					self.right_rpm = MIN_WHEEL_RPM
+				else:
+					self.publish("DriveRotateRight", MIN_WHEEL_RPM)
+					self.left_rpm = MIN_WHEEL_RPM
+					self.right_rpm = -MIN_WHEEL_RPM
+			self.update_wheel_velocity()
+
+	def update_wheel_velocity(self):
+		self.right_speed = self.right_rpm*WHEEL_RADIUS/2
+		self.left_speed = self.left_rpm*WHEEL_RADIUS/2
 
 	def gps_g_h_filter(self, z, x0, dx, g, h, dt=1):
 		x_est = x0
@@ -106,7 +130,7 @@ class NavigationProcess(RoverProcess):
 		'''
 		self.log("heading: "+str(msg.heading))
 		self.heading_last = self.heading
-		self.heading = compass.heading
+		self.heading = msg.heading
 
 	def on_targetGPS(self, pos):
 		'''Targets a new GPS coordinate'''
@@ -117,6 +141,8 @@ class NavigationProcess(RoverProcess):
 
 	def on_singlePointGPS(self, pos):
 		'''Updates GPS position'''
+		#std_dev 1.663596084712623e-05, 2.1743680968892167e-05
+		# self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)))
 		if self.position is not None:
 			pos_pred_lat = self.gps_g_h_filter(pos.lat, self.position.lat, self.velocity[0], 0.25, 0.02, 0.3)
 			pos_pred_lon = self.gps_g_h_filter(pos.lon, self.position.lon, self.velocity[1], 0.25, 0.02, 0.3)
@@ -124,7 +150,7 @@ class NavigationProcess(RoverProcess):
 			self.position_last = self.position
 			self.position = GPSPosition(pos_pred_lat, pos_pred_lon)
 		else:
-			if len(self.starting_calibration[0]) < 50:
+			if len(self.starting_calibration[0]) < 20:
 				print(len(self.starting_calibration[0]))
 				self.starting_calibration[0].append(pos.lat)
 				self.starting_calibration[1].append(pos.lon)
@@ -136,7 +162,14 @@ class NavigationProcess(RoverProcess):
 				self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)))
 
 	def on_GPSVelocity(self, vel):
-		# self.log("{},{}".format(vel[0]/1000, vel[1]/1000))
-		self.velocity[0] = self.vel_g_h_filter(vel[0], self.velocity[0], self.accel[0], 0.4, 0.01, 0.3)
-		self.velocity[1] = self.vel_g_h_filter(vel[1], self.velocity[1], self.accel[1], 0.4, 0.01, 0.3)
+		# std_dev 0.04679680341613995, 0.035958365746391524
+		# self.log("{},{}".format(vel[0], vel[1]))
+		self.velocity[0] = self.vel_g_h_filter(vel[0], self.velocity[0], self.accel[0], 0.2, 0.1, 0.3)
+		self.velocity[1] = self.vel_g_h_filter(vel[1], self.velocity[1], self.accel[1], 0.2, 0.1, 0.3)
+
+	def on_updateLeftWheelRPM(self, rpm):
+		self.left_rpm = rpm
+
+	def on_updateRightWheelRPM(self, rpm):
+		self.right_rpm = rpm
 

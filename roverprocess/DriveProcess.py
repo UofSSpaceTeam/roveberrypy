@@ -17,6 +17,8 @@ import pyvesc
 from math import expm1 # e**x - 1  for rpm/current curves
 from math import exp
 
+RPM_TO_ERPM = 12*19 # 12 poles, 19:1 gearbox
+
 # Limits for Electronic RPM.
 # Note this is not the RPM of the wheel, but the
 # speed at which the motor is commutated.
@@ -71,7 +73,7 @@ class DriveProcess(RoverProcess):
 		self.drive_mode = "rpm"
 		for key in ["joystick1", "joystick2", "on_DriveStop",
 					"on_DriveForward", "on_DriveBackward",
-					"on_DriveTurnRight", "on_DriveTurnLeft"]:
+					"on_DriveRotateRight", "on_DriveRotateLeft"]:
 			self.subscribe(key)
 
 	def on_joystick1(self, data):
@@ -87,9 +89,8 @@ class DriveProcess(RoverProcess):
 			speed = rpm_curve(y_axis)
 			if -min_rpm < speed < min_rpm: # deadzone
 				speed = 0
-			self.publish("wheelLF", SetRPM(int(speed)))
-			self.publish("wheelLM", SetRPM(int(speed)))
-			self.publish("wheelLB", SetRPM(int(speed)))
+			self._setLeftWheelSpeed(speed)
+			sefl.publish("updateLeftheelRPM", speed)
 			self.log("left: {}".format(speed))
 		elif self.drive_mode == "current" and not self.left_brake:
 			current = current_curve(y_axis)
@@ -112,9 +113,8 @@ class DriveProcess(RoverProcess):
 			speed = rpm_curve(y_axis)
 			if -min_rpm < speed < min_rpm: # deadzone
 				speed = 0
-			self.publish("wheelRF", SetRPM(int(speed)))
-			self.publish("wheelRM", SetRPM(int(speed)))
-			self.publish("wheelRB", SetRPM(int(speed)))
+			self._setRightWheelSpeed(speed)
+			sefl.publish("updateRightWheelRPM", speed)
 			self.log("right: {}".format(speed))
 		elif self.drive_mode == "current" and not self.right_brake:
 			current = current_curve(y_axis)
@@ -169,21 +169,21 @@ class DriveProcess(RoverProcess):
 		self._setLeftWheelSpeed(0)
 		self._setRightWheelSpeed(0)
 
-	def on_DriveForward(self, data):
-		self._setLeftWheelSpeed(min_rpm)
-		self._setRightWheelSpeed(min_rpm)
+	def on_DriveForward(self, speed):
+		self._setLeftWheelSpeed(speed*RPM_TO_ERPM)
+		self._setRightWheelSpeed(speed*RPM_TO_ERPM)
 
-	def on_DriveBackward(self, data):
-		self._setLeftWheelSpeed(-min_rpm)
-		self._setRightWheelSpeed(-min_rpm)
+	def on_DriveBackward(self, speed):
+		self._setLeftWheelSpeed(-speed*RPM_TO_ERPM)
+		self._setRightWheelSpeed(-speed*RPM_TO_ERPM)
 
-	def on_DriveTurnRight(self, data):
-		self._setLeftWheelSpeed(min_rpm)
-		self._setRightWheelSpeed(-min_rpm)
+	def on_DriveRotateRight(self, speed):
+		self._setLeftWheelSpeed(speed*RPM_TO_ERPM)
+		self._setRightWheelSpeed(-speed*RPM_TO_ERPM)
 
-	def on_DriveTurnLeft(self, data):
-		self._setLeftWheelSpeed(-min_rpm)
-		self._setRightWheelSpeed(min_rpm)
+	def on_DriveRotateLeft(self, speed):
+		self._setLeftWheelSpeed(-speed*RPM_TO_ERPM)
+		self._setRightWheelSpeed(speed*RPM_TO_ERPM)
 
 
 
