@@ -32,6 +32,7 @@ class NavigationProcess(RoverProcess):
 		self._rotating = False
 
 		self.autonomous_mode = False
+		self.state = "waiting" #can be "waiting" or "driving"
 
 		self.target = None
 		self.target_reached_distance = 3  # metres
@@ -59,25 +60,23 @@ class NavigationProcess(RoverProcess):
 	def loop(self):
 		time.sleep(self.loop_delay / 1000.0)
 
-		if self.target is None:
-			self.autonomous_mode = False
+		if self.state == "waiting":
+			self.wait_state()
+		elif self.state == "driving":
+			self.drive_state()
+		else:
+			self.log("Navigation in invalid state, reverting to wating...", "WARNING")
+			self.state = "waiting"
 
-		if self.position is not None and self.autonomous_mode:
+		self.update_wheel_velocity()
+
+	def drive_state(self):
+		''' Function for handling drive state'''
+		if self.position is not None:
 			distance = self.position.distance(self.target)
 			bearing = self.position.bearing(self.target)
 
-			if distance < self.target_reached_distance:
-				self.target = None
-				self.publish("DriveStop")
-				self.stopped = True
-
-			if abs(bearing) < self.bearing_error and self._rotating:
-				self.rotating = False
-				self.publish("DriveForward", MIN_WHEEL_RPM)
-				self.left_rpm = MIN_WHEEL_RPM
-				self.right_rpm = MIN_WHEEL_RPM
-			else:
-				self.rotating = True
+			if abs(bearing) > self.bearing_error:
 				if bearing < 0:
 					self.publish("DriveRotateLeft", MIN_WHEEL_RPM)
 					self.left_rpm = -MIN_WHEEL_RPM
@@ -86,7 +85,20 @@ class NavigationProcess(RoverProcess):
 					self.publish("DriveRotateRight", MIN_WHEEL_RPM)
 					self.left_rpm = MIN_WHEEL_RPM
 					self.right_rpm = -MIN_WHEEL_RPM
-			self.update_wheel_velocity()
+				return # back to loop
+			elif distance > self.target_reached_distance:
+				self.publish("DriveForward", MIN_WHEEL_RPM)
+				self.left_rpm = MIN_WHEEL_RPM
+				self.right_rpm = MIN_WHEEL_RPM
+				return #back to loop
+			else:
+				self.target = None
+				self.publish("TargetReached")
+				self.state = "waiting"
+
+	def wait_state(self):
+		''' Function for handling waiting state'''
+		pass
 
 	def update_wheel_velocity(self):
 		self.right_speed = self.right_rpm*WHEEL_RADIUS/2
@@ -185,10 +197,9 @@ class NavigationProcess(RoverProcess):
 	def on_targetGPS(self, pos):
 		'''Targets a new GPS coordinate'''
 		target = GPSPosition(radians(pos[0]), radians(pos[1]))
-		self.finished_nav = False
-
 		if target.distance(self.position) <= self.maximum_target_distance:
 			self.target = target
+			self.state = "driving"
 
 	def on_singlePointGPS(self, pos):
 		'''Updates GPS position'''
