@@ -103,7 +103,18 @@ class NavigationProcess(RoverProcess):
 		x_est  = x_pred + g * residual
 		return x_est
 
-	def vel_g_h_filter(self, z, x0, dx, g, h, dt=1):
+	def vel_g_h_filter_acc(self, z, x0, dx, g, h, dt=1):
+		x_est = x0
+		#prediction step
+		x_pred = x_est + dt*dx
+
+		# update step
+		residual = z - x_pred
+		dx = dx    + h * (residual) / dt
+		x_est  = x_pred + g * residual
+		return x_est, dx
+
+	def vel_g_h_filter_wheel(self, z, x0, g, h, dt=1):
 		x_est = x0
 		#prediction step
 		x_pred = x_est + dt*dx
@@ -193,8 +204,14 @@ class NavigationProcess(RoverProcess):
 	def on_GPSVelocity(self, vel):
 		# std_dev 0.04679680341613995, 0.035958365746391524
 		# self.log("{},{}".format(vel[0], vel[1]))
-		self.velocity[0] = self.vel_g_h_filter(vel[0], self.velocity[0], self.accel[0], 0.4, 0.01, 0.3)
-		self.velocity[1] = self.vel_g_h_filter(vel[1], self.velocity[1], self.accel[1], 0.4, 0.01, 0.3)
+		k = 0.5 #constant
+		v_acc_x, self.accel[0] = self.vel_g_h_filter_acc(vel[0], self.velocity[0], self.accel[0], 0.4, 0.01, 0.3)
+		v_acc_y, self.accel[1] = self.vel_g_h_filter_acc(vel[1], self.velocity[1], self.accel[1], 0.4, 0.01, 0.3)
+
+		v_wheel_x = self.vel_g_h_filter_wheel(vel[0], self.velocity[0], 0.4, 0.01, 0.3)
+		v_wheel_y = self.vel_g_h_filter_wheel(vel[1], self.velocity[1], 0.4, 0.01, 0.3)
+
+		self.velocity[0] = v_acc_x*(1-k) + v_wheel_x*k
 
 	def on_updateLeftWheelRPM(self, rpm):
 		''' Drive process can manually overide wheel rpm'''
@@ -205,5 +222,5 @@ class NavigationProcess(RoverProcess):
 		self.right_rpm = rpm
 
 	def on_AccelerometerMessage(self, accel):
-		raise NotImplementedError()
+		self.log("x: {}, y: {}, z: {}".format(accel.x, accel.y, accel.z))
 
