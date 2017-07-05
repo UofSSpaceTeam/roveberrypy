@@ -36,7 +36,7 @@ class USBServer(RoverServer):
 	def loop(self):
 		""" Just print out the subscriptions."""
 		self.log(self.subscriberMap)
-		time.sleep(1)
+		time.sleep(0.1)
 
 	def send_cmd(self, message, device):
 		with serial.Serial(device, baudrate=BAUDRATE, timeout=1) as ser:
@@ -55,6 +55,7 @@ class USBServer(RoverServer):
 
 	def getSubscription(self, device):
 		s = None
+		self.watchdogReset() # reset Watchdog here to prevent timeouts
 		errors = 0
 		while errors < 4: # try reading 4 times
 			try:

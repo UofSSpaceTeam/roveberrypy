@@ -23,15 +23,22 @@ RPM_TO_ERPM = 12*19 # 12 poles, 19:1 gearbox
 # Note this is not the RPM of the wheel, but the
 # speed at which the motor is commutated.
 
-max_rpm = 40000
-min_rpm = 2000
+max_rpm = 55000
+#min_rpm = 300
 
 # Limits for current (Amps)
-max_current = 0.5
-min_current = 0.1
+max_current = 6
+#min_current = 0.1
 
 # Constant for the rpm/current curves
 curve_val = 5
+deadzone = 0.12
+
+def remove_deadzone(f):
+	if f > 0:
+		return f-deadzone
+	else:
+		return f+deadzone
 
 def rpm_curve(f):
 	''' scales a float to a suitable rpm value
@@ -40,7 +47,7 @@ def rpm_curve(f):
 		Returns:
 			Float between -max_rpm and max_rpm
 	'''
-	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
+	a = ((curve_val**abs(remove_deadzone(f))) - 1)/(curve_val - 1)
 	if f > 0:
 		return a*max_rpm
 	else:
@@ -53,7 +60,7 @@ def current_curve(f):
 		Returns:
 			Float between -max_current and max_current
 	'''
-	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
+	a = ((curve_val**abs(remove_deadzone(f))) - 1)/(curve_val - 1)
 	if f > 0:
 		return a*max_current
 	else:
@@ -71,7 +78,7 @@ class DriveProcess(RoverProcess):
 		self.right_brake = False
 		self.left_brake = False
 		self.drive_mode = "rpm"
-		for key in ["joystick1", "joystick2", "on_DriveStop",
+		for key in ["joystick1", "joystick2","triggerL","triggerR", "on_DriveStop",
 					"on_DriveForward", "on_DriveBackward",
 					"on_DriveRotateRight", "on_DriveRotateLeft"]:
 			self.subscribe(key)
@@ -87,19 +94,23 @@ class DriveProcess(RoverProcess):
 		if self.drive_mode == "rpm":
 			self.log("rpm")
 			speed = rpm_curve(y_axis)
-			if -min_rpm < speed < min_rpm: # deadzone
+			if -deadzone < y_axis < deadzone: # deadzone
 				speed = 0
-			self._setLeftWheelSpeed(speed)
+			self.publish("wheelLF", SetRPM(int(speed)))
+			self.publish("wheelLM", SetRPM(int(-1*speed)))
+			self.publish("wheelLB", SetRPM(int(speed)))
 			sefl.publish("updateLeftheelRPM", speed)
 			self.log("left: {}".format(speed))
 		elif self.drive_mode == "current" and not self.left_brake:
 			current = current_curve(y_axis)
-			if -min_current < current < min_current:
+			if -deadzone < y_axis < deadzone:
 				current = 0
-			self.publish("wheelLF", SetCurrent(current))
-			self.publish("wheelLM", SetCurrent(current))
-			self.publish("wheelLB", SetCurrent(current))
+			self.publish("wheelLF", SetCurrent(int(1000*current)))
+			self.publish("wheelLM", SetCurrent(int(-1000*current)))
+			self.publish("wheelLB", SetCurrent(int(1000*current)))
 			self.log("left: {}".format(current))
+
+
 
 	def on_joystick2(self, data):
 		""" Handles the right wheels for manual control.
@@ -107,23 +118,38 @@ class DriveProcess(RoverProcess):
 			[x axis (float -1:1), y axis (float -1:1)]
 		"""
 		y_axis = data[0]
+		print(data)
 		if y_axis is None:
 			return
 		if self.drive_mode == "rpm":
 			speed = rpm_curve(y_axis)
-			if -min_rpm < speed < min_rpm: # deadzone
+			if -deadzone < y_axis < deadzone: # deadzone
 				speed = 0
-			self._setRightWheelSpeed(speed)
+			self.publish("wheelRF", SetRPM(int(speed)))
+			self.publish("wheelRM", SetRPM(int(speed)))
+			self.publish("wheelRB", SetRPM(int(-1*speed)))
 			sefl.publish("updateRightWheelRPM", speed)
 			self.log("right: {}".format(speed))
 		elif self.drive_mode == "current" and not self.right_brake:
 			current = current_curve(y_axis)
-			if -min_current < current < min_current:
+			if -deadzone < y_axis < deadzone:
 				current = 0
-			self.publish("wheelRF", SetCurrent(current))
-			self.publish("wheelRM", SetCurrent(current))
-			self.publish("wheelRB", SetCurrent(current))
+			self.publish("wheelRF", SetCurrent(int(1000*current)))
+			self.publish("wheelRM", SetCurrent(int(1000*current)))
+			self.publish("wheelRB", SetCurrent(int(-1000*current)))
 			self.log("right: {}".format(current))
+		# Single drive mode not working due to missing axis on Windows
+		#if self.drive_mode == "single":
+		#	speed = rpm_curve(y_axis)
+		#	if -deadzone < y_axis < deadzone: # deadzone
+		#		speed = 0
+		#	self.publish("wheelRF", SetRPM(int( 1*(speed + self.mix))))
+		#	self.publish("wheelRM", SetRPM(int( 1*(speed + self.mix))))
+		#	self.publish("wheelRB", SetRPM(int(-1*(speed + self.mix))))
+		#	self.publish("wheelLF", SetRPM(int( 1*(speed - self.mix))))
+		#	self.publish("wheelLM", SetRPM(int(-1*(speed - self.mix))))
+		#	self.publish("wheelLB", SetRPM(int( 1*(speed - self.mix))))
+		#	#self.log("right: {}".format(speed))
 
 	def on_triggerL(self, trigger):
 		""" Handles left wheel braking (requires current mode)
