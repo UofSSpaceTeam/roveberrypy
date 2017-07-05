@@ -31,10 +31,10 @@ class NavigationProcess(RoverProcess):
 		self.bearing_error = 5 # TODO: What unit is this in?
 		self._rotating = False
 
-		self.finished_nav = True
+		self.autonomous_mode = False
 
 		self.target = None
-		self.target_reached_distance = 1  # metres
+		self.target_reached_distance = 3  # metres
 		self.target_maximum_distance = 10 # metres
 
 		# Delay for loop in miliseconds
@@ -60,9 +60,9 @@ class NavigationProcess(RoverProcess):
 		time.sleep(self.loop_delay / 1000.0)
 
 		if self.target is None:
-			self.finished_nav = True
+			self.autonomous_mode = False
 
-		if self.position is not None and not self.finished_nav:
+		if self.position is not None and self.autonomous_mode:
 			distance = self.position.distance(self.target)
 			bearing = self.position.bearing(self.target)
 
@@ -92,10 +92,21 @@ class NavigationProcess(RoverProcess):
 		self.right_speed = self.right_rpm*WHEEL_RADIUS/2
 		self.left_speed = self.left_rpm*WHEEL_RADIUS/2
 
-	def gps_g_h_filter(self, z, x0, dx, g, h, dt=1):
+	def pos_g_h_filter_vel(self, z, x0, dx, g, h, dt=1):
 		x_est = x0
 		#prediction step
 		x_pred = x_est + atan((dx*dt)/GPSPosition.RADIUS)
+
+		# update step
+		residual = z - x_pred
+		dx = dx    + h * (residual) / dt
+		x_est  = x_pred + g * residual
+		return x_est
+
+	def pos_g_h_filter_wheel(self, z, x0, dx, g, h, dt=1):
+		x_est = x0
+		#prediction step
+		x_pred = x_est + atan((dx)/GPSPosition.RADIUS)
 
 		# update step
 		residual = z - x_pred
@@ -184,8 +195,17 @@ class NavigationProcess(RoverProcess):
 		#std_dev 1.663596084712623e-05, 2.1743680968892167e-05
 		# self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)))
 		if self.position is not None:
-			pos_pred_lat = self.gps_g_h_filter(pos.lat, self.position.lat, self.velocity[0], 0.25, 0.02, GPSProcess.LOOP_PERIOD)
-			pos_pred_lon = self.gps_g_h_filter(pos.lon, self.position.lon, self.velocity[1], 0.25, 0.02, GPSProcess.LOOP_PERIOD)
+			k = 0.5 # determens which to trust more; velocity(0), or wheels (1)
+			pos_pred_lat_vel = self.pos_g_h_filter_vel(pos.lat,
+					self.position.lat, self.velocity[0], 0.25, 0.02, GPSProcess.LOOP_PERIOD)
+			pos_pred_lon_vel = self.pos_g_h_filter_vel(pos.lon,
+					self.position.lon, self.velocity[1], 0.25, 0.02, GPSProcess.LOOP_PERIOD)
+
+			fk_pred = diff_drive_fk(0,0, ROVER_WIDTH, self.heading, self.left_speed, self.right_speed, GPSProcess.LOOP_PERIOD)
+			pos_pred_lat_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lat, fk_pred[0], 0.3, 0.02, GPSProcess.LOOP_PERIOD)
+			pos_pred_lat_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lon, fk_pred[1], 0.3, 0.02, GPSProcess.LOOP_PERIOD)
+			pos_pred_lat = pos_pred_lat_vel*(1-k) + pos_pred_lat_wheel*k
+			pos_pred_lon = pos_pred_lon_vel*(1-k) + pos_pred_lon_wheel*k
 			self.log("{},{}".format(degrees(pos_pred_lat), degrees(pos_pred_lon)))
 			self.position_last = self.position
 			self.position = GPSPosition(pos_pred_lat, pos_pred_lon)
@@ -204,7 +224,7 @@ class NavigationProcess(RoverProcess):
 	def on_GPSVelocity(self, vel):
 		# std_dev 0.04679680341613995, 0.035958365746391524
 		# self.log("{},{}".format(vel[0], vel[1]))
-		k = 0.5 #constant
+		k = 0.5 #constant determining which to trust more; acceleration(0) or wheels(1)
 		v_acc_x, self.accel[0] = self.vel_g_h_filter_acc(vel[0], self.velocity[0], self.accel[0], 0.4, 0.01, 0.3)
 		v_acc_y, self.accel[1] = self.vel_g_h_filter_acc(vel[1], self.velocity[1], self.accel[1], 0.4, 0.01, 0.3)
 
