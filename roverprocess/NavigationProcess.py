@@ -34,6 +34,11 @@ class NavigationProcess(RoverProcess):
 		self.autonomous_mode = False
 		self.state = "waiting" #can be "waiting" or "driving"
 
+		# number of samples in our running average
+		self.pos_samples = 1
+		self.vel_samples = 1
+		self.heading_samples = 1
+
 		self.target = None
 		self.target_reached_distance = 3  # metres
 		self.target_maximum_distance = 10 # metres
@@ -178,6 +183,9 @@ class NavigationProcess(RoverProcess):
 			pitch (degrees):
 			roll (degrees):
 		'''
+		if self.state == "waiting":
+			self.heading = (self.heading + msg.heading)/(self.heading_samples)
+			self.heading_samples += 1
 		tmp = time.time()
 		d_t = tmp-self.last_compasmessage
 		self.last_compasmessage = tmp
@@ -205,6 +213,12 @@ class NavigationProcess(RoverProcess):
 		'''Updates GPS position'''
 		#std_dev 1.663596084712623e-05, 2.1743680968892167e-05
 		# self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)))
+		if self.state == "waiting":
+			lat = (self.position.lat + pos.lat)/(self.pos_samples)
+			lon = (self.position.lon + pos.lon)/(self.pos_samples)
+			self.pos_samples += 1
+			self.position = GPSPosition(lat, lon)
+			return
 		if self.position is not None:
 			k = 0.5 # determens which to trust more; velocity(0), or wheels (1)
 			pos_pred_lat_vel = self.pos_g_h_filter_vel(pos.lat,
@@ -235,14 +249,19 @@ class NavigationProcess(RoverProcess):
 	def on_GPSVelocity(self, vel):
 		# std_dev 0.04679680341613995, 0.035958365746391524
 		# self.log("{},{}".format(vel[0], vel[1]))
-		k = 0.5 #constant determining which to trust more; acceleration(0) or wheels(1)
-		v_acc_x, self.accel[0] = self.vel_g_h_filter_acc(vel[0], self.velocity[0], self.accel[0], 0.4, 0.01, 0.3)
-		v_acc_y, self.accel[1] = self.vel_g_h_filter_acc(vel[1], self.velocity[1], self.accel[1], 0.4, 0.01, 0.3)
+		if self.state == "waiting":
+			self.velocity[0] = (self.velocity[0] + vel[0])/(self.vel_samples)
+			self.velocity[1] = (self.velocity[1] + vel[1])/(self.vel_samples)
+			self.vel_samples += 1
+		else:
+			k = 0.5 #constant determining which to trust more; acceleration(0) or wheels(1)
+			v_acc_x, self.accel[0] = self.vel_g_h_filter_acc(vel[0], self.velocity[0], self.accel[0], 0.4, 0.01, 0.3)
+			v_acc_y, self.accel[1] = self.vel_g_h_filter_acc(vel[1], self.velocity[1], self.accel[1], 0.4, 0.01, 0.3)
 
-		v_wheel_x = self.vel_g_h_filter_wheel(vel[0], self.velocity[0], 0.4, 0.01, 0.3)
-		v_wheel_y = self.vel_g_h_filter_wheel(vel[1], self.velocity[1], 0.4, 0.01, 0.3)
+			v_wheel_x = self.vel_g_h_filter_wheel(vel[0], self.velocity[0], 0.4, 0.01, 0.3)
+			v_wheel_y = self.vel_g_h_filter_wheel(vel[1], self.velocity[1], 0.4, 0.01, 0.3)
 
-		self.velocity[0] = v_acc_x*(1-k) + v_wheel_x*k
+			self.velocity[0] = v_acc_x*(1-k) + v_wheel_x*k
 
 	def on_updateLeftWheelRPM(self, rpm):
 		''' Drive process can manually overide wheel rpm'''
