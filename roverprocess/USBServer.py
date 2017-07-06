@@ -44,11 +44,17 @@ class USBServer(RoverServer):
 			self.log(buff, "DEBUG")
 			ser.write(buff)
 
+	def read_vesc(self, device):
+		# manually get the buffer size from the vesc device
+		to_int = lambda b: int.from_bytes(b, byteorder='big')
+		head = device.read()
+		length = device.read(to_int(head) - 1)
+		packet = head + length + device.read(to_int(length) + 3)
+		return pyvesc.decode(packet)
+
 	def read_cmd(self, device):
 		if device.in_waiting > 0:
-			buff = device.readline()
-			(msg, _) = pyvesc.decode(buff)
-			self.log("Got: "+str(buff), "DEBUG")
+			(msg, _) =  self.read_vesc(device)
 			return (msg.__class__.__name__, msg)
 		else:
 			return None
@@ -61,9 +67,7 @@ class USBServer(RoverServer):
 			try:
 				req = pyvesc.ReqSubscription('t')
 				device.write(pyvesc.encode(req))
-				buff = device.readline()
-				self.log(buff, "DEBUG")
-				(msg, _) = pyvesc.decode(buff)
+				(msg, _) = self.read_vesc(device)
 				s = msg.subscription
 				break # parseVESCPacket didn't fail
 			except:
