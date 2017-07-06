@@ -186,17 +186,18 @@ class NavigationProcess(RoverProcess):
 			pitch (degrees):
 			roll (degrees):
 		'''
-		if self.state == "waiting":
-			self.heading = (self.heading + msg.heading)/(self.heading_samples)
-			self.heading_samples += 1
-		tmp = time.time()
-		d_t = tmp-self.last_compasmessage
-		self.last_compasmessage = tmp
 		self.log("heading: "+str(msg.heading))
 		if self.heading is not None:
 			self.heading_last = self.heading
-			self.heading = self.heading_g_h_filter(msg.heading, self.heading,
-					(self.right_speed-self.left_speed)/ROVER_WIDTH, 0.5, 0.05, d_t)
+			if self.state == "waiting":
+				self.heading = (self.heading + msg.heading)/(self.heading_samples)
+				self.heading_samples += 1
+			else:
+				tmp = time.time()
+				d_t = tmp-self.last_compassmessage
+				self.last_compassmessage = tmp
+				self.heading = self.heading_g_h_filter(msg.heading, self.heading,
+						(self.right_speed-self.left_speed)/ROVER_WIDTH, 0.5, 0.05, d_t)
 		else:
 			if len(self.starting_calibration_heading) < CALIBRATION_SAMPLES:
 				self.starting_calibration_heading.append(msg.heading)
