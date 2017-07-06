@@ -53,6 +53,7 @@ class USBServer(RoverServer):
 			return (None, None)
 		length = device.read(to_int(head) - 1)
 		packet = head + length + device.read(to_int(length) + 4)
+		self.log(packet, "DEBUG")
 		return pyvesc.decode(packet)
 
 	def read_cmd(self, device):

@@ -50,9 +50,8 @@ class WebServer(RoverProcess):
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
-		#print(message)
 		with self.dataSem:
-			self.data.update(message)
+			self.data[message.key] = message.data
 
 	def cleanup(self):
 		RoverProcess.cleanup(self)

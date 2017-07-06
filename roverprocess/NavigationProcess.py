@@ -1,5 +1,5 @@
 from .RoverProcess import RoverProcess
-from .GPSProcess import GPSPosition
+from .GPSProcess import GPSPosition, LOOP_PERIOD
 from math import asin, atan2, cos, pi, radians, sin, sqrt, degrees, atan
 import time
 from statistics import mean
@@ -10,7 +10,7 @@ MIN_WHEEL_RPM = 4.385095 # ERPM = 1000
 
 ROVER_WIDTH = 1.2 # m
 
-CALIBRATION_SAMPLES = 20
+CALIBRATION_SAMPLES = 10
 
 class NavigationProcess(RoverProcess):
 	''' Aggregates data from GPS, Magnetometer, LIDAR, etc,
@@ -22,8 +22,8 @@ class NavigationProcess(RoverProcess):
 		self.position = None
 		self.position_last = None
 
-		self.heading = None
-		self.heading_last = None
+		self.heading = 0
+		self.heading_last = 0
 
 		self.velocity = [0,0] # m/s, north, east
 		self.accel = [0,0] #m/s^2, north, east
@@ -145,7 +145,7 @@ class NavigationProcess(RoverProcess):
 		x_est  = x_pred + g * residual
 		return x_est, dx
 
-	def vel_g_h_filter_wheel(self, z, x0, g, h, dt=1):
+	def vel_g_h_filter_wheel(self, z, x0, dx, g, h, dt=1):
 		x_est = x0
 		#prediction step
 		x_pred = x_est + dt*dx
@@ -221,28 +221,30 @@ class NavigationProcess(RoverProcess):
 		'''Updates GPS position'''
 		#std_dev 1.663596084712623e-05, 2.1743680968892167e-05
 		# self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)))
-		if self.state == "waiting":
+		if self.state == "waiting" and self.position is not None:
 			lat = (self.position.lat + pos.lat)/(self.pos_samples)
 			lon = (self.position.lon + pos.lon)/(self.pos_samples)
 			self.pos_samples += 1
-			self.position = GPSPosition(lat, lon)
+			# self.position = GPSPosition(lat, lon)
+			self.log("{},{}".format(degrees(self.position.lat), degrees(self.position.lon)), "DEBUG")
+			self.publish("RoverPosition", [degrees(self.position.lat), degrees(self.position.lon)])
 			return
 		if self.position is not None:
 			k = 0.0 # determens which to trust more; velocity(0), or wheels (1)
 			pos_pred_lat_vel = self.pos_g_h_filter_vel(pos.lat,
-					self.position.lat, self.velocity[0], 0.25, 0.02, GPSProcess.LOOP_PERIOD)
+					self.position.lat, self.velocity[0], 0.25, 0.02, LOOP_PERIOD)
 			pos_pred_lon_vel = self.pos_g_h_filter_vel(pos.lon,
-					self.position.lon, self.velocity[1], 0.25, 0.02, GPSProcess.LOOP_PERIOD)
+					self.position.lon, self.velocity[1], 0.25, 0.02, LOOP_PERIOD)
 
-			fk_pred = diff_drive_fk(0,0, ROVER_WIDTH, self.heading, self.left_speed, self.right_speed, GPSProcess.LOOP_PERIOD)
-			pos_pred_lat_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lat, fk_pred[0], 0.3, 0.02, GPSProcess.LOOP_PERIOD)
-			pos_pred_lat_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lon, fk_pred[1], 0.3, 0.02, GPSProcess.LOOP_PERIOD)
+			fk_pred = diff_drive_fk(0,0, ROVER_WIDTH, self.heading, self.left_speed, self.right_speed, LOOP_PERIOD)
+			pos_pred_lat_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lat, fk_pred[0], 0.3, 0.02, LOOP_PERIOD)
+			pos_pred_lon_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lon, fk_pred[1], 0.3, 0.02, LOOP_PERIOD)
 			pos_pred_lat = pos_pred_lat_vel*(1-k) + pos_pred_lat_wheel*k
 			pos_pred_lon = pos_pred_lon_vel*(1-k) + pos_pred_lon_wheel*k
 			self.log("{},{}".format(degrees(pos_pred_lat), degrees(pos_pred_lon)), "DEBUG")
 			self.position_last = self.position
 			self.position = GPSPosition(pos_pred_lat, pos_pred_lon)
-			self.publish("RoverPosition", [pos_pred_lat, pos_pred_lon])
+			self.publish("RoverPosition", [degrees(pos_pred_lat), degrees(pos_pred_lon)])
 		else:
 			if len(self.starting_calibration_gps[0]) < CALIBRATION_SAMPLES:
 				self.starting_calibration_gps[0].append(pos.lat)
@@ -264,12 +266,12 @@ class NavigationProcess(RoverProcess):
 		else:
 			k = 0.0 #constant determining which to trust more; acceleration(0) or wheels(1)
 			v_acc_x, self.accel[0] = self.vel_g_h_filter_acc(vel[0], self.velocity[0],
-					self.accel[0], 0.4, 0.01, GPSProcess.LOOP_PERIOD)
+					self.accel[0], 0.4, 0.01, LOOP_PERIOD)
 			v_acc_y, self.accel[1] = self.vel_g_h_filter_acc(vel[1], self.velocity[1],
-					self.accel[1], 0.4, 0.01, GPSProcess.LOOP_PERIOD)
+					self.accel[1], 0.4, 0.01, LOOP_PERIOD)
 
-			v_wheel_x = self.vel_g_h_filter_wheel(vel[0], self.velocity[0], 0.4, 0.01, GPSProcess.LOOP_PERIOD)
-			v_wheel_y = self.vel_g_h_filter_wheel(vel[1], self.velocity[1], 0.4, 0.01, GPSProcess.LOOP_PERIOD)
+			v_wheel_x = self.vel_g_h_filter_wheel(vel[0], self.velocity[0], 0.4, 0.01, LOOP_PERIOD)
+			v_wheel_y = self.vel_g_h_filter_wheel(vel[1], self.velocity[1], 0.4, 0.01, LOOP_PERIOD)
 
 			self.velocity[0] = v_acc_x*(1-k) + v_wheel_x*k
 
@@ -283,6 +285,8 @@ class NavigationProcess(RoverProcess):
 
 	def on_AccelerometerMessage(self, accel):
 		self.log("x: {}, y: {}, z: {}".format(accel.x, accel.y, accel.z))
+		self.accel[0] = accel.x
+		self.accel[1] = accel.y
 
 	def on_ButtonA_down(self, data):
 		self.state = "waiting"

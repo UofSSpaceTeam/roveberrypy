@@ -46,11 +46,8 @@ class ExampleProcess(RoverProcess):
 	# The default behavior is to sleep for 1 second.
 	# Use self.publish() to send some variables to another process or server!
 	def loop(self):
-		self.publish("blink", BlinkLed(1))
-		self.log("blink on")
-		time.sleep(0.5)
-		self.publish("blink", BlinkLed(0))
-		self.log("blink off")
+
+		# self.publish("RoverPosition", [52.13215772649199, -106.62886440753937])
 		time.sleep(0.5)
 
 	# This runs every time a new message comes in.
