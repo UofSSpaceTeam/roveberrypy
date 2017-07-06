@@ -33,6 +33,8 @@ logger.setLevel(logging.ERROR)
 class WebServer(RoverProcess):
 
 	def setup(self, args):
+		for msg in ["RoverPosition", "RoverHeading"]:
+			self.subscribe(msg)
 		self.dataSem = BoundedSemaphore()
 		self.data = {}
 		self.routes = WebServerRoutes(parent=self, dataSem=self.dataSem)
