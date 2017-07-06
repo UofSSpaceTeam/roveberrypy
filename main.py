@@ -86,7 +86,8 @@ def init_rover_classes(modulesList):
 def main():
 	init_logging()
 
-	modulesList = init_modulesList("DriveProcess","NavigationProcess","USBServer")
+	# modulesList = init_modulesList("DriveProcess","NavigationProcess","USBServer","WebServer")
+	modulesList = init_modulesList("NavigationProcess","USBServer")
 
 	rover_classes = init_rover_classes(modulesList)
 

@@ -8,7 +8,7 @@ from .differential_drive_lib import diff_drive_fk, inverse_kinematics_drive
 WHEEL_RADIUS = 14.5 # cm
 MIN_WHEEL_RPM = 4.385095 # ERPM = 1000
 
-ROVER_WIDTH = 1 # m
+ROVER_WIDTH = 1.2 # m
 
 CALIBRATION_SAMPLES = 30
 
@@ -32,7 +32,7 @@ class NavigationProcess(RoverProcess):
 		self._rotating = False
 
 		self.autonomous_mode = False
-		self.state = "waiting" #can be "waiting" or "driving"
+		self.state = "waiting" #can be "waiting" "driving" or "manual"
 
 		# number of samples in our running average
 		self.pos_samples = 1
@@ -58,7 +58,8 @@ class NavigationProcess(RoverProcess):
 
 		for msg in ["LidarDataMessage", "CompassDataMessage",
 					"targetGPS", "singlePointGPS", "GPSVelocity",
-					"updateLeftWheelRPM", "updateRightWheelRPM"
+					"updateLeftWheelRPM", "updateRightWheelRPM",
+					"AccelerometerMessage", "buttonA_down", "buttonB_down"
 					]:
 			self.subscribe(msg)
 
@@ -69,6 +70,8 @@ class NavigationProcess(RoverProcess):
 			self.wait_state()
 		elif self.state == "driving":
 			self.drive_state()
+		elif self.state == "manual":
+			pass # don't do anything in manual control mode
 		else:
 			self.log("Navigation in invalid state, reverting to wating...", "WARNING")
 			self.state = "waiting"
@@ -103,7 +106,7 @@ class NavigationProcess(RoverProcess):
 
 	def wait_state(self):
 		''' Function for handling waiting state'''
-		pass
+		self.publish("DriveStop", 0)
 
 	def update_wheel_velocity(self):
 		self.right_speed = self.right_rpm*WHEEL_RADIUS/2
@@ -207,7 +210,8 @@ class NavigationProcess(RoverProcess):
 		target = GPSPosition(radians(pos[0]), radians(pos[1]))
 		if target.distance(self.position) <= self.maximum_target_distance:
 			self.target = target
-			self.state = "driving"
+			if self.state != "manual":
+				self.state = "driving"
 
 	def on_singlePointGPS(self, pos):
 		'''Updates GPS position'''
@@ -273,4 +277,10 @@ class NavigationProcess(RoverProcess):
 
 	def on_AccelerometerMessage(self, accel):
 		self.log("x: {}, y: {}, z: {}".format(accel.x, accel.y, accel.z))
+
+	def on_ButtonA_down(self, data):
+		self.state = "waiting"
+
+	def on_ButtonB_down(sel, data):
+		self.state = "manual"
 

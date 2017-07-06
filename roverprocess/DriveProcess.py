@@ -80,7 +80,7 @@ class DriveProcess(RoverProcess):
 		self.drive_mode = "rpm"
 		for key in ["joystick1", "joystick2","triggerL","triggerR", "on_DriveStop",
 					"on_DriveForward", "on_DriveBackward",
-					"on_DriveRotateRight", "on_DriveRotateLeft"]:
+					"on_DriveRotateRight", "on_DriveRotateLeft", "buttonA_down"]:
 			self.subscribe(key)
 
 	def on_joystick1(self, data):
@@ -99,7 +99,7 @@ class DriveProcess(RoverProcess):
 			self.publish("wheelLF", SetRPM(int(speed)))
 			self.publish("wheelLM", SetRPM(int(-1*speed)))
 			self.publish("wheelLB", SetRPM(int(speed)))
-			sefl.publish("updateLeftheelRPM", speed)
+			self.publish("updateLeftWheelRPM", speed)
 			self.log("left: {}".format(speed))
 		elif self.drive_mode == "current" and not self.left_brake:
 			current = current_curve(y_axis)
@@ -128,7 +128,7 @@ class DriveProcess(RoverProcess):
 			self.publish("wheelRF", SetRPM(int(speed)))
 			self.publish("wheelRM", SetRPM(int(speed)))
 			self.publish("wheelRB", SetRPM(int(-1*speed)))
-			sefl.publish("updateRightWheelRPM", speed)
+			self.publish("updateRightWheelRPM", speed)
 			self.log("right: {}".format(speed))
 		elif self.drive_mode == "current" and not self.right_brake:
 			current = current_curve(y_axis)
@@ -178,6 +178,12 @@ class DriveProcess(RoverProcess):
 			self.publish("wheel6", SetCurrentBrake(trigger*max_current))
 		else:
 			self.right_brake = False
+
+	def on_ButtonA_down(self, val):
+		self.publish("autoDrive")
+
+	def on_ButtonB_down(self, val):
+		self.publish("manualDrive")
 
 	def _setLeftWheelSpeed(self, rpm):
 		rpm = SetRPM(int(rpm))
