@@ -48,6 +48,9 @@ class USBServer(RoverServer):
 		# manually get the buffer size from the vesc device
 		to_int = lambda b: int.from_bytes(b, byteorder='big')
 		head = device.read()
+		# magic VESC header must be 2 or 3
+		if not to_int(head) == 2 or to_int(head) == 3:
+			return (None, None)
 		length = device.read(to_int(head) - 1)
 		packet = head + length + device.read(to_int(length) + 4)
 		return pyvesc.decode(packet)
