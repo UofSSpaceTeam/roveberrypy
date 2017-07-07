@@ -8,7 +8,7 @@ from threading import Thread
 import time
 import socket
 import serial
-from math import radians
+from math import radians, sin, tan, atan2, cos
 from statistics import mean
 
 LOOP_PERIOD = 0.3 # How often we pusblish positions
