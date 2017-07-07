@@ -8,8 +8,9 @@ from threading import Thread
 import time
 import socket
 import serial
-from math import radians
-from statistics import mean
+from math import *
+import math
+#from statistics import mean
 
 LOOP_PERIOD = 0.3 # How often we pusblish positions
 
@@ -45,7 +46,15 @@ class GPSPosition:
 		x = (cos(self.lat) * sin(them.lat)
 				- sin(self.lat) * cos(them.lat) * cos(d_lat))
 
-		return atan2(y, x)
+		return math.degrees(atan2(y, x))
+	
+	def gpsPosition(self, bearing, distance):
+		r_lat = math.radians(self.lat)
+		r_lon = math.radians(self.lon)
+		target_lat = asin(sin(r_lat)*cos(distance/GPSPosition.RADIUS) +cos(r_lat)*sin(distance/GPSPosition.RADIUS)*cos(math.radians(bearing)))
+
+		target_lon = r_lon + atan2(sin(bearing)*sin(distance/GPSPosition.RADIUS)*cos(r_lat),cos(distance/GPSPosition.RADIUS)-sin(r_lat)*sin(target_lat))
+		return GPSPosition(math.degrees(target_lat), math.degrees(target_lon))
 
 class GPSProcess(RoverProcess):
 	''' Polls a Piksi RTK GPS unit and publishes the
