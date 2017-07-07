@@ -47,7 +47,7 @@ class ExampleProcess(RoverProcess):
 	# Use self.publish() to send some variables to another process or server!
 	def loop(self):
 
-		# self.publish("RoverPosition", [52.13215772649199, -106.62886440753937])
+		self.publish("RoverPosition", [52.13215772649199, -106.62886440753937])
 		time.sleep(0.5)
 
 	# This runs every time a new message comes in.

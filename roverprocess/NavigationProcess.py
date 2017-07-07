@@ -32,12 +32,14 @@ class NavigationProcess(RoverProcess):
 		self._rotating = False
 
 		self.autonomous_mode = False
-		self.state = "waiting" #can be "waiting" "driving" or "manual"
+		self.state = "manual" #can be "waiting" "driving" or "manual"
 
 		# number of samples in our running average
-		self.pos_samples = 1
-		self.vel_samples = 1
-		self.heading_samples = 1
+		self.pos_samples = 0
+		self.vel_samples = 0
+		self.heading_samples = 0
+
+		self.last_compassmessage = 0
 
 		self.target = None
 		self.target_reached_distance = 3  # metres
@@ -140,7 +142,7 @@ class NavigationProcess(RoverProcess):
 		# update step
 		residual = z - x_pred
 		x_est  = x_pred + g * residual
-		return x_est, dx
+		return x_est
 
 	def on_LidarDataMessage(self, lidarmsg):
 		''' LidarDataMessage contains:
@@ -161,28 +163,20 @@ class NavigationProcess(RoverProcess):
 			pitch (degrees):
 			roll (degrees):
 		'''
-		self.log("heading: "+str(msg.heading))
 		if self.heading is not None:
 			self.heading_last = self.heading
 			if self.state == "waiting":
-				self.heading = (self.heading + msg.heading)/(self.heading_samples)
+				# rolling average
+				self.heading = (self.heading_samples*self.heading + msg.heading)/(self.heading_samples+1)
 				self.heading_samples += 1
 			else:
 				tmp = time.time()
 				d_t = tmp-self.last_compassmessage
 				self.last_compassmessage = tmp
 				self.heading = self.g_h_filter(msg.heading, self.heading,
-						(self.right_speed-self.left_speed)/ROVER_WIDTH, 0.5, 0.05, d_t)
+						(self.right_speed-self.left_speed)/ROVER_WIDTH, 0.8, d_t)
 				self.publish("RoverHeading", self.heading)
-		else:
-			if len(self.starting_calibration_heading) < CALIBRATION_SAMPLES:
-				# Keep averaging
-				self.starting_calibration_heading.append(msg.heading)
-			else:
-				# 'calibration' done
-				self.starting_calibration_heading.append(msg.heading)
-				self.heading_last = self.heading
-				self.heading = mean(self.starting_calibration_heading)
+			# self.log("heading: {}".format(self.heading))
 
 	def on_targetGPS(self, pos):
 		'''Targets a new GPS coordinate'''
@@ -198,7 +192,7 @@ class NavigationProcess(RoverProcess):
 		# self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)))
 		if self.state == "waiting" and self.position is not None:
 			lat = (self.position.lat + pos.lat)/(self.pos_samples)
-			lon = (self.position.lon + pos.lon)/(self.pos_samples)
+			lon = (self.pos_samples*self.position.lon + pos.lon)/(self.pos_samples+1)
 			self.pos_samples += 1
 			# self.position = GPSPosition(lat, lon)
 			self.log("{},{}".format(degrees(self.position.lat), degrees(self.position.lon)), "DEBUG")
@@ -216,7 +210,7 @@ class NavigationProcess(RoverProcess):
 			pos_pred_lon_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lon, fk_pred[1], 0.3, LOOP_PERIOD)
 			pos_pred_lat = pos_pred_lat_vel*(1-k) + pos_pred_lat_wheel*k
 			pos_pred_lon = pos_pred_lon_vel*(1-k) + pos_pred_lon_wheel*k
-			self.log("{},{}".format(degrees(pos_pred_lat), degrees(pos_pred_lon)), "DEBUG")
+			self.log("{},{}".format(degrees(pos_pred_lat), degrees(pos_pred_lon)), "INFO")
 			self.position_last = self.position
 			self.position = GPSPosition(pos_pred_lat, pos_pred_lon)
 			self.publish("RoverPosition", [degrees(pos_pred_lat), degrees(pos_pred_lon)])
@@ -229,14 +223,14 @@ class NavigationProcess(RoverProcess):
 				self.starting_calibration_gps[0].append(pos.lat)
 				self.starting_calibration_gps[1].append(pos.lon)
 				self.position = GPSPosition(mean(self.starting_calibration_gps[0]), mean(self.starting_calibration_gps[1]))
-				self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)), "DEBUG")
+				self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)), "INFO")
 
 	def on_GPSVelocity(self, vel):
 		# std_dev 0.04679680341613995, 0.035958365746391524
 		# self.log("{},{}".format(vel[0], vel[1]))
 		if self.state == "waiting":
-			self.velocity[0] = (self.velocity[0] + vel[0])/(self.vel_samples)
-			self.velocity[1] = (self.velocity[1] + vel[1])/(self.vel_samples)
+			self.velocity[0] = (self.vel_samples*self.velocity[0] + vel[0])/(self.vel_samples)
+			self.velocity[1] = (self.vel_samples*self.velocity[1] + vel[1])/(self.vel_samples+1)
 			self.vel_samples += 1
 		else:
 			k = 0.0 #constant determining which to trust more; acceleration(0) or wheels(1)
@@ -257,9 +251,12 @@ class NavigationProcess(RoverProcess):
 		self.right_rpm = rpm
 
 	def on_AccelerometerMessage(self, accel):
-		self.log("x: {}, y: {}, z: {}".format(accel.x, accel.y, accel.z))
-		self.accel[0] = accel.x
-		self.accel[1] = accel.y
+		#mean when stationary: 0.07603603603603604, 0.6156756756756757
+		k = 0.2 # trust factor in our acceleration readings
+		stationary_accel = (0.07603603603603604, 0.6156756756756757)
+		self.accel[0] = k*(accel.x - stationary_accel[0])
+		self.accel[1] = k*(accel.y - stationary_accel[1])
+		# self.log("{},{}".format(self.accel[0], self.accel[1]))
 
 	def on_ButtonA_down(self, data):
 		self.state = "waiting"
