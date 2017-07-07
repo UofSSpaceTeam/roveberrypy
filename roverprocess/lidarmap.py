@@ -120,7 +120,7 @@ class LidarMap():
             self.deleteHoles()
         else:
             self.partitions = []
-    
+
     def deleteHoles(self):
         '''delete partitions that is smaller than the width of rover, which rover could not pass through'''
         holes = self.findHoles()
@@ -144,7 +144,7 @@ class LidarMap():
                         partitions.append(self.partitions[i])
                         i = i + 1
                 self.partitions = partitions
-    
+
     def mergeMultipleHoles(self, holes):
         if len(holes) <= 1:
             return holes
@@ -171,7 +171,7 @@ class LidarMap():
             else:
                 result.append(this)
         return result
-        
+
     def findHoles(self):
         holes = []
         for i in range(0, len(self.partitions)):
@@ -179,9 +179,9 @@ class LidarMap():
             angle = width / this[2]
             if angle > angle_unit:
                 left_angle = (this[0] - angle) % 360
-                
+
                 right_angle = (this[1] + angle) % 360
-                
+
                 left = self.findPartition(left_angle)
                 right = self.findPartition(right_angle)
                 left_hole_candidate = findPartitionsInBetween(left, i)
@@ -203,8 +203,8 @@ class LidarMap():
                     if isHole:
                         holes.append((i,right))
         return holes
-                
-                
+
+
     def findPartitionsInBetween(self, i, j):
         ''' find the index of all partitions between partition[i] and partition[j]'''
         if i + 1 == j:
@@ -276,7 +276,7 @@ class LidarMap():
                 previous = self.findPreviousPartition(i)
                 pre_partition = self.partitions[previous]
                 if partition[2] > pre_partition[2]:
-					
+
                     return self.angle_snap((partition[0] - width / partition[2])%360), pre_partition[2]
                 else:
                     return self.angle_snap((pre_partition[1]+width / pre_partition[2])%360), partition[2]
@@ -284,9 +284,9 @@ class LidarMap():
                 next = self.findNextPartition(i)
                 next_partition = self.partitions[next]
                 if partition[2] > next_partition[2]:
-                    return self.angle_snap((partition[1]+width / partition[2])%360, next_partition[2]
+                    return self.angle_snap((partition[1]+width / partition[2])%360), next_partition[2]
                 else:
-                    return self.angle_snap((next_partition[0]-width / next_partition[2])%360, partition[2]
+                    return self.angle_snap((next_partition[0]-width / next_partition[2])%360), partition[2]
 
 ######################################
 ######## END class LidarMap ##########
@@ -387,7 +387,7 @@ def PathFinding(target, m):
             deep_angle = center(*m.find_farthest_region())
             waypoints.append((deep_angle, max_range))
     return waypoints
-            
+
 
 def main():
     ''' Path finding algorithm.'''

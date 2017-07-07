@@ -6,7 +6,7 @@ import time
 from .differential_drive_lib import diff_drive_fk, inverse_kinematics_drive
 import json
 import math
-from lidarmap import LidarMap
+from .lidarmap import LidarMap
 
 WHEEL_RADIUS = 14.5 # cm
 MIN_WHEEL_RPM = 4.385095 # ERPM = 1000
