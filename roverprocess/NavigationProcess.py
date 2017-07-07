@@ -201,9 +201,9 @@ class NavigationProcess(RoverProcess):
 		if self.position is not None:
 			k = 0.0 # determens which to trust more; velocity(0), or wheels (1)
 			pos_pred_lat_vel = self.pos_g_h_filter_vel(pos.lat,
-					self.position.lat, self.velocity[0], 0.25, LOOP_PERIOD)
+					self.position.lat, self.velocity[0], 0.1, LOOP_PERIOD)
 			pos_pred_lon_vel = self.pos_g_h_filter_vel(pos.lon,
-					self.position.lon, self.velocity[1], 0.25, LOOP_PERIOD)
+					self.position.lon, self.velocity[1], 0.1, LOOP_PERIOD)
 
 			fk_pred = diff_drive_fk(0,0, ROVER_WIDTH, self.heading, self.left_speed, self.right_speed, LOOP_PERIOD)
 			pos_pred_lat_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lat, fk_pred[0], 0.3, LOOP_PERIOD)
@@ -233,9 +233,9 @@ class NavigationProcess(RoverProcess):
 			self.velocity[1] = (self.vel_samples*self.velocity[1] + vel[1])/(self.vel_samples+1)
 			self.vel_samples += 1
 		else:
-			k = 0.0 #constant determining which to trust more; acceleration(0) or wheels(1)
-			v_acc_x = self.g_h_filter(vel[0], self.velocity[0], self.accel[0], 0.4, LOOP_PERIOD)
-			v_acc_y = self.g_h_filter(vel[1], self.velocity[1], self.accel[1], 0.4, LOOP_PERIOD)
+			k = 0.1 #constant determining which to trust more; acceleration(0) or wheels(1)
+			v_acc_x = self.g_h_filter(vel[0], self.velocity[0], self.accel[0], 0.2, LOOP_PERIOD)
+			v_acc_y = self.g_h_filter(vel[1], self.velocity[1], self.accel[1], 0.2, LOOP_PERIOD)
 
 			v_wheel_x = self.g_h_filter(vel[0], self.velocity[0], 0.4, LOOP_PERIOD)
 			v_wheel_y = self.g_h_filter(vel[1], self.velocity[1], 0.4, LOOP_PERIOD)

@@ -59,4 +59,4 @@ class WebServer(RoverProcess):
 	## Bottle server code running in independent thread
 	# Please see routes.py for information about exchanging data
 	def startBottleServer(self):
-		run(host='localhost', port=8000, server=GeventWebSocketServer, app=self.routes.instance, debug=True)
+		run(host='localhost', port=8000, server=GeventWebSocketServer, app=self.routes.instance, debug=False)
