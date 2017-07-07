@@ -2,8 +2,11 @@ from .RoverProcess import RoverProcess
 from .GPSProcess import GPSPosition, LOOP_PERIOD
 from math import asin, atan2, cos, pi, radians, sin, sqrt, degrees, atan
 import time
-from statistics import mean
+#from statistics import mean
 from .differential_drive_lib import diff_drive_fk, inverse_kinematics_drive
+import json
+import math
+from lidarmap import LidarMap
 
 WHEEL_RADIUS = 14.5 # cm
 MIN_WHEEL_RPM = 4.385095 # ERPM = 1000
@@ -11,6 +14,10 @@ MIN_WHEEL_RPM = 4.385095 # ERPM = 1000
 ROVER_WIDTH = 1.2 # m
 
 CALIBRATION_SAMPLES = 10
+
+LIDAR_ANGLE_UNIT = 0.6
+LIDAR_POINTS = 600
+LIDAR_MAX_RANGE = 600
 
 class NavigationProcess(RoverProcess):
 	''' Aggregates data from GPS, Magnetometer, LIDAR, etc,
@@ -57,11 +64,19 @@ class NavigationProcess(RoverProcess):
 
 		self.starting_calibration_gps = [[],[]] # list of GPS positions that ar averaged
 		self.starting_calibration_heading = []
+        
+		self.waypoints = []
+		
+		self.lidar_angles = [i * LIDAR_ANGLE_UNIT for i in range(0, LIDAR_POINTS)]
+		self.lidar_distance = [LIDAR_MAX_RANGE for i in range(0, LIDAR_POINTS)]
+		self.lidar_scan_finish = False
 
 		for msg in ["LidarDataMessage", "CompassDataMessage",
 					"targetGPS", "singlePointGPS", "GPSVelocity",
 					"updateLeftWheelRPM", "updateRightWheelRPM",
-					"AccelerometerMessage", "buttonA_down", "buttonB_down"
+					"AccelerometerMessage", "buttonA_down", "buttonB_down",
+                    "wayPoint", "saveWayPoint","loadWayPoint","clearWayPoint",
+					"autonomousMode", "lidarScanFinish"
 					]:
 			self.subscribe(msg)
 
@@ -85,9 +100,9 @@ class NavigationProcess(RoverProcess):
 		if self.position is not None:
 			distance = self.position.distance(self.target)
 			bearing = self.position.bearing(self.target)
-
-			if abs(bearing) > self.bearing_error:
-				if bearing < 0:
+			difference = bearing - self.heading
+			if abs(difference) > self.bearing_error:
+				if difference < 0:
 					self.publish("DriveRotateLeft", MIN_WHEEL_RPM)
 					self.left_rpm = -MIN_WHEEL_RPM
 					self.right_rpm = MIN_WHEEL_RPM
@@ -108,7 +123,33 @@ class NavigationProcess(RoverProcess):
 
 	def wait_state(self):
 		''' Function for handling waiting state'''
-		self.publish("DriveStop", 0)
+		if self.autonomous_mode:
+			if len(self.waypoints) == 0:
+				self.publish("DriveStop", 0)
+			else:
+				#do a lidar scan
+				self.publish("StartLidarScan",StartLidarScan(1))
+				while not self.lidar_scan_finish:
+					time.sleep(1)
+				self.lidar_scan_finish = False
+				lidarMap = LidarMap(self.angles, self.distance)
+				if self.position is not None:
+					distance = self.position.distance(self.waypoints[0])
+					bearing = self.position.bearing(self.waypoints[0])
+					if distance > LIDAR_MAX_RANGE:
+						distance = LIDAR_MAX_RANGE
+					bearing_snap = lidarMap.angle_snap(bearing)
+					if lidarMap.distance(bearing_snap) < distance:
+						#find a waypoint to avoid the obstacle and set it as target
+						angle, distance = lidarMap.find_opening(bearing_snap)
+						real_bearing = (heading+ angle) % 360
+						self.target = self.position.gpsPosition(real_bearing, distance)
+					else:
+						self.target = self.waypoints[0]
+						self.waypoints = self.waypoints[1:]
+						self.state = "driving"
+		else:
+			self.publish("DriveStop", 0)
 
 	def update_wheel_velocity(self):
 		self.right_speed = self.right_rpm*WHEEL_RADIUS/2
@@ -153,6 +194,8 @@ class NavigationProcess(RoverProcess):
 				measurement was taken.
 			tilt (degrees): virtical angle the distance was measured at.
 		'''
+		self.lidar_distance[int(lidarmsg.angle / LIDAR_ANGLE_UNIT)] = lidarmsg.distance
+		self.lidar_scan_finish = lidarmsg.finished
 		self.log("Dist: {} Angle: {} Tilt {}".format(lidarmsg.distance,
 			lidarmsg.angle/100, lidarmsg.tilt))
 
@@ -263,4 +306,31 @@ class NavigationProcess(RoverProcess):
 
 	def on_ButtonB_down(sel, data):
 		self.state = "manual"
+        
+	def on_wayPoint(self, pos):
+		self.waypoints.append(pos)
+    
+	def on_saveWayPoint(self,path):
+		f = open(path,'w')
+		for waypoint in self.waypoints:
+			json.dump(waypoint.__dict__,f)
+			f.write('\n')
+		self.waypoints = []
+        
+	def on_loadWayPoint(self, path):
+		f = open(path,'r')
+		json_data = f.read()
+		data_list = json_data.split('\n')
+		for s in data_list[0:-1]:
+			data = json.loads(s)
+			pos = GPSPosition(data['lat'],data['lon'],data['mode'])
+			self.waypoints.append(pos)
+    
+	def on_clearWayPoint(self,data):
+		self.waypoints = []
+        
+	def on_autonomousMode(self,flag):
+		self.autonomous_mode = flag
+        
+	
 
