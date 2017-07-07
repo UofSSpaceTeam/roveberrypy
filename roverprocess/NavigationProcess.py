@@ -112,60 +112,35 @@ class NavigationProcess(RoverProcess):
 		self.right_speed = self.right_rpm*WHEEL_RADIUS/2
 		self.left_speed = self.left_rpm*WHEEL_RADIUS/2
 
-	def pos_g_h_filter_vel(self, z, x0, dx, g, h, dt=1):
+	def pos_g_h_filter_vel(self, z, x0, dx, g, dt=1):
 		x_est = x0
 		#prediction step
 		x_pred = x_est + atan((dx*dt)/GPSPosition.RADIUS)
 
 		# update step
 		residual = z - x_pred
-		dx = dx    + h * (residual) / dt
 		x_est  = x_pred + g * residual
 		return x_est
 
-	def pos_g_h_filter_wheel(self, z, x0, dx, g, h, dt=1):
+	def pos_g_h_filter_wheel(self, z, x0, dx, g, dt=1):
 		x_est = x0
 		#prediction step
 		x_pred = x_est + atan((dx)/GPSPosition.RADIUS)
 
 		# update step
 		residual = z - x_pred
-		dx = dx    + h * (residual) / dt
 		x_est  = x_pred + g * residual
 		return x_est
 
-	def vel_g_h_filter_acc(self, z, x0, dx, g, h, dt=1):
+	def g_h_filter(self, z, x0, dx, g, dt=1):
 		x_est = x0
 		#prediction step
 		x_pred = x_est + dt*dx
 
 		# update step
 		residual = z - x_pred
-		dx = dx    + h * (residual) / dt
 		x_est  = x_pred + g * residual
 		return x_est, dx
-
-	def vel_g_h_filter_wheel(self, z, x0, dx, g, h, dt=1):
-		x_est = x0
-		#prediction step
-		x_pred = x_est + dt*dx
-
-		# update step
-		residual = z - x_pred
-		dx = dx    + h * (residual) / dt
-		x_est  = x_pred + g * residual
-		return x_est
-
-	def heading_g_h_filter(self, z, x0, dx, g, h, dt=1):
-		x_est = x0
-		#prediction step
-		x_pred = x_est + dt*dx
-
-		# update step
-		residual = z - x_pred
-		dx = dx    + h * (residual) / dt
-		x_est  = x_pred + g * residual
-		return x_est
 
 	def on_LidarDataMessage(self, lidarmsg):
 		''' LidarDataMessage contains:
@@ -196,7 +171,7 @@ class NavigationProcess(RoverProcess):
 				tmp = time.time()
 				d_t = tmp-self.last_compassmessage
 				self.last_compassmessage = tmp
-				self.heading = self.heading_g_h_filter(msg.heading, self.heading,
+				self.heading = self.g_h_filter(msg.heading, self.heading,
 						(self.right_speed-self.left_speed)/ROVER_WIDTH, 0.5, 0.05, d_t)
 				self.publish("RoverHeading", self.heading)
 		else:
@@ -232,13 +207,13 @@ class NavigationProcess(RoverProcess):
 		if self.position is not None:
 			k = 0.0 # determens which to trust more; velocity(0), or wheels (1)
 			pos_pred_lat_vel = self.pos_g_h_filter_vel(pos.lat,
-					self.position.lat, self.velocity[0], 0.25, 0.02, LOOP_PERIOD)
+					self.position.lat, self.velocity[0], 0.25, LOOP_PERIOD)
 			pos_pred_lon_vel = self.pos_g_h_filter_vel(pos.lon,
-					self.position.lon, self.velocity[1], 0.25, 0.02, LOOP_PERIOD)
+					self.position.lon, self.velocity[1], 0.25, LOOP_PERIOD)
 
 			fk_pred = diff_drive_fk(0,0, ROVER_WIDTH, self.heading, self.left_speed, self.right_speed, LOOP_PERIOD)
-			pos_pred_lat_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lat, fk_pred[0], 0.3, 0.02, LOOP_PERIOD)
-			pos_pred_lon_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lon, fk_pred[1], 0.3, 0.02, LOOP_PERIOD)
+			pos_pred_lat_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lat, fk_pred[0], 0.3, LOOP_PERIOD)
+			pos_pred_lon_wheel = self.pos_g_h_filter_wheel(pos.lon, self.position.lon, fk_pred[1], 0.3, LOOP_PERIOD)
 			pos_pred_lat = pos_pred_lat_vel*(1-k) + pos_pred_lat_wheel*k
 			pos_pred_lon = pos_pred_lon_vel*(1-k) + pos_pred_lon_wheel*k
 			self.log("{},{}".format(degrees(pos_pred_lat), degrees(pos_pred_lon)), "DEBUG")
@@ -265,13 +240,11 @@ class NavigationProcess(RoverProcess):
 			self.vel_samples += 1
 		else:
 			k = 0.0 #constant determining which to trust more; acceleration(0) or wheels(1)
-			v_acc_x, self.accel[0] = self.vel_g_h_filter_acc(vel[0], self.velocity[0],
-					self.accel[0], 0.4, 0.01, LOOP_PERIOD)
-			v_acc_y, self.accel[1] = self.vel_g_h_filter_acc(vel[1], self.velocity[1],
-					self.accel[1], 0.4, 0.01, LOOP_PERIOD)
+			v_acc_x = self.g_h_filter(vel[0], self.velocity[0], self.accel[0], 0.4, LOOP_PERIOD)
+			v_acc_y = self.g_h_filter(vel[1], self.velocity[1], self.accel[1], 0.4, LOOP_PERIOD)
 
-			v_wheel_x = self.vel_g_h_filter_wheel(vel[0], self.velocity[0], 0.4, 0.01, LOOP_PERIOD)
-			v_wheel_y = self.vel_g_h_filter_wheel(vel[1], self.velocity[1], 0.4, 0.01, LOOP_PERIOD)
+			v_wheel_x = self.g_h_filter(vel[0], self.velocity[0], 0.4, LOOP_PERIOD)
+			v_wheel_y = self.g_h_filter(vel[1], self.velocity[1], 0.4, LOOP_PERIOD)
 
 			self.velocity[0] = v_acc_x*(1-k) + v_wheel_x*k
 
