@@ -19,9 +19,10 @@ from multiprocessing import BoundedSemaphore
 # WebUI Modules
 import bottle
 from bottle import run
-from bottle.ext.websocket import GeventWebSocketServer
-from bottle.ext.websocket import websocket
+#from WebUI.bottle.ext.websocket import GeventWebSocketServer
+#from WebUI.bottle.ext.websocket import websocket
 from WebUI.Routes import WebServerRoutes
+from bottle import ServerAdapter
 
 # Python Modules
 import time
@@ -31,6 +32,38 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
 class WebServer(RoverProcess):
+	## Replaces the stock WSGI server with one that we can control within
+	##	the context of the rover software
+	class RoverWSGIServer(ServerAdapter):
+		quiet = False # comment this out for verbose logging
+
+		def run(self, app):  # pragma: no cover
+			from wsgiref.simple_server import make_server
+			from wsgiref.simple_server import WSGIRequestHandler, WSGIServer
+			import socket
+
+			class FixedHandler(WSGIRequestHandler):
+				def address_string(self):  # Prevent reverse DNS lookups please.
+					return self.client_address[0]
+
+				def log_request(*args, **kw):
+					if not self.quiet:
+						return WSGIRequestHandler.log_request(*args, **kw)
+
+			handler_cls = self.options.get('handler_class', FixedHandler)
+			server_cls = self.options.get('server_class', WSGIServer)
+
+			if ':' in self.host:  # Fix wsgiref for IPv6 addresses.
+				if getattr(server_cls, 'address_family') == socket.AF_INET:
+
+					class server_cls(server_cls):
+						address_family = socket.AF_INET6
+
+			self.srv = make_server(self.host, self.port, app, server_cls,
+								   handler_cls)
+			self.port = self.srv.server_port
+			self.srv.serve_forever()
+
 
 	def setup(self, args):
 		for msg in ["RoverPosition", "RoverHeading"]:
@@ -41,6 +74,8 @@ class WebServer(RoverProcess):
 
 		bottle.TEMPLATE_PATH = ['./WebUI/views']
 		print("Web Templates Loaded From:", bottle.TEMPLATE_PATH)
+		self.server = self.RoverWSGIServer(host='3.3.3.4', port=8000)
+
 
 		Thread(target = self.startBottleServer).start()
 
@@ -59,4 +94,4 @@ class WebServer(RoverProcess):
 	## Bottle server code running in independent thread
 	# Please see routes.py for information about exchanging data
 	def startBottleServer(self):
-		run(host='localhost', port=8000, server=GeventWebSocketServer, app=self.routes.instance, debug=False)
+		run(server=self.server, app=self.routes.instance)
