@@ -117,7 +117,7 @@ class DriveProcess(RoverProcess):
 			A joystick1 message contains:
 			[x axis (float -1:1), y axis (float -1:1)]
 		"""
-		y_axis = data[0]
+		y_axis = data[1]
 		print(data)
 		if y_axis is None:
 			return
