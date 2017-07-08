@@ -28,13 +28,15 @@ shoulder_max_speed = 2
 shoulder_min_speed = 0.1
 elbow_max_speed = 2
 elbow_min_speed = 0.1
+wrist_pitch_speed = 2
+gripper_rotation_speed = 2
 
 radius_max_speed = 2
 radius_min_speed = 0.2
 height_max_speed = 2
 height_min_speed = 0.2
 
-device_keys = ["d_armBase", "d_armShoulder", "d_armElbow"]
+device_keys = ["d_armBase", "d_armShoulder", "d_armElbow", "d_armWristPitch", "d_armGripperRotate"]
 
 dt = 0.01
 BAUDRATE = 115200
@@ -182,6 +184,13 @@ class ArmProcess(RoverProcess):
 			self.log(height_speed)
 			self.command[1] = height_speed
 
+	def on_dpad(self, data):
+		x_axis = data[0]
+		y_axis = data[1]
+		if isinstance(self.mode, ManualControl):
+			self.command[3] = y_axis*wrist_pitch_speed
+			self.command[4] = x_axis*gripper_rotation_speed
+
 	def on_triggerR(self, trigger):
 		''' Base rotation right'''
 		trigger = -1*(trigger + 1)/2
@@ -207,7 +216,7 @@ class ArmProcess(RoverProcess):
 				self.base_direction = "left"
 			# self.command[0] = armBaseSpeed
 
-	def on_buttonA_down(self, data):
+	def on_ButtonA_down(self, data):
 		if isinstance(self.mode, ManualControl):
 			self.mode = PlanarControl()
 		else:

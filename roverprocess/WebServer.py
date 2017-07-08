@@ -17,8 +17,9 @@ from threading import Thread
 from multiprocessing import BoundedSemaphore
 
 # WebUI Modules
-from WebUI import bottle
-from WebUI.bottle import run, ServerAdapter
+# from WebUI import bottle
+import bottle
+from bottle import run, ServerAdapter
 from WebUI.Routes import WebServerRoutes
 
 # Python Modules
