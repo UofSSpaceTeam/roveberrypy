@@ -36,7 +36,7 @@ radius_min_speed = 0.2
 height_max_speed = 2
 height_min_speed = 0.2
 
-device_keys = ["d_armBase", "d_armShoulder", "d_armElbow", "d_armWristPitch", "d_armGripperRotate"]
+device_keys = ["d_armBase", "d_armShoulder", "d_armElbow", "d_armWristPitch", "d_armGripperRotate", "d_armGripperOpen"]
 
 dt = 0.01
 BAUDRATE = 115200
@@ -46,7 +46,7 @@ SERIAL_TIMEOUT = 0.02
 class ArmProcess(RoverProcess):
 
 	def setup(self, args):
-		for key in ["joystick1", "joystick2", "triggerR", "triggerL"]:
+		for key in ["joystick1", "joystick2", "triggerR", "triggerL", "dpad", "buttonB_down"]:
 			self.subscribe(key)
 		for key in device_keys:
 			self.subscribe(key)
@@ -109,7 +109,7 @@ class ArmProcess(RoverProcess):
 	def get_positions(self):
 		''' Returns an updated Joints object with the current arm positions'''
 		new_joints = list(self.joints_pos)
-		for i, device in enumerate(["d_armShoulder", "d_armElbow"]):
+		for i, device in enumerate(["d_armShoulder", "d_armElbow", "d_armWristPitch"]):
 			if device in self.devices:
 				reading = self.poll_encoder(device)
 				if reading is not None:
@@ -137,6 +137,9 @@ class ArmProcess(RoverProcess):
 
 	def send_duties(self):
 		''' Tell each motor controller to turn on motors'''
+		if "d_armBase" in self.devices:
+			with serial.Serial(self.devices["d_armBase"], baudrate=BAUDRATE, timeout=SERIAL_TIMEOUT) as ser:
+				ser.write(pyvesc.encode(SetDutyCycle(int(100000*self.speeds[0]))))
 		if "d_armShoulder" in self.devices:
 			with serial.Serial(self.devices["d_armShoulder"], baudrate=BAUDRATE, timeout=SERIAL_TIMEOUT) as ser:
 				ser.write(pyvesc.encode(SetDutyCycle(int(100000*self.speeds[1]))))
@@ -201,7 +204,7 @@ class ArmProcess(RoverProcess):
 				self.base_direction = None
 			else:
 				self.base_direction = "right"
-			# self.command[0] = armBaseSpeed
+			self.command[0] = armBaseSpeed
 
 
 	def on_triggerL(self, trigger):
@@ -214,13 +217,15 @@ class ArmProcess(RoverProcess):
 				self.base_direction = None
 			else:
 				self.base_direction = "left"
-			# self.command[0] = armBaseSpeed
+			self.command[0] = armBaseSpeed
 
-	def on_ButtonA_down(self, data):
+	def on_buttonB_down(self, data):
 		if isinstance(self.mode, ManualControl):
 			self.mode = PlanarControl()
+			self.log("PlanarControl", "DEBUG")
 		else:
 			self.mode = ManualControl()
+			self.log("ManualControl", "DEBUG")
 
 	def messageTrigger(self, message):
 		if message.key in device_keys:
