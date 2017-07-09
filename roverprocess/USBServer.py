@@ -66,7 +66,7 @@ class USBServer(RoverServer):
 				# Special case, arm motor controllers bypass
 				# the messageing server and get delivered
 				# straight to the ArmProcess.
-				if s in ["armBase", "armShoulder", "armElbow"]:
+				if s in ["armBase", "armShoulder", "armElbow", "armGripperOpen", "armWristRot"]:
 					self.publish("d_"+s, device.port)
 					s = None
 				break # parseVESCPacket didn't fail

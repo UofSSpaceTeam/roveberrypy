@@ -22,8 +22,8 @@ import serial
 # Any libraries you need can be imported here. You almost always need time!
 import time
 
-base_max_speed = 2
-base_min_speed = 0.1
+base_max_speed = 3
+base_min_speed = 0.4
 shoulder_max_speed = 2
 shoulder_min_speed = 0.1
 elbow_max_speed = 2
@@ -37,9 +37,9 @@ radius_min_speed = 0.2
 height_max_speed = 2
 height_min_speed = 0.2
 
-device_keys = ["d_armBase", "d_armShoulder", "d_armElbow", "d_armWristPitch", "d_armGripperRotate", "d_armGripperOpen"]
+device_keys = ["d_armBase", "d_armShoulder", "d_armElbow", "d_armWristRot", "d_armGripperOpen"]
 
-dt = 0.1
+dt = 0.01
 BAUDRATE = 115200
 SERIAL_TIMEOUT = 0.02
 
@@ -62,25 +62,25 @@ class ArmProcess(RoverProcess):
 		joint_limits = Joints(
 				# in radians
 				base=None,
-				shoulder=Limits(-0.047, 0.9),
-				elbow=Limits(1.3, 1.95),
+				shoulder=Limits(-0.09, 0.721),
+				elbow=Limits(1.392, 1.699),
 				wrist_pitch=None,
 				wrist_roll=None,
 				gripper=None)
 		max_angular_velocity = Joints(
-				base=0.4,
+				base=0.6,
 				shoulder=0.4,
 				elbow=0.4,
 				wrist_pitch=0.4,
-				wrist_roll=0.4,
-				gripper=0.4)
+				wrist_roll=0.8,
+				gripper=0.8)
 		self.config = Config(section_lengths, joint_limits, max_angular_velocity)
 		self.controller = Controller(self.config)
 		self.mode = ManualControl()
 		self.devices = {}
 		# joint_offsets are values in degrees to 'zero' the encoder angle
-		# self.joint_offsets = {"d_armShoulder":-336.26, "d_armElbow":-245.18}
-		self.joint_offsets = {"d_armShoulder":0, "d_armElbow":0}
+		self.joint_offsets = {"d_armShoulder":-332.544, "d_armElbow":-221.505+90}
+		# self.joint_offsets = {"d_armShoulder":0, "d_armElbow":0}
 
 
 	def simulate_positions(self):
@@ -127,12 +127,12 @@ class ArmProcess(RoverProcess):
 
 	def loop(self):
 		self.joints_pos = self.get_positions()
-		#self.log("command: {}".format(self.command), "DEBUG")
+		self.log("command: {}".format(self.command), "DEBUG")
 		self.controller.user_command(self.mode, *self.command)
 		self.speeds = self.controller.update_duties(self.joints_pos)
 		#publish speeds/duty cycles here
-		#self.log("joints_pos: {}".format(self.joints_pos), "DEBUG")
-		#self.log("speeds: {}".format(self.speeds), "DEBUG")
+		self.log("joints_pos: {}".format(self.joints_pos), "DEBUG")
+		self.log("speeds: {}".format(self.speeds), "DEBUG")
 		self.send_duties()
 		time.sleep(dt)
 
@@ -147,6 +147,12 @@ class ArmProcess(RoverProcess):
 		if "d_armElbow" in self.devices:
 			with serial.Serial(self.devices["d_armElbow"], baudrate=BAUDRATE, timeout=SERIAL_TIMEOUT) as ser:
 				ser.write(pyvesc.encode(SetDutyCycle(int(100000*self.speeds[2]))))
+		if "d_armWristRot" in self.devices:
+			with serial.Serial(self.devices["d_armWristRot"], baudrate=BAUDRATE, timeout=SERIAL_TIMEOUT) as ser:
+				ser.write(pyvesc.encode(SetDutyCycle(int(100000*self.speeds[4]))))
+		if "d_armGripperOpen" in self.devices:
+			with serial.Serial(self.devices["d_armGripperOpen"], baudrate=BAUDRATE, timeout=SERIAL_TIMEOUT) as ser:
+				ser.write(pyvesc.encode(SetDutyCycle(int(100000*self.speeds[5]))))
 
 
 	def on_joystick1(self, data):
@@ -154,7 +160,7 @@ class ArmProcess(RoverProcess):
 		#self.log("joystick1:{}".format(data), "DEBUG")
 		y_axis = data[1]
 		if isinstance(self.mode, ManualControl):
-			y_axis *= shoulder_max_speed
+			y_axis *= -1*shoulder_max_speed
 			if y_axis > shoulder_min_speed or y_axis < -shoulder_min_speed:
 				armShoulderSpeed = y_axis
 			else:
@@ -197,20 +203,6 @@ class ArmProcess(RoverProcess):
 	def on_triggerR(self, trigger):
 		''' Base rotation right'''
 		#self.log("triggerR:{}".format(trigger), "DEBUG")
-		trigger = -1*(trigger + 1)/2
-		armBaseSpeed = trigger * base_max_speed/2
-		if self.base_direction is "right" or self.base_direction is None:
-			if -base_min_speed <armBaseSpeed < base_min_speed:
-				armBaseSpeed = 0
-				self.base_direction = None
-			else:
-				self.base_direction = "right"
-			self.command[0] = armBaseSpeed
-
-
-	def on_triggerL(self, trigger):
-		''' Base rotation left'''
-		#self.log("triggerL:{}".format(trigger), "DEBUG")
 		trigger = (trigger + 1)/2
 		armBaseSpeed = trigger * base_max_speed/2
 		if self.base_direction is "left" or self.base_direction is None:
@@ -219,7 +211,28 @@ class ArmProcess(RoverProcess):
 				self.base_direction = None
 			else:
 				self.base_direction = "left"
-			self.command[0] = armBaseSpeed
+			if isinstance(self.mode, ManualControl):
+				self.command[0] = armBaseSpeed
+			elif isinstance(self.mode, PlanarControl):
+				self.command[2] = armBaseSpeed
+
+
+
+	def on_triggerL(self, trigger):
+		''' Base rotation left'''
+		#self.log("triggerL:{}".format(trigger), "DEBUG")
+		trigger = -1*(trigger + 1)/2
+		armBaseSpeed = trigger * base_max_speed/2
+		if self.base_direction is "right" or self.base_direction is None:
+			if -base_min_speed <armBaseSpeed < base_min_speed:
+				armBaseSpeed = 0
+				self.base_direction = None
+			else:
+				self.base_direction = "right"
+			if isinstance(self.mode, ManualControl):
+				self.command[0] = armBaseSpeed
+			elif isinstance(self.mode, PlanarControl):
+				self.command[2] = armBaseSpeed
 
 	def on_buttonB_down(self, data):
 		if isinstance(self.mode, ManualControl):
@@ -231,7 +244,7 @@ class ArmProcess(RoverProcess):
 	
 	def on_buttonA_down(self, data):
 		self.log("gripper close:{}".format(data), "DEBUG")
-		self.command[5] = -gripper_open_speed
+		self.command[5] = gripper_open_speed
 	
 	def on_buttonA_up(self,data):
 		self.log("gripper close stop:{}".format(data), "DEBUG")
@@ -244,11 +257,11 @@ class ArmProcess(RoverProcess):
 	
 	def on_buttonY_down(self, data):
 		self.log("gripper open:{}".format(data), "DEBUG")
-		self.command[5] = gripper_open_speed
+		self.command[5] = -gripper_open_speed
 
 	def messageTrigger(self, message):
 		if message.key in device_keys:
-			self.log("Received device: {}".format(message.key), "DEBUG")
+			self.log("Received device: {} at {}".format(message.key, message.data), "DEBUG")
 			self.devices[message.key] = message.data
 			with serial.Serial(message.data, baudrate=BAUDRATE, timeout=SERIAL_TIMEOUT) as ser:
 				# Turn on encoder readings for this VESC
