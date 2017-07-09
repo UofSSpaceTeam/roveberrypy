@@ -38,7 +38,7 @@ height_min_speed = 0.2
 
 device_keys = ["d_armBase", "d_armShoulder", "d_armElbow", "d_armWristPitch", "d_armGripperRotate", "d_armGripperOpen"]
 
-dt = 0.01
+dt = 0.1
 BAUDRATE = 115200
 SERIAL_TIMEOUT = 0.02
 
@@ -78,8 +78,8 @@ class ArmProcess(RoverProcess):
 		self.mode = ManualControl()
 		self.devices = {}
 		# joint_offsets are values in degrees to 'zero' the encoder angle
-		self.joint_offsets = {"d_armShoulder":-336.26, "d_armElbow":-245.18}
-		# self.joint_offsets = {"d_armShoulder":0, "d_armElbow":0}
+		# self.joint_offsets = {"d_armShoulder":-336.26, "d_armElbow":-245.18}
+		self.joint_offsets = {"d_armShoulder":0, "d_armElbow":0}
 
 
 	def simulate_positions(self):
@@ -126,12 +126,12 @@ class ArmProcess(RoverProcess):
 
 	def loop(self):
 		self.joints_pos = self.get_positions()
-		self.log("command: {}".format(self.command))
+		self.log("command: {}".format(self.command), "DEBUG")
 		self.controller.user_command(self.mode, *self.command)
 		self.speeds = self.controller.update_duties(self.joints_pos)
 		#publish speeds/duty cycles here
-		self.log("joints_pos: {}".format(self.joints_pos))
-		self.log("speeds: {}".format(self.speeds))
+		self.log("joints_pos: {}".format(self.joints_pos), "DEBUG")
+		self.log("speeds: {}".format(self.speeds), "DEBUG")
 		self.send_duties()
 		time.sleep(dt)
 
@@ -157,7 +157,6 @@ class ArmProcess(RoverProcess):
 				armShoulderSpeed = y_axis
 			else:
 				armShoulderSpeed = 0
-			self.log(armShoulderSpeed)
 			self.command[1] = armShoulderSpeed
 		elif isinstance(self.mode, PlanarControl):
 			y_axis = (y_axis * radius_max_speed)
@@ -165,7 +164,6 @@ class ArmProcess(RoverProcess):
 				radius_speed = y_axis
 			else:
 				radius_speed = 0
-			self.log(radius_speed)
 			self.command[0] = radius_speed
 
 	def on_joystick2(self, data):
@@ -184,15 +182,14 @@ class ArmProcess(RoverProcess):
 				height_speed = y_axis
 			else:
 				height_speed = 0
-			self.log(height_speed)
 			self.command[1] = height_speed
 
 	def on_dpad(self, data):
 		x_axis = data[0]
 		y_axis = data[1]
-		if isinstance(self.mode, ManualControl):
-			self.command[3] = y_axis*wrist_pitch_speed
-			self.command[4] = x_axis*gripper_rotation_speed
+		self.command[3] = y_axis*wrist_pitch_speed
+		self.command[4] = x_axis*gripper_rotation_speed
+
 
 	def on_triggerR(self, trigger):
 		''' Base rotation right'''
@@ -222,10 +219,10 @@ class ArmProcess(RoverProcess):
 	def on_buttonB_down(self, data):
 		if isinstance(self.mode, ManualControl):
 			self.mode = PlanarControl()
-			self.log("PlanarControl", "DEBUG")
+			self.log("PlanarControl")
 		else:
 			self.mode = ManualControl()
-			self.log("ManualControl", "DEBUG")
+			self.log("ManualControl")
 
 	def messageTrigger(self, message):
 		if message.key in device_keys:
