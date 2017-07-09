@@ -30,6 +30,7 @@ elbow_max_speed = 2
 elbow_min_speed = 0.1
 wrist_pitch_speed = 2
 gripper_rotation_speed = 2
+gripper_open_speed = 1
 
 radius_max_speed = 2
 radius_min_speed = 0.2
@@ -46,7 +47,7 @@ SERIAL_TIMEOUT = 0.02
 class ArmProcess(RoverProcess):
 
 	def setup(self, args):
-		for key in ["joystick1", "joystick2", "triggerR", "triggerL", "dpad", "buttonB_down"]:
+		for key in ["joystick1", "joystick2", "triggerR", "triggerL", "dpad", "buttonB_down","buttonA_down","buttonY_down", "buttonA_up","buttonY_up"]:
 			self.subscribe(key)
 		for key in device_keys:
 			self.subscribe(key)
@@ -126,12 +127,12 @@ class ArmProcess(RoverProcess):
 
 	def loop(self):
 		self.joints_pos = self.get_positions()
-		self.log("command: {}".format(self.command), "DEBUG")
+		#self.log("command: {}".format(self.command), "DEBUG")
 		self.controller.user_command(self.mode, *self.command)
 		self.speeds = self.controller.update_duties(self.joints_pos)
 		#publish speeds/duty cycles here
-		self.log("joints_pos: {}".format(self.joints_pos), "DEBUG")
-		self.log("speeds: {}".format(self.speeds), "DEBUG")
+		#self.log("joints_pos: {}".format(self.joints_pos), "DEBUG")
+		#self.log("speeds: {}".format(self.speeds), "DEBUG")
 		self.send_duties()
 		time.sleep(dt)
 
@@ -150,6 +151,7 @@ class ArmProcess(RoverProcess):
 
 	def on_joystick1(self, data):
 		''' Shoulder joint, and radius control.'''
+		#self.log("joystick1:{}".format(data), "DEBUG")
 		y_axis = data[1]
 		if isinstance(self.mode, ManualControl):
 			y_axis *= shoulder_max_speed
@@ -168,6 +170,7 @@ class ArmProcess(RoverProcess):
 
 	def on_joystick2(self, data):
 		''' Elbow joints and z/height control'''
+		#self.log("joystick2:{}".format(data), "DEBUG")
 		y_axis = data[1]
 		if isinstance(self.mode, ManualControl):
 			y_axis *= elbow_max_speed
@@ -193,6 +196,7 @@ class ArmProcess(RoverProcess):
 
 	def on_triggerR(self, trigger):
 		''' Base rotation right'''
+		#self.log("triggerR:{}".format(trigger), "DEBUG")
 		trigger = -1*(trigger + 1)/2
 		armBaseSpeed = trigger * base_max_speed/2
 		if self.base_direction is "right" or self.base_direction is None:
@@ -206,6 +210,7 @@ class ArmProcess(RoverProcess):
 
 	def on_triggerL(self, trigger):
 		''' Base rotation left'''
+		#self.log("triggerL:{}".format(trigger), "DEBUG")
 		trigger = (trigger + 1)/2
 		armBaseSpeed = trigger * base_max_speed/2
 		if self.base_direction is "left" or self.base_direction is None:
@@ -223,6 +228,23 @@ class ArmProcess(RoverProcess):
 		else:
 			self.mode = ManualControl()
 			self.log("ManualControl")
+	
+	def on_buttonA_down(self, data):
+		self.log("gripper close:{}".format(data), "DEBUG")
+		self.command[5] = -gripper_open_speed
+	
+	def on_buttonA_up(self,data):
+		self.log("gripper close stop:{}".format(data), "DEBUG")
+		self.command[5] = 0
+	
+	def on_buttonY_up(self,data):
+		self.log("gripper open stop:{}".format(data), "DEBUG")
+		self.command[5] = 0
+		
+	
+	def on_buttonY_down(self, data):
+		self.log("gripper open:{}".format(data), "DEBUG")
+		self.command[5] = gripper_open_speed
 
 	def messageTrigger(self, message):
 		if message.key in device_keys:

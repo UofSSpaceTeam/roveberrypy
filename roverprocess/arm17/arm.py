@@ -234,11 +234,11 @@ class Controller:
         # self.log(joints, geometry, speed)
         return speed
 
-    def log(self, joints, geometry, speed):
-        timestamp = time.time()
-        if self._last_control_mode != self._control_mode:
+    #def log(self, joints, geometry, speed):
+     #   timestamp = time.time()
+      #  if self._last_control_mode != self._control_mode:
             # make a new record if the control mode changes
-            self._speed_record.append([])
+       #     self._speed_record.append([])
         # record state
-        self._speed_record[-1].append((*speed, self._control_mode.__class__.__name__, *self._user_args))
-        self._joint_record.append((*joints, *geometry.position, *geometry.dr, *geometry.dz))
+        #self._speed_record[-1].append((*speed, self._control_mode.__class__.__name__, *self._user_args))
+        #self._joint_record.append((*joints, *geometry.position, *geometry.dr, *geometry.dz))
