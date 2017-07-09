@@ -66,7 +66,7 @@ class WebServer(RoverProcess):
 
 
 	def setup(self, args):
-		for msg in ["RoverPosition", "RoverHeading"]:
+		for msg in ["RoverPosition", "RoverHeading", "TargetReached"]:
 			self.subscribe(msg)
 		self.dataSem = BoundedSemaphore()
 		self.data = {}
@@ -74,7 +74,7 @@ class WebServer(RoverProcess):
 
 		bottle.TEMPLATE_PATH = ['./WebUI/views']
 		print("Web Templates Loaded From:", bottle.TEMPLATE_PATH)
-		self.server = self.RoverWSGIServer(host='3.3.3.4', port=8000)
+		self.server = self.RoverWSGIServer(host='localhost', port=8000)
 
 
 		Thread(target = self.startBottleServer).start()

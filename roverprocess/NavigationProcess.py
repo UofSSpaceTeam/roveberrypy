@@ -38,7 +38,7 @@ class NavigationProcess(RoverProcess):
 		self.bearing_error = 5 # TODO: What unit is this in?
 		self._rotating = False
 
-		self.autonomous_mode = False
+		self.autonomous_mode = True
 		self.state = "manual" #can be "waiting" "driving" or "manual"
 
 		# number of samples in our running average
@@ -130,7 +130,7 @@ class NavigationProcess(RoverProcess):
 				#do a lidar scan
 				self.publish("StartLidarScan",StartLidarScan(1))
 				while not self.lidar_scan_finish:
-					time.sleep(1)
+					time.sleep(0.5)
 				self.lidar_scan_finish = False
 				lidarMap = LidarMap(self.angles, self.distance)
 				if self.position is not None:
@@ -224,8 +224,13 @@ class NavigationProcess(RoverProcess):
 	def on_targetGPS(self, pos):
 		'''Targets a new GPS coordinate'''
 		target = GPSPosition(radians(pos[0]), radians(pos[1]))
+		self.publish("TargetReached", False)
 		if target.distance(self.position) <= self.maximum_target_distance:
-			self.target = target
+			if len(self.waypoints) > 1:
+				self.waypoints.append(target)
+				self.target = waypoints[0]
+			else:
+				self.target = target
 			if self.state != "manual":
 				self.state = "driving"
 
@@ -307,8 +312,8 @@ class NavigationProcess(RoverProcess):
 	def on_ButtonB_down(sel, data):
 		self.state = "manual"
         
-	def on_wayPoint(self, pos):
-		self.waypoints.append(pos)
+	def on_ButtonY_down(self, pos):
+		self.waypoints.append(self.position)
     
 	def on_saveWayPoint(self,path):
 		f = open(path,'w')

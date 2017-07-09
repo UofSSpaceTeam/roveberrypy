@@ -27,7 +27,7 @@ def init_logging():
 	"""
 	logging.basicConfig(filename = 'log.log',
 			format='%(name)-20s: %(levelname)-8s %(message)s',
-			filemode = 'w', level = logging.INFO) #creates new log each time it's run
+			filemode = 'w', level = logging.DEBUG) #creates new log each time it's run
 	console_log = logging.StreamHandler()
 	formatter = logging.Formatter('%(name)-20s: %(levelname)-8s %(message)s')
 	console_log.setFormatter(formatter)
@@ -89,10 +89,11 @@ def main():
 	modulesList = init_modulesList(
 			"DriveProcess",
 			# "NavigationProcess",
+			"SimpleNavigationProcess",
 			"USBServer",
 			"WebServer",
-			# "ExampleProcess",
-			# "GPSProcess"
+			#"ExampleProcess",
+			 "GPSProcess"
 			)
 
 	rover_classes = init_rover_classes(modulesList)

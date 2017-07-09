@@ -5,11 +5,11 @@ import statistics
 
 lats = []
 longs = []
-with open('./gpslogs.csv', 'r') as csvfile:
+with open('./gpslogs1.csv', 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=',')
     for row in spamreader:
-        lats.append(float(row[0]))
-        longs.append(float(row[1]))
+        lats.append(float(row[1]))
+        longs.append(float(row[2]))
 
 point_x = []
 point_y = []

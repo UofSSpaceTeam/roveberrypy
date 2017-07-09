@@ -1,4 +1,7 @@
-grep "^NavigationProcess" ../log.log > gpslogs
-awk '{print $4}' gpslogs > gpslogs.csv
+grep "^SimpleNavigationProcess" Prospector1.log > gpslogs
+awk '{print $3}' gpslogs > gpslogs1.csv
 rm gpslogs
-python plot_gps.py
+grep "^SimpleNavigationProcess" Prospector2.log > gpslogs
+awk '{print $3}' gpslogs > gpslogs2.csv
+rm gpslogs
+#python plot_gps.py
