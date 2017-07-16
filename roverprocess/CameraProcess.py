@@ -23,18 +23,11 @@ class CameraProcess(RoverProcess):
 		for key in ["start_cam_0", "start_cam_1", "stop_cam"]:
 			self.subscribe(key)
 
-	def loop(self):
-		time.sleep(0.5)
-		
 	def on_start_cam_0(self, data):
 		call("/home/pi/bin/start_video0.sh", shell=True)
-	
-	def on_start_cam_0(self, data):
-		call("/home/pi/bin/start_video0.sh", shell=True)
-	
-	def on_stop_cam(self, data):
-		call("killall mjpg_streamer", shell=True)		
 
-	def cleanup(self):
-		# If you override this method, you must call RoverProcess.cleanup(self)
-		RoverProcess.cleanup(self)
+	def on_start_cam_0(self, data):
+		call("/home/pi/bin/start_video0.sh", shell=True)
+
+	def on_stop_cam(self, data):
+		call("killall mjpg_streamer", shell=True)
