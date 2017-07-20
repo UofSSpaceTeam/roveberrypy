@@ -13,7 +13,7 @@
 
 from .RoverProcess import RoverProcess
 import pyvesc
-from pyvesc import SetDutyCycle, SetRPM, GetRotorPosition, SetRotorPositionMode
+from pyvesc import SetDutyCycle, GetRotorPosition, SetRotorPositionMode
 from roverprocess.arm17.arm import Joints, Controller, Config, ManualControl,Sections,Limits,PlanarControl
 from math import pi
 import math
@@ -241,20 +241,20 @@ class ArmProcess(RoverProcess):
 		else:
 			self.mode = ManualControl()
 			self.log("ManualControl")
-	
+
 	def on_buttonA_down(self, data):
 		self.log("gripper close:{}".format(data), "DEBUG")
 		self.command[5] = gripper_open_speed
-	
+
 	def on_buttonA_up(self,data):
 		self.log("gripper close stop:{}".format(data), "DEBUG")
 		self.command[5] = 0
-	
+
 	def on_buttonY_up(self,data):
 		self.log("gripper open stop:{}".format(data), "DEBUG")
 		self.command[5] = 0
-		
-	
+
+
 	def on_buttonY_down(self, data):
 		self.log("gripper open:{}".format(data), "DEBUG")
 		self.command[5] = -gripper_open_speed

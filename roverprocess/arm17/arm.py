@@ -1,7 +1,5 @@
 import collections
 import math
-import time
-from enum import Enum
 
 """ Container used to associate a value with each joint of the arm.
 """
