@@ -12,9 +12,6 @@
 # permissions and limitations under the License.
 
 from .RoverProcess import RoverProcess
-
-import time
-
 from subprocess import call
 
 class CameraProcess(RoverProcess):
@@ -26,8 +23,8 @@ class CameraProcess(RoverProcess):
 	def on_start_cam_0(self, data):
 		call("/home/pi/bin/start_video0.sh", shell=True)
 
-	def on_start_cam_0(self, data):
-		call("/home/pi/bin/start_video0.sh", shell=True)
+	def on_start_cam_1(self, data):
+		call("/home/pi/bin/start_video1.sh", shell=True)
 
 	def on_stop_cam(self, data):
 		call("killall mjpg_streamer", shell=True)
