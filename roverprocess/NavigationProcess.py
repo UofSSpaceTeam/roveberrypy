@@ -35,7 +35,7 @@ class NavigationProcess(RoverProcess):
 		self.velocity = [0,0] # m/s, north, east
 		self.accel = [0,0] #m/s^2, north, east
 
-		self.bearing_error = 5 # TODO: What unit is this in?
+		self.bearing_error = 5 # degrees
 		self._rotating = False
 
 		self.autonomous_mode = True
@@ -64,9 +64,9 @@ class NavigationProcess(RoverProcess):
 
 		self.starting_calibration_gps = [[],[]] # list of GPS positions that ar averaged
 		self.starting_calibration_heading = []
-        
+
 		self.waypoints = []
-		
+
 		self.lidar_angles = [i * LIDAR_ANGLE_UNIT for i in range(0, LIDAR_POINTS)]
 		self.lidar_distance = [LIDAR_MAX_RANGE for i in range(0, LIDAR_POINTS)]
 		self.lidar_scan_finish = False
@@ -274,6 +274,7 @@ class NavigationProcess(RoverProcess):
 				self.log("{},{}".format(degrees(pos.lat), degrees(pos.lon)), "INFO")
 
 	def on_GPSVelocity(self, vel):
+		'''Updates velocity from GPS unit.'''
 		# std_dev 0.04679680341613995, 0.035958365746391524
 		# self.log("{},{}".format(vel[0], vel[1]))
 		if self.state == "waiting":
@@ -299,6 +300,7 @@ class NavigationProcess(RoverProcess):
 		self.right_rpm = rpm
 
 	def on_AccelerometerMessage(self, accel):
+		'''Update acceleration.'''
 		#mean when stationary: 0.07603603603603604, 0.6156756756756757
 		k = 0.2 # trust factor in our acceleration readings
 		stationary_accel = (0.07603603603603604, 0.6156756756756757)
@@ -307,22 +309,27 @@ class NavigationProcess(RoverProcess):
 		# self.log("{},{}".format(self.accel[0], self.accel[1]))
 
 	def on_ButtonA_down(self, data):
+		''' Go into the "waiting" state.'''
 		self.state = "waiting"
 
 	def on_ButtonB_down(sel, data):
+		''' Go into manual control mode.'''
 		self.state = "manual"
-        
+
 	def on_ButtonY_down(self, pos):
+		'''Add the rover's current position as a waypoint.'''
 		self.waypoints.append(self.position)
-    
+
 	def on_saveWayPoint(self,path):
+		'''Save waypoints to a file in json format.'''
 		f = open(path,'w')
 		for waypoint in self.waypoints:
 			json.dump(waypoint.__dict__,f)
 			f.write('\n')
 		self.waypoints = []
-        
+
 	def on_loadWayPoint(self, path):
+		'''Load waypoints from a json file.'''
 		f = open(path,'r')
 		json_data = f.read()
 		data_list = json_data.split('\n')
@@ -330,12 +337,14 @@ class NavigationProcess(RoverProcess):
 			data = json.loads(s)
 			pos = GPSPosition(data['lat'],data['lon'],data['mode'])
 			self.waypoints.append(pos)
-    
+
 	def on_clearWayPoint(self,data):
+		'''Clear all waypoints.'''
 		self.waypoints = []
-        
+
 	def on_autonomousMode(self,flag):
+		'''Enable autonomous navigation mode.'''
 		self.autonomous_mode = flag
-        
-	
+
+
 
