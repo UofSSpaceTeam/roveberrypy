@@ -89,11 +89,12 @@ def main():
 	modulesList = init_modulesList(
 			"DriveProcess",
 			# "NavigationProcess",
-			"SimpleNavigationProcess",
+			# "SimpleNavigationProcess",
 			"USBServer",
-			"WebServer",
+			"JoystickProcess",
+			# "WebServer",
 			#"ExampleProcess",
-			 "GPSProcess"
+			 # "GPSProcess"
 			)
 
 	rover_classes = init_rover_classes(modulesList)
