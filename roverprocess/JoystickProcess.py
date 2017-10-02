@@ -34,6 +34,8 @@ class JoystickProcess(RoverProcess):
 			values = []
 			for i in range( axes ):
 				values.append(joystick.get_axis(i))
-			self.log(values)
+			self.publish("joystick1", [values[0], values[1]])
+			self.publish("joystick2", [values[3], values[4]])
+			# self.log(values, "DEBUG")
 		time.sleep(0.1)
 
