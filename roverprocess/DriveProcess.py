@@ -12,7 +12,7 @@
 # permissions and limitations under the License.
 
 from .RoverProcess import RoverProcess
-from pyvesc import SetRPM, SetCurrent, SetCurrentBrake
+from pyvesc import SetRPM, SetCurrent, SetCurrentBrake, SetDutyCycle
 import pyvesc
 from math import expm1 # e**x - 1  for rpm/current curves
 from math import exp
@@ -28,6 +28,8 @@ max_rpm = 40000
 min_rpm = 300
 max_current = 6
 min_current = 0.1
+min_duty = 2000
+max_duty = 100000
 curve_val = 17
 
 def rpm_curve(f):
@@ -43,6 +45,16 @@ def rpm_curve(f):
 	#print(rpm)
 	return rpm
 
+def duty_curve(f):
+	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
+
+	if f > 0:
+		#print(a*40000)
+		return a*max_duty
+	else:
+		#print(-a*40000)
+		return -a*max_duty
+
 def current_curve(f):
 	if f > 0:
 		current = (1/5)*max_current + (4/5)*max_current*((expm1(2*f))/(expm1(4)))
@@ -57,7 +69,7 @@ def current_curve(f):
 def austin_rpm_curve(f):
 
 	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
-	
+
 	if f > 0:
 		#print(a*40000)
 		return a*max_rpm
@@ -66,7 +78,7 @@ def austin_rpm_curve(f):
 		return -a*max_rpm
 
 def austin_current_curve(f):
-	
+
 	a = ((curve_val**abs(f)) - 1)/(curve_val - 1)
 	if f > 0:
 		return a*max_current*100
@@ -85,7 +97,7 @@ class DriveProcess(RoverProcess):
 		""" Initialize drive mode (default=rpm)."""
 		self.right_brake = False
 		self.left_brake = False
-		self.drive_mode = "rpm"
+		self.drive_mode = "duty"
 		for key in ["joystick1", "joystick2","triggerL","triggerR", "on_DriveStop",
 					"on_DriveForward", "on_DriveBackward",
 					"on_DriveRotateRight", "on_DriveRotateLeft", "buttonA_down"]:
@@ -115,6 +127,14 @@ class DriveProcess(RoverProcess):
 			self.publish("wheelLM", SetCurrent(current))
 			self.publish("wheelLB", SetCurrent(current))
 			self.log(current)
+		elif self.drive_mode == "duty":
+			duty = duty_curve(y_axis)
+			if duty > min_duty or duty < -min_duty:
+				self.publish("wheelL", SetDutyCycle(duty))
+				self.log(duty)
+			else:
+				self.publish("wheelL", SetDutyCycle(0))
+				self.log(0)
 
 
 
@@ -144,6 +164,14 @@ class DriveProcess(RoverProcess):
 			self.publish("wheelRM", SetCurrent(current))
 			self.publish("wheelRB", SetCurrent(current))
 			self.log(current)
+		elif self.drive_mode == "duty":
+			duty = duty_curve(y_axis)
+			if duty > min_duty or duty < -min_duty:
+				self.publish("wheelR", SetDutyCycle(duty))
+				self.log(duty)
+			else:
+				self.publish("wheelR", SetDutyCycle(0))
+				self.log(0)
 		# Single drive mode not working due to missing axis on Windows
 		#if self.drive_mode == "single":
 		#	speed = rpm_curve(y_axis)
