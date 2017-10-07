@@ -130,7 +130,7 @@ class DriveProcess(RoverProcess):
 		elif self.drive_mode == "duty":
 			duty = duty_curve(y_axis)
 			if duty > min_duty or duty < -min_duty:
-				self.publish("wheelL", SetDutyCycle(duty))
+				self.publish("wheelL", SetDutyCycle(int(duty)))
 				self.log(duty)
 			else:
 				self.publish("wheelL", SetDutyCycle(0))
@@ -167,7 +167,7 @@ class DriveProcess(RoverProcess):
 		elif self.drive_mode == "duty":
 			duty = duty_curve(y_axis)
 			if duty > min_duty or duty < -min_duty:
-				self.publish("wheelR", SetDutyCycle(duty))
+				self.publish("wheelR", SetDutyCycle(int(duty)))
 				self.log(duty)
 			else:
 				self.publish("wheelR", SetDutyCycle(0))

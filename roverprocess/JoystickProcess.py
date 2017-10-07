@@ -15,27 +15,46 @@ from .RoverProcess import RoverProcess
 
 # Any libraries you need can be imported here. You almost always need time!
 import time
-import pygame
+from inputs import get_gamepad
+from threading import Thread, BoundedSemaphore
 
 
 class JoystickProcess(RoverProcess):
 
+	class InputThread(Thread):
+		def __init__(self, parent):
+			Thread.__init__(self)
+			self._parent = parent
+
+		def run(self):
+			while True:
+				events = get_gamepad()
+				with self._parent.joy_sem:
+					for event in events:
+						if event.code == "ABS_X":
+							self._parent.joystick1[0] = event.state/32767
+						elif event.code == "ABS_Y":
+							self._parent.joystick1[1] = event.state/32767
+						elif event.code == "ABS_RX":
+							self._parent.joystick2[0] = event.state/32767
+						elif event.code == "ABS_RY":
+								self._parent.joystick2[1] = event.state/32767
+
 	def setup(self, args):
-		pygame.init()
-		pygame.joystick.init()
+		self.joystick1 = [0,0]
+		self.joystick2 = [0,0]
+		self.joy_sem = BoundedSemaphore(1)
+		self.input_thread = JoystickProcess.InputThread(self)
+		self.input_thread.start()
 
 	def loop(self):
-		pygame.event.get() # poll event loop. Won't work otherwise
-		joystick_count = pygame.joystick.get_count()
-		for i in range(joystick_count):
-			joystick = pygame.joystick.Joystick(i)
-			joystick.init()
-			axes = joystick.get_numaxes()
-			values = []
-			for i in range( axes ):
-				values.append(joystick.get_axis(i))
-			self.publish("joystick1", [values[0], values[1]])
-			self.publish("joystick2", [values[3], values[4]])
-			# self.log(values, "DEBUG")
+		with self.joy_sem:
+			self.publish("joystick1", self.joystick1)
+			self.publish("joystick2", self.joystick2)
 		time.sleep(0.1)
+
+	def cleanup(self):
+		RoverProcess.cleanup(self)
+		self.input_thread.join(1)
+
 
