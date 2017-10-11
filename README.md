@@ -8,6 +8,8 @@ The USST Rover project has developed a multi-threaded Python 3 application desig
 
 Using the Python language and focusing on support from standard libraries, high-level abstraction of hardware interfaces and devices can be prototyped, tested and deployed in embedded environments and on the user's PC. The software supports defined configurations based on detected hardware, and multithreading allows for standalone modules to be easily swapped out.
 
+*Roveberrypy will be depreciated at some point before 2018. Future development will be focused on the Robocluster framework.*
+
 Features
 --------
 * Synchronizes state between an arbitrary number of independent Python processes using the multiprocessing library and a very simple global state dictionary
@@ -26,6 +28,8 @@ to [usstdocs.herokuapp.com](usstdocs.herokuapp.com). This site has various other
 for our projects, some aspects of which we prefer to keep secret due to the nature of the competitions we
 take part in. Unfortunately the authentication script can be a bit flakey and can block you out the first time you go there.
 Keep refreshing the page, try again in an hour or two, and contact Carl if issues persist.
+
+*The Navigation code is currently not tested very well, and probably doesn't work. Use with caution.*
 
 Future
 ------

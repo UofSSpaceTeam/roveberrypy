@@ -17,9 +17,11 @@ from threading import Thread
 from multiprocessing import BoundedSemaphore
 
 # WebUI Modules
-from WebUI import bottle
-from WebUI.bottle import run, ServerAdapter
+# from WebUI import bottle
+import bottle
+from bottle import run, ServerAdapter
 from WebUI.Routes import WebServerRoutes
+from bottle import ServerAdapter
 
 # Python Modules
 import time
@@ -29,11 +31,10 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
 class WebServer(RoverProcess):
-
 	## Replaces the stock WSGI server with one that we can control within
 	##	the context of the rover software
 	class RoverWSGIServer(ServerAdapter):
-		quiet = True # comment this out for verbose logging
+		quiet = False # comment this out for verbose logging
 
 		def run(self, app):  # pragma: no cover
 			from wsgiref.simple_server import make_server
@@ -62,15 +63,19 @@ class WebServer(RoverProcess):
 			self.port = self.srv.server_port
 			self.srv.serve_forever()
 
+
 	def setup(self, args):
+		for msg in ["RoverPosition", "RoverHeading", "TargetReached"]:
+			self.subscribe(msg)
 		self.dataSem = BoundedSemaphore()
 		self.data = {}
 		self.routes = WebServerRoutes(parent=self, dataSem=self.dataSem)
 
 		bottle.TEMPLATE_PATH = ['./WebUI/views']
 		print("Web Templates Loaded From:", bottle.TEMPLATE_PATH)
+		self.server = self.RoverWSGIServer(host='localhost', port=8000)
 
-		self.server = self.RoverWSGIServer(host='localhost', port=8080)
+
 		Thread(target = self.startBottleServer).start()
 
 	def loop(self):
@@ -79,9 +84,8 @@ class WebServer(RoverProcess):
 
 	def messageTrigger(self, message):
 		RoverProcess.messageTrigger(self, message)
-		#print(message)
 		with self.dataSem:
-			self.data.update(message)
+			self.data[message.key] = message.data
 
 	def cleanup(self):
 		RoverProcess.cleanup(self)

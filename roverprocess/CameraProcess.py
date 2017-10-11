@@ -11,32 +11,20 @@
 # or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-from roverprocess.RoverProcess import RoverProcess
+from .RoverProcess import RoverProcess
+from subprocess import call
 
-import time
-
-
-class test_ExampleProcess(RoverProcess):
-	def getSubscribed(self):
-		return ["response"]
+class CameraProcess(RoverProcess):
 
 	def setup(self, args):
-		self.num_out = 0
-		self.num_in = 0;
+		for key in ["start_cam_0", "start_cam_1", "stop_cam"]:
+			self.subscribe(key)
 
-	def loop(self):
-		while self.num_in != self.num_out:
-			time.sleep(0.05) # hacky way to syncronize with other process
-		#send a test message. subscribers sould return false
-		self.publish("respondTrue", False)
-		self.num_out += 1
-		time.sleep(1)
+	def on_start_cam_0(self, data):
+		call("/home/pi/bin/start_video0.sh", shell=True)
 
-	def on_response(self, data):
-		self.num_in += 1
-		if data:
-			self.log("Got response", "DEBUG")
-		else:
-			self.log("Receiver did not respond correctly", "ERROR")
+	def on_start_cam_1(self, data):
+		call("/home/pi/bin/start_video1.sh", shell=True)
 
-
+	def on_stop_cam(self, data):
+		call("killall mjpg_streamer", shell=True)

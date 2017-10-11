@@ -118,9 +118,9 @@ class RoverServer(RoverProcess):
 					if msg is not None:
 						self.log(msg[0], "DEBUG")
 						self.publish(msg[0], msg[1])
-				except:
+				except Exception as e:
 					# failed to open port
-					self.log("Read fail", "DEBUG")
+					self.log("Read fail: " + str(e), "DEBUG")
 					pass
 				time.sleep(0.005)
 
