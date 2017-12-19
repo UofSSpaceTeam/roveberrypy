@@ -91,7 +91,8 @@ def main():
 			# "NavigationProcess",
 			# "SimpleNavigationProcess",
 			"USBServer",
-			"JoystickProcess",
+			# "JoystickProcess",
+			"PygameProcess",
 			# "WebServer",
 			#"ExampleProcess",
 			 # "GPSProcess"
