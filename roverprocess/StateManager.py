@@ -16,6 +16,7 @@ from multiprocessing import Process, Queue
 from .RoverProcess import RoverProcess, RoverMessage
 import threading
 import time
+from robocluster import Device
 
 import inspect
 
@@ -127,6 +128,15 @@ class StateManager(RoverProcess):
 
 		self.watchdog = Watchdog(log=self.log, hanging=args["hanging"])
 		self.watchdog.start()
+		self.roboclusterDevice = Device('roveberrypy', 'rover')
+		@self.roboclusterDevice.on('*')
+		def toRoveberrypy(event, data):
+			key = event.split('/')[-1]
+			if key in self.subscriberMap:
+				for pname in self.subscriberMap[key]:
+					if pname in self.uplink:
+						self.uplink[pname].put(RoverMessage(key, data))
+		self.roboclusterDevice.start()
 
 	def addSubscriber(self, key, pname):
 		""" Register a process as a subscriber to a *key*.
@@ -165,6 +175,7 @@ class StateManager(RoverProcess):
 	def cleanup(self):
 		"""From RoverProcess, shut down the StateManager."""
 		try:
+			# self.roboclusterDevice.stop() # TODO: Already stopped?
 			quitReceiver = False
 			self.log(self.__class__.__name__ + " shutting down")
 			while(not quitReceiver):
@@ -210,3 +221,5 @@ class StateManager(RoverProcess):
 			for pname in self.subscriberMap[message.key]:
 				if pname in self.uplink:
 					self.uplink[pname].put(message)
+		self.roboclusterDevice._loop.create_task(self.roboclusterDevice.publish(message.key, message.data))
+
