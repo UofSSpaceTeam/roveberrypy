@@ -1,3 +1,4 @@
 -e git+http://github.com/UofSSpaceDesignTeam/PyVESC.git#egg=PyVESC
 pyserial
 construct==2.5.1
+-e git+https://github.com/UofSSpaceTeam/robocluster.git#egg=robocluster
